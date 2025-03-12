@@ -3,12 +3,11 @@ import { Player } from "@lottiefiles/react-lottie-player";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import auction1 from "../assets/auction.jpg";
-import auction2 from "../assets/auction2.jpg";
-import auction3 from "../assets/auction3.jpg";
-import auction4 from "../assets/auction4.jpg";
+import auction1 from "../../assets/auction.jpg";
+import auction2 from "../../assets/auction2.jpg";
+import auction3 from "../../assets/auction3.jpg";
+import auction4 from "../../assets/auction4.jpg";
 import { Link } from "react-router-dom";
-
 const AboutUs = () => {
   // Carousel settings
   const carouselSettings = {

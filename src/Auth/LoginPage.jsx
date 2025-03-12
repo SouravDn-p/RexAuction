@@ -24,7 +24,7 @@ const LoginPage = () => {
 
             {/* Register Button */}
             <NavLink
-              to="/registration"
+              to="/register"
               className="mt-4 w-1/2 px-6 py-2 border border-orange-500 text-orange-500 font-semibold shadow-md hover:bg-orange-500 hover:text-white transition-all"
               style={({ isActive }) => ({
                 backgroundColor: isActive ? "#f97316" : "transparent",

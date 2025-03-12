@@ -5,9 +5,11 @@ import Footer from "../component/shared/Footer";
 
 const Main = () => {
   const location = useLocation();
-  const head = location.pathname.includes("login");
+  const head =
+    location.pathname.includes("login") ||
+    location.pathname.includes("register");
   return (
-    <div>
+    <div className="mx-auto ">
       {head || <Navbar />}
       <Outlet />
       {head || <Footer />}

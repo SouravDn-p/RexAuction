@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 import biddingImg from "../assets/register.jpg";
 import google from "../assets/Untitled_design__19_-removebg-preview.png";
 
-const RegistrationPage = () => {
+const Register = () => {
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <div className="flex bg-white rounded-lg shadow-lg max-w-4xl w-full overflow-hidden">
@@ -22,7 +22,7 @@ const RegistrationPage = () => {
             </NavLink>
 
             <NavLink
-              to="/registration"
+              to="/register"
               className="mt-4 w-1/2 px-6 py-2 border border-orange-500 text-orange-500 font-semibold shadow-md hover:bg-orange-500 hover:text-white transition-all"
               style={({ isActive }) => ({
                 backgroundColor: isActive ? "#f97316" : "transparent",
@@ -120,4 +120,4 @@ const RegistrationPage = () => {
   );
 };
 
-export default RegistrationPage;
+export default Register;
