@@ -5,14 +5,22 @@ import google from "../assets/Untitled_design__19_-removebg-preview.png";
 
 const RegistrationPage = () => {
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <div className="flex bg-white rounded-lg shadow-lg max-w-4xl w-full overflow-hidden">
-        {/* Left Section - Registration Form */}
-        <div className="w-1/2 p-8">
-          <div className="flex mb-5">
+    <div className="flex justify-center items-center lg:p-10 bg-gray-100">
+      <div className="flex flex-col md:flex-row bg-white lg:rounded-lg shadow-lg max-w-4xl w-full overflow-hidden">
+        
+        {/* left Section image from  */}
+        <div
+          className="w-full lg:h-[450px] h-[200px] md:w-1/2 bg-cover bg-center bg-no-repeat flex flex-col justify-center items-center text-black p-8"
+          style={{
+            backgroundImage: `url(${biddingImg})`,
+          }}
+        ></div>
+        {/* right Section - Registration Form */}
+        <div className="w-full md:w-1/2 p-4 md:p-8">
+          <div className="flex mb-5 ">
             <NavLink
               to="/login"
-              className="mt-4 w-1/2 px-6 py-2 border border-purple-600 text-purple-600 font-semibold shadow-md hover:bg-purple-600 hover:text-white transition-all"
+              className="w-full md:w-1/2 text-center px-6 py-2 border border-purple-600 text-purple-600 font-semibold shadow-md hover:bg-purple-600 hover:text-white transition-all"
               style={({ isActive }) => ({
                 backgroundColor: isActive ? "#6b46c1" : "transparent",
                 color: isActive ? "white" : "#6b46c1",
@@ -23,7 +31,7 @@ const RegistrationPage = () => {
 
             <NavLink
               to="/registration"
-              className="mt-4 w-1/2 px-6 py-2 border border-orange-500 text-orange-500 font-semibold shadow-md hover:bg-orange-500 hover:text-white transition-all"
+              className="w-full md:w-1/2 text-center px-6 py-2 border border-orange-500 text-orange-500 font-semibold shadow-md hover:bg-orange-500 hover:text-white transition-all"
               style={({ isActive }) => ({
                 backgroundColor: isActive ? "#f97316" : "transparent",
                 color: isActive ? "white" : "#f97316",
@@ -35,8 +43,8 @@ const RegistrationPage = () => {
 
           <form>
             {/* Name Input */}
-            <div className="flex gap-2">
-              <div className="mb-4 w-1/2">
+            <div className="flex gap-2 mb-4">
+              <div className="w-full sm:w-1/2">
                 <label className="block text-sm font-semibold text-gray-700">
                   Name
                 </label>
@@ -48,7 +56,7 @@ const RegistrationPage = () => {
               </div>
 
               {/* Photo Upload Input */}
-              <div className="mb-4 w-1/2">
+              <div className="w-full sm:w-1/2">
                 <label className="block text-sm font-semibold text-gray-700">
                   Profile Photo
                 </label>
@@ -59,9 +67,9 @@ const RegistrationPage = () => {
               </div>
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex gap-2 mb-4">
               {/* User Email Input */}
-              <div className="mb-4 w-1/2">
+              <div className="w-full sm:w-1/2">
                 <label className="block text-sm font-semibold text-gray-700">
                   Email Address
                 </label>
@@ -73,7 +81,7 @@ const RegistrationPage = () => {
               </div>
 
               {/* Password Input */}
-              <div className="mb-4">
+              <div className="w-full sm:w-1/2">
                 <label className="block text-sm font-semibold text-gray-700">
                   Password
                 </label>
@@ -108,13 +116,6 @@ const RegistrationPage = () => {
           </button>
         </div>
 
-        {/* Right Section - Welcome Message */}
-        <div
-          className="w-1/2 bg-cover bg-center bg-no-repeat flex flex-col justify-center items-center text-black p-8"
-          style={{
-            backgroundImage: `url(${biddingImg})`,
-          }}
-        ></div>
       </div>
     </div>
   );

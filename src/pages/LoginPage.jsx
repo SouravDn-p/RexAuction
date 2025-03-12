@@ -5,15 +5,20 @@ import google from "../assets/Untitled_design__19_-removebg-preview.png";
 
 const LoginPage = () => {
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <div className="flex bg-white rounded-lg shadow-lg max-w-4xl w-full overflow-hidden">
-        {/* Left Section - Login Form */}
-        <div className="w-1/2 p-8">
-          <div className="flex mb-5">
-            {/* LogIn Button */}
+    <div className="flex justify-center items-center lg:p-10 bg-gray-100">
+      <div className="flex flex-col md:flex-row bg-white lg:rounded-lg shadow-lg max-w-4xl w-full overflow-hidden">
+        {/* Image Section */}
+        <div
+          className="w-full lg:h-[450px] h-[200px] md:w-1/2 bg-cover bg-center bg-no-repeat flex flex-col justify-center items-center text-black p-8"
+          style={{ backgroundImage: `url(${biddingImg})` }}
+        ></div>
+
+        {/* Login Form Section */}
+        <div className="w-full md:w-1/2 p-4 md:p-8">
+          <div className="flex mb-5 ">
             <NavLink
               to="/login"
-              className="mt-4 w-1/2 px-6 py-2 border border-purple-600 text-purple-600 font-semibold shadow-md hover:bg-purple-600 hover:text-white transition-all"
+              className="w-1/2  px-6 py-2 border border-purple-600 text-purple-600 font-semibold shadow-md hover:bg-purple-600 hover:text-white transition-all text-center"
               style={({ isActive }) => ({
                 backgroundColor: isActive ? "#6b46c1" : "transparent",
                 color: isActive ? "white" : "#6b46c1",
@@ -21,11 +26,9 @@ const LoginPage = () => {
             >
               LogIn
             </NavLink>
-
-            {/* Register Button */}
             <NavLink
               to="/registration"
-              className="mt-4 w-1/2 px-6 py-2 border border-orange-500 text-orange-500 font-semibold shadow-md hover:bg-orange-500 hover:text-white transition-all"
+              className="w-1/2 px-6 py-2 border border-orange-500 text-orange-500 font-semibold shadow-md hover:bg-orange-500 hover:text-white transition-all text-center"
               style={({ isActive }) => ({
                 backgroundColor: isActive ? "#f97316" : "transparent",
                 color: isActive ? "white" : "#f97316",
@@ -36,7 +39,6 @@ const LoginPage = () => {
           </div>
 
           <form>
-            {/* email input */}
             <div className="mb-4">
               <label className="block text-sm font-semibold text-gray-700">
                 Email Address
@@ -48,7 +50,6 @@ const LoginPage = () => {
               />
             </div>
 
-            {/* password input */}
             <div className="mb-4">
               <label className="block text-sm font-semibold text-gray-700">
                 Password
@@ -77,20 +78,11 @@ const LoginPage = () => {
             </button>
           </form>
 
-          {/* Google Login Button */}
           <button className="w-full mt-4 rounded-lg flex items-center justify-center border-2 border-orange-500 text-orange-500 font-semibold shadow-md hover:bg-orange-500 hover:text-white transition-all">
             <img src={google} alt="Google logo" className="w-10 h-10 mr-3" />
             Continue with Google
           </button>
         </div>
-
-        {/* Right Section - bg Image */}
-        <div
-          className="w-1/2 bg-cover bg-opacity-80 flex flex-col justify-center items-center text-black p-8"
-          style={{
-            backgroundImage: `url(${biddingImg})`,
-          }}
-        ></div>
       </div>
     </div>
   );
