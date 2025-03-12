@@ -19,8 +19,9 @@
     "react-dom": "^19.0.0",
     "react-helmet-async": "^2.0.5",
     "react-icons": "^5.5.0",
+    "react-lottie-player": "^2.1.0",
     "react-router-dom": "^7.3.0",
-    "sort-by": "^1.2.0",
+    "sort-by": "^0.0.2",
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
