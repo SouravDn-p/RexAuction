@@ -2,20 +2,37 @@
 @tailwind components;
 @tailwind utilities;
 
-
 /* 3D flip animation classes */
 .perspective {
-    perspective: 1000px;
+  perspective: 1000px;
+}
+
+.transform-style {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+
+/* newsletter css code  */
+@keyframes floating {
+  0% {
+    transform: translateY(0);
   }
-  
-  .transform-style {
-    transform-style: preserve-3d;
+  50% {
+    transform: translateY(-10px);
   }
-  
-  .backface-hidden {
-    backface-visibility: hidden;
+  100% {
+    transform: translateY(0);
   }
-  
-  .rotate-y-180 {
-    transform: rotateY(180deg);
-  }
+}
+
+.animate-floating {
+  animation: floating 2s ease-in-out infinite;
+}

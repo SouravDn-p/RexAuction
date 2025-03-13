@@ -29,6 +29,7 @@
     "slick-carousel": "^1.8.1",
     "sort-by": "^0.0.2",
     "sweetalert2": "^11.17.2",
+    "swiper": "^11.2.5",
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
