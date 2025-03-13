@@ -4,7 +4,6 @@ import Newsletter from "./Newsletter";
 
 const Footer = () => {
   return (
-
     <footer
       className="bg-no-repeat bg-cover bg-center py-8"
       style={{ backgroundImage: `url(${footerBG})` }}

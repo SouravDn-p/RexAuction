@@ -9,7 +9,7 @@ const Main = () => {
     location.pathname.includes("login") ||
     location.pathname.includes("register");
   return (
-    <div className="mx-auto">
+    <div className="mx-auto bg-white">
       {head || <Navbar />}
       <Outlet />
       {head || <Footer />}
