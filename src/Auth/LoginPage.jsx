@@ -11,7 +11,7 @@ import { AuthContexts } from "../providers/AuthProvider";
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { user, setUser, signInUser } = useContext(AuthContexts);
+  const { setUser, signInUser } = useContext(AuthContexts);
   const [error, setError] = useState(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
