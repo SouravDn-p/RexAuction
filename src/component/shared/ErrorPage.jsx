@@ -14,7 +14,6 @@ const ErrorPage = () => {
             className="w-full max-w-xs"
           />
         </div>
-
         <div className="w-full flex justify-center">
           <Link to="/" className="text-blue-500 hover:underline font-medium">
             Back to Home
