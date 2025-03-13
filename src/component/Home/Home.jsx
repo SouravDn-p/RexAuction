@@ -1,9 +1,16 @@
 import React from "react";
+import Slider from "./Slider";
+import FeatureDemo from "./FeatureDemo";
+import Card from "./Card";
+import SellingSection from "./SellingSection";
 
 export default function Home() {
   return (
     <div>
-      <h1>Home Page</h1>
+      <Slider></Slider>
+      <FeatureDemo></FeatureDemo>
+      <Card></Card>
+      <SellingSection></SellingSection>
     </div>
   );
 }
