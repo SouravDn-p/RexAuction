@@ -1,121 +1,201 @@
-import React from "react";
-import { NavLink } from "react-router-dom";
-import biddingImg from "../assets/register.jpg";
-import google from "../assets/Untitled_design__19_-removebg-preview.png";
+"use client";
+
+import React, { useState, useContext } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import {
+  GoogleAuthProvider,
+  signInWithPopup,
+  updateProfile,
+} from "firebase/auth";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import auth from "../firebase/firebase.init";
+import { AuthContexts } from "../providers/AuthProvider";
+import registerImg from "../assets/register.jpg";
 
 const Register = () => {
+  const { createUser } = useContext(AuthContexts);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    photoURL: "",
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
+  const googleProvider = new GoogleAuthProvider();
+
+  // Password validation criteria
+  const passwordCriteria = [
+    { test: /[A-Z]/, message: "One uppercase letter" },
+    { test: /[a-z]/, message: "One lowercase letter" },
+    { test: /.{6,}/, message: "At least 6 characters" },
+  ];
+
+  const validatePassword = (password) => {
+    const failedCriteria = passwordCriteria.filter(
+      (criterion) => !criterion.test.test(password)
+    );
+    return failedCriteria.length
+      ? failedCriteria.map((c) => c.message).join(", ")
+      : null;
+  };
+
+  const handleChange = (e) =>
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    const { name, email, password, photoURL } = formData;
+    const validationError = validatePassword(password);
+
+    if (validationError) {
+      setError(validationError);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const userCredential = await createUser(email, password);
+      await updateProfile(userCredential.user, {
+        displayName: name,
+        photoURL:
+          photoURL ||
+          `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
+      });
+      toast.success("Registration successful! Redirecting...");
+      navigate("/login");
+    } catch (err) {
+      setError(err.message);
+      toast.error(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleRegister = async () => {
+    setLoading(true);
+    try {
+      await signInWithPopup(auth, googleProvider);
+      toast.success("Google registration successful!");
+      navigate("/");
+    } catch (err) {
+      setError(err.message);
+      toast.error(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <div className="flex bg-white rounded-lg shadow-lg max-w-4xl w-full overflow-hidden">
-        {/* Left Section - Registration Form */}
         <div className="w-1/2 p-8">
           <div className="flex mb-5">
-            <NavLink
-              to="/login"
-              className="mt-4 w-1/2 px-6 py-2 border border-purple-600 text-purple-600 font-semibold shadow-md hover:bg-purple-600 hover:text-white transition-all"
-              style={({ isActive }) => ({
-                backgroundColor: isActive ? "#6b46c1" : "transparent",
-                color: isActive ? "white" : "#6b46c1",
-              })}
-            >
-              LogIn
+            <NavLink to="/login" className="w-1/2 text-center border p-2">
+              Log In
             </NavLink>
-
             <NavLink
               to="/register"
-              className="mt-4 w-1/2 px-6 py-2 border border-orange-500 text-orange-500 font-semibold shadow-md hover:bg-orange-500 hover:text-white transition-all"
-              style={({ isActive }) => ({
-                backgroundColor: isActive ? "#f97316" : "transparent",
-                color: isActive ? "white" : "#f97316",
-              })}
+              className="w-1/2 text-center border p-2 bg-orange-500 text-white"
             >
-              Register Now
+              Register
             </NavLink>
           </div>
 
-          <form>
-            {/* Name Input */}
-            <div className="flex gap-2">
-              <div className="mb-4 w-1/2">
-                <label className="block text-sm font-semibold text-gray-700">
-                  Name
-                </label>
-                <input
-                  type="text"
-                  className="w-full p-3 mt-1 border rounded-lg border-gray-300 h-[50px] focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  placeholder="Enter your name"
-                />
-              </div>
+          <form onSubmit={handleRegister}>
+            <input
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="Full Name"
+              className="w-full p-2 mb-3 border rounded"
+              required
+            />
+            <input
+              type="text"
+              name="photoURL"
+              value={formData.photoURL}
+              onChange={handleChange}
+              placeholder="Profile Picture URL (Optional)"
+              className="w-full p-2 mb-3 border rounded"
+            />
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Email"
+              className="w-full p-2 mb-3 border rounded"
+              required
+            />
 
-              {/* Photo Upload Input */}
-              <div className="mb-4 w-1/2">
-                <label className="block text-sm font-semibold text-gray-700">
-                  Profile Photo
-                </label>
-                <input
-                  type="file"
-                  className="w-full p-3 mt-1 border rounded-lg border-gray-300 h-[50px] focus:outline-none focus:ring-2 focus:ring-purple-500"
-                />
-              </div>
+            <div className="relative mb-3">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Password"
+                className="w-full p-2 border rounded"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-2 top-3 text-gray-500"
+              >
+                {showPassword ? "👁️" : "🙈"}
+              </button>
             </div>
 
-            <div className="flex gap-2">
-              {/* User Email Input */}
-              <div className="mb-4 w-1/2">
-                <label className="block text-sm font-semibold text-gray-700">
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  className="w-full p-3 mt-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  placeholder="Enter your email"
-                />
-              </div>
-
-              {/* Password Input */}
-              <div className="mb-4">
-                <label className="block text-sm font-semibold text-gray-700">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  className="w-full p-3 mt-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  placeholder="Enter your password"
-                />
-              </div>
+            {/* Password Validation Messages */}
+            <div className="mt-2 space-y-2 text-sm">
+              {passwordCriteria.map((criterion, index) => (
+                <div
+                  key={index}
+                  className={`flex items-center gap-2 ${
+                    criterion.test.test(formData.password)
+                      ? "text-green-600"
+                      : "text-red-500"
+                  }`}
+                >
+                  {criterion.test.test(formData.password) ? "✔" : "✘"}{" "}
+                  {criterion.message}
+                </div>
+              ))}
             </div>
 
-            {/* Remember Me Checkbox */}
-            <div className="flex items-center justify-between mb-4">
-              <label className="flex items-center text-sm text-gray-600">
-                <input type="checkbox" className="mr-2" /> Remember me
-              </label>
-            </div>
+            {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
 
-            {/* Submit Button */}
             <button
               type="submit"
-              className="w-full py-3 bg-purple-600 text-white font-semibold rounded-lg shadow-md hover:bg-purple-700 transition-all"
+              className="w-full p-2 bg-purple-600 text-white rounded mt-3"
+              disabled={loading}
             >
-              Register
+              {loading ? "Registering..." : "Create Account"}
             </button>
           </form>
 
-          {/* Google Login Button */}
-          <button className="w-full mt-4 rounded-lg flex items-center justify-center border-2 border-orange-500 text-orange-500 font-semibold shadow-md hover:bg-orange-500 hover:text-white transition-all">
-            <img src={google} alt="Google logo" className="w-10 h-10 mr-3" />
-            Continue with Google
+          <button
+            onClick={handleGoogleRegister}
+            className="w-full mt-4 flex items-center justify-center gap-2 p-2 bg-red-600 text-white rounded"
+          >
+            Sign up with Google
           </button>
         </div>
 
-        {/* Right Section - Welcome Message */}
-        <div
-          className="w-1/2 bg-cover bg-center bg-no-repeat flex flex-col justify-center items-center text-black p-8"
-          style={{
-            backgroundImage: `url(${biddingImg})`,
-          }}
-        ></div>
+        <div className="w-1/2 hidden md:block">
+          <img src={registerImg} alt="Register" className="h-full w-full" />
+        </div>
       </div>
+      <ToastContainer />
     </div>
   );
 };
