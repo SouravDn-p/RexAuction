@@ -5,12 +5,12 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import auction1 from "../assets/auction.jpg";
-import auction2 from "../assets/auction2.jpg";
-import auction3 from "../assets/auction3.jpg";
-import auction4 from "../assets/auction4.jpg";
+import auction1 from "../../assets/auction.jpg";
+import auction2 from "../../assets/auction2.jpg";
+import auction3 from "../../assets/auction3.jpg";
+import auction4 from "../../assets/auction4.jpg";
 import { Link } from "react-router-dom";
-import auctionbg from "../assets/auction5.jpg";
+import auctionbg from "../../assets/auction5.jpg";
 const AboutUs = () => {
   useEffect(() => {
     AOS.init({ duration: 1000 });
