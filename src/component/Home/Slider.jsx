@@ -31,7 +31,7 @@ const Slider = () => {
           <div>
             <img src="https://i.ibb.co.com/jvKJ82Qs/rex-auction.png" alt="" />
 
-            <div className=" p-2 rounded-lg shadow-lg max-w-4xl mx-auto focus:ring-2 border border-gray-300 absolute top-10/12 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+            <div className=" p-2 rounded-lg shadow-lg max-w-4xl mx-auto focus:ring-2 border border-gray-300 absolute top-[83.33%] left-1/2 transform -translate-x-1/2 -translate-y-1/2">
               <div className="flex items-center bg-white p-2 rounded-lg shadow-md">
                 {/* Search Input */}
                 <input
