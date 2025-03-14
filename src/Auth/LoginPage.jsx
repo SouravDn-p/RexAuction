@@ -89,8 +89,8 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex justify-center items-center lg:p-16 bg-gray-100">
-      <div className="flex flex-col md:flex-row bg-white lg:rounded-lg shadow-lg max-w-4xl w-full overflow-hidden">
+    <div className="flex justify-center  items-center lg:p-16 bg-gray-100">
+      <div className="flex  flex-col md:flex-row bg-white lg:rounded-lg shadow-lg max-w-4xl w-full overflow-hidden">
         {/* Image Section */}
         <div
           className="w-full lg:h-[460px] h-[200px] md:w-1/2 bg-cover bg-center bg-no-repeat flex flex-col justify-center items-center text-black p-8"
