@@ -5,6 +5,7 @@ import AboutUs from "../component/AboutUs/AboutUs";
 import LoginPage from "../Auth/LoginPage";
 import ErrorPage from "../component/shared/ErrorPage";
 import Register from "../Auth/Register";
+import ForgotPass from "../Auth/ForgotPass";
 
 export const router = createBrowserRouter([
   {
@@ -28,6 +29,12 @@ export const router = createBrowserRouter([
         path: "/register",
         element: <Register />,
       },
+    
     ],
+  },
+  
+  {
+    path: "/forgotPassword",
+    element: <ForgotPass />,
   },
 ]);
