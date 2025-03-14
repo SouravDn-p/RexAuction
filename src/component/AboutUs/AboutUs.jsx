@@ -194,7 +194,7 @@ const AboutUs = () => {
           </div>
         </div>
       </div>
-      {/* 🔹 For Sellers Section */}
+      {/*  For Sellers Section */}
       <div className="bg-purple-100 py-16 px-4 text-center mt-20">
         <h2 className="text-2xl md:text-3xl font-bold text-purple-600 mb-10">
           For Sellers
