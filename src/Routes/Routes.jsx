@@ -29,12 +29,10 @@ export const router = createBrowserRouter([
         path: "/register",
         element: <Register />,
       },
-    
+      {
+        path: "/forgotPassword",
+        element: <ForgotPass />,
+      },
     ],
-  },
-  
-  {
-    path: "/forgotPassword",
-    element: <ForgotPass />,
   },
 ]);
