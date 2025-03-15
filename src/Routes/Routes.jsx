@@ -6,6 +6,7 @@ import LoginPage from "../Auth/LoginPage";
 import ErrorPage from "../component/shared/ErrorPage";
 import Register from "../Auth/Register";
 import ForgotPass from "../Auth/ForgotPass";
+import Auction from "../component/auction/Auction";
 
 export const router = createBrowserRouter([
   {
@@ -20,6 +21,10 @@ export const router = createBrowserRouter([
       {
         path: "/aboutUs",
         element: <AboutUs />,
+      },
+      {
+        path: "/auction",
+        element: < Auction />,
       },
       {
         path: "/login",
