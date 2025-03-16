@@ -3,6 +3,7 @@ import Slider from "./Slider";
 import FeatureDemo from "./FeatureDemo";
 import Card from "./Card";
 import SellingSection from "./SellingSection";
+import SdCard from "./SdCard";
 
 export default function Home() {
   return (
