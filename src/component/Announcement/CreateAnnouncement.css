@@ -1,0 +1,47 @@
+.card-flip-container {
+    perspective: 1000px;
+  }
+  
+  .card-flip-inner {
+    position: relative;
+    width: 100%;
+    height: 320px;
+    transform-style: preserve-3d;
+    transition: transform 0.8s ease-in-out;
+  }
+  
+  .card-flip-container:hover .card-flip-inner {
+    transform: rotateY(180deg);
+  }
+  
+  .card-flip-front,
+  .card-flip-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 0.75rem;
+  }
+  
+  .card-flip-back {
+    transform: rotateY(180deg);
+    -webkit-transform: rotateY(180deg);
+    -moz-transform: rotateY(180deg);
+    -ms-transform: rotateY(180deg);
+    -o-transform: rotateY(180deg);
+}
+  
+  /* css for create announcement button */
+  @keyframes bounceSlow {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-6px);
+    }
+  }
+  
+  .animate-bounce-slow {
+    animation: bounceSlow 2.5s infinite;
+  }
+  
