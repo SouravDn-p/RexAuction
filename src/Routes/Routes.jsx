@@ -5,6 +5,7 @@ import AboutUs from "../component/AboutUs/AboutUs";
 import LoginPage from "../Auth/LoginPage";
 import ErrorPage from "../component/shared/ErrorPage";
 import Register from "../Auth/Register";
+import Profile from "../component/dashboard/shared/Profile";
 
 export const router = createBrowserRouter([
   {
@@ -28,6 +29,10 @@ export const router = createBrowserRouter([
         path: "/register",
         element: <Register />,
       },
+      {
+        path: "/profile",
+        element:<Profile></Profile>
+      }
     ],
   },
 ]);
