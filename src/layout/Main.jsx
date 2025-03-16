@@ -7,7 +7,9 @@ const Main = () => {
   const location = useLocation();
   const head =
     location.pathname.includes("login") ||
-    location.pathname.includes("register");
+    location.pathname.includes("register") ||
+    location.pathname.includes("forgotPassword");
+
   return (
     <div className="mx-auto bg-white">
       {head || <Navbar />}

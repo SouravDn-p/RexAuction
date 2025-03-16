@@ -1,5 +1,3 @@
-
-
 import React, { useContext, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { signInWithPopup, signOut, GoogleAuthProvider } from "firebase/auth";
@@ -25,11 +23,11 @@ const LoginPage = () => {
     setIsLoading(true);
     setError(null);
 
-    const email = e.target.email.value;
-    const password = e.target.password.value;
+    const emailToUse = email;
+    const passwordToUse = password;
 
     try {
-      const userCredential = await signInUser(email, password);
+      const userCredential = await signInUser(emailToUse, passwordToUse);
       setUser(userCredential.user);
       Swal.fire({
         title: "Login successful",
@@ -91,8 +89,8 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex justify-center items-center lg:p-16 bg-gray-100">
-      <div className="flex flex-col md:flex-row bg-white lg:rounded-lg shadow-lg max-w-4xl w-full overflow-hidden">
+    <div className="flex justify-center  items-center lg:p-16 bg-gray-100">
+      <div className="flex  flex-col md:flex-row bg-white lg:rounded-lg shadow-lg max-w-4xl w-full overflow-hidden">
         {/* Image Section */}
         <div
           className="w-full lg:h-[460px] h-[200px] md:w-1/2 bg-cover bg-center bg-no-repeat flex flex-col justify-center items-center text-black p-8"
@@ -157,7 +155,7 @@ const LoginPage = () => {
               <label className="flex items-center text-sm text-gray-600">
                 <input type="checkbox" className="mr-2" /> Remember me
               </label>
-              <Link to="#" className="text-purple-500 text-sm hover:underline">
+              <Link to="/forgotPassword" className="text-purple-500 text-sm hover:underline">
                 Forgot your password?
               </Link>
             </div>
