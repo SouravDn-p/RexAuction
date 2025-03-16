@@ -27,21 +27,25 @@ const categories = [
 
 const BrowsCategory = () => {
   return (
-    <div className="container mx-auto px-48 p-6">
-      <h2 className="text-2xl font-bold text-center mb-6">Browse Categories</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {categories.map((category) => (
-          <div
-            key={category.id}
-            className="bg-white p-6 rounded-lg shadow-md flex flex-col items-center text-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1 "
-          >
-            <div className="text-violet-700 text-3xl ">{category.icon}</div>
-            <h3 className="text-lg font-semibold mt-2 ">{category.name}</h3>
-            <p className="text-gray-500 text-sm">{category.items}</p>
-          </div>
-        ))}
+    <section className="bg-gradient-to-b from-violet-50 to-violet-100 py-12">
+      <div className="container mx-auto px-48 p-6 text-center">
+        <h2 className="text-3xl pb-12 md:text-4xl font-bold bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
+          Our Amazing Features
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {categories.map((category) => (
+            <div
+              key={category.id}
+              className="bg-white p-6 rounded-lg shadow-md flex flex-col items-center text-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1 "
+            >
+              <div className="text-violet-700 text-3xl ">{category.icon}</div>
+              <h3 className="text-lg font-semibold mt-2 ">{category.name}</h3>
+              <p className="text-gray-500 text-sm">{category.items}</p>
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
+    </section>
   );
 };
 

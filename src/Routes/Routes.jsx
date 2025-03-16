@@ -8,6 +8,8 @@ import ForgotPass from "../Auth/ForgotPass";
 import Auction from "../component/auction/Auction";
 import Home from "../component/Home/Home";
 import Announcement from "../component/dashboard/shared/Announcement";
+import DashboardLayout from "../layout/DashboardLayout";
+import Profile from "../component/dashboard/shared/Profile";
 
 export const router = createBrowserRouter([
   {
@@ -42,6 +44,17 @@ export const router = createBrowserRouter([
       {
         path: "/forgotPassword",
         element: <ForgotPass />,
+      },
+    ],
+  },
+  {
+    path: "/dashboard",
+    element: <DashboardLayout />,
+    errorElement: <ErrorPage />,
+    children: [
+      {
+        index: true,
+        element: <Profile />,
       },
     ],
   },

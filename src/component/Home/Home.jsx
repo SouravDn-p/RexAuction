@@ -1,10 +1,10 @@
 import React from "react";
 import Slider from "./Slider";
-import FeatureDemo from "./FeatureDemo";
 import LiveAuction from "./LiveAuction";
 import HotAuction from "./HotAuction";
 import BrowsCategory from "./BrowsCategory";
 import TrendingAuction from "./TrendingAuction";
+import SdDemo from "./SdDemo";
 
 export default function Home() {
   return (
@@ -13,7 +13,7 @@ export default function Home() {
       <HotAuction></HotAuction>
       <BrowsCategory></BrowsCategory>
       <LiveAuction></LiveAuction>
-      <FeatureDemo></FeatureDemo>
+      <SdDemo />
       <TrendingAuction />
     </div>
   );
