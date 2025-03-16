@@ -1,72 +1,72 @@
-const trendingData = [
-  // Car Categories
-  {
-    title: "Used Cars under $15,000",
-    img: "https://i.ibb.co.com/F2H7Wb6/image.png",
-    price: "$12,500",
-  },
-  {
-    title: "Compact SUVs",
-    img: "https://i.ibb.co.com/nsPdGCGH/image.png",
-    price: "$18,900",
-  },
-  {
-    title: "Electric Cars",
-    img: "https://i.ibb.co.com/20DDpz7G/image.png",
-    price: "$35,000",
-  },
-  {
-    title: "Luxury Cars",
-    img: "https://i.ibb.co.com/JRfzyRkf/image.png",
-    price: "$60,000",
-  },
-
-  // Property Categories
-  {
-    title: "Apartments for Rent",
-    img: "https://i.ibb.co.com/99PHsJh6/image.png",
-    price: "$1,200/month",
-  },
-  {
-    title: "Luxury Villas",
-    img: "https://i.ibb.co.com/YBpBvGcM/image.png",
-    price: "$850,000",
-  },
-  {
-    title: "Commercial Spaces",
-    img: "https://i.ibb.co.com/J0zqqdL/image.png",
-    price: "$4,500/month",
-  },
-  {
-    title: "Beachfront Houses",
-    img: "https://i.ibb.co.com/BHhxG2CT/image.png",
-    price: "$1,200,000",
-  },
-
-  // Electronics Categories
-  {
-    title: "Latest Smartphones",
-    img: "https://i.ibb.co.com/67pkRx4v/image.png",
-    price: "$999",
-  },
-  {
-    title: "Laptops & Computers",
-    img: "https://i.ibb.co.com/Vcz92Py7/image.png",
-    price: "$1,500",
-  },
-  {
-    title: "Gaming Consoles",
-    img: "https://i.ibb.co.com/v4B1V2Pn/image.png",
-    price: "$499",
-  },
-  {
-    title: "Smart TVs",
-    img: "https://i.ibb.co.com/jP8DthB1/image.png",
-    price: "$1,200",
-  },
-];
-
 const Card = () => {
+  const trendingData = [
+    // Car Categories
+    {
+      title: "Used Cars under $15,000",
+      img: "https://i.ibb.co.com/F2H7Wb6/image.png",
+      price: "$12,500",
+    },
+    {
+      title: "Compact SUVs",
+      img: "https://i.ibb.co.com/nsPdGCGH/image.png",
+      price: "$18,900",
+    },
+    {
+      title: "Electric Cars",
+      img: "https://i.ibb.co.com/20DDpz7G/image.png",
+      price: "$35,000",
+    },
+    {
+      title: "Luxury Cars",
+      img: "https://i.ibb.co.com/JRfzyRkf/image.png",
+      price: "$60,000",
+    },
+
+    // Property Categories
+    {
+      title: "Apartments for Rent",
+      img: "https://i.ibb.co.com/99PHsJh6/image.png",
+      price: "$1,200/month",
+    },
+    {
+      title: "Luxury Villas",
+      img: "https://i.ibb.co.com/YBpBvGcM/image.png",
+      price: "$850,000",
+    },
+    {
+      title: "Commercial Spaces",
+      img: "https://i.ibb.co.com/J0zqqdL/image.png",
+      price: "$4,500/month",
+    },
+    {
+      title: "Beachfront Houses",
+      img: "https://i.ibb.co.com/BHhxG2CT/image.png",
+      price: "$1,200,000",
+    },
+
+    // Electronics Categories
+    {
+      title: "Latest Smartphones",
+      img: "https://i.ibb.co.com/67pkRx4v/image.png",
+      price: "$999",
+    },
+    {
+      title: "Laptops & Computers",
+      img: "https://i.ibb.co.com/Vcz92Py7/image.png",
+      price: "$1,500",
+    },
+    {
+      title: "Gaming Consoles",
+      img: "https://i.ibb.co.com/v4B1V2Pn/image.png",
+      price: "$499",
+    },
+    {
+      title: "Smart TVs",
+      img: "https://i.ibb.co.com/jP8DthB1/image.png",
+      price: "$1,200",
+    },
+  ];
+
   return (
     <div className=" w-11/12 mx-auto p-6">
       <div className="flex flex-col items-center">
