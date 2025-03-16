@@ -1,149 +1,289 @@
-import React, { useEffect } from "react";
-import { Player } from "@lottiefiles/react-lottie-player";
+import React from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import AOS from "aos";
-import "aos/dist/aos.css";
-import auction1 from "../../assets/auction.jpg";
+import biddingBg from "../../assets/bidding.jpg";
+import auction1 from "../../assets/businessman-with-tablet-after-closing-deal.jpg";
 import auction2 from "../../assets/auction2.jpg";
-import auction3 from "../../assets/auction3.jpg";
-import auction4 from "../../assets/auction4.jpg";
-import { Link } from "react-router-dom";
-import auctionbg from "../../assets/auction5.jpg";
+import auction3 from "../../assets/business-people-shaking-hands-together.jpg";
+import auction4 from "../../assets/auctionj.jpg";
+import { MdHeadsetMic, MdOutlineSecurity, MdOutlineSecurityUpdate } from "react-icons/md";
+import { FaGavel, FaGlobe, FaShieldAlt, FaUserCheck } from "react-icons/fa";
+import { FiBell, FiFileText, FiGrid } from "react-icons/fi";
 const AboutUs = () => {
-  useEffect(() => {
-    AOS.init({ duration: 1000 });
-  }, []);
-
   const carouselSettings = {
     dots: true,
     infinite: true,
-    speed: 500,
+    speed: 300,
     slidesToShow: 1,
     slidesToScroll: 1,
     autoplay: true,
-    autoplaySpeed: 1500,
-    arrows: true,
+    autoplaySpeed: 2000,
+    arrows: false,
   };
 
   return (
-    <div className="relative min-h-screen text-white">
-      {/* Background Image */}
-      <div
-        className="absolute py-10 px-4 md:px-8 sm:p-4 inset-0 bg-cover bg-center z-0"
-        style={{
-          backgroundImage: `url(${auctionbg})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      ></div>
-
-      {/* Overlay*/}
-      <div className="absolute inset-0 bg-slate-600 bg-opacity-30 backdrop-blur-md z-0" />
-
-      {/* Main Content */}
-      <div className="relative lg:p-8 md:p-6 sm:p-6 z-10">
-        {/* Carousel Section */}
-        <div className="w-full rounded-xl h-96 md:h-[500px] overflow-hidden">
-          <Slider {...carouselSettings}>
-            {[auction1, auction2, auction3, auction4].map((img, index) => (
-              <div key={index}>
-                <img
-                  src={img}
-                  alt={`Auction Slide ${index + 1}`}
-                  className="w-full h-96 md:h-[500px] object-cover"
-                />
-              </div>
-            ))}
-          </Slider>
-        </div>
-
-        {/* About Us Content */}
-        <div className="container mx-auto px-4 py-8 md:py-12">
-          <h1 className="text-4xl md:text-6xl font-bold text-center mb-8 animate-bounce">
-            About RexAuction
-          </h1>
-
-          {/* Lottie Animation */}
-          <div className="flex justify-center mb-10">
-            <Player
-              autoplay
-              loop
-              src="https://assets10.lottiefiles.com/packages/lf20_5tkzkblw.json"
-              style={{ height: "200px", width: "200px" }}
-            />
+    <div className="text-black">
+      <div className="text-black">
+        {/* 🔹 First Section - Hero */}
+        <div className="flex flex-col-reverse md:flex-row items-center gap-6 lg:p-0 bg-purple-100">
+          {/* Text Section */}
+          <div className="w-full lg:ml-[50px] my-10 lg:mb-[70px] md:w-1/2 text-center md:text-left">
+            <h1 className="text-3xl md:text-4xl font-bold mb-4">
+              Transforming Online <br />
+              Auctions Since 2015
+            </h1>
+            <p className="text-lg text-gray-600 mb-4">
+              Your trusted platform for exceptional finds.
+            </p>
+            <div className="w-1/4 h-[4px] bg-purple-500 rounded-full mx-auto md:mx-0"></div>
           </div>
 
-          {/* Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {/* Flip Card - How It Works */}
-            <div className="group perspective" data-aos="fade-up">
-              <div className="relative transition-transform duration-700 transform-style preserve-3d group-hover:rotate-y-180 p-6 rounded-xl shadow-xl bg-white/60 text-slate-600 border-2 border-transparent hover:border-purple-400 hover:shadow-purple-500 overflow-hidden">
-                <div className="absolute inset-0 border-2 border-orange-500 rounded-xl opacity-0 group-hover:opacity-100 animate-pulse duration-700 pointer-events-none"></div>
+          {/* Carousel Section */}
+          <div className="w-full md:w-1/2">
+            <div className="w-full h-72 md:h-[400px] overflow-hidden  shadow-md">
+              <Slider {...carouselSettings}>
+                {[auction1, auction2, auction3, auction4].map((img, index) => (
+                  <div key={index}>
+                    <img
+                      src={img}
+                      alt={`Auction Slide ${index + 1}`}
+                      className="w-full h-72 md:h-[400px] object-cover"
+                    />
+                  </div>
+                ))}
+              </Slider>
+            </div>
+          </div>
+        </div>
 
-                {/* Front Side */}
-                <div className="backface-hidden">
-                  <h2 className="text-2xl font-bold mb-4">How It Works</h2>
-                  <p className="text-lg">
-                    RexAuction is a cutting-edge online auction platform that
-                    connects buyers and sellers from around the world. Whether
-                    you're looking for rare antiques, unique art pieces, or
-                    luxury items, RexAuction offers a seamless and secure
-                    bidding experience.
-                  </p>
-                </div>
+        {/* 🔹 Second Section - Our Story */}
+        <div className="flex flex-col md:flex-row mt-10 gap-8 p-6 md:p-10">
+          <div className="w-full md:w-1/2">
+            <img
+              className="rounded-lg w-full object-cover"
+              src={biddingBg}
+              alt=""
+            />
+          </div>
+          <div className="w-full md:w-1/2">
+            <h1 className="text-black font-bold text-2xl text-center md:text-left">
+              OUR STORY
+            </h1>
+            <div className="w-1/4 h-[2px] bg-purple-500 rounded-full mx-auto md:mx-0 mt-1"></div>
+            <p className="text-gray-700 mt-5 text-justify">
+              Founded in 2015, RexAuction emerged from a simple vision: to
+              create a trusted space where buyers and sellers could connect
+              through exciting online auctions. What started as a small platform
+              has grown into a global marketplace, serving millions of users
+              worldwide.
+              <br />
+              <br />
+              Our commitment to transparency, security, and customer
+              satisfaction has made us the preferred choice for both seasoned
+              collectors and first-time bidders. Every day, we help people
+              discover unique items and create memorable bidding experiences.
+            </p>
+          </div>
+        </div>
+      </div>
 
-                {/* Back Side */}
-                <div className="absolute inset-0 bg-black/50 text-white rounded-xl p-6 transform rotate-y-180 backface-hidden">
-                  <h2 className="text-2xl font-bold mb-4">Secure & Seamless</h2>
-                  <p className="text-lg">
-                    Bidding has never been this effortless. Enjoy live auctions
-                    with real-time feedback and fast payment processing.
-                  </p>
-                </div>
+      {/* third section  */}
+      <div className="bg-gray-100 p-10">
+        <div className="bg-gray-100 p-10">
+          <div className="text-center font-bold">
+            <h1 className="text-3xl">Your Trust Is Our Priority</h1>
+          </div>
+
+          <div className="flex flex-col md:flex-row justify-evenly gap-10 mt-14 text-center">
+            <div className="w-full md:w-[200px]">
+              <div className="text-4xl text-purple-600 flex justify-center mb-2">
+                <MdOutlineSecurity />
               </div>
+              <h2 className="font-semibold text-lg mb-1">
+                Secure Transactions
+              </h2>
+              <p className="text-gray-600 text-sm">
+                Bank-level encryption and secure payment processing for every
+                transaction.
+              </p>
             </div>
 
-            {/* Static Card - Why Choose RexAuction */}
-            <div
-              className="p-6 rounded-xl shadow-xl bg-white/60 text-slate-600 border-2 border-transparent hover:border-orange-400 hover:shadow-orange-500 transition-all duration-500 relative overflow-hidden group"
-              data-aos="fade-up"
-              data-aos-delay="200"
-            >
-              <div className="absolute inset-0 border-2 border-orange-500  rounded-xl opacity-0 group-hover:opacity-100 animate-pulse duration-700 pointer-events-none"></div>
-              <h2 className="text-2xl font-bold mb-4">
-                Why Choose RexAuction?
+            <div className="w-full md:w-[200px]">
+              <div className="text-4xl text-purple-600 flex justify-center mb-2">
+                <FaUserCheck />
+              </div>
+              <h2 className="font-semibold text-lg mb-1">Verified Sellers</h2>
+              <p className="text-gray-600 text-sm">
+                We verify every seller and item to ensure quality and trust.
+              </p>
+            </div>
+
+            <div className="w-full md:w-[200px]">
+              <div className="text-4xl text-purple-600 flex justify-center mb-2">
+                <FaGavel />
+              </div>
+              <h2 className="font-semibold text-lg mb-1">
+                Transparent Bidding
               </h2>
-              <p className="text-lg">
-                Our platform is built with the latest technologies, ensuring a
-                smooth and reliable experience. With real-time bidding, secure
-                payments, and a user-friendly interface, RexAuction is your
-                go-to destination for online auctions.
+              <p className="text-gray-600 text-sm">
+                Real-time bidding and full visibility for all users.
               </p>
             </div>
           </div>
+        </div>
+      </div>
+      {/* fourth section */}
+      <div>
+        <div className="bg-purple-100 mt-20 text-center p-10">
+          <h1 className="font-bold text-purple-500 text-3xl lg:text-5xl">
+            {" "}
+            About RexAuction
+          </h1>
+          <p className="text-gray-600 mt-3">
+            Your trusted Platform For Online Auctions
+          </p>
+        </div>
+      </div>
+      {/* buyer section */}
+      <div className="mt-8">
+        <div className="py-12 px-4">
+          <h2 className="text-center text-purple-600 font-bold text-2xl mb-10">
+            For Buyers
+          </h2>
 
-          {/* CTA Section */}
-          <div
-            className="mt-12 text-center"
-            data-aos="fade-up"
-            data-aos-delay="400"
-          >
-            <h2 className="text-3xl font-bold mb-4">
-              Join the RexAuction Community
-            </h2>
-            <p className="text-lg mb-6">
-              Become part of a global community of collectors, enthusiasts, and
-              sellers. Start bidding today and discover unique treasures from
-              around the world!
-            </p>
-            <Link to="/">
-              <button className="bg-purple-600 hover:bg-purple-800 text-white font-bold py-3 px-6 rounded-lg transition-all">
-                Get Started
-              </button>
-            </Link>
+          <div className="flex flex-col md:flex-row justify-center gap-6 text-center">
+            {/* Card 1 */}
+            <div className="bg-white rounded-lg shadow-lg p-8 w-full md:w-80 hover:shadow-xl transition duration-300">
+              <div className="flex justify-center mb-4">
+                <div className="bg-purple-100 p-4 rounded-full">
+                  <FaShieldAlt className="text-purple-600 text-3xl" />
+                </div>
+              </div>
+              <h3 className="font-semibold text-lg mb-1">Secure Bidding</h3>
+              <p className="text-gray-600 text-sm">
+                Advanced security measures to protect your transactions
+              </p>
+            </div>
+
+            {/* Card 2 */}
+            <div className="bg-white rounded-lg shadow-lg p-8 w-full md:w-80 hover:shadow-xl transition duration-300">
+              <div className="flex justify-center mb-4">
+                <div className="bg-purple-100 p-4 rounded-full">
+                  <FiGrid className="text-purple-600 text-3xl" />
+                </div>
+              </div>
+              <h3 className="font-semibold text-lg mb-1">Wide Selection</h3>
+              <p className="text-gray-600 text-sm">
+                Thousands of items across multiple categories
+              </p>
+            </div>
+
+            {/* Card 3 */}
+            <div className="bg-white rounded-lg shadow-lg p-8 w-full md:w-80 hover:shadow-xl transition duration-300">
+              <div className="flex justify-center mb-4">
+                <div className="bg-purple-100 p-4 rounded-full">
+                  <FiBell className="text-purple-600 text-3xl" />
+                </div>
+              </div>
+              <h3 className="font-semibold text-lg mb-1">Real-time Updates</h3>
+              <p className="text-gray-600 text-sm">
+                Instant notifications on your bid status
+              </p>
+            </div>
           </div>
+        </div>
+      </div>
+      {/*  For Sellers Section */}
+      <div className="bg-purple-100 py-16 px-4 text-center mt-20">
+        <h2 className="text-2xl md:text-3xl font-bold text-purple-600 mb-10">
+          For Sellers
+        </h2>
+
+        <div className="flex flex-col md:flex-row justify-center gap-6">
+          {/* Card 1 */}
+          <div className="bg-white p-6 rounded-lg shadow-md w-full md:w-72 hover:shadow-lg transition">
+            <div className="text-3xl text-purple-500 mb-3 flex justify-center">
+              <h1><FaGlobe /></h1>
+            </div>
+            <h3 className="text-lg font-semibold mb-2">Global Reach</h3>
+            <p className="text-gray-600 text-sm">
+              Connect with buyers worldwide
+            </p>
+          </div>
+
+          {/* Card 2 */}
+          <div className="bg-white p-6 rounded-lg shadow-md w-full md:w-72 hover:shadow-lg transition">
+            <div className="text-3xl text-purple-500 mb-3 flex justify-center">
+              <h1><FiFileText /></h1>
+            </div>
+            <h3 className="text-lg font-semibold mb-2">Transparent Process</h3>
+            <p className="text-gray-600 text-sm">
+              Clear and fair auction procedures
+            </p>
+          </div>
+
+          {/* Card 3 */}
+          <div className="bg-white p-6 rounded-lg shadow-md w-full md:w-72 hover:shadow-lg transition">
+            <div className="text-3xl text-purple-500 mb-3 flex justify-center">
+              <h1><MdHeadsetMic /></h1>
+            </div>
+            <h3 className="text-lg font-semibold mb-2">Expert Support</h3>
+            <p className="text-gray-600 text-sm">
+              Dedicated team to help you succeed
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/*  Statistics Section */}
+      <div className="py-14 bg-white flex flex-wrap justify-around text-center text-purple-600 font-bold text-xl md:text-2xl">
+        <div>
+          <p>10K+</p>
+          <span className="block text-gray-600 text-sm font-medium">
+            Active Users
+          </span>
+        </div>
+        <div>
+          <p>50K+</p>
+          <span className="block text-gray-600 text-sm font-medium">
+            Successful Auctions
+          </span>
+        </div>
+        <div>
+          <p>95%</p>
+          <span className="block text-gray-600 text-sm font-medium">
+            Satisfaction Rate
+          </span>
+        </div>
+        <div>
+          <p>24/7</p>
+          <span className="block text-gray-600 text-sm font-medium">
+            Support
+          </span>
+        </div>
+      </div>
+
+      {/*  CTA Section */}
+      <div className="bg-purple-100 py-16 text-center">
+        <h2 className="text-2xl md:text-3xl font-bold mb-4">
+          Ready to Get Started?
+        </h2>
+        <div className="flex flex-col md:flex-row justify-center gap-4 mt-6">
+          <button className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-lg transition">
+            Join as Buyer
+          </button>
+          <button className="bg-purple-700 hover:bg-purple-800 text-white px-6 py-3 rounded-lg transition">
+            Start Selling
+          </button>
+        </div>
+        <div className="mt-4">
+          <a
+            href="#"
+            className="text-purple-600 underline text-sm hover:text-purple-800"
+          >
+            Learn More
+          </a>
         </div>
       </div>
     </div>
