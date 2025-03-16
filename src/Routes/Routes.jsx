@@ -7,6 +7,7 @@ import Register from "../Auth/Register";
 import ForgotPass from "../Auth/ForgotPass";
 import Auction from "../component/auction/Auction";
 import Home from "../component/Home/Home";
+import Announcement from "../component/dashboard/shared/Announcement";
 
 export const router = createBrowserRouter([
   {
@@ -33,6 +34,10 @@ export const router = createBrowserRouter([
       {
         path: "/register",
         element: <Register />,
+      },
+      {
+        path: "/announcement",
+        element: <Announcement />,
       },
       {
         path: "/forgotPassword",
