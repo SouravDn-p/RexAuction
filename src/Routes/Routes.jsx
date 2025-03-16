@@ -24,7 +24,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "/auction",
-        element: < Auction />,
+        element: <Auction />,
       },
       {
         path: "/login",
