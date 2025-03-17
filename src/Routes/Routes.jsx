@@ -10,6 +10,7 @@ import Home from "../component/Home/Home";
 import Announcement from "../component/dashboard/shared/Announcement";
 import DashboardLayout from "../layout/DashboardLayout";
 import Profile from "../component/dashboard/shared/Profile";
+import LiveBid from "../component/auction/LiveBid";
 
 export const router = createBrowserRouter([
   {
@@ -28,6 +29,10 @@ export const router = createBrowserRouter([
       {
         path: "/auction",
         element: <Auction />,
+      },
+      {
+        path: "/liveBid",
+        element: <LiveBid />,
       },
       {
         path: "/login",
