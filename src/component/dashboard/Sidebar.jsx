@@ -48,6 +48,16 @@ const Sidebar = ({ isSeller, isAdmin }) => {
             >
               <CgProfile size={20} /> Profile
             </NavLink>
+            <NavLink
+              to="/dashboard/announcement"
+              className={({ isActive }) =>
+                `flex items-center gap-2 py-2 font-bold ${
+                  isActive ? "text-yellow-400" : ""
+                }`
+              }
+            >
+              <TfiAnnouncement size={20} /> Announcement
+            </NavLink>
           </>
         )}
 
