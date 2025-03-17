@@ -4,7 +4,6 @@ import AboutUs from "../component/AboutUs/AboutUs";
 import LoginPage from "../Auth/LoginPage";
 import ErrorPage from "../component/shared/ErrorPage";
 import Register from "../Auth/Register";
-
 import ForgotPass from "../Auth/ForgotPass";
 import Auction from "../component/auction/Auction";
 import Home from "../component/Home/Home";
@@ -12,6 +11,7 @@ import Announcement from "../component/dashboard/shared/Announcement";
 import DashboardLayout from "../layout/DashboardLayout";
 import Profile from "../component/dashboard/shared/Profile";
 import LiveBid from "../component/auction/LiveBid";
+import CreateAnnouncement from "../component/dashboard/admin/CreateAnnouncement";
 
 export const router = createBrowserRouter([
   {
@@ -47,10 +47,7 @@ export const router = createBrowserRouter([
         path: "/profile",
         element: <Profile></Profile>,
       },
-      {
-        path: "/announcement",
-        element: <Announcement />,
-      },
+
       {
         path: "/forgotPassword",
         element: <ForgotPass />,
@@ -62,9 +59,23 @@ export const router = createBrowserRouter([
     element: <DashboardLayout />,
     errorElement: <ErrorPage />,
     children: [
+      // Admin Only
       {
-        index: true,
+        path: "create-announcement",
+        element: <CreateAnnouncement />,
+      },
+      // Seller Only
+
+      // Buyer only
+
+      // Shared
+      {
+        path: "profile",
         element: <Profile />,
+      },
+      {
+        path: "announcement",
+        element: <Announcement />,
       },
     ],
   },
