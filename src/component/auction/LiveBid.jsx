@@ -9,7 +9,7 @@ export default function LiveBid() {
   return (
     <div className="w-11/12 mx-auto my-8">
       <div className="flex justify-between gap-5">
-        <div className="w-2/3 h-screen-1/2 bg-gray-100 rounded-lg p-3">
+        <div className="w-2/3 h-screen-1/2 rounded-lg">
           {/* image section  */}
           <div className="">
             <img src={img} className="rounded-lg" alt="" />
@@ -63,15 +63,106 @@ export default function LiveBid() {
               </div>
               <div>
                 <h3 className="text-black font-semibold text-xl">Jhon Doe</h3>
-                <p className="text-green-600 flex items-center"><MdVerifiedUser/> Verified seller</p>
+                <p className="text-green-600 flex items-center"><MdVerifiedUser /> Verified seller</p>
               </div>
             </div>
           </div>
 
         </div>
 
-        <div className="w-1/3 h-screen-1/2 bg-blue-500 rounded-lg">
-          second half
+
+        {/* right side */}
+        <div className="w-1/3 h-screen-1/2 rounded-lg">
+          {/* auction ends in  */}
+          <div className="bg-gray-100 text-black p-5 rounded-lg text-center mb-6">
+            <p className="font-semibold text-xl">Auction ends in</p>
+            <h3 className="font-bold text-2xl">00:00:00</h3>
+          </div>
+          {/* current bid  */}
+          <div className="border text-black p-3 rounded-lg items-center mb-6">
+            <p className="font-semibold text-xl">Current bid</p>
+            <h3 className="font-bold text-2xl">$8000.00</h3>
+          </div>
+
+          {/* top bidders */}
+          <div className="border text-black p-3 rounded-lg mb-6">
+            <h3 className="text-xl font-bold">Top Bidders</h3>
+            <div className="flex gap-3 p-2">
+              <div>
+                <img src={img} className="w-16 h-16 rounded-full" alt="" />
+              </div>
+              <div>
+                <h3 className="text-black font-semibold text-xl">Jhon Doe</h3>
+                <p className=" flex items-center">$8000.00</p>
+              </div>
+            </div>
+
+            <div className="flex gap-3 p-2">
+              <div>
+                <img src={img} className="w-16 h-16 rounded-full" alt="" />
+              </div>
+              <div>
+                <h3 className="text-black font-semibold text-xl">Jhon Doe</h3>
+                <p className=" flex items-center">$7500.00</p>
+              </div>
+            </div>
+
+            <div className="flex gap-3 p-2">
+              <div>
+                <img src={img} className="w-16 h-16 rounded-full" alt="" />
+              </div>
+              <div>
+                <h3 className="text-black font-semibold text-xl">Jhon Doe</h3>
+                <p className=" flex items-center">$7000.00</p>
+              </div>
+            </div>
+          </div>
+
+          {/* bid now  */}
+          <div className="border text-black p-3 rounded-lg items-center mb-6 ">
+            <div className="flex justify-between text-purple-600 ">
+            <button className="btn btn-outline border-purple-600 w-1/3">+100</button>
+            <button className="btn btn-outline border-purple-600 w-1/3">+200</button>
+            <button className="btn btn-outline border-purple-600 w-1/3">+300</button>
+            </div>
+           
+            <button className="bg-purple-600 btn w-full mt-3">Place Bid</button>
+          </div>
+
+          {/* recent bids */}
+
+          <div className="border text-black p-3 rounded-lg">
+            <h3 className="text-xl font-bold">Recent Bid</h3>
+            <div className="flex gap-3 p-2">
+              <div>
+                <img src={img} className="w-16 h-16 rounded-full" alt="" />
+              </div>
+              <div>
+                <h3 className="text-black font-semibold text-xl">Jhon Doe</h3>
+                <p className=" flex items-center">$8000.00</p>
+              </div>
+            </div>
+
+            <div className="flex gap-3 p-2">
+              <div>
+                <img src={img} className="w-16 h-16 rounded-full" alt="" />
+              </div>
+              <div>
+                <h3 className="text-black font-semibold text-xl">Jhon Doe</h3>
+                <p className=" flex items-center">$7500.00</p>
+              </div>
+            </div>
+
+            <div className="flex gap-3 p-2">
+              <div>
+                <img src={img} className="w-16 h-16 rounded-full" alt="" />
+              </div>
+              <div>
+                <h3 className="text-black font-semibold text-xl">Jhon Doe</h3>
+                <p className=" flex items-center">$7000.00</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
