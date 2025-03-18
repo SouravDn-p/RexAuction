@@ -92,7 +92,7 @@ const auctionData = [
   },
 ];
 
-const HotAuction = () => {
+const HotAuctions = () => {
   return (
     <div className="w-11/12 mx-auto p-10">
       <h2 className="text-2xl font-bold text-center mb-6">Hot Auctions</h2>
@@ -154,4 +154,4 @@ const HotAuction = () => {
   );
 };
 
-export default HotAuction;
+export default HotAuctions;
