@@ -28,7 +28,7 @@ const FeatureDemo = () => {
   ];
   return (
     <div>
-      <div className="bg-violet-100 py-12">
+      <div className=" lg:py-12">
         <div className="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 text-center">
           {features.map((feature, index) => (
             <div key={index} className="flex flex-col items-center">

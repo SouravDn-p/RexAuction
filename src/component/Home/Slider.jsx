@@ -31,8 +31,8 @@ const Slider = () => {
           <div>
             <img src="https://i.ibb.co.com/jvKJ82Qs/rex-auction.png" alt="" />
 
-            <div className=" p-2 rounded-lg shadow-lg max-w-4xl mx-auto focus:ring-2 border border-gray-300 absolute top-[83.33%] left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-              <div className="flex items-center bg-white p-2 rounded-lg shadow-md">
+            <div className=" lg:p-2 rounded-lg shadow-lg  mx-auto focus:ring-2 border border-gray-300 absolute top-[83.33%] left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+              <div className="flex items-center bg-white  lg:p-2 rounded-lg shadow-md">
                 {/* Search Input */}
                 <input
                   type="text"
@@ -41,7 +41,7 @@ const Slider = () => {
                 />
 
                 {/* Dropdown */}
-                <select className="bg-gray-100 p-3 border-l border-gray-300 text-gray-700 rounded-none">
+                <select className="bg-gray-100 p-1 lg:p-3 border-l border-gray-300 text-gray-700 rounded-none">
                   <option>All Categories</option>
                   <option>Electronics</option>
                   <option>Real Estate</option>
@@ -49,7 +49,7 @@ const Slider = () => {
                 </select>
 
                 {/* Search Button */}
-                <button className="bg-gray-800 text-white px-5 py-3 rounded-r-lg hover:bg-gray-900">
+                <button className="bg-gray-800 text-white px-2 lg:px-5 lg: py-3 rounded-r-lg  hover:bg-gray-900">
                   Search Now!
                 </button>
               </div>

@@ -27,7 +27,7 @@ const categories = [
 
 const BrowsCategory = () => {
   return (
-    <div className="container mx-auto px-48 p-6">
+    <div className="container mx-auto px-14 lg:px-48 p-2 lg:p-6">
       <h2 className="text-2xl font-bold text-center mb-6">Browse Categories</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {categories.map((category) => (

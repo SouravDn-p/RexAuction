@@ -59,7 +59,16 @@ const TrendingAuction = () => {
 
       <Swiper
         spaceBetween={20}
-        slidesPerView={3}
+        // slidesPerView={3}
+
+      breakpoints={{
+          640: {
+            slidesPerView: 2, 
+          },
+          1024: {
+            slidesPerView: 4, 
+          },
+        }}
         navigation={true}
         autoplay={{ delay: 3000 }} // Auto play every 3 seconds
         modules={[Navigation, Autoplay]} // Include Autoplay module
@@ -70,8 +79,7 @@ const TrendingAuction = () => {
             <div className="bg-white shadow-md rounded-lg overflow-hidden">
               <img
                 src={auction.img}
-                alt={auction.title}
-                className="w-full h-48 object-cover"
+                className="w-full  h-48 object-cover"
               />
               <div className="p-4">
                 <h3 className="text-lg font-semibold">{auction.title}</h3>
