@@ -1,6 +1,6 @@
 import { FaGift, FaLock, FaThumbsUp, FaGem } from "react-icons/fa";
 
-const FeatureDemo = () => {
+const FeatureDemos = () => {
   const features = [
     {
       icon: <FaGift />,
@@ -49,4 +49,4 @@ const FeatureDemo = () => {
   );
 };
 
-export default FeatureDemo;
+export default FeatureDemos;

@@ -25,7 +25,7 @@ const categories = [
   { id: 8, name: "Antiques", items: "1,897 items", icon: <FaGavel /> },
 ];
 
-const BrowsCategory = () => {
+const BrowsCategorys = () => {
   return (
     <div className="container mx-auto px-14 lg:px-48 p-2 lg:p-6">
       <h2 className="text-2xl font-bold text-center mb-6">Browse Categories</h2>
@@ -45,4 +45,4 @@ const BrowsCategory = () => {
   );
 };
 
-export default BrowsCategory;
+export default BrowsCategorys;

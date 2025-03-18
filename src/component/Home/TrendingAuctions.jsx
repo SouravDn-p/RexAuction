@@ -50,7 +50,7 @@ const trendingAuctions = [
   },
 ];
 
-const TrendingAuction = () => {
+const TrendingAuctions = () => {
   return (
     <div className="w-11/12 mx-auto p-2 py-10">
       <h2 className="text-2xl font-bold text-gray-900 mb-6">
@@ -103,4 +103,4 @@ const TrendingAuction = () => {
   );
 };
 
-export default TrendingAuction;
+export default TrendingAuctions;
