@@ -98,7 +98,15 @@ const HotAuction = () => {
       <h2 className="text-2xl font-bold text-center mb-6">Hot Auctions</h2>
       <Swiper
         spaceBetween={20}
-        slidesPerView={4}
+        // slidesPerView={1}
+        breakpoints={{
+          640: {
+            slidesPerView: 2,
+          },
+          1024: {
+            slidesPerView: 4,
+          },
+        }}
         autoplay={{
           delay: 2500,
           disableOnInteraction: false,

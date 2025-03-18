@@ -184,3 +184,13 @@ const Sidebar = ({ isSeller, isAdmin }) => {
 };
 
 export default Sidebar;
+
+//buyerRoutes
+// {
+//         path: "auctionStatus",
+//         element: <AuctionStatus />,
+//       },
+//       {
+//         path: "payment",
+//         element: <Payment />,
+//       },

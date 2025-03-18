@@ -1,9 +1,9 @@
 import React from "react";
 
-export default function BidHistory() {
+export default function Payment() {
   return (
     <div>
-      <h1>BidHistory</h1>
+      <h1>Payment</h1>
     </div>
   );
 }
