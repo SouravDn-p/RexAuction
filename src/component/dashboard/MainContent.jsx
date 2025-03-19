@@ -12,7 +12,7 @@ const MainContent = ({ isSeller, isAdmin }) => {
       {/* Hamburger Menu for Small Devices */}
       <label
         htmlFor="my-drawer-2"
-        className="mt-3 ml-5 drawer-button lg:hidden"
+        className="mt-3 ml-5 text-purple-600 bg-purple-300 h-10 w-10 p-2 rounded-full drawer-button lg:hidden"
       >
         <FaBars size={24} />
       </label>
