@@ -8,11 +8,10 @@ import { TfiAnnouncement } from "react-icons/tfi";
 import { NavLink } from "react-router-dom";
 
 const Sidebar = () => {
-  const isAdmin = false;
+  const isAdmin = true;
   const isSeller = false;
 
-  console.log(isAdmin);
-  console.log(isSeller);
+ 
 
   return (
     <div className="drawer-side fixed">
@@ -36,7 +35,7 @@ const Sidebar = () => {
               <MdOutlineDashboard size={20} /> Dashboard
             </NavLink>
             <NavLink
-              to="/dashboard/create-announcement"
+              to="/dashboard/createAnnouncement"
               className={({ isActive }) =>
                 `flex items-center gap-2 py-2 font-bold ${
                   isActive ? "text-yellow-400" : ""

@@ -1,27 +1,60 @@
-import React, { useState } from "react";
+import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
+import axios from "axios";
+import toast from "react-hot-toast";
+
+const image_hosting_key = import.meta.env.VITE_IMAGE_HOSTING_KEY;
+const image_hosting_api = `https://api.imgbb.com/1/upload?key=${image_hosting_key}`;
 
 const CreateAnnouncement = () => {
-  const [formData, setFormData] = useState({
-    title: "",
-    content: "",
-    date: "",
-    image: null,
-    status: "draft",
-  });
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm();
 
-  const handleChange = (e) => {
-    const { name, value, files } = e.target;
-    if (name === "image") {
-      setFormData({ ...formData, image: files[0] });
-    } else {
-      setFormData({ ...formData, [name]: value });
+  const onSubmit = async (data) => {
+    try {
+      let imageUrl = "";
+
+      //  Handle Image Upload
+      if (data.image && data.image.length > 0) {
+        const formData = new FormData();
+        formData.append("image", data.image[0]);
+
+        const response = await axios.post(image_hosting_api, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+
+        if (response.data.success) {
+          imageUrl = response.data.data.url;
+        }
+      }
+
+      // Prepare Announcement Data
+      const announcementData = {
+        title: data.title,
+        content: data.content,
+        date: data.date,
+        status: data.status,
+        image: imageUrl,
+      };
+
+      //  Send POST Request
+      const res = await axios.post(
+        "http://localhost:5000/announcement",
+        announcementData
+      );
+
+      if (res.data.success) {
+        toast.success(" Announcement created successfully!");
+        reset();
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error(" Something went wrong!");
     }
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Form submitted:", formData);
   };
 
   return (
@@ -41,100 +74,86 @@ const CreateAnnouncement = () => {
           Create New Announcement
         </motion.h2>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Title */}
           <div>
             <label className="block text-sm font-medium text-purple-700 mb-1">
-              Announcement Title <span className="text-red-500">*</span>
+              Title *
             </label>
             <input
               type="text"
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
-              placeholder="Enter announcement title"
-              className="w-full border border-purple-300 rounded-lg px-4 py-2 transition-all focus:outline-none focus:ring-2 focus:ring-purple-400"
-              required
+              {...register("title", { required: "Title is required" })}
+              placeholder="Enter title"
+              className="w-full border rounded-lg px-4 py-2"
             />
+            {errors.title && (
+              <p className="text-red-500 text-sm">{errors.title.message}</p>
+            )}
           </div>
-
           {/* Content */}
           <div>
             <label className="block text-sm font-medium text-purple-700 mb-1">
-              Content <span className="text-red-500">*</span>
+              Content *
             </label>
             <textarea
-              name="content"
-              value={formData.content}
-              onChange={handleChange}
-              placeholder="Enter announcement content..."
+              {...register("content", { required: "Content is required" })}
+              placeholder="Enter content"
               rows={5}
-              className="w-full border border-purple-300 rounded-lg px-4 py-2 transition-all focus:outline-none focus:ring-2 focus:ring-purple-400"
-              required
+              className="w-full border rounded-lg px-4 py-2"
             />
+            {errors.content && (
+              <p className="text-red-500 text-sm">{errors.content.message}</p>
+            )}
           </div>
-
-          {/* Publication Date */}
+          {/* Date */}
           <div>
             <label className="block text-sm font-medium text-purple-700 mb-1">
-              Publication Date <span className="text-red-500">*</span>
+              Date *
             </label>
             <input
               type="date"
-              name="date"
-              value={formData.date}
-              onChange={handleChange}
-              className="w-full border border-purple-300 rounded-lg px-4 py-2 transition-all focus:outline-none focus:ring-2 focus:ring-purple-400"
-              required
+              {...register("date", { required: "Date is required" })}
+              className="w-full border rounded-lg px-4 py-2"
             />
+            {errors.date && (
+              <p className="text-red-500 text-sm">{errors.date.message}</p>
+            )}
           </div>
-
-          {/* Image Upload */}
+          {/* Image */}
           <div>
             <label className="block text-sm font-medium text-purple-700 mb-1">
-              Upload Image (Optional)
+              Upload Image
             </label>
-            <div className="border border-dashed border-purple-300 rounded-lg p-4 text-center text-purple-500">
-              <input
-                type="file"
-                name="image"
-                accept="image/*"
-                onChange={handleChange}
-                className="w-full text-center file:bg-purple-100 file:border-none file:text-purple-700 file:rounded-md file:py-2 file:px-4"
-              />
-              <p className="text-sm mt-2">SVG, PNG, JPG or GIF (max. 2MB)</p>
-            </div>
+            <input
+              type="file"
+              {...register("image")}
+              accept="image/*"
+              className="w-full file:border-none file:py-2 file:px-4 file:bg-purple-100 file:text-purple-700"
+            />
           </div>
-
           {/* Status */}
           <div>
             <label className="block text-sm font-medium text-purple-700 mb-1">
-              Status <span className="text-red-500">*</span>
+              Status *
             </label>
             <select
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-              className="w-full border border-purple-300 rounded-lg px-4 py-2 transition-all focus:outline-none focus:ring-2 focus:ring-purple-400"
-              required
+              {...register("status", { required: "Status is required" })}
+              className="w-full border rounded-lg px-4 py-2"
             >
               <option value="draft">Draft</option>
               <option value="published">Published</option>
             </select>
+            {errors.status && (
+              <p className="text-red-500 text-sm">{errors.status.message}</p>
+            )}
           </div>
 
-          {/* Buttons */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.4 }}
-            className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-4"
-          >
+          <div className="flex justify-end gap-4 pt-4">
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.98 }}
               type="submit"
-              className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg shadow-md transition w-full sm:w-auto"
+              className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg"
             >
               Save
             </motion.button>
@@ -143,11 +162,12 @@ const CreateAnnouncement = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.98 }}
               type="button"
-              className="border border-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-100 transition w-full sm:w-auto"
+              onClick={() => reset()}
+              className="border border-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-100"
             >
               Cancel
             </motion.button>
-          </motion.div>
+          </div>
         </form>
       </motion.div>
     </div>
