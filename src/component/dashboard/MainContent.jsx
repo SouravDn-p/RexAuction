@@ -4,11 +4,13 @@ import AdminDashboard from "./admin/AdminDashboard";
 import SellerDashboard from "./seller/SellerDashboard";
 import BuyerDashboard from "./buyer/BuyerDashboard";
 
-const MainContent = ({ isSeller, isAdmin }) => {
+const MainContent = () => {
+  const isAdmin = true;
+  const isSeller = false;
   const location = useLocation();
 
   return (
-    <div className="drawer-content flex flex-col  md:flex-row justify-between items-stretch">
+    <div className="drawer-content flex flex-col md:flex-row justify-between items-stretch">
       {/* Hamburger Menu for Small Devices */}
       <label
         htmlFor="my-drawer-2"
@@ -18,8 +20,9 @@ const MainContent = ({ isSeller, isAdmin }) => {
       </label>
 
       {/* Content Container */}
-      <div className="container mx-auto   ">
-        <div className="bg-white rounded-lg p-5  overflow-x-auto flex-grow">
+      <div className="container mx-auto">
+        <div className="bg-white rounded-lg p-5 overflow-x-auto flex-grow">
+          {/* Conditionally render based on role */}
           {location.pathname === "/dashboard" && (
             <>
               {isAdmin ? (
