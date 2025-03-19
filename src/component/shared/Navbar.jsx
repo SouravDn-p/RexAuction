@@ -5,6 +5,7 @@ import { AuthContexts } from "../../providers/AuthProvider";
 import auth from "../../firebase/firebase.init";
 import { toast } from "react-toastify";
 import { signOut } from "firebase/auth";
+import { MdOutlineLogout } from "react-icons/md";
 
 const Navbar = () => {
   const { user, setUser, setLoader, setError } = useContext(AuthContexts);
@@ -12,8 +13,16 @@ const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState("");
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isHovered, setIsHovered] = useState(false); // Track hover state
 
-  // Dummy user data
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10); // Detect scrolling
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -41,23 +50,29 @@ const Navbar = () => {
     }
   };
 
-  // Function to check if route is active
   const getNavLinkClass = (path) =>
-    location.pathname === path ? "text-yellow-400" : "hover:text-gray-300";
+    location.pathname === path
+      ? "text-yellow-400 border-b-2 border-yellow-500 "
+      : "hover:text-gray-300 hover:border-b-2 border-yellow-500";
 
   return (
     <div>
-      <nav className="bg-blue-900 text-white px-4 py-3.5 sticky top-0 z-50 shadow-md">
+      <nav
+        className={`fixed top-0 w-full z-50 px-4 py-3.5 transition-all duration-300 shadow-md 
+        ${isScrolled ? "bg-purple-600 bg-opacity-70 lg:backdrop-blur-md" : "bg-purple-600"}`}
+      >
         <div className="container mx-auto flex justify-between items-center">
           <Link to="/">
             <div className="flex items-center">
-              <span className="text-xl font-bold">Rex_Auction</span>
+              <span className="text-xl font-bold text-white">Rex_Auction</span>
             </div>
           </Link>
 
-          <div className="text-lg font-bold hidden md:block">{currentTime}</div>
+          <div className="text-lg font-bold hidden md:block text-white">
+            {currentTime}
+          </div>
 
-          <div className="hidden lg:flex items-center space-x-6 text-lg font-bold">
+          <div className="hidden lg:flex items-center space-x-6 text-lg font-bold text-white">
             <Link to="/" className={getNavLinkClass("/")}>
               Home
             </Link>
@@ -88,15 +103,22 @@ const Navbar = () => {
                 )}
                 <button
                   onClick={handleGoogleSignOut}
-                  className="bg-yellow-500 hover:bg-yellow-600 px-4 py-2 rounded text-white"
+                  className="bg-purple-500 text-xs hover:bg-purple-700 p-3 rounded-full text-white relative"
+                  onMouseEnter={() => setIsHovered(true)} // Show tooltip on hover
+                  onMouseLeave={() => setIsHovered(false)} // Hide tooltip when mouse leaves
                 >
-                  Logout
+                  <MdOutlineLogout className="text-xl" />
+                  {isHovered && (
+                    <div className="absolute  left-1/2 transform -translate-x-1/2 mt-4 bg-purple-800 text-white text-xs rounded px-2 py-1">
+                      Logout
+                    </div>
+                  )}
                 </button>
               </>
             ) : (
               <Link
                 to="/login"
-                className="bg-yellow-500 hover:bg-yellow-600 px-4 py-2 rounded text-white"
+                className="bg-purple-500 hover:bg-purple-600 px-4 py-2 rounded text-white"
               >
                 Login
               </Link>
@@ -120,7 +142,7 @@ const Navbar = () => {
         </div>
 
         <div
-          className={`lg:hidden fixed top-0 left-0 w-60 h-full bg-blue-900 text-white shadow-lg transform transition-transform duration-300 ${
+          className={`lg:hidden fixed top-0 left-0 w-60 h-full bg-purple-700/85 text-white shadow-lg transform transition-transform duration-300 ${
             mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
@@ -166,10 +188,17 @@ const Navbar = () => {
                   Dashboard
                 </Link>
                 <button
-                  className="w-full text-left hover:text-gray-300"
-                  onClick={() => setMobileMenuOpen(false)}
+                  onClick={handleGoogleSignOut}
+                  className="bg-purple-500 text-xs hover:bg-purple-700 p-3 rounded-full text-white relative"
+                  onMouseEnter={() => setIsHovered(true)} 
+                  onMouseLeave={() => setIsHovered(false)} 
                 >
-                  Logout
+                  <MdOutlineLogout className="text-xl" />
+                  {isHovered && (
+                    <div className="absolute  left-1/2 transform -translate-x-1/2 mt-4 bg-purple-800 text-white text-xs rounded px-2 py-1">
+                      Logout
+                    </div>
+                  )}
                 </button>
               </>
             ) : (
