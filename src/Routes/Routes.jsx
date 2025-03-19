@@ -12,6 +12,8 @@ import DashboardLayout from "../layout/DashboardLayout";
 import Profile from "../component/dashboard/shared/Profile";
 import LiveBid from "../component/auction/LiveBid";
 import CreateAnnouncement from "../component/dashboard/admin/CreateAnnouncement";
+import Payment from "../component/dashboard/buyer/Payment";
+import AuctionStatus from "../component/dashboard/buyer/AuctionStatus";
 
 export const router = createBrowserRouter([
   {
@@ -47,7 +49,6 @@ export const router = createBrowserRouter([
         path: "/profile",
         element: <Profile></Profile>,
       },
-
       {
         path: "/forgotPassword",
         element: <ForgotPass />,
@@ -61,13 +62,20 @@ export const router = createBrowserRouter([
     children: [
       // Admin Only
       {
-        path: "create-announcement",
+        path: "createAnnouncement",
         element: <CreateAnnouncement />,
       },
       // Seller Only
 
       // Buyer only
-
+      {
+        path: "auctionStatus",
+        element: <AuctionStatus />,
+      },
+      {
+        path: "payment",
+        element: <Payment />,
+      },
       // Shared
       {
         path: "profile",

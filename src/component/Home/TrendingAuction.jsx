@@ -1,3 +1,4 @@
+import React from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules"; // Add Autoplay module
 import "swiper/css";
@@ -58,7 +59,16 @@ const TrendingAuction = () => {
 
       <Swiper
         spaceBetween={20}
-        slidesPerView={3}
+        // slidesPerView={3}
+
+        breakpoints={{
+          640: {
+            slidesPerView: 2,
+          },
+          1024: {
+            slidesPerView: 4,
+          },
+        }}
         navigation={true}
         autoplay={{ delay: 3000 }} // Auto play every 3 seconds
         modules={[Navigation, Autoplay]} // Include Autoplay module
@@ -67,11 +77,7 @@ const TrendingAuction = () => {
         {trendingAuctions.map((auction, index) => (
           <SwiperSlide key={index}>
             <div className="bg-white shadow-md rounded-lg overflow-hidden">
-              <img
-                src={auction.img}
-                alt={auction.title}
-                className="w-full h-48 object-cover"
-              />
+              <img src={auction.img} className="w-full  h-48 object-cover" />
               <div className="p-4">
                 <h3 className="text-lg font-semibold">{auction.title}</h3>
                 <p className="text-purple-600 font-bold text-xl">

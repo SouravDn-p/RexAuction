@@ -75,7 +75,7 @@ const AuthProvider = ({ children }) => {
       if (currentUser?.email) {
         axiosSecure.post("/jwt").then((res) => setResponse(res));
         axiosPublic
-          .post("/user", {
+          .post("/buyer", {
             email: currentUser?.email || "demo user",
             displayName: currentUser?.displayName || "demo displayName",
           })

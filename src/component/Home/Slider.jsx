@@ -29,7 +29,11 @@ const Slider = () => {
       >
         <SwiperSlide>
           <div>
-            <img src="https://i.ibb.co.com/jvKJ82Qs/rex-auction.png" alt="" />
+            <img
+              className="h-80 md:h-1/3 object-contain  "
+              src="https://i.ibb.co.com/jvKJ82Qs/rex-auction.png"
+              alt=""
+            />
 
             <div className=" p-2 rounded-lg shadow-lg max-w-4xl mx-auto focus:ring-2 border border-gray-300 absolute top-[83.33%] left-1/2 transform -translate-x-1/2 -translate-y-1/2">
               <div className="flex items-center bg-white p-2 rounded-lg shadow-md">
@@ -57,10 +61,18 @@ const Slider = () => {
           </div>
         </SwiperSlide>
         <SwiperSlide>
-          <img src="https://i.ibb.co.com/S4CMgd9J/rex-auction.png" alt="" />
+          <img
+            className="h-80 md:h-1/3 object-contain "
+            src="https://i.ibb.co.com/S4CMgd9J/rex-auction.png"
+            alt=""
+          />
         </SwiperSlide>
         <SwiperSlide>
-          <img src="https://i.ibb.co.com/d4PQcWSn/Buy-Now.png" alt="" />
+          <img
+            className=" h-80 md:h-1/3 object-contain "
+            src="https://i.ibb.co.com/d4PQcWSn/Buy-Now.png"
+            alt=""
+          />
         </SwiperSlide>
       </Swiper>
     </div>

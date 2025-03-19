@@ -11,7 +11,7 @@ const Sidebar = ({ isSeller, isAdmin }) => {
     <div className="drawer-side fixed ">
       <label htmlFor="my-drawer-2" className="drawer-overlay lg:hidden"></label>
 
-      <div className="menu bg-neutral text-white min-h-full w-60 p-6">
+      <div className="menu bg-purple-700/85 text-white min-h-full w-60 p-6">
         <h1 className="md:text-2xl text-xl font-bold  py-2">Rex-Auction</h1>
         {/* Sidebar Items */}
         {isAdmin && (
@@ -184,3 +184,13 @@ const Sidebar = ({ isSeller, isAdmin }) => {
 };
 
 export default Sidebar;
+
+//buyerRoutes
+// {
+//         path: "auctionStatus",
+//         element: <AuctionStatus />,
+//       },
+//       {
+//         path: "payment",
+//         element: <Payment />,
+//       },
