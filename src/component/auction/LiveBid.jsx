@@ -4,7 +4,7 @@ import { GiSelfLove } from "react-icons/gi";
 import { FaShare } from "react-icons/fa6";
 import { IoFlagOutline } from "react-icons/io5";
 import { MdVerifiedUser } from "react-icons/md";
-import { AiFillCrown } from "react-icons/ai"; // Crown icon for ranking
+import { AiFillCrown } from "react-icons/ai"; 
 
 export default function LiveBid() {
   const topBidders = [
