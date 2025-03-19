@@ -4,6 +4,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 
 import "swiper/css";
 import "swiper/css/navigation";
+import { FaFire } from "react-icons/fa";
 
 const auctionData = [
   {
@@ -93,64 +94,78 @@ const auctionData = [
 ];
 
 const HotAuction = () => {
+  // bg-[#f8f7f7]
   return (
-    <div className="w-11/12 mx-auto p-10">
-      <h2 className="text-2xl font-bold text-center text-black mb-6">Hot Auctions</h2>
-      <Swiper
-        spaceBetween={20}
-        // slidesPerView={1}
-        breakpoints={{
-          640: {
-            slidesPerView: 2,
-          },
-          1024: {
-            slidesPerView: 4,
-          },
-        }}
-        autoplay={{
-          delay: 2500,
-          disableOnInteraction: false,
-          pauseOnMouseEnter: false,
-        }}
-        pagination={{ clickable: true }}
-        navigation={true}
-        modules={[Navigation, Autoplay]}
-        className="pb-10"
-      >
-        {auctionData.map((item, index) => (
-          <SwiperSlide key={index}>
-            <div
-              key={index}
-              className="bg-white shadow-lg rounded-lg overflow-hidden"
-            >
-              <img
-                src={item.img}
-                alt={item.title}
-                className="w-full h-56 object-cover"
-              />
-              <div className="p-4">
-                <h3 className="text-lg font-semibold">{item.title}</h3>
-                <p className="text-yellow-500 font-bold text-xl">
-                  {item.price}
-                </p>
-                <div className="flex justify-between items-center text-gray-500 text-sm my-2">
-                  <span>{item.timeLeft}</span>
-                  <span>{item.bids}</span>
+    <section className=" bg-[#0d132105]">
+      <div className="w-11/12 mx-auto p-10">
+        <div className="flex flex-col items-center mb-12">
+          <div className="flex items-center mb-4">
+            <FaFire className="text-orange-500 mr-2 text-2xl" />
+            <h2 className="text-3xl font-bold text-gray-900">Hot Auctions</h2>
+          </div>
+          <p className="text-gray-600 text-center max-w-2xl mb-8">
+            Discover our most popular and trending auction items. Bid now before
+            they're gone!
+          </p>
+        </div>
+        <Swiper
+          spaceBetween={20}
+          // slidesPerView={1}
+          breakpoints={{
+            640: {
+              slidesPerView: 2,
+            },
+            1024: {
+              slidesPerView: 4,
+            },
+          }}
+          autoplay={{
+            delay: 2500,
+            disableOnInteraction: false,
+            pauseOnMouseEnter: false,
+          }}
+          pagination={{ clickable: true }}
+          navigation={true}
+          modules={[Navigation, Autoplay]}
+          className="pb-10"
+        >
+          {auctionData.map((item, index) => (
+            <SwiperSlide key={index}>
+              <div
+                key={index}
+                className="bg-white shadow-lg rounded-lg overflow-hidden"
+              >
+                <img
+                  src={item.img}
+                  alt={item.title}
+                  className="w-full h-56 object-cover"
+                />
+                <div className="p-4">
+                  <h3 className="text-lg font-semibold text-black">
+                    {item.title}
+                  </h3>
+                  <p className="text-yellow-500 font-bold text-xl">
+                    {item.price}
+                  </p>
+                  <div className="flex justify-between items-center text-gray-500 text-sm my-2">
+                    <span>{item.timeLeft}</span>
+                    <span>{item.bids}</span>
+                  </div>
+                  {/* Progress Bar */}
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="bg-yellow-500 h-2 rounded-full w-3/5"></div>
+                  </div>
+                  {/* Bid Button */}
+                  <button className="w-full bg-violet-900 text-white py-2 mt-4 rounded-lg hover:bg-violet-700 transition">
+                    Bid Now
+                  </button>
                 </div>
-                {/* Progress Bar */}
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-yellow-500 h-2 rounded-full w-3/5"></div>
-                </div>
-                {/* Bid Button */}
-                <button className="w-full bg-violet-900 text-white py-2 mt-4 rounded-lg hover:bg-violet-700 transition">
-                  Bid Now
-                </button>
               </div>
-            </div>
-          </SwiperSlide>
-        ))}
-      </Swiper>
-    </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      </div>
+    </section>
   );
 };
 

@@ -14,6 +14,7 @@ import LiveBid from "../component/auction/LiveBid";
 import CreateAnnouncement from "../component/dashboard/admin/CreateAnnouncement";
 import Payment from "../component/dashboard/buyer/Payment";
 import AuctionStatus from "../component/dashboard/buyer/AuctionStatus";
+import BidHistory from "../component/dashboard/buyer/BidHistory";
 
 export const router = createBrowserRouter([
   {
@@ -80,6 +81,10 @@ export const router = createBrowserRouter([
       {
         path: "profile",
         element: <Profile />,
+      },
+      {
+        path: "bidHistory",
+        element: <BidHistory />,
       },
       {
         path: "announcement",

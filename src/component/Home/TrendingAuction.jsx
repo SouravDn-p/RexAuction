@@ -79,7 +79,7 @@ const TrendingAuction = () => {
             <div className="bg-white shadow-md rounded-lg overflow-hidden">
               <img src={auction.img} className="w-full  h-48 object-cover" />
               <div className="p-4">
-                <h3 className="text-lg font-semibold">{auction.title}</h3>
+                <h3 className="text-lg text-black font-semibold">{auction.title}</h3>
                 <p className="text-purple-600 font-bold text-xl">
                   {auction.price}
                 </p>

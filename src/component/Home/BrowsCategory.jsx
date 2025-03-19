@@ -27,21 +27,30 @@ const categories = [
 
 const BrowsCategory = () => {
   return (
-    <div className="container mx-auto px-14 lg:px-48 p-2 lg:p-6 bg-gradient-to-b from-violet-50 to-violet-100">
-      <h2 className="text-2xl font-bold text-center mb-6">Browse Categories</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {categories.map((category) => (
-          <div
-            key={category.id}
-            className="bg-white p-6 rounded-lg shadow-md flex flex-col items-center text-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1 "
-          >
-            <div className="text-violet-700 text-3xl ">{category.icon}</div>
-            <h3 className="text-lg font-semibold mt-2 ">{category.name}</h3>
-            <p className="text-gray-500 text-sm">{category.items}</p>
-          </div>
-        ))}
+    <section className="bg-gradient-to-b from-violet-50 to-violet-100 pb-4">
+      <div className="container text-black mx-auto px-14 lg:px-48 p-2 lg:p-6 ">
+        <div className="text-center mb-10">
+          <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
+            Browse Categories
+          </h2>
+          <p className="mt-4 text-gray-600 max-w-2xl mx-auto">
+            Discover Auction By Categories
+          </p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {categories.map((category) => (
+            <button
+              key={category.id}
+              className="bg-white hover:bg-violet-100 p-6 rounded-lg shadow-md flex flex-col items-center text-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1  "
+            >
+              <div className="text-violet-700 text-3xl ">{category.icon}</div>
+              <h3 className="text-lg font-semibold mt-2 ">{category.name}</h3>
+              <p className="text-gray-500 text-sm">{category.items}</p>
+            </button>
+          ))}
+        </div>
       </div>
-    </div>
+    </section>
   );
 };
 

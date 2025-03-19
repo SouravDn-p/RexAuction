@@ -22,22 +22,21 @@ const BuyerStatus = ({ userRole, userId }) => {
         console.error("Failed to fetch buyer info:", error);
       }
     };
+
     fetchBuyerInfo();
-  },[userId]);
+  }, [userId]);
 
-  // Show payment popup only after winning 
-useEffect(() =>{
-  if(buyerInfo?.isWinning && buyerInfo?.hasDuePayement && !hasAlertShown){
-    // this will prevent multiple alerts
-    setHasAlertShown(true);  
+  // Show payment popup only after winning
+  useEffect(() => {
+    if (buyerInfo?.isWinning && buyerInfo?.hasDuePayment && !hasAlertShown) {
+      setHasAlertShown(true); // Preventing multiple alerts
 
-    Swal.fire({
-      title: "You Won the Bid! 🎉",
+      Swal.fire({
+        title: "You Won the Bid! 🎉",
         text: "Make payment to claim your winnings.",
         icon: "success",
         confirmButtonText: "OK",
         confirmButtonColor: "#6366f1",
-    })
-  }
-},[buyerInfo, hasAlertShown]);
-
+      });
+    }
+  }, [buyerInfo, hasAlertShown]);

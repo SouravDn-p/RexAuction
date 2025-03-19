@@ -11,6 +11,7 @@ import auth from "../firebase/firebase.init";
 import { AuthContexts } from "../providers/AuthProvider";
 import registerImg from "../assets/register.jpg";
 import google from "../assets/Untitled_design__19_-removebg-preview.png";
+import logo from "../assets/Logos/register.jpg";
 
 const Register = () => {
   const { createUser } = useContext(AuthContexts);
@@ -94,42 +95,31 @@ const Register = () => {
   return (
     <div className="flex justify-center items-center lg:p-16 bg-gray-100">
       <div className="flex flex-col md:flex-row bg-white lg:rounded-lg shadow-lg max-w-4xl w-full overflow-hidden">
-        {/* Left Section */}
         <div
           className="w-full lg:h-[460px] h-[200px] md:w-1/2 bg-cover bg-center bg-no-repeat flex flex-col justify-center items-center text-black p-8"
           style={{
-            backgroundImage: `url(${registerImg})`,
+            backgroundImage: `url(${logo})`,
           }}
         ></div>
 
-        {/* Right Section - Registration Form */}
-        <div className="w-full md:w-1/2 p-4 md:p-8">
-          <div className="flex mb-5">
+        <div className="w-full md:w-1/2 p-4 md:p-8 bg-gray-100">
+          <div className="flex mb-4 gap-2">
             <NavLink
               to="/login"
-              className="w-full md:w-1/2 text-center px-6 py-2 border border-purple-600 text-purple-600 font-semibold shadow-md hover:bg-purple-600 hover:text-white transition-all"
-              style={({ isActive }) => ({
-                backgroundColor: isActive ? "#6b46c1" : "transparent",
-                color: isActive ? "white" : "#6b46c1",
-              })}
+              className="w-1/2 py-2 border border-purple-600 text-purple-600 font-semibold text-center rounded-md hover:bg-purple-600 hover:text-white transition-all"
             >
-              LogIn
+              Log In
             </NavLink>
-
             <NavLink
               to="/register"
-              className="w-full md:w-1/2 text-center px-6 py-2 border border-orange-500 text-orange-500 font-semibold shadow-md hover:bg-orange-500 hover:text-white transition-all"
-              style={({ isActive }) => ({
-                backgroundColor: isActive ? "#f97316" : "transparent",
-                color: isActive ? "white" : "#f97316",
-              })}
+              className="w-1/2 py-2 border border-orange-500 text-orange-500 font-semibold text-center rounded-md hover:bg-orange-500 hover:text-white transition-all"
             >
-              Register Now
+              Register
             </NavLink>
           </div>
 
           <form onSubmit={handleRegister}>
-            <div className="flex gap-2 mb-4">
+            <div className="flex gap-2 mb-4 ">
               <div className="w-full sm:w-1/2">
                 <label className="block text-sm font-semibold text-gray-700">
                   Name
@@ -140,7 +130,7 @@ const Register = () => {
                   value={formData.name}
                   onChange={handleChange}
                   placeholder="Enter your name"
-                  className="w-full p-3 mt-1 border rounded-lg border-gray-300 h-[50px] focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full p-3 mt-1 border rounded-lg border-gray-300 h-[50px] focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white text-black"
                   required
                 />
               </div>
@@ -154,7 +144,7 @@ const Register = () => {
                   value={formData.photoURL}
                   onChange={handleChange}
                   placeholder="Enter Profile Picture URL (Optional)"
-                  className="w-full p-3 mt-1 border rounded-lg border-gray-300 h-[50px] focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full p-3 mt-1 border rounded-lg border-gray-300 h-[50px] focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white text-black"
                 />
               </div>
             </div>
@@ -170,7 +160,7 @@ const Register = () => {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="Enter your email"
-                  className="w-full p-3 mt-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full p-3 mt-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white text-black"
                   required
                 />
               </div>
@@ -184,13 +174,12 @@ const Register = () => {
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="Enter your password"
-                  className="w-full p-3 mt-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  className="w-full p-3 mt-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white text-black font-bold  "
                   required
                 />
               </div>
             </div>
 
-            {/* Password Validation Messages */}
             {formData.password && (
               <div className="mt-2 mb-2 flex gap-2 text-xs">
                 {passwordCriteria.map((criterion, index) => (

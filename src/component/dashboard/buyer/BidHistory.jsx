@@ -37,7 +37,7 @@ export default function BidHistory() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-600"
+            className="w-full bg-white text-black px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-600"
             placeholder="Search by bidder, bid amount, or status"
           />
           <FaSearch className="absolute top-3 right-3 text-gray-600" />
