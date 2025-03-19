@@ -39,7 +39,6 @@ const SdDemo = () => {
     <div className="w-full py-16 bg-gradient-to-b from-violet-50 to-violet-100">
       <div className="max-w-6xl mx-auto px-4">
         <div className="text-center mb-12">
-          
           <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
             Our Amazing Features
           </h2>

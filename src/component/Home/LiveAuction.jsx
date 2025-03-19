@@ -29,7 +29,7 @@ const liveAuctions = [
 
 const LiveAuction = () => {
   return (
-    <div className="w-11/12 mx-auto p-2 py-10">
+    <div className="w-11/12 mx-auto p-2 py-10 text-black">
       <h2 className="text-2xl font-bold text-gray-900 mb-6">Live Auctions</h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
