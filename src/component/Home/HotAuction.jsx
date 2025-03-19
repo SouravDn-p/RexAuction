@@ -95,7 +95,7 @@ const auctionData = [
 const HotAuction = () => {
   return (
     <div className="w-11/12 mx-auto p-10">
-      <h2 className="text-2xl font-bold text-center mb-6">Hot Auctions</h2>
+      <h2 className="text-2xl font-bold text-center text-black mb-6">Hot Auctions</h2>
       <Swiper
         spaceBetween={20}
         // slidesPerView={1}
