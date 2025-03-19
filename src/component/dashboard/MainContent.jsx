@@ -5,8 +5,8 @@ import SellerDashboard from "./seller/SellerDashboard";
 import BuyerDashboard from "./buyer/BuyerDashboard";
 
 const MainContent = () => {
-  const isAdmin = false;
-  const isSeller = true;
+  const isAdmin = true;
+  const isSeller = false;
   const location = useLocation();
 
   return (
