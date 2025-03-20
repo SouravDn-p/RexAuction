@@ -2,23 +2,23 @@ import React, { useContext, useEffect, useState } from "react";
 import { FaSun, FaMoon } from "react-icons/fa";
 import { Link, useLocation } from "react-router-dom";
 import { AuthContexts } from "../../providers/AuthProvider";
-import auth from "../../firebase/firebase.init";
 import { toast } from "react-toastify";
-import { signOut } from "firebase/auth";
 import { MdOutlineLogout } from "react-icons/md";
+import useAuth from "../../hooks/useAuth";
 
 const Navbar = () => {
   const { user, setUser, setLoader, setError } = useContext(AuthContexts);
+  const {logOut,loading,setLoading,errorMessage,setErrorMessage}=useAuth()
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [currentTime, setCurrentTime] = useState("");
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isHovered, setIsHovered] = useState(false); // Track hover state
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10); // Detect scrolling
+      setIsScrolled(window.scrollY > 10); 
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
@@ -32,21 +32,21 @@ const Navbar = () => {
   }, []);
 
   const handleGoogleSignOut = async () => {
-    setLoader(true);
+    setLoading(true);
     try {
-      await signOut(auth);
+      await logOut();
       setUser(null);
-      setError(null);
+      setErrorMessage(null);
       toast.success("Successfully signed out", {
         position: "top-right",
         autoClose: 3000,
       });
     } catch (err) {
-      console.error("Sign-Out error:", err.message);
-      setError(err.message);
+     
+      setErrorMessage(err.message);
       toast.error(err.message);
     } finally {
-      setLoader(false);
+     setLoading(false);
     }
   };
 

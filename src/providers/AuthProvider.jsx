@@ -3,22 +3,24 @@ import {
   signInWithEmailAndPassword,
   onAuthStateChanged,
   signOut,
+  GoogleAuthProvider,
+  signInWithPopup,
 } from "firebase/auth";
 import { createContext, useEffect, useState } from "react";
 import auth from "../firebase/firebase.init";
-import useAxiosSecure from "../hooks/useAxiosSecure";
 import useAxiosPublic from "../hooks/useAxiosPublic";
 
-// eslint-disable-next-line react-refresh/only-export-components
-export const AuthContexts = createContext("");
+export const AuthContexts = createContext(null);
+const googleProvider = new GoogleAuthProvider();
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [response, setResponse] = useState(null);
-  const axiosSecure = useAxiosSecure();
+
   const axiosPublic = useAxiosPublic();
+  const [errorMessage, setErrorMessage] = useState("");
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
-  const [loader, setLoader] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
@@ -32,83 +34,88 @@ const AuthProvider = ({ children }) => {
     document.documentElement.setAttribute("data-theme", theme);
   }, [theme]);
 
-  const createUser = async (email, password) => {
-    setLoader(true);
-    try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      return userCredential;
-    } finally {
-      setLoader(false);
-    }
+  // Create new User
+  const createUser = (email, password) => {
+    setLoading(true);
+    return createUserWithEmailAndPassword(auth, email, password);
   };
 
-  const signInUser = async (email, password) => {
-    setLoader(true);
-    try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      return userCredential;
-    } finally {
-      setLoader(false);
-    }
+  // login user
+  const login = (email, password) => {
+    setLoading(true);
+    return signInWithEmailAndPassword(auth, email, password);
   };
 
-  const signOutUser = async () => {
-    setLoader(true);
-    try {
-      await signOut(auth);
-    } finally {
-      setLoader(false);
-    }
+  // user login with google
+  const signInWithGoogle = () => {
+    setLoading(true);
+    return signInWithPopup(auth, googleProvider);
+  };
+
+  // logout
+  const logOut = () => {
+    setLoading(true);
+    return signOut(auth);
+  };
+
+  // User Profile Update
+  const userProfileUpdate = (name, photo) => {
+    setLoading(true);
+    return updateProfile(auth.currentUser, {
+      displayName: name,
+      photoURL: photo,
+    });
+  };
+
+  // change pass
+  const changePassword = (auth, email) => {
+    sendPasswordResetEmail(auth, email)
+      .then(() => {
+        //
+        toast.success("Password reset email sent!");
+      })
+      .catch((error) => {
+        toast.error(error.message);
+      });
   };
 
   useEffect(() => {
     const unSubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
-      if (currentUser?.email) {
-        axiosSecure.post("/jwt").then((res) => setResponse(res));
-        axiosPublic
-          .post("/buyer", {
-            email: currentUser?.email || "demo user",
-            displayName: currentUser?.displayName || "demo displayName",
-          })
-          .then((res) => setResponse(res))
-          .catch((err) => {
-            console.error(
-              "Error adding user:",
-              err.response?.data || err.message
-            );
-          });
+      if (currentUser) {
+        // get token and store client
+        const userInfo = { email: currentUser?.email };
+        axiosPublic.post("/jwt", userInfo).then((res) => {
+          if (res.data?.token) {
+            localStorage.setItem("access-token", res.data.token);
+            setLoading(false);
+          }
+        });
       } else {
-        axiosSecure.post("/logout").then((res) => setResponse(res));
+        localStorage.removeItem("access-token");
+        setLoading(false);
       }
-      setLoader(false);
     });
-
-    return () => {
-      unSubscribe();
-    };
-  }, []);
+    return () => unSubscribe();
+  }, [axiosPublic]);
 
   const authInfo = {
     createUser,
-    signInUser,
-    signOutUser,
+    login,
     user,
     setUser,
     theme,
     toggleTheme,
-    loader,
-    setLoader,
+    loading,
+    setLoading,
     response,
     setResponse,
+    errorMessage,
+    setErrorMessage,
+    changePassword,
+    userProfileUpdate,
+    signInWithGoogle,
+    logOut,
   };
 
   return (

@@ -1,20 +1,15 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
-import {
-  GoogleAuthProvider,
-  signInWithPopup,
-  updateProfile,
-} from "firebase/auth";
+import { updateProfile } from "firebase/auth";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import auth from "../firebase/firebase.init";
-import { AuthContexts } from "../providers/AuthProvider";
-import registerImg from "../assets/register.jpg";
-import google from "../assets/Untitled_design__19_-removebg-preview.png";
+
 import logo from "../assets/Logos/register.jpg";
+import SocialLogin from "../component/SocialLogin";
+import useAuth from "../hooks/useAuth";
 
 const Register = () => {
-  const { createUser } = useContext(AuthContexts);
+  const { createUser } = useAuth();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -25,7 +20,6 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const googleProvider = new GoogleAuthProvider();
 
   // Password validation criteria
   const passwordCriteria = [
@@ -70,20 +64,6 @@ const Register = () => {
       });
       toast.success("Registration successful! Redirecting...");
       navigate("/login");
-    } catch (err) {
-      setError(err.message);
-      toast.error(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleGoogleRegister = async () => {
-    setLoading(true);
-    try {
-      await signInWithPopup(auth, googleProvider);
-      toast.success("Google registration successful!");
-      navigate("/");
     } catch (err) {
       setError(err.message);
       toast.error(err.message);
@@ -208,14 +188,7 @@ const Register = () => {
               {loading ? "Registering..." : "Register"}
             </button>
           </form>
-
-          <button
-            onClick={handleGoogleRegister}
-            className="w-full mt-3 rounded-lg flex items-center justify-center border-2 border-orange-500 text-orange-500 font-semibold shadow-md hover:bg-orange-500 hover:text-white transition-all"
-          >
-            <img src={google} alt="Google logo" className="w-10 h-10 mr-3" />
-            Continue with Google
-          </button>
+          <SocialLogin />
         </div>
       </div>
       <ToastContainer />
