@@ -1,30 +1,30 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { signInWithPopup, signOut, GoogleAuthProvider } from "firebase/auth";
+
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import auth from "../firebase/firebase.init";
+
 import Swal from "sweetalert2";
 import biddingImg from "../assets/Logos/login.jpg";
-import google from "../assets/Untitled_design__19_-removebg-preview.png";
-import { AuthContexts } from "../providers/AuthProvider";
+import SocialLogin from "../component/SocialLogin";
+import useAuth from "../hooks/useAuth";
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { setUser, signInUser } = useContext(AuthContexts);
-  const [error, setError] = useState(null);
+  const {loading,setLoading,login,errorMessage,setErrorMessage}=useAuth()
+  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const googleProvider = new GoogleAuthProvider();
+
+
 
   const handleEmailPasswordLogin = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError(null);
+   setLoading(true);
+    setErrorMessage(null);
 
     try {
-      const userCredential = await signInUser(email, password);
+      const userCredential = await login(email, password);
       setUser(userCredential.user);
       Swal.fire({
         title: "Login successful",
@@ -34,37 +34,18 @@ const LoginPage = () => {
       navigate("/");
     } catch (err) {
       console.error("Login error:", err.message);
-      setError(err.message);
+      setErrorMessage(err.message);
       Swal.fire({
         icon: "error",
         title: "Oops...",
         text: `${err.message}`,
       });
     } finally {
-      setIsLoading(false);
+     setLoading(false);
     }
   };
 
-  const handleGoogleSignIn = async () => {
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      setUser(result.user);
-      toast.success("Welcome! Google sign-in successful", {
-        position: "top-right",
-        autoClose: 3000,
-      });
-      navigate("/");
-    } catch (err) {
-      console.error("Google Sign-In error:", err.message);
-      setError(err.message);
-      toast.error(err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+ 
 
   return (
     <div className="flex justify-center items-center p-4 sm:p-8 md:p-12 bg-gray-100 min-h-screen">
@@ -136,25 +117,17 @@ const LoginPage = () => {
             <button
               type="submit"
               className="w-full py-3 bg-purple-600 text-white font-semibold rounded-lg shadow-md hover:bg-purple-700 transition-all"
-              disabled={isLoading}
+              disabled={loading}
             >
-              {isLoading ? "Loading..." : "Sign In"}
+              {loading ? "Loading..." : "Sign In"}
             </button>
           </form>
 
-          {error && (
-            <p className="text-red-600 text-sm text-center mt-3">{error}</p>
+          {errorMessage&& (
+            <p className="text-red-600 text-sm text-center mt-3">{errorMessage}</p>
           )}
 
-          <div className="mt-4">
-            <button
-              onClick={handleGoogleSignIn}
-              className="w-full py-3 flex items-center justify-center border-2 border-orange-500 text-orange-500 font-semibold rounded-lg shadow-md hover:bg-orange-500 hover:text-white transition-all"
-            >
-              <img src={google} alt="Google logo" className="w-8 h-8 mr-2" />
-              Continue with Google
-            </button>
-          </div>
+          <SocialLogin />
         </div>
       </div>
       <ToastContainer />
