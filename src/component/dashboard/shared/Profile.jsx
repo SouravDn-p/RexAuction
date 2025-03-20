@@ -1,32 +1,10 @@
 import React, { useState } from "react";
-import { Line } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler,
-} from "chart.js";
-import { FaSun, FaMoon, FaWallet, FaGavel, FaTrophy, FaBell, FaCalendarAlt, FaUserEdit } from "react-icons/fa";
-
-// Register Chart.js components
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler // Add Filler plugin for gradient background
-);
+import { FaUserEdit, FaWallet, FaGavel, FaTrophy, FaSearch } from "react-icons/fa";
+import coverImageURL from "../../../assets/auction2.jpg";
 
 export default function AuctionProfile() {
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
@@ -36,97 +14,20 @@ export default function AuctionProfile() {
     alert("Update Profile button clicked!"); // Replace with your logic
   };
 
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
   const formData = {
     name: "John Doe",
+    email: "johndoe@example.com", // Add email
     photoURL: "https://i.ibb.co.com/bm0P3kG/boy2.jpg",
     walletBalance: 500,
-    bidHistory: [
-      { auction: "Vintage Car", bidAmount: 200, date: "2025-02-15" },
-      { auction: "Antique Vase", bidAmount: 300, date: "2025-02-18" },
-    ],
     winBid: "Vintage Car",
     totalBids: 2,
-    paymentHistory: [
-      { amount: 200, date: "2025-02-15" },
-      { amount: 300, date: "2025-02-18" },
-    ],
-    recentActivity: [
-      { type: "Bid", description: "Placed a bid on Vintage Car", date: "2025-02-15" },
-      { type: "Payment", description: "Paid $200 for Vintage Car", date: "2025-02-15" },
-      { type: "Win", description: "Won Vintage Car", date: "2025-02-15" },
-    ],
-    notifications: [
-      { message: "Your bid on Antique Vase was outbid", date: "2025-02-18" },
-      { message: "Payment of $300 was successful", date: "2025-02-18" },
-    ],
-    upcomingAuctions: [
-      { name: "Rare Painting", date: "2025-03-01" },
-      { name: "Classic Watch", date: "2025-03-05" },
-    ],
     profileProgress: 85, // Profile completeness percentage
-  };
-
-  // Chart data
-  const chartData = {
-    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-    datasets: [
-      {
-        label: "Bids Placed",
-        data: [12, 19, 3, 5, 2, 3],
-        borderColor: "#8b5cf6",
-        backgroundColor: (context) => {
-          const ctx = context.chart.ctx;
-          const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-          gradient.addColorStop(0, "rgba(139, 92, 246, 0.4)");
-          gradient.addColorStop(1, "rgba(139, 92, 246, 0)");
-          return gradient;
-        },
-        tension: 0.4,
-        fill: true,
-        pointBackgroundColor: "#8b5cf6",
-        pointBorderColor: "#fff",
-        pointBorderWidth: 2,
-        pointRadius: 5,
-        pointHoverRadius: 7,
-      },
-    ],
-  };
-
-  // Chart options
-  const chartOptions = {
-    responsive: true,
-    maintainAspectRatio: false, // Allow custom height
-    plugins: {
-      legend: {
-        display: false, // Hide legend
-      },
-      tooltip: {
-        backgroundColor: "#6d28d9",
-        titleColor: "#fff",
-        bodyColor: "#fff",
-        borderColor: "#8b5cf6",
-        borderWidth: 1,
-        padding: 10,
-      },
-    },
-    scales: {
-      x: {
-        grid: {
-          display: false, // Hide x-axis grid lines
-        },
-        ticks: {
-          color: isDarkMode ? "#fff" : "#6b7280", // Dynamic tick color
-        },
-      },
-      y: {
-        grid: {
-          color: isDarkMode ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)", // Dynamic grid color
-        },
-        ticks: {
-          color: isDarkMode ? "#fff" : "#6b7280", // Dynamic tick color
-        },
-      },
-    },
+    location: "New York, USA", // Additional info
+    phone: "(123) 456-7890", // Additional info
   };
 
   return (
@@ -135,26 +36,74 @@ export default function AuctionProfile() {
         isDarkMode ? "bg-gray-900 text-white" : "bg-gradient-to-br from-purple-50 to-blue-50 text-gray-800"
       } transition-all duration-300`}
     >
+    {/* Sticky Navbar with Blur on Scroll */}
+<div className="sticky top-0 z-10 bg-white/60 backdrop-blur-md shadow-md p-4">
+  <div className="container flex justify-between items-center">
+    {/* Navbar Left: Search */}
+    <div className="flex items-center space-x-2">
+      <input
+        type="text"
+        placeholder="Search..."
+        value={searchQuery}
+        onChange={handleSearchChange}
+        className="p-2 rounded-lg border border-gray-300"
+      />
+      <FaSearch className="text-xl text-gray-500" />
+    </div>
+
+    {/* Navbar Right: User Profile */}
+    <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-2">
+        <img
+          src={formData.photoURL}
+          alt="User Profile"
+          className="w-10 h-10 rounded-full border-2 border-purple-500"
+        />
+        <span className="font-semibold">{formData.name}</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
       <div className="container mx-auto p-8">
-        
         {/* Profile Header */}
-        <div className="bg-gradient-to-r from-[#8b5cf6] to-[#6d28d9] p-8 rounded-lg shadow-lg mb-8">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-6">
+        <div className="bg-gradient-to-r from-[#8b5cf6] to-[#6d28d9] p-3 rounded-lg shadow-lg mb-8 relative">
+          <div className="relative">
+            {/* Profile Cover with background image */}
+            <div
+              className="w-full h-32 rounded-lg overflow-hidden mb-6"
+              style={{
+                backgroundImage: `url(${coverImageURL})`, // Add the URL for the cover image here
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }}
+            ></div>
+
+            {/* Profile Image */}
+            <div className="absolute left-1/2 transform -translate-x-1/2 -top-12">
               <img
                 src={formData.photoURL}
                 alt="Profile Picture"
-                className="w-24 h-24 rounded-full border-4 border-white"
+                className="w-32 h-32 rounded-full border-4 border-white"
               />
-              <div>
-                <h2 className="text-3xl font-bold text-white">Welcome, {formData.name}</h2>
-                <p className="text-white">Profile Progress: {formData.profileProgress}%</p>
-                <div className="w-48 h-2 bg-white rounded-full mt-2">
-                  <div
-                    className="h-full bg-purple-300 rounded-full"
-                    style={{ width: `${formData.profileProgress}%` }}
-                  ></div>
-                </div>
+            </div>
+          </div>
+          <div className="flex items-center justify-between mt-16">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold text-white">Welcome, {formData.name}</h2>
+              <p className="text-white">Profile Progress: {formData.profileProgress}%</p>
+              <div className="w-48 h-2 bg-white rounded-full mt-2 mx-auto">
+                <div
+                  className="h-full bg-purple-300 rounded-full"
+                  style={{ width: `${formData.profileProgress}%` }}
+                ></div>
+              </div>
+              {/* Display Additional Info */}
+              <div className="mt-4 text-white">
+                <p>Email: {formData.email}</p>
+                <p>Location: {formData.location}</p>
+                <p>Phone: {formData.phone}</p>
               </div>
             </div>
             {/* Update Profile Button */}
@@ -199,63 +148,6 @@ export default function AuctionProfile() {
             </div>
             <p className="text-2xl font-bold text-white">{formData.winBid}</p>
           </div>
-        </div>
-
-        {/* Bidding Trends Chart */}
-        <div className="bg-white p-6 rounded-lg shadow-md mb-8">
-          <h3 className="text-lg font-semibold text-gray-700 mb-4">Bidding Trends</h3>
-          <div className="h-64"> {/* Reduced height */}
-            <Line data={chartData} options={chartOptions} />
-          </div>
-        </div>
-
-        {/* Recent Activity and Notifications */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          {/* Recent Activity */}
-          <div className="bg-gradient-to-r from-[#a78bfa] to-[#7c3aed] p-6 rounded-lg shadow-md">
-            <h3 className="text-lg font-semibold text-white mb-4">Recent Activity</h3>
-            <ul className="space-y-3">
-              {formData.recentActivity.map((item, index) => (
-                <li key={index} className="flex justify-between items-center text-white">
-                  <span className="font-medium">{item.type}</span>
-                  <span className="text-gray-100">{item.description}</span>
-                  <span className="text-sm text-gray-200">{item.date}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Notifications */}
-          <div className="bg-gradient-to-r from-[#fbbf24] to-[#f59e0b] p-6 rounded-lg shadow-md">
-            <div className="flex items-center space-x-3 mb-4">
-              <FaBell className="text-2xl text-white" />
-              <h3 className="text-lg font-semibold text-white">Notifications</h3>
-            </div>
-            <ul className="space-y-3">
-              {formData.notifications.map((item, index) => (
-                <li key={index} className="flex justify-between items-center text-white">
-                  <span className="font-medium">{item.message}</span>
-                  <span className="text-sm text-gray-200">{item.date}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-
-        {/* Upcoming Auctions */}
-        <div className="bg-gradient-to-r from-[#34d399] to-[#10b981] p-6 rounded-lg shadow-md">
-          <div className="flex items-center space-x-3 mb-4">
-            <FaCalendarAlt className="text-2xl text-white" />
-            <h3 className="text-lg font-semibold text-white">Upcoming Auctions</h3>
-          </div>
-          <ul className="space-y-3">
-            {formData.upcomingAuctions.map((item, index) => (
-              <li key={index} className="flex justify-between items-center text-white">
-                <span className="font-medium">{item.name}</span>
-                <span className="text-sm text-gray-200">{item.date}</span>
-              </li>
-            ))}
-          </ul>
         </div>
       </div>
     </div>

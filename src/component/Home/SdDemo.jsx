@@ -1,6 +1,10 @@
+import React, { useContext } from "react";
 import { Gift, Lock, ThumbsUp, Gem } from "lucide-react";
+import ThemeContext from "../Context/ThemeContext"; // Ensure this exists
 
 const SdDemo = () => {
+  const { isDarkMode } = useContext(ThemeContext);
+
   const features = [
     {
       icon: <Gift className="h-8 w-8" />,
@@ -36,13 +40,30 @@ const SdDemo = () => {
   ];
 
   return (
-    <div className="w-full py-16 bg-gradient-to-b from-violet-50 to-violet-100">
+    <div
+      className={`w-full py-16 transition-all duration-300 ${
+        isDarkMode
+          ? "bg-gray-950 text-white"
+          : "bg-gradient-to-b from-violet-50 to-violet-100 text-gray-800"
+      }`}
+    >
       <div className="max-w-6xl mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
-            Our Amazing Features
-          </h2>
-          <p className="mt-4 text-gray-600 max-w-2xl mx-auto">
+        <h2
+  className={`text-3xl md:text-4xl font-bold bg-clip-text text-transparent ${
+    isDarkMode
+      ? "bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400"
+      : "bg-gradient-to-r  from-cyan-400 via-purple-400 to-pink-400"
+  }`}
+>
+  Our Amazing Features
+</h2>
+
+          <p
+            className={`mt-4 max-w-2xl mx-auto ${
+              isDarkMode ? "text-gray-300" : "text-gray-600"
+            }`}
+          >
             Discover why thousands of users choose our platform for their
             marketplace needs
           </p>
@@ -52,9 +73,18 @@ const SdDemo = () => {
           {features.map((feature, index) => (
             <div
               key={index}
-              className="relative group bg-white rounded-xl p-6 transition-all duration-300 hover:translate-y-[-8px] hover:shadow-xl"
+              className={`relative group rounded-xl p-6 transition-all duration-300 hover:translate-y-[-8px] hover:shadow-xl ${
+                isDarkMode ? "bg-gray-900" : "bg-white"
+              }`}
             >
-              <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-violet-100 to-indigo-100 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              {/* Hover overlay */}
+              <div
+                className={`absolute inset-0 rounded-xl transition-opacity duration-300 opacity-0 group-hover:opacity-100 ${
+                  isDarkMode
+                    ? "bg-gradient-to-r from-slate-800 to-gray-800"
+                    : "bg-gradient-to-r from-violet-100 to-indigo-100"
+                }`}
+              />
 
               <div className="relative z-10 flex flex-col items-center text-center">
                 <div
@@ -63,11 +93,17 @@ const SdDemo = () => {
                   {feature.icon}
                 </div>
 
-                <h3 className="font-bold text-xl mb-3 text-gray-800">
+                <h3
+                  className={`font-bold text-xl mb-3 ${
+                    isDarkMode ? "text-white" : "text-gray-800"
+                  }`}
+                >
                   {feature.title}
                 </h3>
 
-                <p className="text-gray-600">{feature.description}</p>
+                <p className={`${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+                  {feature.description}
+                </p>
 
                 <div className="w-12 h-1 rounded-full bg-gradient-to-r from-violet-400 to-indigo-400 mt-5 group-hover:w-20 transition-all duration-300" />
               </div>

@@ -20,9 +20,8 @@ const MainContent = () => {
       </label>
 
       {/* Content Container */}
-      <div className="container mx-auto">
-        <div className="bg-white rounded-lg p-5 overflow-x-auto flex-grow">
-          {/* Conditionally render based on role */}
+      <div className="container mx-auto   ">
+        <div className="bg-white rounded-lg p-5  overflow-x-auto flex-grow">
           {location.pathname === "/dashboard" && (
             <>
               {isAdmin ? (
