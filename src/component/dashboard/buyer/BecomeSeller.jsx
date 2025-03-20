@@ -29,8 +29,26 @@ const BecomeSeller = () => {
       return;
     }
 
+    // Show Sweet Alert
+    Swal.fire({
+      title: "Request Sent!",
+      text: "Your request for being a seller has been successfully submitted.",
+      icon: "success",
+      confirmButtonColor: "#8b5cf6",
+      confirmButtonText: "Okay",
+    });
+
     console.log("Verification Request Submitted:", formData);
     // form submission logic
+
+    // Reset form data
+    setFormData({
+      name: "",
+      email: "",
+      documentType: "NID",
+      documents: [],
+      termsAccepted: false,
+    });
   };
 
   return (
