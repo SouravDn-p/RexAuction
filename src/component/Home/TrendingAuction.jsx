@@ -4,7 +4,7 @@ import { Navigation, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import { FaGavel, FaHeart } from "react-icons/fa";
-import ThemeContext from "../Context/ThemeContext"; // Import ThemeContext
+import ThemeContext from "../Context/ThemeContext";
 
 const trendingAuctions = [
   {
@@ -12,51 +12,51 @@ const trendingAuctions = [
     price: "$4,500",
     bids: 23,
     likes: 45,
-    img: "https://img.freepik.com/premium-photo/fashionable-elegant-men-s-watch-lying-outdoors-stone-stylish-accessories-nature-forest-copy-space-place-travel-compass-adventure-rocks_370059-2013.jpg?ga=GA1.1.960511258.1740671009&semt=ais_hybrid",
+    img: "https://img.freepik.com/premium-photo/fashionable-elegant-men-s-watch-lying-outdoors-stone-stylish-accessories-nature-forest-copy-space-place-travel-compass-adventure-rocks_370059-2013.jpg",
   },
   {
     title: "Classic Camera Collection",
     price: "$1,900",
     bids: 18,
     likes: 27,
-    img: "https://img.freepik.com/premium-photo/close-up-camera-table_1048944-30127704.jpg?ga=GA1.1.960511258.1740671009&semt=ais_hybrid",
+    img: "https://img.freepik.com/premium-photo/close-up-camera-table_1048944-30127704.jpg",
   },
   {
     title: "Vintage Furniture Set",
     price: "$2,800",
     bids: 15,
     likes: 32,
-    img: "https://img.freepik.com/premium-photo/collection-antique-chairs-with-mirror-top_1077802-129392.jpg?ga=GA1.1.960511258.1740671009&semt=ais_hybrid",
+    img: "https://img.freepik.com/premium-photo/collection-antique-chairs-with-mirror-top_1077802-129392.jpg",
   },
   {
-    title: "Classic Camera Collection",
+    title: "Camera Collection",
     price: "$6,900",
     bids: 55,
     likes: 87,
-    img: "https://img.freepik.com/premium-photo/close-up-camera-bag-against-white-background_1048944-9527983.jpg?ga=GA1.1.960511258.1740671009&semt=ais_hybrid",
+    img: "https://img.freepik.com/premium-photo/close-up-camera-bag-against-white-background_1048944-9527983.jpg",
   },
   {
-    title: "Classic Camera Collection",
+    title: "Old Camera",
     price: "$22,990",
     bids: 18,
     likes: 237,
-    img: "https://img.freepik.com/premium-photo/close-up-camera-table_1048944-9088136.jpg?ga=GA1.1.960511258.1740671009&semt=ais_hybrid",
+    img: "https://img.freepik.com/premium-photo/close-up-camera-table_1048944-9088136.jpg",
   },
   {
-    title: "Classic Camera Collection",
+    title: "Retro Camera",
     price: "$13,900",
     bids: 184,
     likes: 2745,
-    img: "https://img.freepik.com/free-photo/top-view-retro-camera_23-2148372215.jpg?ga=GA1.1.960511258.1740671009&semt=ais_hybrid",
+    img: "https://img.freepik.com/free-photo/top-view-retro-camera_23-2148372215.jpg",
   },
 ];
 
 const TrendingAuction = () => {
-  const { isDarkMode } = useContext(ThemeContext); // Use the dark mode context
+  const { isDarkMode } = useContext(ThemeContext);
 
   return (
     <div
-      className={`w-11/12 mx-auto p-2 py-10 ${
+      className={`w-full mx-auto p-14 ${
         isDarkMode ? "bg-gray-900 text-white" : "bg-white text-black"
       }`}
     >
@@ -84,11 +84,18 @@ const TrendingAuction = () => {
                 isDarkMode ? "bg-gray-800" : "bg-white"
               }`}
             >
-              <img
-                src={auction.img}
-                className="w-full h-48 object-cover"
-                alt={auction.title}
-              />
+              {/* Image container with flash effect */}
+              <div className="relative group w-full h-48 overflow-hidden">
+                <img
+                  src={auction.img}
+                  alt={auction.title}
+                  className="w-full h-full object-cover transition-transform duration-500 transform group-hover:scale-110"
+                />
+                {/* Purple Flash Overlay ON IMAGE ONLY */}
+                <div className="absolute inset-0 bg-purple-500 opacity-0 group-hover:opacity-20 transition-opacity duration-500 z-10" />
+              </div>
+
+              {/* Auction Info */}
               <div
                 className={`p-4 ${isDarkMode ? "text-white" : "text-black"}`}
               >

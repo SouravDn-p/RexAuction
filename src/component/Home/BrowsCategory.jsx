@@ -48,11 +48,13 @@ const BrowsCategory = () => {
           Discover Auction By Categories
         </p>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-0 gap-y-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 place-items-center">
   {categories.map((category) => (
     <button
       key={category.id}
-      className={`group flex flex-col items-center justify-center w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 rounded-full transition-all duration-300 border shadow-md
+      className={`group flex flex-col items-center justify-center 
+        w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-36 lg:h-36
+        rounded-full border shadow-md transition-all duration-300
         ${
           isDarkMode
             ? "bg-[#1f2a38] text-white border-gray-700 hover:border-purple-600 hover:bg-[#2e3d57]"
@@ -66,9 +68,9 @@ const BrowsCategory = () => {
       >
         {category.icon}
       </div>
-      <h3 className="text-xs font-medium">{category.name}</h3>
+      <h3 className="text-xs sm:text-sm font-semibold">{category.name}</h3>
       <p
-        className={`text-[10px] ${
+        className={`text-[10px] sm:text-xs ${
           isDarkMode ? "text-gray-400" : "text-gray-600"
         }`}
       >
@@ -77,6 +79,7 @@ const BrowsCategory = () => {
     </button>
   ))}
 </div>
+
 
 
     </div>

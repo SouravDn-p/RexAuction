@@ -119,3 +119,20 @@ body{
 .animate-progress {
   animation: progress 5s infinite ease-in-out; 
 }
+/* slider
+ */
+ /* Animation to scroll the placeholder text */
+@keyframes scrollPlaceholder {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.search-placeholder::placeholder {
+  display: inline-block;
+  white-space: nowrap;
+  animation: scrollPlaceholder 5s linear infinite;
+}
