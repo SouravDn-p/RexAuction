@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Autoplay } from "swiper/modules"; // Add Autoplay module
+import { Navigation, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import { FaGavel, FaHeart } from "react-icons/fa";
+import ThemeContext from "../Context/ThemeContext"; // Import ThemeContext
 
 const trendingAuctions = [
   {
@@ -51,16 +52,18 @@ const trendingAuctions = [
 ];
 
 const TrendingAuction = () => {
+  const { isDarkMode } = useContext(ThemeContext); // Use the dark mode context
+
   return (
-    <div className="w-11/12 mx-auto p-2 py-10">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">
-        Trending Auctions
-      </h2>
+    <div
+      className={`w-11/12 mx-auto p-2 py-10 ${
+        isDarkMode ? "bg-gray-900 text-white" : "bg-white text-black"
+      }`}
+    >
+      <h2 className="text-2xl font-bold mb-6">Trending Auctions</h2>
 
       <Swiper
         spaceBetween={20}
-        // slidesPerView={3}
-
         breakpoints={{
           640: {
             slidesPerView: 2,
@@ -70,20 +73,34 @@ const TrendingAuction = () => {
           },
         }}
         navigation={true}
-        autoplay={{ delay: 3000 }} // Auto play every 3 seconds
-        modules={[Navigation, Autoplay]} // Include Autoplay module
+        autoplay={{ delay: 3000 }}
+        modules={[Navigation, Autoplay]}
         className="pb-10"
       >
         {trendingAuctions.map((auction, index) => (
           <SwiperSlide key={index}>
-            <div className="bg-white shadow-md rounded-lg overflow-hidden">
-              <img src={auction.img} className="w-full  h-48 object-cover" />
-              <div className="p-4">
-                <h3 className="text-lg text-black font-semibold">{auction.title}</h3>
+            <div
+              className={`rounded-lg overflow-hidden shadow-md ${
+                isDarkMode ? "bg-gray-800" : "bg-white"
+              }`}
+            >
+              <img
+                src={auction.img}
+                className="w-full h-48 object-cover"
+                alt={auction.title}
+              />
+              <div
+                className={`p-4 ${isDarkMode ? "text-white" : "text-black"}`}
+              >
+                <h3 className="text-lg font-semibold">{auction.title}</h3>
                 <p className="text-purple-600 font-bold text-xl">
                   {auction.price}
                 </p>
-                <div className="flex items-center justify-between text-gray-500 text-sm mt-2">
+                <div
+                  className={`flex items-center justify-between text-sm mt-2 ${
+                    isDarkMode ? "text-gray-400" : "text-gray-500"
+                  }`}
+                >
                   <span className="flex items-center gap-1">
                     <FaGavel /> {auction.bids} bids
                   </span>
