@@ -5,9 +5,6 @@ import HotAuction from "./HotAuction";
 import BrowsCategory from "./BrowsCategory";
 import TrendingAuction from "./TrendingAuction";
 import SdDemo from "./SdDemo";
-import SdCard from "./SdCard";
-import SdSlider from "./SdSlider";
-import SdAuction from "./SdAuction";
 
 export default function Home() {
   return (
