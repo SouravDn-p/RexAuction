@@ -96,7 +96,7 @@ export const router = createBrowserRouter([
         element: <BidHistory />,
       },
       {
-        path: "auctionStatus",
+        path: "status",
         element: <AuctionStatus />,
       },
       {
