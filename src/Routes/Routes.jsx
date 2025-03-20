@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter } from "react-router-dom";
 import Main from "../layout/Main";
 import AboutUs from "../component/AboutUs/AboutUs";
 import LoginPage from "../Auth/LoginPage";
@@ -13,8 +13,12 @@ import Profile from "../component/dashboard/shared/Profile";
 import LiveBid from "../component/auction/LiveBid";
 import CreateAnnouncement from "../component/dashboard/admin/CreateAnnouncement";
 import Payment from "../component/dashboard/buyer/Payment";
-import AuctionStatus from "../component/dashboard/buyer/AuctionStatus";
 import BidHistory from "../component/dashboard/buyer/BidHistory";
+import BuyerDetails from "../component/dashboard/admin/BuyerDetails";
+import ManageSellerRequest from "../component/dashboard/admin/ManageSellerRequest";
+import BecomeSeller from "../component/dashboard/buyer/BecomeSeller";
+import CreateAuction from "../component/dashboard/seller/CreateAuction";
+import AuctionStatus from "../component/dashboard/buyer/AuctionStatus";
 
 export const router = createBrowserRouter([
   {
@@ -66,26 +70,46 @@ export const router = createBrowserRouter([
         path: "createAnnouncement",
         element: <CreateAnnouncement />,
       },
+
+      {
+        path: "buyerDetails",
+        element: <BuyerDetails />,
+      },
+      {
+        path: "manageSellerRequest",
+        element: <ManageSellerRequest />,
+      },
       // Seller Only
+      {
+        path: "createAction",
+        element: <CreateAuction />,
+      },
+    
 
       // Buyer only
+
       {
-        path: "auctionStatus",
+        path: "bidHistory",
+        element: <BidHistory />,
+      },
+      {
+        path: "status",
         element: <AuctionStatus />,
       },
       {
         path: "payment",
         element: <Payment />,
       },
+      {
+        path: "becomeSeller",
+        element: <BecomeSeller />,
+      },
       // Shared
       {
         path: "profile",
         element: <Profile />,
       },
-      {
-        path: "bidHistory",
-        element: <BidHistory />,
-      },
+
       {
         path: "announcement",
         element: <Announcement />,
