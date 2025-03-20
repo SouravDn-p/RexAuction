@@ -83,3 +83,39 @@ body{
   border-radius: 8px;
   margin-top: 10px;
 }
+/* live auction pages css */
+@keyframes flash {
+  0% {
+    opacity: 0.6;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.animate-flash {
+  animation: flash 0.4s ease-out;
+}
+
+
+/* hot auction */
+
+.progress-bar {
+  width: 60%; 
+  transition: width 5s ease-in-out; 
+}
+
+/* Keyframe animation for progress bar */
+@keyframes progress {
+  0% {
+    width: 0%; 
+  }
+  100% {
+    width: 70%; 
+  }
+}
+
+
+.animate-progress {
+  animation: progress 5s infinite ease-in-out; 
+}

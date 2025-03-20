@@ -19,7 +19,7 @@ const MainContent = ({ isSeller, isAdmin }) => {
 
       {/* Content Container */}
       <div className="container mx-auto   ">
-        <div className="bg-white rounded-lg p-5  overflow-x-auto flex-grow">
+        <div className="bg-white rounded-lg   overflow-x-auto flex-grow">
           {location.pathname === "/dashboard" && (
             <>
               {isAdmin ? (

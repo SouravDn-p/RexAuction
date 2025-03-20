@@ -1,5 +1,5 @@
-import React from "react";
-
+import React, { useContext } from "react";
+import ThemeContext from "../Context/ThemeContext";
 const liveAuctions = [
   {
     title: "Vintage Camera Collection",
@@ -28,30 +28,60 @@ const liveAuctions = [
 ];
 
 const LiveAuction = () => {
+  const { isDarkMode } = useContext(ThemeContext);
+
   return (
-    <div className="w-11/12 mx-auto p-2 py-10 text-black">
-      <h2 className="text-2xl font-bold text-gray-900 mb-6">Live Auctions</h2>
+    <div
+      className={`w-full py-10 ${
+        isDarkMode ? "bg-gray-900 p-14 text-white" : "bg-white p-14 text-black"
+      }`}
+    >
+      <h2
+        className={`text-3xl font-bold mb-6 ${
+          isDarkMode
+            ? "text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-violet-600"
+            : "text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-800"
+        }`}
+      >
+        Live Auctions
+      </h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {liveAuctions.map((auction, index) => (
           <div
             key={index}
-            className="bg-white shadow-md rounded-lg overflow-hidden"
+            className={`rounded-xl overflow-hidden transition duration-300 transform hover:shadow-xl group ${
+              isDarkMode
+                ? "bg-gray-800 shadow-purple-700/40"
+                : "bg-white shadow-md"
+            }`}
           >
-            <img
-              src={auction.img}
-              alt={auction.title}
-              className="w-full h-48 object-cover"
-            />
+            <div className="relative overflow-hidden">
+              <img
+                src={auction.img}
+                alt={auction.title}
+                className="w-full h-48 object-cover transform transition-transform duration-500 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-purple-800 opacity-0 group-hover:opacity-20 group-hover:animate-flash pointer-events-none"></div>
+            </div>
+
             <div className="p-4">
-              <h3 className="text-lg font-semibold">{auction.title}</h3>
-              <p className="text-purple-600 font-bold text-xl">
+              <h3 className="text-lg font-semibold mb-1">{auction.title}</h3>
+              <p
+                className={`font-bold text-xl ${
+                  isDarkMode ? "text-purple-300" : "text-purple-700"
+                }`}
+              >
                 {auction.price}
               </p>
-              <div className="flex items-center justify-between text-gray-500 text-sm my-2">
+              <div
+                className={`flex items-center justify-between text-sm my-2 ${
+                  isDarkMode ? "text-gray-400" : "text-gray-600"
+                }`}
+              >
                 <span>⏳ {auction.timeLeft}</span>
               </div>
-              <button className="w-full bg-violet-900 text-white py-2 mt-3 rounded-lg hover:bg-violet-700 transition">
+              <button className="w-full bg-gradient-to-r from-purple-600 via-violet-700 to-purple-800 text-white py-2 mt-4 rounded-lg hover:from-purple-500 hover:via-violet-600 hover:to-indigo-700 transition">
                 Quick Bid
               </button>
             </div>
@@ -59,7 +89,13 @@ const LiveAuction = () => {
         ))}
       </div>
 
-      <button className="bg-violet-900 p-3 rounded-3xl text-white mx-auto block mt-6">
+      <button
+        className={`px-6 py-3 rounded-full font-semibold mt-8 mx-auto block transition border-2 ${
+          isDarkMode
+            ? "border-violet-600 text-violet-400 hover:bg-violet-600 hover:text-white"
+            : "border-violet-900 text-violet-900 hover:bg-violet-900 hover:text-white"
+        }`}
+      >
         See All Live Auction
       </button>
     </div>

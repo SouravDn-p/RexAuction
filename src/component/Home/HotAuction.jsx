@@ -1,10 +1,10 @@
+import { useContext, useEffect, useRef, useState } from "react";
 import { Navigation, Autoplay } from "swiper/modules";
-
 import { Swiper, SwiperSlide } from "swiper/react";
-
 import "swiper/css";
 import "swiper/css/navigation";
 import { FaFire } from "react-icons/fa";
+import ThemeContext from "../../component/Context/ThemeContext";
 
 const auctionData = [
   {
@@ -93,24 +93,69 @@ const auctionData = [
   },
 ];
 
+
 const HotAuction = () => {
-  // bg-[#f8f7f7]
+  const { isDarkMode } = useContext(ThemeContext);
+  const [visibleIndexes, setVisibleIndexes] = useState([]);
+  const itemRefs = useRef([]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const index = Number(entry.target.getAttribute("data-index"));
+          if (entry.isIntersecting) {
+            // Trigger the animation every time the item becomes visible
+            setVisibleIndexes((prev) => [...new Set([...prev, index])]);
+          } else {
+            // Optionally, reset the animation when the item is out of view
+            setVisibleIndexes((prev) => prev.filter((i) => i !== index));
+          }
+        });
+      },
+      {
+        threshold: 0.3, // Trigger when 30% of the item is visible
+      }
+    );
+
+    itemRefs.current.forEach((el) => {
+      if (el) observer.observe(el);
+    });
+
+    return () => {
+      itemRefs.current.forEach((el) => {
+        if (el) observer.unobserve(el);
+      });
+    };
+  }, []);
+
   return (
-    <section className=" bg-[#0d132105]">
+    <section>
       <div className="w-11/12 mx-auto p-10">
         <div className="flex flex-col items-center mb-12">
           <div className="flex items-center mb-4">
             <FaFire className="text-orange-500 mr-2 text-2xl" />
-            <h2 className="text-3xl font-bold text-gray-900">Hot Auctions</h2>
+            <h2
+              className={`text-3xl font-bold ${
+                isDarkMode
+                  ? "text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-violet-700 to-indigo-800"
+                  : "text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-500 to-indigo-600"
+              }`}
+            >
+              Hot Auctions
+            </h2>
           </div>
-          <p className="text-gray-600 text-center max-w-2xl mb-8">
+          <p
+            className={`text-gray-600 text-center max-w-2xl mb-8 ${
+              isDarkMode ? "text-gray-200" : "text-gray-600"
+            }`}
+          >
             Discover our most popular and trending auction items. Bid now before
             they're gone!
           </p>
         </div>
         <Swiper
           spaceBetween={20}
-          // slidesPerView={1}
           breakpoints={{
             640: {
               slidesPerView: 2,
@@ -132,18 +177,25 @@ const HotAuction = () => {
           {auctionData.map((item, index) => (
             <SwiperSlide key={index}>
               <div
-                key={index}
-                className="bg-white shadow-lg rounded-lg overflow-hidden"
+                className={`rounded-lg overflow-hidden ${
+                  isDarkMode
+                    ? "bg-gradient-to-r border-purple-400 border from-[#2c150c] to-[#32223f]"
+                    : "bg-white"
+                } shadow-lg`}
+                ref={(el) => (itemRefs.current[index] = el)}
+                data-index={index}
               >
                 <img
                   src={item.img}
                   alt={item.title}
                   className="w-full h-56 object-cover"
                 />
-                <div className="p-4">
-                  <h3 className="text-lg font-semibold text-black">
-                    {item.title}
-                  </h3>
+                <div
+                  className={`p-4 ${
+                    isDarkMode ? "text-white" : "text-gray-900"
+                  }`}
+                >
+                  <h3 className="text-lg font-semibold">{item.title}</h3>
                   <p className="text-yellow-500 font-bold text-xl">
                     {item.price}
                   </p>
@@ -151,12 +203,16 @@ const HotAuction = () => {
                     <span>{item.timeLeft}</span>
                     <span>{item.bids}</span>
                   </div>
-                  {/* Progress Bar */}
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-yellow-500 h-2 rounded-full w-3/5"></div>
-                  </div>
+{/* Progress Bar */}
+<div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+  <div
+    className={`bg-yellow-500 h-2 rounded-full progress-bar ${visibleIndexes.includes(index) ? "animate-progress" : ""}`}
+  ></div>
+</div>
+
+
                   {/* Bid Button */}
-                  <button className="w-full bg-violet-900 text-white py-2 mt-4 rounded-lg hover:bg-violet-700 transition">
+                  <button className="w-full bg-gradient-to-r from-purple-600 via-violet-700 to-purple-800 text-white py-2 mt-4 rounded-lg hover:from-purple-500 hover:via-violet-600 hover:to-indigo-700 transition">
                     Bid Now
                   </button>
                 </div>
