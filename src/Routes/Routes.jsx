@@ -18,6 +18,7 @@ import BuyerDetails from "../component/dashboard/admin/BuyerDetails";
 import ManageSellerRequest from "../component/dashboard/admin/ManageSellerRequest";
 import BecomeSeller from "../component/dashboard/buyer/BecomeSeller";
 import CreateAuction from "../component/dashboard/seller/CreateAuction";
+import AuctionStatus from "../component/dashboard/buyer/AuctionStatus";
 
 export const router = createBrowserRouter([
   {
@@ -93,6 +94,10 @@ export const router = createBrowserRouter([
       {
         path: "bidHistory",
         element: <BidHistory />,
+      },
+      {
+        path: "auctionStatus",
+        element: <AuctionStatus />,
       },
       {
         path: "payment",
