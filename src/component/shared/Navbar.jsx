@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { useContext, useEffect, useState } from "react"
 import { FaSun, FaMoon } from "react-icons/fa"
 import { Link, useLocation } from "react-router-dom"
@@ -24,6 +25,33 @@ const Navbar = () => {
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
+=======
+import React, { useContext, useEffect, useState } from "react";
+import { FaSun, FaMoon } from "react-icons/fa";
+import { Link, useLocation } from "react-router-dom";
+import { AuthContexts } from "../../providers/AuthProvider";
+import { toast } from "react-toastify";
+import { MdOutlineLogout } from "react-icons/md";
+import useAuth from "../../hooks/useAuth";
+
+const Navbar = () => {
+  const { user, setUser, setLoader, setError } = useContext(AuthContexts);
+  const {logOut,loading,setLoading,errorMessage,setErrorMessage}=useAuth()
+  const location = useLocation();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [currentTime, setCurrentTime] = useState("");
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10); 
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+>>>>>>> 5ffed274aad9962ada1c5d1366f5030a44a2b398
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -42,21 +70,37 @@ const Navbar = () => {
   }, [isDarkMode])
 
   const handleGoogleSignOut = async () => {
+<<<<<<< HEAD
     setLoader(true)
     try {
       await signOut(auth)
       setUser(null)
       setError(null)
+=======
+    setLoading(true);
+    try {
+      await logOut();
+      setUser(null);
+      setErrorMessage(null);
+>>>>>>> 5ffed274aad9962ada1c5d1366f5030a44a2b398
       toast.success("Successfully signed out", {
         position: "top-right",
         autoClose: 3000,
       })
     } catch (err) {
+<<<<<<< HEAD
       console.error("Sign-Out error:", err.message)
       setError(err.message)
       toast.error(err.message)
     } finally {
       setLoader(false)
+=======
+     
+      setErrorMessage(err.message);
+      toast.error(err.message);
+    } finally {
+     setLoading(false);
+>>>>>>> 5ffed274aad9962ada1c5d1366f5030a44a2b398
     }
   }
 
