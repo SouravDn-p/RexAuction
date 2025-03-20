@@ -90,7 +90,7 @@ const Sidebar = () => {
               <TfiAnnouncement size={20} /> Announcement
             </NavLink>
             <NavLink
-              to="/dashboard/createAnnouncement"
+              to="/dashboard/createAction"
               className={({ isActive }) =>
                 `flex items-center gap-2 py-2 font-bold ${
                   isActive ? "text-yellow-400" : ""
