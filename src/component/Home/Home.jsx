@@ -7,6 +7,7 @@ import TrendingAuction from "./TrendingAuction";
 import SdDemo from "./SdDemo";
 import ThemeContext from "../../component/Context/ThemeContext";
 
+
 export default function Home() {
   const { isDarkMode } = useContext(ThemeContext);
 
