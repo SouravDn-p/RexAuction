@@ -11,20 +11,17 @@ const AuctionStatus = ({ userRole, userId }) => {
 
   // Fetch buyer details from backend
   useEffect(() => {
-    const fetchBuyerInfo = async () => {
-      try {
-        const response = await axios
-          .get
-          //   user data fetching api
-          ();
-        setBuyerInfo(response.data);
-      } catch (error) {
-        console.error("Failed to fetch buyer info:", error);
-      }
+    const fetchBuyerInfo = {
+      isBuyer: true,
+      buyerName: "John Doe",
+      buyerPhoto: "", // leave blank to fallback to avatar
+      currentPosition: 2,
+      totalBidders: 10,
+      isWinning: true,
+      hasDuePayment: true,
     };
-
-    fetchBuyerInfo();
-  }, [userId]);
+    setBuyerInfo(fetchBuyerInfo);
+  }, []);
 
   // Show payment popup only after winning
   useEffect(() => {

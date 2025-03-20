@@ -11,8 +11,6 @@ const Sidebar = () => {
   const isAdmin = true;
   const isSeller = false;
 
- 
-
   return (
     <div className="drawer-side fixed">
       <label htmlFor="my-drawer-2" className="drawer-overlay lg:hidden"></label>
@@ -129,7 +127,7 @@ const Sidebar = () => {
               <MdOutlineDashboard size={20} /> Dashboard
             </NavLink>
             <NavLink
-              to="/dashboard/status"
+              to="/dashboard/auctionStatus"
               className={({ isActive }) =>
                 `flex items-center gap-2 py-2 font-bold ${
                   isActive ? "text-yellow-400" : ""
