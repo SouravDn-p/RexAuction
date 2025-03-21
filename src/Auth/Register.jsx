@@ -63,7 +63,9 @@ const Register = () => {
           `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
       });
       toast.success("Registration successful! Redirecting...");
-      navigate("/login");
+      setTimeout(() => {
+        navigate("/login"); // Navigate to the login page after 2 seconds
+      }, 2000); // Adjust the timeout duration if needed
     } catch (err) {
       setError(err.message);
       toast.error(err.message);

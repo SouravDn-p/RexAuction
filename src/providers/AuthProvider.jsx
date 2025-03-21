@@ -5,10 +5,13 @@ import {
   signOut,
   GoogleAuthProvider,
   signInWithPopup,
+  sendPasswordResetEmail,
+  updateProfile,
 } from "firebase/auth";
 import { createContext, useEffect, useState } from "react";
 import auth from "../firebase/firebase.init";
 import useAxiosPublic from "../hooks/useAxiosPublic";
+import { toast } from "react-hot-toast"; // ✅ Hot toast
 
 export const AuthContexts = createContext(null);
 const googleProvider = new GoogleAuthProvider();
@@ -16,7 +19,6 @@ const googleProvider = new GoogleAuthProvider();
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [response, setResponse] = useState(null);
-
   const axiosPublic = useAxiosPublic();
   const [errorMessage, setErrorMessage] = useState("");
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
@@ -34,31 +36,34 @@ const AuthProvider = ({ children }) => {
     document.documentElement.setAttribute("data-theme", theme);
   }, [theme]);
 
-  // Create new User
   const createUser = (email, password) => {
     setLoading(true);
     return createUserWithEmailAndPassword(auth, email, password);
   };
 
-  // login user
-  const login = (email, password) => {
+  const login = async (email, password) => {
     setLoading(true);
-    return signInWithEmailAndPassword(auth, email, password);
+    try {
+      const result = await signInWithEmailAndPassword(auth, email, password);
+      toast.success("🎉 Login Successful! Welcome back!"); // ✅ hot-toast message
+      return result;
+    } catch (error) {
+      throw error;
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // user login with google
   const signInWithGoogle = () => {
     setLoading(true);
     return signInWithPopup(auth, googleProvider);
   };
 
-  // logout
   const logOut = () => {
     setLoading(true);
     return signOut(auth);
   };
 
-  // User Profile Update
   const userProfileUpdate = (name, photo) => {
     setLoading(true);
     return updateProfile(auth.currentUser, {
@@ -67,11 +72,9 @@ const AuthProvider = ({ children }) => {
     });
   };
 
-  // change pass
   const changePassword = (auth, email) => {
     sendPasswordResetEmail(auth, email)
       .then(() => {
-        //
         toast.success("Password reset email sent!");
       })
       .catch((error) => {
@@ -85,19 +88,18 @@ const AuthProvider = ({ children }) => {
       if (currentUser) {
         const userInfo = { email: currentUser.email };
         try {
-            const res = await axiosPublic.post("/jwt", userInfo);
-            //console.log(res.data.token);
-            if (res.data.token) {
-                localStorage.setItem("access-token", res.data.token);
-            }
+          const res = await axiosPublic.post("/jwt", userInfo);
+          if (res.data.token) {
+            localStorage.setItem("access-token", res.data.token);
+          }
         } catch (error) {
-            console.error("Error fetching token:", error);
+          console.error("Error fetching token:", error);
         }
-    } else {
+      } else {
         localStorage.removeItem("access-token");
-    }
-    setLoading(false);
-});
+      }
+      setLoading(false);
+    });
     return () => unSubscribe();
   }, [axiosPublic]);
 
