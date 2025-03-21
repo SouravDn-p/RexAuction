@@ -11,7 +11,7 @@ export default function AuctionProfile() {
   };
 
   const handleUpdateProfile = () => {
-    alert("Update Profile button clicked!"); // Replace with your logic
+    alert("Update Profile button clicked!"); 
   };
 
   const handleSearchChange = (e) => {
@@ -33,38 +33,11 @@ export default function AuctionProfile() {
   return (
     <div
       className={`min-h-screen ${
-        isDarkMode ? "bg-gray-900 text-white" : "bg-gradient-to-br from-purple-50 to-blue-50 text-gray-800"
+        isDarkMode
+          ? "bg-gray-900 text-white"
+          : "bg-gradient-to-br from-purple-50 to-blue-50 text-gray-800"
       } transition-all duration-300`}
     >
-    {/* Sticky Navbar with Blur on Scroll */}
-<div className="sticky top-0 z-10 bg-white/60 backdrop-blur-md shadow-md p-4">
-  <div className="container flex justify-between items-center">
-    {/* Navbar Left: Search */}
-    <div className="flex items-center space-x-2">
-      <input
-        type="text"
-        placeholder="Search..."
-        value={searchQuery}
-        onChange={handleSearchChange}
-        className="p-2 rounded-lg border border-gray-300"
-      />
-      <FaSearch className="text-xl text-gray-500" />
-    </div>
-
-    {/* Navbar Right: User Profile */}
-    <div className="flex items-center space-x-4">
-      <div className="flex items-center space-x-2">
-        <img
-          src={formData.photoURL}
-          alt="User Profile"
-          className="w-10 h-10 rounded-full border-2 border-purple-500"
-        />
-        <span className="font-semibold">{formData.name}</span>
-      </div>
-    </div>
-  </div>
-</div>
-
 
       <div className="container mx-auto p-8">
         {/* Profile Header */}
@@ -91,8 +64,12 @@ export default function AuctionProfile() {
           </div>
           <div className="flex items-center justify-between mt-16">
             <div className="text-center">
-              <h2 className="text-3xl font-bold text-white">Welcome, {formData.name}</h2>
-              <p className="text-white">Profile Progress: {formData.profileProgress}%</p>
+              <h2 className="text-3xl font-bold text-white">
+                Welcome, {formData.name}
+              </h2>
+              <p className="text-white">
+                Profile Progress: {formData.profileProgress}%
+              </p>
               <div className="w-48 h-2 bg-white rounded-full mt-2 mx-auto">
                 <div
                   className="h-full bg-purple-300 rounded-full"
@@ -123,9 +100,13 @@ export default function AuctionProfile() {
           <div className="bg-gradient-to-r from-[#6ee7b7] to-[#3b82f6] p-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300">
             <div className="flex items-center space-x-3 mb-4">
               <FaWallet className="text-3xl text-white" />
-              <h3 className="text-lg font-semibold text-white">Wallet Balance</h3>
+              <h3 className="text-lg font-semibold text-white">
+                Wallet Balance
+              </h3>
             </div>
-            <p className="text-3xl font-bold text-white">${formData.walletBalance}</p>
+            <p className="text-3xl font-bold text-white">
+              ${formData.walletBalance}
+            </p>
             <button className="mt-4 px-4 py-2 bg-white text-purple-600 rounded-lg hover:bg-purple-50 transition-all duration-300 shadow-md">
               Add Funds
             </button>
@@ -135,9 +116,13 @@ export default function AuctionProfile() {
           <div className="bg-gradient-to-r from-[#f97316] to-[#f59e0b] p-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300">
             <div className="flex items-center space-x-3 mb-4">
               <FaGavel className="text-3xl text-white" />
-              <h3 className="text-lg font-semibold text-white">Total Bids Placed</h3>
+              <h3 className="text-lg font-semibold text-white">
+                Total Bids Placed
+              </h3>
             </div>
-            <p className="text-3xl font-bold text-white">{formData.totalBids}</p>
+            <p className="text-3xl font-bold text-white">
+              {formData.totalBids}
+            </p>
           </div>
 
           {/* Winning Bid */}

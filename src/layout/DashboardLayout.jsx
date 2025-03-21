@@ -11,6 +11,7 @@ const DashboardLayout = () => {
         <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
 
         {/* Main Content */}
+        
         <MainContent isAdmin={isAdmin} isSeller={isSeller} />
 
         {/* Sidebar */}
