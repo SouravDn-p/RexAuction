@@ -1,69 +1,70 @@
-import { useContext, useEffect, useState } from "react"
-import { FaSun, FaMoon } from "react-icons/fa"
-import { Link, useLocation } from "react-router-dom"
-import { AuthContexts } from "../../providers/AuthProvider"
-import ThemeContext from "../../component/Context/ThemeContext" // Update the path as needed
-import auth from "../../firebase/firebase.init"
-import { toast } from "react-toastify"
-import { signOut } from "firebase/auth"
-import { MdOutlineLogout } from "react-icons/md"
+
+import { useContext, useEffect, useState } from "react";
+import { FaSun, FaMoon } from "react-icons/fa";
+import { Link, useLocation } from "react-router-dom";
+import { AuthContexts } from "../../providers/AuthProvider";
+import ThemeContext from "../../component/Context/ThemeContext"; 
+import auth from "../../firebase/firebase.init";
+import { toast } from "react-toastify";
+import { signOut } from "firebase/auth";
+import { MdOutlineLogout } from "react-icons/md";
 
 const Navbar = () => {
-  const { user, setUser, setLoader, setError } = useContext(AuthContexts)
-  const { isDarkMode, toggleTheme } = useContext(ThemeContext)
-  const location = useLocation()
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [currentTime, setCurrentTime] = useState("")
-  const [isScrolled, setIsScrolled] = useState(false)
-  const [isHovered, setIsHovered] = useState(false) 
+  const { user, setUser, setLoading, setError } = useContext(AuthContexts);  
+  const { isDarkMode, toggleTheme } = useContext(ThemeContext);
+  const location = useLocation();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [currentTime, setCurrentTime] = useState("");
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isHovered, setIsHovered] = useState(false); 
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10) 
-    }
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+      setIsScrolled(window.scrollY > 10); 
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentTime(new Date().toLocaleTimeString())
-    }, 1000)
-    return () => clearInterval(interval)
-  }, [])
+      setCurrentTime(new Date().toLocaleTimeString());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Apply dark mode class to document when isDarkMode changes
   useEffect(() => {
     if (isDarkMode) {
-      document.documentElement.classList.add("dark")
+      document.documentElement.classList.add("dark");
     } else {
-      document.documentElement.classList.remove("dark")
+      document.documentElement.classList.remove("dark");
     }
-  }, [isDarkMode])
+  }, [isDarkMode]);
 
   const handleGoogleSignOut = async () => {
-    setLoader(true)
+    setLoading(true);  
     try {
-      await signOut(auth)
-      setUser(null)
-      setError(null)
+      await signOut(auth);
+      setUser(null);
+      setError(null);
       toast.success("Successfully signed out", {
         position: "top-right",
         autoClose: 3000,
-      })
+      });
     } catch (err) {
-      console.error("Sign-Out error:", err.message)
-      setError(err.message)
-      toast.error(err.message)
+      console.error("Sign-Out error:", err.message);
+      setError(err.message);
+      toast.error(err.message);
     } finally {
-      setLoader(false)
+      setLoading(false);  
     }
-  }
+  };
 
   const getNavLinkClass = (path) =>
     location.pathname === path
       ? "text-yellow-400 border-b-2 border-yellow-500 "
-      : "hover:text-gray-300 hover:border-b-2 border-yellow-500"
+      : "hover:text-gray-300 hover:border-b-2 border-yellow-500";
 
   return (
     <div>
@@ -175,11 +176,7 @@ const Navbar = () => {
         </div>
 
         <div
-          className={`lg:hidden fixed top-0 left-0 w-60 h-full ${
-            isDarkMode ? "bg-gray-800/95" : "bg-purple-700/85"
-          } text-white shadow-lg transform transition-transform duration-300 ${
-            mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
+          className={`lg:hidden fixed top-0 left-0 w-60 h-full ${isDarkMode ? "bg-gray-800/95" : "bg-purple-700/85"} text-white shadow-lg transform transition-transform duration-300 ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"}`}
         >
           <button className="text-3xl absolute top-4 right-4" onClick={() => setMobileMenuOpen(false)}>
             ×
@@ -200,11 +197,7 @@ const Navbar = () => {
                 <Link to="/profile" className={getNavLinkClass("/profile")} onClick={() => setMobileMenuOpen(false)}>
                   Profile
                 </Link>
-                <Link
-                  to="/dashboard"
-                  className={getNavLinkClass("/dashboard")}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
+                <Link to="/dashboard" className={getNavLinkClass("/dashboard")} onClick={() => setMobileMenuOpen(false)}>
                   Dashboard
                 </Link>
                 <button
@@ -218,9 +211,7 @@ const Navbar = () => {
                   <MdOutlineLogout className="text-xl" />
                   {isHovered && (
                     <div
-                      className={`absolute left-1/2 transform -translate-x-1/2 mt-4 ${
-                        isDarkMode ? "bg-purple-900" : "bg-purple-800"
-                      } text-white text-xs rounded px-2 py-1 transition-colors duration-200`}
+                      className={`absolute left-1/2 transform -translate-x-1/2 mt-4 ${isDarkMode ? "bg-purple-900" : "bg-purple-800"} text-white text-xs rounded px-2 py-1 transition-colors duration-200`}
                     >
                       Logout
                     </div>
@@ -240,7 +231,7 @@ const Navbar = () => {
         </div>
       </nav>
     </div>
-  )
-}
+  );
+};
 
-export default Navbar
+export default Navbar;
