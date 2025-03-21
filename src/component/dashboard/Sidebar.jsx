@@ -110,7 +110,6 @@ const Sidebar = () => {
             >
               <GrAnnounce size={20} /> Announcement
             </NavLink>
-            
           </>
         )}
 
@@ -176,7 +175,7 @@ const Sidebar = () => {
               <MdOutlineDashboard size={20} /> Dashboard
             </NavLink>
             <NavLink
-              to="/dashboard/auctionStatus"
+              to="/dashboard/status"
               className={({ isActive }) =>
                 `flex items-center gap-2 py-2 font-bold ${
                   isActive ? "text-yellow-400" : ""
@@ -259,7 +258,7 @@ const Sidebar = () => {
                 }`
               }
             >
-              <IoSettingsOutline               size={20} /> Setting
+              <IoSettingsOutline size={20} /> Setting
             </NavLink>
           </div>
           <div className="flex gap-5 justify-center items-center">
