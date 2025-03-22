@@ -36,10 +36,6 @@ const MainContent = () => {
 
       {/* Content Container */}
       <div className="container mx-auto">
-        {/* <div>
-          <DashboardNavbar />
-        </div> */}
-
         {/* Main Dashboard Content */}
         <div className="bg-white rounded-lg p-5 overflow-x-auto flex-grow">
           {location.pathname === "/dashboard" && (
