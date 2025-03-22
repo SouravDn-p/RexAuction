@@ -1,28 +1,54 @@
-import React, { useState } from "react";
+import Swal from "sweetalert2";
+import useAuth from "../../../hooks/useAuth";
+import useAxiosSecure from "../../../hooks/useAxiosSecure";
 
 export default function CreateAuction() {
-  const [auctionData, setAuctionData] = useState({
-    name: "",
-    category: "",
-    imageUrl: "",
-    startingPrice: "",
-    bidIncrement: "",
-    startTime: "",
-    endTime: "",
-    description: "",
-  });
+  const axiosSecure = useAxiosSecure();
+  const auth = useAuth();
+  console.log(auth);
 
   const categories = ["Electronics", "Antiques", "Vehicles", "Furniture", "Jewelry"];
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setAuctionData({ ...auctionData, [name]: value });
-  };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
-    console.log("Auction Created:", auctionData);
-    alert("Auction Created Successfully!");
+    const form = new FormData(e.target);
+    const name = form.get("name");
+    const category = form.get("category");
+    const imageUrl = form.get("imageUrl");
+    const startingPrice = form.get("startingPrice");
+    const bidIncrement = form.get("bidIncrement");
+    const startTime = form.get("startTime");
+    const endTime = form.get("endTime");
+    const description = form.get("description");
+    const status = "pending";
+    const sellerEmail = auth?.user?.email;
+    const auctionData = {name, category, imageUrl, startingPrice, bidIncrement, startTime, endTime, description, status, sellerEmail};
+
+    try {
+      const { data } = await axiosSecure.post("/auctions", auctionData);
+      console.log("Auction Created:", auctionData);
+  
+      // Success alert
+      Swal.fire({
+        title: "Success!",
+        text: "Auction Created Successfully!",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+    } catch (error) {
+      console.error("Error creating auction:", error);
+  
+      // Error alert
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to create auction. Please try again.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+    }
+    
+ 
   };
 
   return (
@@ -36,8 +62,6 @@ export default function CreateAuction() {
               <input
                 type="text"
                 name="name"
-                value={auctionData.name}
-                onChange={handleChange}
                 className="w-full p-2 border rounded bg-white"
                 required
               />
@@ -47,8 +71,6 @@ export default function CreateAuction() {
               <label className="block text-gray-700 font-semibold">Category:</label>
               <select
                 name="category"
-                value={auctionData.category}
-                onChange={handleChange}
                 className="w-full p-2 text-gray-500 border rounded bg-white"
                 required
               >
@@ -65,15 +87,13 @@ export default function CreateAuction() {
             <input
               type="text"
               name="imageUrl"
-              value={auctionData.imageUrl}
-              onChange={handleChange}
               placeholder="Enter image URL"
               className="w-full p-2 border rounded bg-white"
               required
             />
           </div>
 
-          {auctionData.imageUrl && (
+          {/* {auctionData.imageUrl && (
             <div className="flex justify-center">
               <img
                 src={auctionData.imageUrl}
@@ -81,7 +101,7 @@ export default function CreateAuction() {
                 className="w-32 h-32 object-cover rounded-lg border"
               />
             </div>
-          )}
+          )} */}
 
           <div className="flex space-x-4">
             <div className="w-1/2">
@@ -89,8 +109,6 @@ export default function CreateAuction() {
               <input
                 type="number"
                 name="startingPrice"
-                value={auctionData.startingPrice}
-                onChange={handleChange}
                 className="w-full text-gray-500 p-2 border rounded bg-white"
                 required
               />
@@ -101,8 +119,6 @@ export default function CreateAuction() {
               <input
                 type="number"
                 name="bidIncrement"
-                value={auctionData.bidIncrement}
-                onChange={handleChange}
                 className="w-full p-2 text-gray-500 border rounded bg-white"
                 required
               />
@@ -115,8 +131,6 @@ export default function CreateAuction() {
               <input
                 type="datetime-local"
                 name="startTime"
-                value={auctionData.startTime}
-                onChange={handleChange}
                 className="w-full text-gray-500 p-2 border rounded bg-white"
                 required
               />
@@ -127,8 +141,6 @@ export default function CreateAuction() {
               <input
                 type="datetime-local"
                 name="endTime"
-                value={auctionData.endTime}
-                onChange={handleChange}
                 className="w-full p-2 text-gray-500 border rounded bg-white"
                 required
               />
@@ -139,8 +151,6 @@ export default function CreateAuction() {
             <label className="block text-gray-700 font-semibold">Description:</label>
             <textarea
               name="description"
-              value={auctionData.description}
-              onChange={handleChange}
               className="w-full p-2 text-gray-500 border rounded bg-white"
               rows="3"
               required
