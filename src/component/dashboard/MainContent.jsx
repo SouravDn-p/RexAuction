@@ -7,7 +7,7 @@ import { useState } from "react";
 import DashboardNavbar from "./shared/DashboardNavbar";
 
 const MainContent = () => {
-  const isAdmin = true;
+  const isAdmin = false;
   const isSeller = false;
   const location = useLocation();
 
@@ -36,9 +36,9 @@ const MainContent = () => {
 
       {/* Content Container */}
       <div className="container mx-auto">
-        {/* <div>
+        <div>
           <DashboardNavbar />
-        </div> */}
+        </div>
 
         {/* Main Dashboard Content */}
         <div className="bg-white rounded-lg p-5 overflow-x-auto flex-grow">

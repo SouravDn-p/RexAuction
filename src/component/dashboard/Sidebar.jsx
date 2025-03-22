@@ -16,7 +16,7 @@ import { IoSettingsOutline } from "react-icons/io5";
 
 const Sidebar = () => {
   const { user } = useContext(AuthContexts);
-  const isAdmin = true;
+  const isAdmin = false;
   const isSeller = false;
 
   return (

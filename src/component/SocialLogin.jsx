@@ -20,6 +20,7 @@ const SocialLogin = () => {
           name: user?.displayName,
           email: user?.email,
           photo: user?.photoURL,
+          role:"buyer"
         };
 
         axiosPublic.post("/users", userData);
