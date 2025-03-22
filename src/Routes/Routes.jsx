@@ -88,7 +88,6 @@ export const router = createBrowserRouter([
         path: "createAuction",
         element: <CreateAuction />,
       },
-
       // Buyer only
       {
         path: "bidHistory",

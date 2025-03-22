@@ -5,13 +5,16 @@ import { Bell, Moon, Search, Sun, LogOut, Settings, User } from "lucide-react";
 import { AuthContexts } from "../../../providers/AuthProvider";
 
 export default function DashboardNavbar() {
-  const { user } = useContext(AuthContexts);
   const [searchQuery, setSearchQuery] = useState("");
   const [theme, setTheme] = useState("light"); // Replace with actual theme logic if needed
   const [notificationCount, setNotificationCount] = useState(3);
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
+  };
+  const user = {
+    photoURL: "https://via.placeholder.com/150",
+    name: "John Doe",
   };
 
   const handleLogout = () => {

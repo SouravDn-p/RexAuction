@@ -2,7 +2,7 @@ import Sidebar from "./Sidebar";
 import MainContent from "./MainContent";
 
 const Dashboard = () => {
-  const isAdmin = false;  
+  const isAdmin = true;
   const isSeller = false;
 
   return (
