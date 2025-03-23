@@ -110,7 +110,6 @@ const profileData = {
 const Profile = () => {
   const [activeTab, setActiveTab] = useState("All");
   const { isDarkMode } = useContext(ThemeContext);
-  // Function to render status badge with appropriate styling
   const renderStatusBadge = (status) => {
     switch (status) {
       case "Won":
