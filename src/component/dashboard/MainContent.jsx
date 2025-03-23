@@ -65,12 +65,15 @@ const MainContent = () => {
     photoURL: "https://i.ibb.co.com/Y75m1Mk9/Final-Boss.jpg",
     name: "Sourav Debnath",
     email: "sourav@example.com",
-    role: "admin",
+    role: "admin"
   };
 
   return (
-    <div className="drawer-content flex flex-col md:flex-row justify-between items-stretch">
-      <div className="mx-auto">
+    <div
+      className={`drawer-content flex flex-col md:flex-row justify-between items-stretch
+        ${isDarkMode ? " bg-gray-600" : "bg-yellow-100"}`}
+    >
+      <div className="mx-auto w-3/4 md:w-11/12">
         {/* Top Navigation Bar */}
         <header
           className={`sticky top-0 z-10 ${

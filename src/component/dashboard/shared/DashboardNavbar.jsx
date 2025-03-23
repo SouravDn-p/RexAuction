@@ -30,7 +30,7 @@ export default function DashboardNavbar() {
   const user = {
     photoURL: "https://i.ibb.co.com/Y75m1Mk9/Final-Boss.jpg",
     name: "Sourav Debnath",
-    role: "admin",
+    role: "Buyer",
   };
 
   return (
