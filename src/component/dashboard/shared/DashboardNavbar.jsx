@@ -32,7 +32,7 @@ export default function DashboardNavbar() {
     photoURL: "https://i.ibb.co/Y75m1Mk9/Final-Boss.jpg",
     name: "Sourav Debnath",
     email: "sourav@example.com",
-    role: "admin"
+    role: "admin",
   };
 
   return (
