@@ -81,30 +81,30 @@ const Reports = () => {
   return (
     <div
       className={`min-h-screen px-4 py-10 sm:px-6 lg:px-8 ${
-        isDarkMode ? "bg-gray-900 text-white" : "bg-purple-50 text-gray-900"
+        isDarkMode ? "bg-gray-900 text-white" : "bg-purple-100 text-gray-900"
       }`}
     >
+      <h2 className="text-2xl sm:text-3xl font-bold text-purple-700 mb-8 text-center">
+        Report a Buyer or Seller
+      </h2>
+      {/* form */}
       <div
         data-aos="fade-up"
         className={`max-w-4xl mx-auto rounded-xl p-6 sm:p-10 shadow-xl ${
           isDarkMode ? "bg-gray-800 text-white" : "bg-white"
         }`}
       >
-        <h2 className="text-2xl sm:text-3xl font-bold text-purple-700 mb-8 text-center">
-          Report a Buyer or Seller
-        </h2>
-
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Name */}
           <div>
-            <label className="text-sm font-medium text-purple-700">
+            <label className="text-sm font-medium text-purple-800 dark:text-purple-300">
               Name *
             </label>
             <input
               {...register("name", { required: "Name is required" })}
               type="text"
               placeholder="Your name"
-              className="w-full border border-purple-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white dark:bg-gray-700 dark:border-gray-600"
+              className="w-full border border-purple-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-400 bg-purple-50 dark:bg-gray-700 dark:border-gray-600"
             />
             {errors.name && (
               <p className="text-red-500 text-sm">{errors.name.message}</p>
@@ -112,7 +112,7 @@ const Reports = () => {
           </div>
           {/* Email */}
           <div>
-            <label className="text-sm font-medium text-purple-700">
+            <label className="text-sm font-medium text-purple-800 dark:text-purple-300">
               Email *
             </label>
             <input
@@ -122,7 +122,7 @@ const Reports = () => {
               })}
               type="email"
               placeholder="Your email"
-              className="w-full border border-purple-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white dark:bg-gray-700 dark:border-gray-600"
+              className="w-full border border-purple-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-400 bg-purple-50 dark:bg-gray-700 dark:border-gray-600"
             />
             {errors.email && (
               <p className="text-red-500 text-sm">{errors.email.message}</p>
@@ -135,14 +135,14 @@ const Reports = () => {
             </label>
             <select
               {...register("reportAgainst", { required: "Please select one" })}
-              className="w-full border border-purple-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white dark:bg-gray-700 dark:border-gray-600"
+              className="w-full border border-purple-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-400 bg-purple-50 dark:bg-gray-700 dark:border-gray-600"
             >
               <option value="">Select...</option>
               <option value="Buyer">Buyer</option>
               <option value="Seller">Seller</option>
             </select>
             {errors.reportAgainst && (
-              <p className="text-red-500 text-sm">
+              <p className="text-red-500 bg-purple-50 text-sm">
                 {errors.reportAgainst.message}
               </p>
             )}
@@ -156,7 +156,7 @@ const Reports = () => {
               {...register("personReported", { required: "Name is required" })}
               type="text"
               placeholder="Reported person's name"
-              className="w-full border border-purple-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white dark:bg-gray-700 dark:border-gray-600"
+              className="w-full border border-purple-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-400 bg-purple-50 dark:bg-gray-700 dark:border-gray-600"
             />
           </div>
           {/* Product Name */}
@@ -168,7 +168,7 @@ const Reports = () => {
               {...register("product")}
               type="text"
               placeholder="Product name"
-              className="w-full border border-purple-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white dark:bg-gray-700 dark:border-gray-600"
+              className="w-full border border-purple-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-400 bg-purple-50 dark:bg-gray-700 dark:border-gray-600"
             />
           </div>
           {/* Complaint Types */}
@@ -194,7 +194,7 @@ const Reports = () => {
                     {...register("complaints", {
                       required: "Please select a complaint type",
                     })}
-                    className="accent-purple-500"
+                    className="accent-purple-500 bg-purple-50"
                     name="complaints"
                   />
                   {reason}
@@ -216,7 +216,7 @@ const Reports = () => {
               {...register("otherReason")}
               rows={3}
               placeholder="Explain other reason here..."
-              className="w-full border border-purple-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-400 bg-white dark:bg-gray-700 dark:border-gray-600"
+              className="w-full border border-purple-300 rounded-lg px-4 py-2 mt-1 focus:outline-none focus:ring-2 focus:ring-purple-400 bg-purple-50 dark:bg-gray-700 dark:border-gray-600"
             />
           </div>
           {/* Upload Proof */}
@@ -229,12 +229,12 @@ const Reports = () => {
               accept="image/*"
               {...register("proofs", { required: "Please upload proof" })}
               multiple
-              className="w-full text-center file:bg-purple-100 file:border-none file:text-purple-700 file:rounded-md file:py-2 file:px-4 mt-1 bg-white dark:file:bg-purple-900"
+              className="w-full text-center file:bg-purple-50 file:border-none file:text-purple-300 file:rounded-md file:py-2 file:px-4 mt-1 bg-purple-100 dark:bg-gray-700 dark:file:bg-purple-900"
             />
             {errors.proofs && (
               <p className="text-red-500 text-sm">{errors.proofs.message}</p>
             )}
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               Upload images or documents (Max size 5MB each)
             </p>
           </div>
