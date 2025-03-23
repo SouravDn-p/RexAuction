@@ -155,44 +155,63 @@ const AboutUs = () => {
 
       {/* Buyer Section */}
       <div className={`mt-8 ${isDarkMode ? "bg-gray-900" : "bg-white"}`}>
-        <div className="py-12 px-4">
-          <h2 className={`text-center font-bold text-2xl mb-10 ${isDarkMode ? "text-purple-400" : "text-purple-600"}`}>
-            For Buyers
-          </h2>
+  <div className="flex justify-center items-center py-12">
+    <div className="w-full lg:max-w-4xl max-w-sm px-4">
+      <h2
+        className={`text-center font-bold text-2xl mb-10 ${isDarkMode ? "text-purple-400" : "text-purple-600"}`}
+      >
+        For Buyers
+      </h2>
 
-          <div className="flex flex-col md:flex-row justify-center gap-6 text-center">
-            {[
-              { icon: <FaShieldAlt />, title: "Secure Bidding", description: "Advanced security measures to protect your transactions" },
-              { icon: <FiGrid />, title: "Wide Selection", description: "Thousands of items across multiple categories" },
-              { icon: <FiBell />, title: "Real-time Updates", description: "Instant notifications on your bid status" },
-            ].map((item, index) => (
-              <div
-                key={index}
-                style={cardStyles}
-                className="relative rounded-lg shadow-lg p-8 w-full md:w-80 hover:shadow-xl transition-all duration-300 transform hover:scale-105 overflow-hidden group"
-              >
-                {/* Border Bottom Animation */}
-                <div className="absolute bottom-0 left-0 w-0 h-[2px] bg-purple-500 transition-all duration-500 group-hover:w-full"></div>
+      <div className="flex flex-col md:flex-row justify-center gap-6 text-center">
+        {[
+          {
+            icon: <FaShieldAlt />,
+            title: "Secure Bidding",
+            description: "Advanced security measures to protect your transactions",
+          },
+          {
+            icon: <FiGrid />,
+            title: "Wide Selection",
+            description: "Thousands of items across multiple categories",
+          },
+          {
+            icon: <FiBell />,
+            title: "Real-time Updates",
+            description: "Instant notifications on your bid status",
+          },
+        ].map((item, index) => (
+          <div
+            key={index}
+            style={cardStyles}
+            className="relative rounded-lg shadow-lg p-6 md:p-8 w-full md:w-80 lg:w-96 hover:shadow-xl transition-all duration-300 transform hover:scale-105 overflow-hidden group"
+          >
+            {/* Border Bottom Animation */}
+            <div className="absolute bottom-0 left-0 w-0 h-[2px] bg-purple-500 transition-all duration-500 group-hover:w-full"></div>
 
-                {/* Icon */}
-                <div className="flex justify-center mb-4">
-                  <div className="bg-purple-300 p-4 rounded-full">
-                    {item.icon}
-                  </div>
-                </div>
-
-                {/* Title and Description */}
-                <h3 className={`font-semibold text-lg mb-1 ${isDarkMode ? "text-white" : "text-black"}`}>{item.title}</h3>
-                <p className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>{item.description}</p>
+            {/* Icon */}
+            <div className="flex justify-center mb-4">
+              <div className="bg-purple-300 p-4 rounded-full">
+                {item.icon}
               </div>
-            ))}
+            </div>
+
+            {/* Title and Description */}
+            <h3 className={`font-semibold text-lg mb-1 ${isDarkMode ? "text-white" : "text-black"}`}>{item.title}</h3>
+            <p className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>{item.description}</p>
           </div>
-        </div>
+        ))}
       </div>
+    </div>
+  </div>
+</div>
+
 
       {/* Seller Section */}
       <div className={`${isDarkMode ? "bg-gray-800" : "bg-purple-100"} py-16 px-4 text-center mt-20`}>
-        <h2 className={`text-2xl md:text-3xl font-bold mb-10 ${isDarkMode ? "text-purple-400" : "text-purple-600"}`}>
+     <div className="flex justify-center items-center py-12">
+     <div className="w-full lg:max-w-4xl max-w-sm px-4">
+     <h2 className={`text-2xl md:text-3xl font-bold mb-10 ${isDarkMode ? "text-purple-400" : "text-purple-600"}`}>
           For Sellers
         </h2>
 
@@ -221,6 +240,8 @@ const AboutUs = () => {
             </div>
           ))}
         </div>
+     </div>
+     </div>
       </div>
 
       {/* Statistics Section */}
