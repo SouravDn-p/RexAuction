@@ -23,10 +23,6 @@ const Footer = () => {
       <div className="absolute inset-0 bg-black/70"></div>
 
       <div className="container mx-auto px-6 md:px-12 relative z-10">
-        {/* Newsletter Section */}
-        <div className="mb-16">
-          <Newsletter />
-        </div>
 
         {/* Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 text-center md:text-left">

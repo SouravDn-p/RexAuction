@@ -7,6 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 import logo from "../assets/Logos/register.jpg";
 import SocialLogin from "../component/SocialLogin";
 import useAuth from "../hooks/useAuth";
+import useAxiosPublic from "../hooks/useAxiosPublic";
 
 const Register = () => {
   const { createUser } = useAuth();
@@ -19,6 +20,7 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const axiosPublic =useAxiosPublic()
   const navigate = useNavigate();
 
   // Password validation criteria
@@ -56,16 +58,29 @@ const Register = () => {
 
     try {
       const userCredential = await createUser(email, password);
-      await updateProfile(userCredential.user, {
+      const user = userCredential.user;
+
+      await updateProfile(user, {
         displayName: name,
         photoURL:
           photoURL ||
           `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
       });
+
+      const userData = {
+        uid: user?.uid,
+        name: user?.displayName,
+        email: user?.email,
+        photo: user?.photoURL,
+        role: "buyer",
+      };
+
+      await axiosPublic.post("/users", userData);
+
       toast.success("Registration successful! Redirecting...");
       setTimeout(() => {
-        navigate("/login"); // Navigate to the login page after 2 seconds
-      }, 2000); // Adjust the timeout duration if needed
+        navigate("/login");
+      }, 2000);
     } catch (err) {
       setError(err.message);
       toast.error(err.message);

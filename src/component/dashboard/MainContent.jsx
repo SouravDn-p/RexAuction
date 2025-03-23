@@ -7,7 +7,7 @@ import BuyerDashboard from "./buyer/BuyerDashboard";
 import DashboardNavbar from "./shared/DashboardNavbar";
 
 const MainContent = () => {
-  const isAdmin = true;
+  const isAdmin = false;
   const isSeller = false;
   const location = useLocation();
 
