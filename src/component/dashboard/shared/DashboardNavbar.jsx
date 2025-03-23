@@ -1,5 +1,3 @@
-
-
 import { useContext, useEffect, useState } from "react";
 import { Bell, Moon, Sun, LogOut, Settings, User } from "lucide-react";
 import { FaSun, FaMoon } from "react-icons/fa";
@@ -37,17 +35,23 @@ export default function DashboardNavbar() {
 
   return (
     <div
-      className={`sticky top-0 z-10 ${isDarkMode ? "bg-gray-900" : "bg-gray-100 text-gray-800"} backdrop-blur-md shadow-md pb-4 mb-4`}
+      className={`sticky top-0 z-10 ${
+        isDarkMode ? "bg-gray-900" : "bg-gray-100 text-gray-800"
+      } backdrop-blur-md shadow-md pb-4 mb-4`}
     >
       <div className="container mx-auto flex justify-end">
         {/* Navbar Right: Actions and User Profile */}
         <div className="flex items-center space-x-4">
           {/* Notifications */}
           <button
-            className={`relative p-2 rounded-full hover:${isDarkMode ? "bg-gray-800" :  " bg-gray-200"}`}
+            className={`relative p-2 rounded-full hover:${
+              isDarkMode ? "bg-gray-800" : " bg-gray-200"
+            }`}
             onClick={handleNotificationClick}
           >
-            <Bell className={`h-5 w-5 ${isDarkMode ? "text-white" : "text-black"}`} />
+            <Bell
+              className={`h-5 w-5 ${isDarkMode ? "text-white" : "text-black"}`}
+            />
             {notificationCount > 0 && (
               <span className="absolute top-0 right-0 h-4 w-4 rounded-full bg-red-500 text-white text-xs flex items-center justify-center">
                 {notificationCount}
@@ -59,9 +63,15 @@ export default function DashboardNavbar() {
           <button
             className="text-xl hover:text-gray-300"
             onClick={toggleTheme}
-            aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+            aria-label={
+              isDarkMode ? "Switch to light mode" : "Switch to dark mode"
+            }
           >
-            {isDarkMode ? <FaSun className="text-yellow-400" /> : <FaMoon className="text-black" />}
+            {isDarkMode ? (
+              <FaSun className="text-yellow-400" />
+            ) : (
+              <FaMoon className="text-black" />
+            )}
           </button>
 
           {/* User Profile Dropdown */}
@@ -86,11 +96,15 @@ export default function DashboardNavbar() {
             {/* Dropdown Menu */}
             {isDropdownOpen && (
               <div
-                className={`absolute right-0 mt-2 w-48 ${isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"} shadow-lg rounded-md overflow-hidden`}
+                className={`absolute right-0 mt-2 w-48 ${
+                  isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"
+                } shadow-lg rounded-md overflow-hidden`}
               >
                 <div className="p-3 border-b dark:border-gray-700">
                   <p className="text-sm font-medium">{user.name}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">{user.email}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {user.email}
+                  </p>
                 </div>
                 <button className="w-full flex items-center p-2 hover:bg-gray-100 dark:hover:bg-gray-700">
                   <User className="h-4 w-4 mr-2" />
