@@ -8,6 +8,7 @@ import ThemeContext from "../../component/Context/ThemeContext";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns"; 
+import { Link } from "react-router-dom";
 
 const HotAuction = () => {
   const { isDarkMode } = useContext(ThemeContext);
@@ -140,9 +141,9 @@ const HotAuction = () => {
 
                   {/* Action Button */}
                   <div className="flex justify-between items-center">
-                    <button className="w-full bg-gradient-to-r from-purple-600 via-violet-700 to-purple-800 text-white py-2 rounded-lg hover:from-purple-500 hover:via-violet-600 hover:to-indigo-700 transition">
+                    <Link to={`/liveBid`} className="w-full bg-gradient-to-r from-purple-600 via-violet-700 to-purple-800 text-white py-2 rounded-lg hover:from-purple-500 hover:via-violet-600 hover:to-indigo-700 transition">
                       Bid Now
-                    </button>
+                    </Link>
                   </div>
                 </div>
               </div>
