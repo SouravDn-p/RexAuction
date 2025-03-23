@@ -69,6 +69,10 @@ export const router = createBrowserRouter([
     children: [
       // Admin Only
       {
+        index: true,
+        element: <Profile />,
+      },
+      {
         path: "createAnnouncement",
         element: <CreateAnnouncement />,
       },
@@ -82,21 +86,18 @@ export const router = createBrowserRouter([
         element: <ManageSellerRequest />,
       },
       {
-        path:"userManagement",
-        element:<UserManagement/>
+        path: "userManagement",
+        element: <UserManagement />,
       },
       {
-        path:"sellerRequest",
-        element:<SellerRequest/>
+        path: "sellerRequest",
+        element: <SellerRequest />,
       },
       // Seller Only
       {
         path: "createAction",
         element: <CreateAuction />,
       },
-
-
-
       {
         path: "createAuction",
         element: <CreateAuction />,

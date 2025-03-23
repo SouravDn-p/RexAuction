@@ -1,9 +1,5 @@
 import { FaBars } from "react-icons/fa";
 import { Outlet, useLocation } from "react-router-dom";
-import AdminDashboard from "./admin/AdminDashboard";
-import SellerDashboard from "./seller/SellerDashboard";
-import BuyerDashboard from "./buyer/BuyerDashboard";
-
 import DashboardNavbar from "./shared/DashboardNavbar";
 
 const MainContent = () => {
@@ -40,19 +36,7 @@ const MainContent = () => {
         </div>
 
         {/* Main Dashboard Content */}
-        <div className="bg-white rounded-lg p-5 overflow-x-auto flex-grow">
-          {location.pathname === "/dashboard" && (
-            <>
-              {isAdmin ? (
-                <AdminDashboard />
-              ) : isSeller ? (
-                <SellerDashboard />
-              ) : (
-                <BuyerDashboard />
-              )}
-            </>
-          )}
-
+        <div className="bg-white rounded-lg flex-grow">
           <Outlet />
         </div>
       </div>

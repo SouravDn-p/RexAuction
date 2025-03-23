@@ -30,7 +30,7 @@ export default function DashboardNavbar() {
   };
 
   return (
-    <div className="sticky top-0 z-10 bg-gray-100 dark:bg-gray-900 backdrop-blur-md shadow-md p-4">
+    <div className="sticky top-0 z-10 bg-gray-100 dark:bg-gray-900 backdrop-blur-md shadow-md pb-4 mb-4">
       <div className="container mx-auto flex justify-end">
      
 

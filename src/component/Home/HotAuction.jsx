@@ -7,7 +7,7 @@ import { FaFire } from "react-icons/fa";
 import ThemeContext from "../../component/Context/ThemeContext";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns"; // Import date-fns for formatting dates
+import { format } from "date-fns"; 
 
 const HotAuction = () => {
   const { isDarkMode } = useContext(ThemeContext);
