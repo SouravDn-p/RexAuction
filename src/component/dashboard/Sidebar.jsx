@@ -15,8 +15,10 @@ import { AuthContexts } from "../../providers/AuthProvider";
 import { IoSettingsOutline } from "react-icons/io5";
 
 const Sidebar = () => {
+
   // const { user } = useContext(AuthContexts);
   const isAdmin = true;
+
   const isSeller = false;
   const user = {
     photoURL: "https://via.placeholder.com/150",
