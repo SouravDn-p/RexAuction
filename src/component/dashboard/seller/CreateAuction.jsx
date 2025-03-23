@@ -110,9 +110,9 @@ export default function CreateAuction() {
 
   return (
     <div className="flex justify-center items-center">
-      <div className={` ${isDarkMode
+      <div className={` p-10 ${isDarkMode
                   ? "  bg-white"
-                  : "bg-black "
+                  : "bg-gray-400 "
                 }`}>
         <h2 className="text-2xl font-bold text-gray-800 mb-6">
           Create New Auction

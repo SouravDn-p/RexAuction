@@ -1,5 +1,3 @@
-
-
 import { useEffect, useContext } from "react";
 import {
   FaUser,
@@ -65,12 +63,8 @@ export default function SdProfile() {
       } transition-all duration-300 p-4 md:p-6`}
     >
       <div className="container mx-auto max-w-6xl">
-      
-
         {/* Dashboard Overview */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
-        
-
           {/* Total Bids */}
           <div
             className={`${
@@ -179,8 +173,6 @@ export default function SdProfile() {
             </div>
           </div>
         </div>
-
-      
       </div>
     </div>
   );
