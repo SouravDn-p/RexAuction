@@ -132,7 +132,7 @@ const Reports = () => {
           </div>
           {/* Report Against */}
           <div>
-            <label className="text-sm font-medium text-purple-700 dark:text-purple-300">
+            <label className="text-sm font-medium text-purple-700 dark:text-purple-200">
               Report Against *
             </label>
             <select
