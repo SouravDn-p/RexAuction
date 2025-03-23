@@ -5,7 +5,7 @@ import { FaEnvelope, FaPhone, FaStar } from "react-icons/fa";
 import ThemeContext from "../../Context/ThemeContext";
 
 const BuyerDetails = () => {
-  const { isDarkMood } = useContext(ThemeContext);
+  const { isDarkMode } = useContext(ThemeContext);
   const [buyers, setBuyers] = useState([]);
 
   useEffect(() => {

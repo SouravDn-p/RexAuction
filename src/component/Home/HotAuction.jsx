@@ -141,11 +141,7 @@ const HotAuction = () => {
 
                   {/* Action Button */}
                   <div className="flex justify-between items-center">
-<<<<<<< HEAD
                     <Link to={`LiveBid`} className="w-full bg-gradient-to-r from-purple-600 via-violet-700 to-purple-800 text-white py-2 rounded-lg hover:from-purple-500 hover:via-violet-600 hover:to-indigo-700 transition">
-=======
-                    <Link to={`/liveBid`} className="w-full bg-gradient-to-r from-purple-600 via-violet-700 to-purple-800 text-white py-2 rounded-lg hover:from-purple-500 hover:via-violet-600 hover:to-indigo-700 transition">
->>>>>>> fd397b719687d95fd7b82082f1d238b0c84dd67f
                       Bid Now
                     </Link>
                   </div>
