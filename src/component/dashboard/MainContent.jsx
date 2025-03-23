@@ -71,7 +71,7 @@ const MainContent = () => {
   return (
     <div
       className={`drawer-content flex flex-col md:flex-row justify-between items-stretch
-        ${isDarkMode ? " bg-gray-600" : "bg-yellow-100"}`}
+       `}
     >
       <div className="mx-auto w-3/4 md:w-11/12">
         {/* Top Navigation Bar */}
