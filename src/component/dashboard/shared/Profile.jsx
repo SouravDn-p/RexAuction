@@ -3,7 +3,7 @@ import SdProfile from "./SdProfile";
 import ThemeContext from "../../Context/ThemeContext";
 import CountUp from "react-countup";
 import { useInView } from "react-intersection-observer";
-// JSON data for dynamic content
+
 
 const profileData = {
   user: {
