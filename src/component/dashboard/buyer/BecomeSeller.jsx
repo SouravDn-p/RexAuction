@@ -1,55 +1,73 @@
 import React, { useState } from "react";
+import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
+import { toast } from "react-hot-toast";
+import useAxiosPublic from "../../../hooks/useAxiosPublic";
+
+const image_hosting_key = import.meta.env.VITE_IMAGE_HOSTING_KEY;
+const image_hosting_api = `https://api.imgbb.com/1/upload?key=${image_hosting_key}`;
 
 const BecomeSeller = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    documentType: "NID",
-    documents: [],
-    termsAccepted: false,
-  });
+  const axiosPublic = useAxiosPublic();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    watch,
+    formState: { errors },
+  } = useForm();
 
-  const handleChange = (e) => {
-    const { name, value, files, type, checked } = e.target;
-    if (type === "file") {
-      setFormData({ ...formData, documents: [...files] });
-    } else if (type === "checkbox") {
-      setFormData({ ...formData, [name]: checked });
-    } else {
-      setFormData({ ...formData, [name]: value });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const onSubmit = async (data) => {
+    if (!data.termsAccepted) return;
+
+    setIsSubmitting(true);
+
+    try {
+      // Image Upload to imgbb (multiple files)
+      const uploadedImages = [];
+      for (const file of data.documents) {
+        const formData = new FormData();
+        formData.append("image", file);
+
+        const response = await fetch(image_hosting_api, {
+          method: "POST",
+          body: formData,
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          uploadedImages.push(result.data.url);
+        }
+      }
+
+      const requestData = {
+        name: data.name,
+        email: data.email,
+        address: data.address,
+        documentType: data.documentType,
+        documents: uploadedImages,
+      };
+
+      // Send request data to the server
+      const res = await axiosPublic.post("become_seller", requestData);
+
+      if (res.data.success) {
+        toast.success("Seller request submitted successfully!");
+        reset();
+      } else {
+        throw new Error("Request failed");
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+      toast.error("Something went wrong! Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  //   submission of the form
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!formData.termsAccepted) {
-      alert("You must accept the terms and conditions.");
-      return;
-    }
-
-    // Show Sweet Alert
-    Swal.fire({
-      title: "Request Sent!",
-      text: "Your request for being a seller has been successfully submitted.",
-      icon: "success",
-      confirmButtonColor: "#8b5cf6",
-      confirmButtonText: "Okay",
-    });
-
-    console.log("Verification Request Submitted:", formData);
-    // form submission logic
-
-    // Reset form data
-    setFormData({
-      name: "",
-      email: "",
-      documentType: "NID",
-      documents: [],
-      termsAccepted: false,
-    });
-  };
+  const termsAccepted = watch("termsAccepted");
 
   return (
     <div className="bg-purple-50 min-h-screen px-4 py-8 sm:px-6 lg:px-8">
@@ -68,7 +86,7 @@ const BecomeSeller = () => {
           Verification Request Form
         </motion.h2>
 
-        <form onSubmit={handleSubmit} className="space-y-6 ">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Name */}
           <div>
             <label className="block text-sm font-medium text-purple-700 mb-1">
@@ -76,13 +94,13 @@ const BecomeSeller = () => {
             </label>
             <input
               type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
               placeholder="Enter your full name"
-              className="w-full border border-purple-300 rounded-lg px-4 py-2 transition-all focus:outline-none focus:ring-2 focus:ring-purple-400"
-              required
+              {...register("name", { required: "Full Name is required" })}
+              className="w-full border border-purple-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
             />
+            {errors.name && (
+              <p className="text-red-500 text-sm">{errors.name.message}</p>
+            )}
           </div>
 
           {/* Email */}
@@ -92,13 +110,35 @@ const BecomeSeller = () => {
             </label>
             <input
               type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
               placeholder="Enter your email"
-              className="w-full border border-purple-300 rounded-lg px-4 py-2 transition-all focus:outline-none focus:ring-2 focus:ring-purple-400"
-              required
+              {...register("email", {
+                required: "Email is required",
+                pattern: {
+                  value: /\S+@\S+\.\S+/,
+                  message: "Invalid email format",
+                },
+              })}
+              className="w-full border border-purple-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
             />
+            {errors.email && (
+              <p className="text-red-500 text-sm">{errors.email.message}</p>
+            )}
+          </div>
+
+          {/* Address */}
+          <div>
+            <label className="block text-sm font-medium text-purple-700 mb-1">
+              Address <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              placeholder="Enter your address"
+              {...register("address", { required: "Address is required" })}
+              className="w-full border border-purple-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
+            />
+            {errors.address && (
+              <p className="text-red-500 text-sm">{errors.address.message}</p>
+            )}
           </div>
 
           {/* Dropdown */}
@@ -108,16 +148,20 @@ const BecomeSeller = () => {
               <span className="text-red-500">*</span>
             </label>
             <select
-              name="documentType"
-              value={formData.documentType}
-              onChange={handleChange}
-              className="w-full border border-purple-300 rounded-lg px-4 py-2 transition-all focus:outline-none focus:ring-2 focus:ring-purple-400"
-              required
+              {...register("documentType", {
+                required: "Please select a document type",
+              })}
+              className="w-full border border-purple-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
             >
               <option value="NID">NID</option>
               <option value="Passport">Passport</option>
               <option value="Driving License">Driving License</option>
             </select>
+            {errors.documentType && (
+              <p className="text-red-500 text-sm">
+                {errors.documentType.message}
+              </p>
+            )}
           </div>
 
           {/* Multiple Image Upload */}
@@ -125,30 +169,31 @@ const BecomeSeller = () => {
             <label className="block text-sm font-medium text-purple-700 mb-1">
               Upload Document Images (Multiple)
             </label>
-            <div className="border border-dashed border-purple-300 rounded-lg p-4 text-center text-purple-500">
-              <input
-                type="file"
-                name="documents"
-                accept="image/*"
-                multiple
-                onChange={handleChange}
-                className="w-full text-center file:bg-purple-100 file:border-none file:text-purple-700 file:rounded-md file:py-2 file:px-4"
-              />
-              <p className="text-sm mt-2">
-                You can upload multiple images (Max 5MB each)
-              </p>
-            </div>
+            <input
+              type="file"
+              accept="image/*"
+              {...register("documents", {
+                required: "Please upload at least one document",
+              })}
+              multiple
+              className="w-full text-center file:bg-purple-100 file:border-none file:text-purple-700 file:rounded-md file:py-2 file:px-4"
+            />
+            {errors.documents && (
+              <p className="text-red-500 text-sm">{errors.documents.message}</p>
+            )}
+            <p className="text-sm mt-2 text-gray-500">
+              You can upload multiple images (Max 5MB each)
+            </p>
           </div>
 
           {/* Terms and Conditions Checkbox */}
           <div className="flex items-start gap-2">
             <input
               type="checkbox"
-              name="termsAccepted"
-              checked={formData.termsAccepted}
-              onChange={handleChange}
+              {...register("termsAccepted", {
+                required: "You must accept the terms",
+              })}
               className="mt-1"
-              required
             />
             <label className="text-sm text-gray-700">
               I agree to the{" "}
@@ -157,6 +202,11 @@ const BecomeSeller = () => {
               </a>
             </label>
           </div>
+          {errors.termsAccepted && (
+            <p className="text-red-500 text-sm">
+              {errors.termsAccepted.message}
+            </p>
+          )}
 
           {/* Submit Button */}
           <motion.div
@@ -169,14 +219,14 @@ const BecomeSeller = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               type="submit"
-              disabled={!formData.termsAccepted}
+              disabled={!termsAccepted || isSubmitting}
               className={`px-8 py-3 rounded-lg shadow-md text-white w-full sm:w-auto ${
-                formData.termsAccepted
+                termsAccepted && !isSubmitting
                   ? "bg-purple-600 hover:bg-purple-700 transition"
                   : "bg-gray-400 cursor-not-allowed"
               }`}
             >
-              Submit Request
+              {isSubmitting ? "Submitting..." : "Submit Request"}
             </motion.button>
           </motion.div>
         </form>
