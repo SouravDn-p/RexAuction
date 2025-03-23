@@ -10,13 +10,13 @@ export default function DashboardNavbar() {
   const [notificationCount, setNotificationCount] = useState(3);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, [isDarkMode]);
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+  // const user = {
+  //   photoURL: "https://via.placeholder.com/150",
+  //   name: "John Doe",
+  // };
 
   const handleLogout = () => {
     console.log("Logging out...");
