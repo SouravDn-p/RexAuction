@@ -7,7 +7,7 @@ import { FaFire } from "react-icons/fa";
 import ThemeContext from "../../component/Context/ThemeContext";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns"; 
+import { format } from "date-fns";
 import { Link } from "react-router-dom";
 
 const HotAuction = () => {
@@ -24,7 +24,9 @@ const HotAuction = () => {
       return res.data || [];
     },
   });
-  console.log(auctionData);
+
+  // Filter auctions with status 'Accepted'
+  const acceptedAuctions = auctionData.filter((item) => item.status === "Accepted");
 
   // Intersection Observer for animations
   useEffect(() => {
@@ -49,7 +51,7 @@ const HotAuction = () => {
 
   if (isLoading) return <p className="text-center">Loading auctions...</p>;
   if (error) return <p className="text-center text-red-500">Error loading auctions.</p>;
-  if (!auctionData.length) return <p className="text-center">No hot auctions available.</p>;
+  if (!acceptedAuctions.length) return <p className="text-center">No hot auctions available.</p>;
 
   return (
     <section>
@@ -59,17 +61,19 @@ const HotAuction = () => {
           <div className="flex items-center mb-4">
             <FaFire className="text-orange-500 mr-2 text-2xl" />
             <h2
-              className={`text-3xl font-bold ${isDarkMode
+              className={`text-3xl font-bold ${
+                isDarkMode
                   ? "text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-violet-700 to-indigo-800"
                   : "text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-500 to-indigo-600"
-                }`}
+              }`}
             >
               Hot Auctions
             </h2>
           </div>
           <p
-            className={`text-center max-w-2xl mb-8 ${isDarkMode ? "text-gray-200" : "text-gray-600"
-              }`}
+            className={`text-center max-w-2xl mb-8 ${
+              isDarkMode ? "text-gray-200" : "text-gray-600"
+            }`}
           >
             Discover our most popular and trending auction items. Bid now before they're gone!
           </p>
@@ -91,21 +95,21 @@ const HotAuction = () => {
           modules={[Navigation, Autoplay]}
           className="pb-10"
         >
-          {auctionData?.map((item, index) => (
+          {acceptedAuctions.map((item, index) => (
             <SwiperSlide key={item._id || index}>
               <div
-                className={`rounded-lg overflow-hidden transition-transform duration-500 ${isDarkMode
+                className={`rounded-lg overflow-hidden transition-transform duration-500 ${
+                  isDarkMode
                     ? "bg-gradient-to-r border-purple-400 border from-[#2c150c] to-[#32223f]"
                     : "bg-white"
-                  } shadow-lg`}
+                } shadow-lg`}
                 ref={(el) => (itemRefs.current[index] = el)}
                 data-index={index}
               >
                 {/* Auction Image */}
                 <div className="w-full h-56 overflow-hidden">
-                  {/* Check if images exist and use the first image */}
                   <img
-                    src={item.images?.[0] || "default-image-url"} // Fallback to a default image if images array is empty or undefined
+                    src={item.images?.[0] || "default-image-url"} // Fallback to a default image
                     alt={item.name}
                     className="w-full h-full object-cover"
                   />
@@ -113,26 +117,24 @@ const HotAuction = () => {
 
                 {/* Auction Details */}
                 <div className={`p-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                  {/* Auction Title */}
                   <h3 className="text-lg font-semibold mb-2">{item.name}</h3>
 
                   {/* Price and Time Left */}
                   <div className="flex justify-between items-center mb-4">
                     <p className="text-yellow-500 font-bold text-xl">${item.startingPrice}</p>
                     <span className="text-sm text-gray-500">
-                      {/* Format endTime */}
                       {format(new Date(item.endTime), "MMM dd, yyyy, hh:mm a")}
                     </span>
                   </div>
 
-                  {/* Category */}
                   <p className="text-sm text-gray-500 mb-4">Category: {item.category}</p>
 
                   {/* Progress Bar */}
                   <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden mb-4">
                     <div
-                      className={`bg-yellow-500 h-2 rounded-full progress-bar ${visibleIndexes.includes(index) ? "animate-progress" : ""
-                        }`}
+                      className={`bg-yellow-500 h-2 rounded-full progress-bar ${
+                        visibleIndexes.includes(index) ? "animate-progress" : ""
+                      }`}
                       style={{
                         width: `${Math.min(item.progress || 0, 100)}%`,
                       }}
@@ -141,7 +143,10 @@ const HotAuction = () => {
 
                   {/* Action Button */}
                   <div className="flex justify-between items-center">
-                    <Link to={`/liveBid`} className="w-full bg-gradient-to-r from-purple-600 via-violet-700 to-purple-800 text-white py-2 rounded-lg hover:from-purple-500 hover:via-violet-600 hover:to-indigo-700 transition">
+                    <Link
+                      to={`LiveBid`}
+                      className="w-full bg-gradient-to-r from-purple-600 via-violet-700 to-purple-800 text-white py-2 rounded-lg hover:from-purple-500 hover:via-violet-600 hover:to-indigo-700 transition"
+                    >
                       Bid Now
                     </Link>
                   </div>
