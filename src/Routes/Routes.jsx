@@ -21,7 +21,7 @@ import AuctionStatus from "../component/dashboard/buyer/AuctionStatus";
 import UserManagement from "../component/dashboard/admin/UserManagement";
 import SellerRequest from "../component/dashboard/admin/SellerRequest";
 import AnnouncementDetails from "../component/dashboard/shared/AnnouncementDetails";
-import ManageAuctions from "../component/dashboard/admin/ManageAuctions";
+import ManageAuctions from "../component/dashboard/shared/ManageAuctions";
 
 export const router = createBrowserRouter([
   {
