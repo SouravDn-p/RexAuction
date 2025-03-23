@@ -94,9 +94,11 @@ export const router = createBrowserRouter([
         path: "createAction",
         element: <CreateAuction />,
       },
-
+      {
+        path: "createAuction",
+        element: <CreateAuction />,
+      },
       // Buyer only
-
       {
         path: "bidHistory",
         element: <BidHistory />,
@@ -105,6 +107,7 @@ export const router = createBrowserRouter([
         path: "status",
         element: <AuctionStatus />,
       },
+
       {
         path: "payment",
         element: <Payment />,
@@ -113,6 +116,7 @@ export const router = createBrowserRouter([
         path: "becomeSeller",
         element: <BecomeSeller />,
       },
+
       // Shared
       {
         path: "profile",
