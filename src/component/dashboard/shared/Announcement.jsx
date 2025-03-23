@@ -6,12 +6,14 @@ import LoadingSpinner from "../../LoadingSpinner";
 import axios from "axios";
 import toast from "react-hot-toast";
 import EditAnnouncementModal from "../admin/EditAnnouncementModal";
+import { useNavigate } from "react-router-dom";
 
 const Announcement = () => {
   const isAdmin = true;
   const [announcements, refetch, isLoading] = useAnnouncement();
   const [selectedAnnouncement, setSelectedAnnouncement] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   if (isLoading) return <LoadingSpinner />;
 
@@ -68,7 +70,10 @@ const Announcement = () => {
               {/* Back */}
               <div className="card-flip-back bg-purple-100 border border-purple-200 rounded-xl p-4 flex flex-col justify-between shadow-md">
                 <p className="text-sm text-purple-700">{item.content}</p>
-                <button className="mt-4 px-4 py-2 bg-purple-600 text-white text-sm font-semibold rounded hover:bg-purple-700 transition">
+                <button
+                  onClick={() => navigate(`/announcementDetails/${item._id}`)}
+                  className="mt-4 px-4 py-2 bg-purple-600 text-white text-sm font-semibold rounded hover:bg-purple-700 transition"
+                >
                   Read More →
                 </button>
 

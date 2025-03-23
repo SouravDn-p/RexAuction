@@ -20,6 +20,8 @@ import CreateAuction from "../component/dashboard/seller/CreateAuction";
 import AuctionStatus from "../component/dashboard/buyer/AuctionStatus";
 import UserManagement from "../component/dashboard/admin/UserManagement";
 import SellerRequest from "../component/dashboard/admin/SellerRequest";
+import AnnouncementDetails from "../component/dashboard/shared/AnnouncementDetails";
+
 
 export const router = createBrowserRouter([
   {
@@ -122,6 +124,10 @@ export const router = createBrowserRouter([
       {
         path: "announcement",
         element: <Announcement />,
+      },
+      {
+        path: "announcementDetails/:id",
+        element: <AnnouncementDetails />,
       },
     ],
   },
