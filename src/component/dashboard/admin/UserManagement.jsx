@@ -43,6 +43,40 @@ const UserManagement = () => {
     fetchUsers();
   }, []);
 
+  const handleRoleChange = async (userId, role) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: `Do you want to change the role to ${role}?`,
+
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, change it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const res = await axios.patch(
+            `http://localhost:5000/users/${userId}`,
+            { role }
+          );
+
+          if (res.data.success) {
+            Swal.fire("Updated!", "User role has been changed.", "success");
+            // Refresh user list after update
+            const response = await fetch("http://localhost:5000/users");
+            const data = await response.json();
+            setUsers(data);
+          } else {
+            Swal.fire("Failed!", "Could not update user role.", "error");
+          }
+        } catch (error) {
+          console.error("Error updating role:", error);
+          Swal.fire("Error!", "Something went wrong!", "error");
+        }
+      }
+    });
+  };
+
   const handleDelete = async (userId) => {
     Swal.fire({
       title: "Are you sure?",
@@ -179,7 +213,7 @@ const UserManagement = () => {
         isDarkMode
           ? "bg-gray-900 border-gray-600 text-white"
           : "bg-gradient-to-b from-purple-100 via-white to-purple-50 placeholder-gray-500"
-      } h-full`}
+      }`}
     >
       {/* Header with Title and Search */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
@@ -199,7 +233,7 @@ const UserManagement = () => {
             placeholder="Search users..."
             value={searchQuery}
             onChange={handleSearchChange}
-            className={`w-full  pl-10 pr-4 py-2 rounded-lg border ${
+            className={`w-full pl-10 pr-4 py-2 rounded-lg border ${
               isDarkMode
                 ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                 : "bg-white border-gray-300 text-gray-800 placeholder-gray-500"
@@ -224,7 +258,7 @@ const UserManagement = () => {
                 isDarkMode ? "bg-blue-900/30" : "bg-blue-100"
               } mr-4`}
             >
-              <FaUserAlt className={`text-blue-500`} size={20} />
+              <FaUserAlt className="text-blue-500" size={20} />
             </div>
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -248,7 +282,7 @@ const UserManagement = () => {
                 isDarkMode ? "bg-purple-900/30" : "bg-purple-100"
               } mr-4`}
             >
-              <FaUserShield className={`text-purple-500`} size={20} />
+              <FaUserShield className="text-purple-500" size={20} />
             </div>
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">Admins</p>
@@ -270,7 +304,7 @@ const UserManagement = () => {
                 isDarkMode ? "bg-amber-900/30" : "bg-amber-100"
               } mr-4`}
             >
-              <FaUserAlt className={`text-amber-500`} size={20} />
+              <FaUserAlt className="text-amber-500" size={20} />
             </div>
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -294,7 +328,7 @@ const UserManagement = () => {
                 isDarkMode ? "bg-green-900/30" : "bg-green-100"
               } mr-4`}
             >
-              <FaUserAlt className={`text-green-500`} size={20} />
+              <FaUserAlt className="text-green-500" size={20} />
             </div>
             <div>
               <p className="text-sm text-gray-500 dark:text-gray-400">Buyers</p>
@@ -548,8 +582,45 @@ const UserManagement = () => {
                         }`}
                         title="Edit User"
                       >
-                        <FaEdit size={16} />
+                        <div className="dropdown dropdown-center z-30">
+                          <div tabIndex={0} role="button" className="btn">
+                            <FaEdit size={16} />
+                          </div>
+                          <ul
+                            tabIndex={0}
+                            className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm"
+                          >
+                            <li>
+                              <a
+                                onClick={() =>
+                                  handleRoleChange(user._id, "admin")
+                                }
+                              >
+                                Admin
+                              </a>
+                            </li>
+                            <li>
+                              <a
+                                onClick={() =>
+                                  handleRoleChange(user._id, "buyer")
+                                }
+                              >
+                                Buyer
+                              </a>
+                            </li>
+                            <li>
+                              <a
+                                onClick={() =>
+                                  handleRoleChange(user._id, "seller")
+                                }
+                              >
+                                Seller
+                              </a>
+                            </li>
+                          </ul>
+                        </div>
                       </button>
+
                       <button
                         onClick={() => handleDelete(user._id)}
                         className={`p-1 rounded-full ${
