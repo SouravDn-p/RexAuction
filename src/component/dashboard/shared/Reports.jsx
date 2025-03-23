@@ -83,19 +83,20 @@ const Reports = () => {
   return (
     <div
       className={`min-h-screen px-4 py-10 sm:px-6 lg:px-8 ${
-        isDarkMode ? "bg-gray-900 text-white" : "bg-purple-50 text-gray-900"
+        isDarkMode
+          ? "bg-gray-900 text-white"
+          : "bg-gradient-to-b from-purple-100 via-white to-purple-50  text-gray-900"
       }`}
     >
+      <h2 className="text-4xl font-bold text-center text-purple-800 mb-10">
+        Report a Buyer or Seller
+      </h2>
       <div
         data-aos="fade-up"
         className={`max-w-4xl mx-auto rounded-xl p-6 sm:p-10 shadow-xl ${
           isDarkMode ? "bg-gray-800 text-white" : "bg-white"
         }`}
       >
-        <h2 className="text-2xl sm:text-3xl font-bold text-purple-700 mb-8 text-center">
-          Report a Buyer or Seller
-        </h2>
-
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Name */}
           <div>
