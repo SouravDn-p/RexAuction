@@ -12,10 +12,11 @@ import {
 } from "lucide-react";
 import { FaSun, FaMoon } from "react-icons/fa";
 import ThemeContext from "../Context/ThemeContext";
+import { AuthContexts } from "../../providers/AuthProvider";
 
 const MainContent = () => {
+  const { user } = useContext(AuthContexts);
   const { isDarkMode, toggleTheme } = useContext(ThemeContext);
-  const [theme, setTheme] = useState("light");
   const [notificationCount, setNotificationCount] = useState(3);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -61,13 +62,7 @@ const MainContent = () => {
   const handleNotificationClick = () => {
     setNotificationCount(0);
   };
-  const user = {
-    photoURL: "https://i.ibb.co.com/Y75m1Mk9/Final-Boss.jpg",
-    name: "Sourav Debnath",
-    email: "sourav@example.com",
-    role: "admin",
-  };
-
+  user.role = "admin";
   return (
     <div
       className={`drawer-content flex flex-col md:flex-row justify-between items-stretch 
@@ -259,7 +254,7 @@ const MainContent = () => {
                             isDarkMode
                               ? "hover:bg-gray-700"
                               : "hover:bg-gray-100"
-                          }`}
+                          } ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                         >
                           <User className="h-4 w-4 mr-2" />
                           Profile
@@ -269,7 +264,8 @@ const MainContent = () => {
                             isDarkMode
                               ? "hover:bg-gray-700"
                               : "hover:bg-gray-100"
-                          }`}
+                          }
+                          ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
                         >
                           <Settings className="h-4 w-4 mr-2" />
                           Settings
