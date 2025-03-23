@@ -61,6 +61,10 @@ export const router = createBrowserRouter([
         path: "/forgotPassword",
         element: <ForgotPass />,
       },
+      {
+        path: "announcementDetails/:id",
+        element: <AnnouncementDetails />,
+      },
     ],
   },
   {
@@ -124,10 +128,6 @@ export const router = createBrowserRouter([
       {
         path: "announcement",
         element: <Announcement />,
-      },
-      {
-        path: "announcementDetails/:id",
-        element: <AnnouncementDetails />,
       },
     ],
   },
