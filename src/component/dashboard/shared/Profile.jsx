@@ -1,6 +1,7 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useState } from "react";
+import SdProfile from "./SdProfile";
 
 // JSON data for dynamic content
 const profileData = {
@@ -9,7 +10,8 @@ const profileData = {
     location: "Dhaka, BD",
     memberSince: "2024",
     profilePicture: "https://i.ibb.co/BmxHqZm/Screenshot-2025-03-23-164850.png",
-    coverImage: "https://i.ibb.co/HDLKt1VF/Green-and-Purple-Line-Tech-Action-Adventure-Facebook-Cover-1.jpg",
+    coverImage:
+      "https://i.ibb.co/HDLKt1VF/Green-and-Purple-Line-Tech-Action-Adventure-Facebook-Cover-1.jpg",
   },
   stats: {
     auctionsWon: 127,
@@ -102,26 +104,40 @@ const profileData = {
       status: "Won",
     },
   ],
-}
+};
 
 const Profile = () => {
-  const [activeTab, setActiveTab] = useState("All")
+  const [activeTab, setActiveTab] = useState("All");
 
   // Function to render status badge with appropriate styling
   const renderStatusBadge = (status) => {
     switch (status) {
       case "Won":
-        return <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-md">Won</span>
+        return (
+          <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-md">
+            Won
+          </span>
+        );
       case "Active":
-        return <span className="text-xs bg-blue-500 text-white px-2 py-0.5 rounded-md">Active</span>
+        return (
+          <span className="text-xs bg-blue-500 text-white px-2 py-0.5 rounded-md">
+            Active
+          </span>
+        );
       case "Outbid":
-        return <span className="text-xs border border-gray-300 px-2 py-0.5 rounded-md text-black bg-white">Outbid</span>
+        return (
+          <span className="text-xs border border-gray-300 px-2 py-0.5 rounded-md text-black bg-white">
+            Outbid
+          </span>
+        );
       default:
         return (
-          <span className="text-xs border border-gray-300 px-2 py-0.5 rounded-md text-black bg-white">{status}</span>
-        )
+          <span className="text-xs border border-gray-300 px-2 py-0.5 rounded-md text-black bg-white">
+            {status}
+          </span>
+        );
     }
-  }
+  };
 
   return (
     <div className="bg-white min-h-screen text-black">
@@ -171,9 +187,12 @@ const Profile = () => {
         <div>
           {/* Profile Information */}
           <div className="lg:text-left text-center">
-            <h1 className="text-2xl font-bold text-black">{profileData.user.name}</h1>
+            <h1 className="text-2xl font-bold text-black">
+              {profileData.user.name}
+            </h1>
             <p className="text-gray-500">
-              Location : {profileData.user.location} . Member since {profileData.user.memberSince}
+              Location : {profileData.user.location} . Member since{" "}
+              {profileData.user.memberSince}
             </p>
             <button className="px-3 py-1 mt-3 text-sm border border-gray-300 rounded-md hover:bg-gray-50 text-black bg-white">
               Edit Profile
@@ -185,25 +204,33 @@ const Profile = () => {
         <div className="grid mt-5 grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <div className="bg-white border rounded-lg shadow-sm">
             <div className="p-4 text-center">
-              <div className="text-2xl font-bold text-black">{profileData.stats.auctionsWon}</div>
+              <div className="text-2xl font-bold text-black">
+                {profileData.stats.auctionsWon}
+              </div>
               <div className="text-sm text-black">Auctions Won</div>
             </div>
           </div>
           <div className="bg-white border rounded-lg shadow-sm">
             <div className="p-4 text-center">
-              <div className="text-2xl font-bold text-black">{profileData.stats.activeBids}</div>
+              <div className="text-2xl font-bold text-black">
+                {profileData.stats.activeBids}
+              </div>
               <div className="text-sm text-black">Active Bids</div>
             </div>
           </div>
           <div className="bg-white border rounded-lg shadow-sm">
             <div className="p-4 text-center">
-              <div className="text-2xl font-bold text-black">{profileData.stats.successRate}</div>
+              <div className="text-2xl font-bold text-black">
+                {profileData.stats.successRate}
+              </div>
               <div className="text-sm text-black">Success Rate</div>
             </div>
           </div>
           <div className="bg-white border rounded-lg shadow-sm">
             <div className="p-4 text-center">
-              <div className="text-2xl font-bold text-black">{profileData.stats.totalSpent}</div>
+              <div className="text-2xl font-bold text-black">
+                {profileData.stats.totalSpent}
+              </div>
               <div className="text-sm text-black">Total Spent</div>
             </div>
           </div>
@@ -216,12 +243,21 @@ const Profile = () => {
             {/* Account Balance */}
             <div className="bg-white border rounded-lg shadow-sm">
               <div className="p-4 border-b">
-                <h2 className="text-base font-medium text-black">Account Balance</h2>
+                <h2 className="text-base font-medium text-black">
+                  Account Balance
+                </h2>
               </div>
               <div className="p-4">
-                <div className="text-2xl font-bold mb-3 text-black">{profileData.accountBalance}</div>
+                <div className="text-2xl font-bold mb-3 text-black">
+                  {profileData.accountBalance}
+                </div>
                 <button className="w-full flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-md">
-                  <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <svg
+                    className="w-4 h-4 mr-2"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
                     <path
                       d="M12 5v14m-7-7h14"
                       stroke="currentColor"
@@ -238,11 +274,16 @@ const Profile = () => {
             {/* Payment Methods */}
             <div className="bg-white border rounded-lg shadow-sm">
               <div className="p-4 border-b">
-                <h2 className="text-base font-medium text-black">Payment Methods</h2>
+                <h2 className="text-base font-medium text-black">
+                  Payment Methods
+                </h2>
               </div>
               <div className="p-4 space-y-3">
                 {profileData.paymentMethods.map((method) => (
-                  <div key={method.id} className="flex items-center justify-between p-2 border rounded-md bg-white">
+                  <div
+                    key={method.id}
+                    className="flex items-center justify-between p-2 border rounded-md bg-white"
+                  >
                     <div className="flex items-center">
                       <svg
                         className="w-4 h-4 mr-2 text-black"
@@ -250,12 +291,28 @@ const Profile = () => {
                         fill="none"
                         xmlns="http://www.w3.org/2000/svg"
                       >
-                        <rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" strokeWidth="2" />
-                        <path d="M2 10h20" stroke="currentColor" strokeWidth="2" />
+                        <rect
+                          x="2"
+                          y="5"
+                          width="20"
+                          height="14"
+                          rx="2"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        />
+                        <path
+                          d="M2 10h20"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        />
                       </svg>
-                      <span className="text-sm text-black">{method.cardNumber}</span>
+                      <span className="text-sm text-black">
+                        {method.cardNumber}
+                      </span>
                     </div>
-                    <span className="text-xs border px-2 py-0.5 rounded-md text-black">{method.provider}</span>
+                    <span className="text-xs border px-2 py-0.5 rounded-md text-black">
+                      {method.provider}
+                    </span>
                   </div>
                 ))}
                 <button className="w-full text-sm border border-gray-300 rounded-md py-1.5 hover:bg-gray-50 bg-white text-black">
@@ -270,7 +327,9 @@ const Profile = () => {
             {/* Recent Activity */}
             <div className="bg-white border rounded-lg shadow-sm">
               <div className="p-4 border-b">
-                <h2 className="text-base font-medium text-black">Recent Activity</h2>
+                <h2 className="text-base font-medium text-black">
+                  Recent Activity
+                </h2>
               </div>
               <div className="p-4">
                 <div className="grid grid-cols-4 gap-1 mb-3">
@@ -299,7 +358,9 @@ const Profile = () => {
                         />
                       </div>
                       <div className="flex-grow">
-                        <div className="text-sm font-medium text-black">{activity.item}</div>
+                        <div className="text-sm font-medium text-black">
+                          {activity.item}
+                        </div>
                         <div className="text-sm text-black">
                           {activity.price} • {activity.time}
                         </div>
@@ -317,7 +378,9 @@ const Profile = () => {
             {/* Watching Now */}
             <div className="bg-white border rounded-lg shadow-sm">
               <div className="p-4 border-b">
-                <h2 className="text-base font-medium text-black">Watching Now</h2>
+                <h2 className="text-base font-medium text-black">
+                  Watching Now
+                </h2>
               </div>
               <div className="p-4 space-y-3">
                 {profileData.watchingNow.map((item) => (
@@ -330,7 +393,9 @@ const Profile = () => {
                       />
                     </div>
                     <div>
-                      <div className="text-sm font-medium text-black">{item.item}</div>
+                      <div className="text-sm font-medium text-black">
+                        {item.item}
+                      </div>
                       <div className="text-xs text-black">{item.timeLeft}</div>
                     </div>
                   </div>
@@ -343,9 +408,16 @@ const Profile = () => {
         {/* Bidding History */}
         <div className="bg-white border rounded-lg shadow-sm mb-6">
           <div className="flex items-center justify-between p-4 border-b">
-            <h2 className="text-base font-medium text-black">Bidding History</h2>
+            <h2 className="text-base font-medium text-black">
+              Bidding History
+            </h2>
             <button className="h-8 px-2 text-black flex items-center text-sm bg-white">
-              <svg className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <svg
+                className="w-4 h-4 mr-1"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
                 <path
                   d="M3 6h18M6 12h12M9 18h6"
                   stroke="currentColor"
@@ -382,10 +454,18 @@ const Profile = () => {
                 </tbody>
               </table>
               <div className="flex items-center justify-between text-sm text-black mt-3">
-                <div>Showing 1-{profileData.biddingHistory.length} of 127 items</div>
+                <div>
+                  Showing 1-{profileData.biddingHistory.length} of 127 items
+                </div>
                 <div className="flex items-center gap-2">
                   <button className="h-8 w-8 flex items-center justify-center border border-gray-300 rounded-md hover:bg-gray-50 bg-white text-black">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
                       <path
                         d="M15 18L9 12L15 6"
                         stroke="currentColor"
@@ -396,7 +476,13 @@ const Profile = () => {
                     </svg>
                   </button>
                   <button className="h-8 w-8 flex items-center justify-center border border-gray-300 rounded-md hover:bg-gray-50 bg-white text-black">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
                       <path
                         d="M9 6L15 12L9 18"
                         stroke="currentColor"
@@ -412,9 +498,9 @@ const Profile = () => {
           </div>
         </div>
       </div>
+      <SdProfile />
     </div>
-  )
-}
+  );
+};
 
-export default Profile
-
+export default Profile;
