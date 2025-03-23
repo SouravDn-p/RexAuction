@@ -55,7 +55,6 @@ export default function CreateAuction() {
       name: form.get("name"),
       category: form.get("category"),
       startingPrice: form.get("startingPrice"),
-      bidIncrement: form.get("bidIncrement"),
       startTime,
       endTime,
       description: form.get("description"),
@@ -74,7 +73,6 @@ export default function CreateAuction() {
       });
 
       const responses = await Promise.all(uploadPromises);
-      console.log(responses)
       auctionData.images = responses.map((res) => res.data.data.display_url);
 
       const { data } = await axiosSecure.post("/auctions", auctionData);
@@ -166,16 +164,6 @@ export default function CreateAuction() {
                 required
               />
             </div>
-
-            <div className="w-1/2">
-              <label className="block text-gray-700 font-semibold">Bid Increment ($):</label>
-              <input
-                type="number"
-                name="bidIncrement"
-                className="w-full p-2 border rounded bg-white"
-                required
-              />
-            </div>
           </div>
 
           <div className="flex space-x-4">
@@ -213,9 +201,7 @@ export default function CreateAuction() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`w-full py-2 rounded-lg transition ${
-              isSubmitting ? "bg-gray-400" : "bg-purple-600 hover:bg-purple-700 text-white"
-            }`}
+            className={`w-full py-2 rounded-lg transition ${isSubmitting ? "bg-gray-400" : "bg-purple-600 hover:bg-purple-700 text-white"}`}
           >
             {isSubmitting ? "Creating..." : "Create Auction"}
           </button>
