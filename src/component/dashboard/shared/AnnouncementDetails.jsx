@@ -10,7 +10,6 @@ const AnnouncementDetails = () => {
 
   // Find the announcement with the matching ID
   const announcement = announcements.find((item) => item._id === id);
-
   // If no announcement is found, show an error message
   if (!announcement) {
     return (

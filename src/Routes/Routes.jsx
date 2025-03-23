@@ -21,7 +21,8 @@ import AuctionStatus from "../component/dashboard/buyer/AuctionStatus";
 import UserManagement from "../component/dashboard/admin/UserManagement";
 import SellerRequest from "../component/dashboard/admin/SellerRequest";
 import AnnouncementDetails from "../component/dashboard/shared/AnnouncementDetails";
-import ManageAuctions from "../component/dashboard/admin/ManageAuctions";
+import Reports from "../component/dashboard/shared/Reports";
+// import ManageAuctions from "../component/dashboard/admin/ManageAuctions";
 
 export const router = createBrowserRouter([
   {
@@ -89,10 +90,10 @@ export const router = createBrowserRouter([
         path: "userManagement",
         element: <UserManagement />,
       },
-      {
-        path: "manageAuctions",
-        element: <ManageAuctions />,
-      },
+      // {
+      //   path: "manageAuctions",
+      //   element: <ManageAuctions />,
+      // },
       {
         path: "sellerRequest",
         element: <SellerRequest />,
@@ -127,7 +128,10 @@ export const router = createBrowserRouter([
         path: "profile",
         element: <Profile />,
       },
-
+      {
+        path: "reports",
+        element: <Reports />,
+      },
       {
         path: "announcement",
         element: <Announcement />,
