@@ -62,13 +62,17 @@ const CreateAnnouncement = () => {
   return (
     <div
       className={`min-h-screen ${
-        isDarkMode ? "bg-gray-900 text-white" : "bg-white text-black"
+        isDarkMode
+          ? "bg-gray-900 text-white"
+          : "bg-gradient-to-b from-purple-100 via-white to-purple-50 text-black"
       }`}
     >
       <div className="container mx-auto px-4 py-3">
         <div
           className={`max-w-xl p-8 mx-auto ${
-            isDarkMode ? "bg-gray-800" : "bg-gray-200"
+            isDarkMode
+              ? "bg-gray-800"
+              : "bg-gradient-to-b from-white via-purple-50 to-white"
           } shadow-xl rounded-xl mt-20`}
         >
           <h2
@@ -193,7 +197,9 @@ const CreateAnnouncement = () => {
                 placeholder="Enter content"
                 rows={5}
                 className={`w-full border ${
-                  isDarkMode ? "border-gray-700 bg-gray-500 text-white" : "border-gray-300 bg-gray-300 text-black"
+                  isDarkMode
+                    ? "border-gray-700 bg-gray-500 text-white"
+                    : "border-gray-300 bg-gray-300 text-black"
                 } rounded-lg px-4 py-2`}
               />
               {errors.content && (
