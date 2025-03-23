@@ -98,7 +98,13 @@ const MainContent = () => {
                 </label>
 
                 <div className="hidden md:block">
-                  <h1 className="text-xl font-semibold">{getPageName()}</h1>
+                  <h1
+                    className={`text-xl font-semibold ${
+                      isDarkMode ? "text-white" : "text-black"
+                    }`}
+                  >
+                    {getPageName()}
+                  </h1>
                   <p
                     className={`text-sm ${
                       isDarkMode ? "text-gray-400" : "text-gray-500"

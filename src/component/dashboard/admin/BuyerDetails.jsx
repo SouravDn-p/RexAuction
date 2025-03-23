@@ -1,9 +1,11 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import { FaEnvelope, FaPhone, FaStar } from "react-icons/fa";
+import ThemeContext from "../../Context/ThemeContext";
 
 const BuyerDetails = () => {
+  const { isDarkMood } = useContext(ThemeContext);
   const [buyers, setBuyers] = useState([]);
 
   useEffect(() => {
@@ -167,6 +169,15 @@ const BuyerDetails = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-100 via-white to-purple-50 py-10 px-4 md:px-8">
       <h2 className="text-4xl font-bold text-center text-purple-800 mb-10">
+        Buyer Details
+      </h2>
+      <h2
+        className={`${
+          isDarkMode
+            ? "text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-violet-700 to-indigo-800"
+            : "text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-500 to-indigo-600"
+        }`}
+      >
         Buyer Details
       </h2>
 
