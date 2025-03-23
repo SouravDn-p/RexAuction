@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
+import Swal from "sweetalert2";
 
 function ManageAuctions() {
   const axiosSecure = useAxiosSecure();
@@ -10,6 +11,40 @@ function ManageAuctions() {
       return res.data || [];
     },
   });
+
+  // Function to handle status update with confirmation
+  const updateAuctionStatus = async (id, status) => {
+    try {
+      const result = await Swal.fire({
+        title: `Are you sure?`,
+        text: `You want to ${status.toLowerCase()} this auction?`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: `Yes, ${status}`,
+        cancelButtonText: "Cancel",
+        confirmButtonColor: status === "Accepted" ? "#22c55e" : "#ef4444",
+      });
+
+      if (result.isConfirmed) {
+        // Update auction status
+        await axiosSecure.patch(`/auctions/${id}`, { status });
+        await refetch();
+
+        Swal.fire({
+          title: "Success!",
+          text: `Auction ${status.toLowerCase()} successfully.`,
+          icon: "success",
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        title: "Error!",
+        text: `Failed to ${status.toLowerCase()} auction.`,
+        icon: "error",
+      });
+      console.error(`Error updating auction status to ${status}:`, error);
+    }
+  };
 
   return (
     <div className="p-6 bg-gray-900 text-white">
@@ -42,16 +77,38 @@ function ManageAuctions() {
                 <td className="py-2 px-4 border border-gray-600">{auction.name}</td>
                 <td className="py-2 px-4 border border-gray-600">{auction.category}</td>
                 <td className="py-2 px-4 border border-gray-600">${auction.startingPrice}</td>
-                <td className="py-2 px-4 border border-gray-600">{new Date(auction.startTime).toLocaleString()}</td>
+                <td className="py-2 px-4 border border-gray-600">
+                  {new Date(auction.startTime).toLocaleString()}
+                </td>
                 <td className="py-2 px-4 border border-gray-600">{auction.status}</td>
                 <td className="py-2 px-4 border border-gray-600">{auction.sellerEmail}</td>
                 <td className="py-2 px-4 border border-gray-600">
-                  <button
-                    className="bg-blue-500 text-white px-4 py-1 rounded hover:bg-blue-600"
-                    onClick={() => alert(`Details for ${auction.name}`)}
-                  >
-                    Details
-                  </button>
+                  <div className="flex space-x-4 justify-center">
+                    {/* Accept Button */}
+                    <button
+                      onClick={() => updateAuctionStatus(auction._id, "Accepted")}
+                      className={`px-4 py-2 rounded ${
+                        auction.status === "Accepted"
+                          ? "bg-gray-500 text-gray-300 cursor-not-allowed"
+                          : "bg-green-500 text-white hover:bg-green-600"
+                      }`}
+                      disabled={auction.status === "Accepted"}
+                    >
+                      Accept
+                    </button>
+                    {/* Reject Button */}
+                    <button
+                      onClick={() => updateAuctionStatus(auction._id, "Rejected")}
+                      className={`px-4 py-2 rounded ${
+                        auction.status === "Rejected"
+                          ? "bg-gray-500 text-gray-300 cursor-not-allowed"
+                          : "bg-red-500 text-white hover:bg-red-600"
+                      }`}
+                      disabled={auction.status === "Rejected"}
+                    >
+                      Reject
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

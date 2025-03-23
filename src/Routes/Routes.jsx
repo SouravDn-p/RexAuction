@@ -93,6 +93,7 @@ export const router = createBrowserRouter([
         path: "manageAuctions",
         element: <ManageAuctions />,
       },
+      
       {
         path: "sellerRequest",
         element: <SellerRequest />,
