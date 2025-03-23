@@ -8,7 +8,7 @@ import {
   sendPasswordResetEmail,
   updateProfile,
 } from "firebase/auth";
-import { createContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import auth from "../firebase/firebase.init";
 import useAxiosPublic from "../hooks/useAxiosPublic";
 import { toast } from "react-hot-toast"; // ✅ Hot toast
@@ -18,6 +18,7 @@ const googleProvider = new GoogleAuthProvider();
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [DbUser, setDbUser] = useState("");
   const [response, setResponse] = useState(null);
   const axiosPublic = useAxiosPublic();
   const [errorMessage, setErrorMessage] = useState("");
@@ -95,6 +96,7 @@ const AuthProvider = ({ children }) => {
         } catch (error) {
           console.error("Error fetching token:", error);
         }
+
       } else {
         localStorage.removeItem("access-token");
       }

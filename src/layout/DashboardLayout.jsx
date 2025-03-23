@@ -1,21 +1,15 @@
 import MainContent from "../component/dashboard/MainContent";
-import Sidebar from "../component/dashboard/Sidebar";
+import SdSidebar from "../component/dashboard/shared/SdSidebar";
 
 const DashboardLayout = () => {
-  const isAdmin = true;
-  const isSeller = false;
-
   return (
     <div>
       <div className="drawer lg:drawer-open">
         <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
-
         {/* Main Content */}
-        
-        <MainContent isAdmin={isAdmin} isSeller={isSeller} />
-
+        <MainContent />
         {/* Sidebar */}
-        <Sidebar isAdmin={isAdmin} isSeller={isSeller} />
+        <SdSidebar />
       </div>
     </div>
   );

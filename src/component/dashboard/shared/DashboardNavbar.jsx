@@ -1,21 +1,24 @@
 "use client";
 
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Bell, Moon, Search, Sun, LogOut, Settings, User } from "lucide-react";
+import { FaSun, FaMoon } from "react-icons/fa";
+import ThemeContext from "../../Context/ThemeContext";
 import { AuthContexts } from "../../../providers/AuthProvider";
 
 export default function DashboardNavbar() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [theme, setTheme] = useState("light"); // Replace with actual theme logic if needed
+  // const { user } = useContext(AuthContexts);
+  const [theme, setTheme] = useState("light");
+  const { isDarkMode, toggleTheme } = useContext(ThemeContext);
   const [notificationCount, setNotificationCount] = useState(3);
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
   };
-  const user = {
-    photoURL: "https://via.placeholder.com/150",
-    name: "John Doe",
-  };
+  // const user = {
+  //   photoURL: "https://via.placeholder.com/150",
+  //   name: "John Doe",
+  // };
 
   const handleLogout = () => {
     console.log("Logging out...");
@@ -24,12 +27,15 @@ export default function DashboardNavbar() {
   const handleNotificationClick = () => {
     setNotificationCount(0);
   };
+  const user = {
+    photoURL: "https://i.ibb.co.com/Y75m1Mk9/Final-Boss.jpg",
+    name: "Sourav Debnath",
+    role: "admin",
+  };
 
   return (
-    <div className="sticky top-0 z-10 bg-gray-100 dark:bg-gray-900 backdrop-blur-md shadow-md p-4">
+    <div className="sticky top-0 z-10 bg-gray-100 dark:bg-gray-900 backdrop-blur-md shadow-md pb-4 mb-4">
       <div className="container mx-auto flex justify-end">
-     
-
         {/* Navbar Right: Actions and User Profile */}
         <div className="flex items-center space-x-4">
           {/* Notifications */}
@@ -47,6 +53,15 @@ export default function DashboardNavbar() {
 
           {/* Dark Mode Toggle */}
           <button
+            className="text-xl hover:text-gray-300"
+            onClick={toggleTheme}
+            aria-label={
+              isDarkMode ? "Switch to light mode" : "Switch to dark mode"
+            }
+          >
+            {isDarkMode ? <FaSun className="text-yellow-400" /> : <FaMoon />}
+          </button>
+          {/* <button
             className="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-800"
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
           >
@@ -55,7 +70,7 @@ export default function DashboardNavbar() {
             ) : (
               <Moon className="h-5 w-5 text-gray-600" />
             )}
-          </button>
+          </button> */}
 
           {/* User Profile Dropdown */}
           <div className="relative">
