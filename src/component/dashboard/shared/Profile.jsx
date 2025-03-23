@@ -209,7 +209,7 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* Main Content */}
+        {/* Main Content here */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           {/* Left Column */}
           <div className="space-y-6">
