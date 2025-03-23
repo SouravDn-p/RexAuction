@@ -1,9 +1,7 @@
 import React from "react";
 
-export default function Reports() {
-  return (
-    <div>
-      <h1>Reports Page</h1>
-    </div>
-  );
-}
+const Reports = () => {
+  return <div></div>;
+};
+
+export default Reports;
