@@ -8,7 +8,7 @@ const DashboardLayout = () => {
   return (
     <div
       className={` ${
-        isDarkMode ? " bg-gray-600" : "bg-yellow-100"
+        isDarkMode ? " bg-gray-600" : "bg-white"
       } h-screen w-screen`}
     >
       <div className="drawer lg:drawer-open">

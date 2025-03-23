@@ -65,19 +65,19 @@ const MainContent = () => {
     photoURL: "https://i.ibb.co.com/Y75m1Mk9/Final-Boss.jpg",
     name: "Sourav Debnath",
     email: "sourav@example.com",
-    role: "admin"
+    role: "admin",
   };
 
   return (
     <div
-      className={`drawer-content flex flex-col md:flex-row justify-between items-stretch
+      className={`drawer-content flex flex-col md:flex-row justify-between items-stretch 
        `}
     >
-      <div className="mx-auto w-3/4 md:w-11/12">
+      <div className="mx-auto w-11/12 md:w-full ">
         {/* Top Navigation Bar */}
         <header
-          className={`sticky top-0 z-10 ${
-            isDarkMode ? "bg-gray-800/90" : "bg-white/90"
+          className={`sticky top-0 z-10 mx-auto ${
+            isDarkMode ? "bg-gray-800/90" : "bg-white"
           } backdrop-blur-md shadow-sm border-b ${
             isDarkMode ? "border-gray-700" : "border-gray-200"
           }`}
@@ -91,7 +91,7 @@ const MainContent = () => {
                   className={`lg:hidden flex items-center justify-center h-10 w-10 rounded-full ${
                     isDarkMode
                       ? "bg-gray-700 text-purple-400 hover:bg-gray-600"
-                      : "bg-purple-100 text-purple-600 hover:bg-purple-200"
+                      : "bg-white text-purple-600 hover:bg-white"
                   } cursor-pointer transition-colors duration-200`}
                 >
                   <FaBars size={18} />
