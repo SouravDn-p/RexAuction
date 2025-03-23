@@ -51,6 +51,16 @@ const Sidebar = () => {
               <CiUser size={20} /> User Management
             </NavLink>
             <NavLink
+              to="/dashboard/sellerRequest"
+              className={({ isActive }) =>
+                `flex items-center gap-2 py-2 font-bold ${
+                  isActive ? "text-blue-400" : ""
+                }`
+              }
+            >
+              <CiUser size={20} /> Seller Request
+            </NavLink>
+            <NavLink
               to="/dashboard/createAnnouncement"
               className={({ isActive }) =>
                 `flex items-center gap-2 py-2 font-bold ${

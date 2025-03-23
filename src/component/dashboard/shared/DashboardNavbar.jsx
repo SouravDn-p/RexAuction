@@ -10,10 +10,7 @@ export default function DashboardNavbar() {
   const [theme, setTheme] = useState("light"); // Replace with actual theme logic if needed
   const [notificationCount, setNotificationCount] = useState(3);
 
-  const handleSearchChange = (e) => {
-    setSearchQuery(e.target.value);
-  };
-
+ 
   const handleLogout = () => {
     console.log("Logging out...");
   };
@@ -24,18 +21,8 @@ export default function DashboardNavbar() {
 
   return (
     <div className="sticky top-0 z-10 bg-gray-100 dark:bg-gray-900 backdrop-blur-md shadow-md p-4">
-      <div className="container mx-auto flex justify-between items-center">
-        {/* Navbar Left: Search */}
-        <div className="relative flex items-center">
-          <input
-            type="text"
-            placeholder="Search..."
-            value={searchQuery}
-            onChange={handleSearchChange}
-            className="border rounded-md px-3 py-2 pr-8 w-full md:w-64 text-black dark:text-white"
-          />
-          <Search className="absolute right-2 h-4 w-4 text-gray-500 dark:text-gray-300" />
-        </div>
+      <div className="container mx-auto flex justify-end">
+     
 
         {/* Navbar Right: Actions and User Profile */}
         <div className="flex items-center space-x-4">

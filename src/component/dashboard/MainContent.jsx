@@ -1,9 +1,9 @@
-import { FaBars, FaSearch } from "react-icons/fa";
+import { FaBars } from "react-icons/fa";
 import { Outlet, useLocation } from "react-router-dom";
 import AdminDashboard from "./admin/AdminDashboard";
 import SellerDashboard from "./seller/SellerDashboard";
 import BuyerDashboard from "./buyer/BuyerDashboard";
-import { useState } from "react";
+
 import DashboardNavbar from "./shared/DashboardNavbar";
 
 const MainContent = () => {
@@ -12,7 +12,6 @@ const MainContent = () => {
   const location = useLocation();
 
   // State for search input
-  const [searchQuery, setSearchQuery] = useState("");
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
