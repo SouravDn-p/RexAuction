@@ -69,12 +69,15 @@ const MainContent = () => {
   };
 
   return (
-    <div className="drawer-content flex flex-col md:flex-row justify-between items-stretch">
-      <div className="mx-auto">
+    <div
+      className={`drawer-content flex flex-col md:flex-row justify-between items-stretch 
+       `}
+    >
+      <div className="mx-auto w-11/12 md:w-full ">
         {/* Top Navigation Bar */}
         <header
-          className={`sticky top-0 z-10 ${
-            isDarkMode ? "bg-gray-800/90" : "bg-white/90"
+          className={`sticky top-0 z-10 mx-auto ${
+            isDarkMode ? "bg-gray-800/90" : "bg-white"
           } backdrop-blur-md shadow-sm border-b ${
             isDarkMode ? "border-gray-700" : "border-gray-200"
           }`}
@@ -88,14 +91,20 @@ const MainContent = () => {
                   className={`lg:hidden flex items-center justify-center h-10 w-10 rounded-full ${
                     isDarkMode
                       ? "bg-gray-700 text-purple-400 hover:bg-gray-600"
-                      : "bg-purple-100 text-purple-600 hover:bg-purple-200"
+                      : "bg-white text-purple-600 hover:bg-white"
                   } cursor-pointer transition-colors duration-200`}
                 >
                   <FaBars size={18} />
                 </label>
 
                 <div className="hidden md:block">
-                  <h1 className="text-xl font-semibold">{getPageName()}</h1>
+                  <h1
+                    className={`text-xl font-semibold ${
+                      isDarkMode ? "text-white" : "text-black"
+                    }`}
+                  >
+                    {getPageName()}
+                  </h1>
                   <p
                     className={`text-sm ${
                       isDarkMode ? "text-gray-400" : "text-gray-500"

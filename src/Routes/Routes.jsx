@@ -15,7 +15,6 @@ import CreateAnnouncement from "../component/dashboard/admin/CreateAnnouncement"
 import Payment from "../component/dashboard/buyer/Payment";
 import BidHistory from "../component/dashboard/buyer/BidHistory";
 import BuyerDetails from "../component/dashboard/admin/BuyerDetails";
-import ManageSellerRequest from "../component/dashboard/admin/ManageSellerRequest";
 import BecomeSeller from "../component/dashboard/buyer/BecomeSeller";
 import CreateAuction from "../component/dashboard/seller/CreateAuction";
 import AuctionStatus from "../component/dashboard/buyer/AuctionStatus";
@@ -82,10 +81,6 @@ export const router = createBrowserRouter([
         element: <BuyerDetails />,
       },
       {
-        path: "manageSellerRequest",
-        element: <ManageSellerRequest />,
-      },
-      {
         path: "userManagement",
         element: <UserManagement />,
       },
@@ -94,10 +89,6 @@ export const router = createBrowserRouter([
         element: <SellerRequest />,
       },
       // Seller Only
-      {
-        path: "createAction",
-        element: <CreateAuction />,
-      },
       {
         path: "createAuction",
         element: <CreateAuction />,
