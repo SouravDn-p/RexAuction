@@ -7,6 +7,7 @@ import { FaFire } from "react-icons/fa";
 import ThemeContext from "../../component/Context/ThemeContext";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { useQuery } from "@tanstack/react-query";
+import { format } from "date-fns"; // Import date-fns for formatting dates
 
 const HotAuction = () => {
   const { isDarkMode } = useContext(ThemeContext);
@@ -22,7 +23,7 @@ const HotAuction = () => {
       return res.data || [];
     },
   });
-  console.log(auctionData)
+  console.log(auctionData);
 
   // Intersection Observer for animations
   useEffect(() => {
@@ -117,14 +118,14 @@ const HotAuction = () => {
                   {/* Price and Time Left */}
                   <div className="flex justify-between items-center mb-4">
                     <p className="text-yellow-500 font-bold text-xl">${item.startingPrice}</p>
-                    <span className="text-sm text-gray-500">{item.endTime}</span>
+                    <span className="text-sm text-gray-500">
+                      {/* Format endTime */}
+                      {format(new Date(item.endTime), "MMM dd, yyyy, hh:mm a")}
+                    </span>
                   </div>
 
                   {/* Category */}
-                  <p className="text-sm text-gray-500 mb-2">Category: {item.category}</p>
-
-                  {/* Description */}
-                  <p className="text-sm text-gray-600 mb-4">{item.description}</p>
+                  <p className="text-sm text-gray-500 mb-4">Category: {item.category}</p>
 
                   {/* Progress Bar */}
                   <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden mb-4">
@@ -137,9 +138,8 @@ const HotAuction = () => {
                     ></div>
                   </div>
 
-                  {/* Bids and Action Button */}
+                  {/* Action Button */}
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-500">{item.bidIncrement} bid increment</span>
                     <button className="w-full bg-gradient-to-r from-purple-600 via-violet-700 to-purple-800 text-white py-2 rounded-lg hover:from-purple-500 hover:via-violet-600 hover:to-indigo-700 transition">
                       Bid Now
                     </button>
@@ -148,7 +148,6 @@ const HotAuction = () => {
               </div>
             </SwiperSlide>
           ))}
-
         </Swiper>
       </div>
     </section>
