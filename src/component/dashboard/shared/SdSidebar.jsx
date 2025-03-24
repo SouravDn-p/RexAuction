@@ -61,7 +61,7 @@ const Sidebar = () => {
             <img
               className="w-12 h-12 rounded-full border-2 border-pink-400 p-0.5"
               src={
-                dbUser?.photoURL ||
+                user?.photoURL ||
                 "https://i.ibb.co.com/Y75m1Mk9/Final-Boss.jpg"
               }
               alt=""
@@ -72,7 +72,7 @@ const Sidebar = () => {
                   isDarkMode ? "text-white" : "text-gray-800"
                 }`}
               >
-                {dbUser?.displayName || "User"}
+                {user?.displayName || "User"}
               </p>
               <p
                 className={`text-xs ${
@@ -367,7 +367,7 @@ const Sidebar = () => {
                 </span>
               </NavLink>
               <NavLink
-                to="/dashboard/createAction"
+                to="/dashboard/createAuction"
                 className={({ isActive }) =>
                   `flex items-center gap-3 py-2.5 px-3 rounded-lg transition-all duration-200 ${
                     isActive

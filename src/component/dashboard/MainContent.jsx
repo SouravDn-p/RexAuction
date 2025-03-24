@@ -15,7 +15,7 @@ import ThemeContext from "../Context/ThemeContext";
 import { AuthContexts } from "../../providers/AuthProvider";
 
 const MainContent = () => {
-  // const { user } = useContext(AuthContexts);
+  const { dbUser, user } = useContext(AuthContexts);
   const { isDarkMode, toggleTheme } = useContext(ThemeContext);
   const [notificationCount, setNotificationCount] = useState(3);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -62,13 +62,13 @@ const MainContent = () => {
   const handleNotificationClick = () => {
     setNotificationCount(0);
   };
-  // user.role = "admin";
-  const user = {
-    photoURL: "https://i.ibb.co.com/Y75m1Mk9/Final-Boss.jpg",
-    name: "Sourav Debnath",
-    email: "sourav@example.com",
-    role: "admin",
-  };
+  // dbUser.role = "admin";
+  // const user = {
+  //   photoURL: "https://i.ibb.co.com/Y75m1Mk9/Final-Boss.jpg",
+  //   name: "Sourav Debnath",
+  //   email: "sourav@example.com",
+  //   role: "admin",
+  // };
 
   return (
     <div
@@ -223,7 +223,7 @@ const MainContent = () => {
                           isDarkMode ? "text-gray-400" : "text-gray-500"
                         }`}
                       >
-                        {user.role}
+                        {dbUser.role}
                       </p>
                     </div>
                     <ChevronDown
