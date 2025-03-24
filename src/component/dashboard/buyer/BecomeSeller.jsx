@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { toast } from "react-hot-toast";
 import useAxiosPublic from "../../../hooks/useAxiosPublic";
 import { AuthContexts } from "../../../providers/AuthProvider";
+import ThemeContext from "../../Context/ThemeContext";
 
 const image_hosting_key = import.meta.env.VITE_IMAGE_HOSTING_KEY;
 const image_hosting_api = `https://api.imgbb.com/1/upload?key=${image_hosting_key}`;
@@ -20,15 +21,22 @@ const BecomeSeller = () => {
   } = useForm();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [previewImages, setPreviewImages] = useState([]);
+  const { isDarkMode } = useContext(ThemeContext);
+
+  const handleImagePreview = (e) => {
+    const files = Array.from(e.target.files);
+    const imageUrls = files.map((file) => URL.createObjectURL(file));
+    setPreviewImages(imageUrls);
+  };
 
   const onSubmit = async (data) => {
     if (!data.termsAccepted) return;
-
     setIsSubmitting(true);
 
     try {
-      // Image Upload to imgbb (multiple files)
       const uploadedImages = [];
+
       for (const file of data.documents) {
         const formData = new FormData();
         formData.append("image", file);
@@ -44,7 +52,6 @@ const BecomeSeller = () => {
         }
       }
 
-      console.log("dbUser in seller request", dbUser);
       const requestData = {
         name: data.name,
         email: user.email,
@@ -55,12 +62,12 @@ const BecomeSeller = () => {
         documents: uploadedImages,
       };
 
-      // Send request data to the server
       const res = await axiosPublic.post("become_seller", requestData);
 
       if (res.data.success) {
         toast.success("Seller request submitted successfully!");
         reset();
+        setPreviewImages([]);
       } else {
         throw new Error("Request failed");
       }
@@ -75,103 +82,110 @@ const BecomeSeller = () => {
   const termsAccepted = watch("termsAccepted");
 
   return (
-    <div className="bg-purple-50 min-h-screen px-4 py-8 sm:px-6 lg:px-8">
+    <div
+      className={`min-h-screen  px-4 py-8 sm:px-6 lg:px-8 transition-colors duration-300 ${
+        isDarkMode ? "bg-gray-900 text-white" : "bg-purple-50 text-gray-900"
+      }`}
+    >
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="max-w-3xl mx-auto bg-white shadow-xl rounded-xl p-6 sm:p-8"
+        className={`max-w-xl mx-auto shadow-xl rounded-xl p-6 sm:p-8 transition-all ${
+          isDarkMode ? "bg-gray-800" : "bg-white"
+        }`}
       >
         <motion.h2
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-2xl sm:text-3xl font-bold text-purple-700 mb-6 text-center sm:text-left"
+          className={`text-2xl sm:text-3xl font-bold mb-6 text-center sm:text-left ${
+            isDarkMode ? "text-purple-300" : "text-purple-700"
+          }`}
         >
           Verification Request Form
         </motion.h2>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Name */}
-          <div>
-            <label className="block text-sm font-medium text-purple-700 mb-1">
-              Full Name <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              placeholder="Enter your full name"
-              {...register("name", { required: "Full Name is required" })}
-              className="w-full border border-purple-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
-            />
-            {errors.name && (
-              <p className="text-red-500 text-sm">{errors.name.message}</p>
-            )}
+          <div className="flex gap-3">
+            <div className="w-1/2">
+              <label className="block text-sm font-medium mb-1">
+                Full Name <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                placeholder="Enter your full name"
+                {...register("name", { required: "Full Name is required" })}
+                className="w-full border border-purple-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 bg-transparent"
+              />
+              {errors.name && (
+                <p className="text-red-500 text-sm">{errors.name.message}</p>
+              )}
+            </div>
+
+            <div className="w-1/2">
+              <label className="block text-sm font-medium mb-1">
+                Email Address <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="email"
+                placeholder="Enter your email"
+                {...register("email", {
+                  required: "Email is required",
+                  pattern: {
+                    value: /\S+@\S+\.\S+/,
+                    message: "Invalid email format",
+                  },
+                })}
+                className="w-full border border-purple-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 bg-transparent"
+              />
+              {errors.email && (
+                <p className="text-red-500 text-sm">{errors.email.message}</p>
+              )}
+            </div>
           </div>
 
-          {/* Email */}
-          <div>
-            <label className="block text-sm font-medium text-purple-700 mb-1">
-              Email Address <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="email"
-              placeholder="Enter your email"
-              {...register("email", {
-                required: "Email is required",
-                pattern: {
-                  value: /\S+@\S+\.\S+/,
-                  message: "Invalid email format",
-                },
-              })}
-              className="w-full border border-purple-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
-            />
-            {errors.email && (
-              <p className="text-red-500 text-sm">{errors.email.message}</p>
-            )}
+          <div className="flex gap-3">
+            <div className="w-1/2">
+              <label className="block text-sm font-medium mb-1">
+                Address <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="text"
+                placeholder="Enter your address"
+                {...register("address", { required: "Address is required" })}
+                className="w-full border border-purple-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 bg-transparent"
+              />
+              {errors.address && (
+                <p className="text-red-500 text-sm">{errors.address.message}</p>
+              )}
+            </div>
+
+            <div className="w-1/2">
+              <label className="block text-sm font-medium mb-1">
+                Select Verification {" "}
+                <span className="text-red-500">*</span>
+              </label>
+              <select
+                {...register("documentType", {
+                  required: "Please select a document type",
+                })}
+                className="w-full border text-gray-400 border-purple-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 bg-transparent"
+              >
+                <option value="NID">NID</option>
+                <option value="Passport">Passport</option>
+                <option value="Driving License">Driving License</option>
+              </select>
+              {errors.documentType && (
+                <p className="text-red-500 text-sm">
+                  {errors.documentType.message}
+                </p>
+              )}
+            </div>
           </div>
 
-          {/* Address */}
           <div>
-            <label className="block text-sm font-medium text-purple-700 mb-1">
-              Address <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              placeholder="Enter your address"
-              {...register("address", { required: "Address is required" })}
-              className="w-full border border-purple-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
-            />
-            {errors.address && (
-              <p className="text-red-500 text-sm">{errors.address.message}</p>
-            )}
-          </div>
-
-          {/* Dropdown */}
-          <div>
-            <label className="block text-sm font-medium text-purple-700 mb-1">
-              Select Verification Document{" "}
-              <span className="text-red-500">*</span>
-            </label>
-            <select
-              {...register("documentType", {
-                required: "Please select a document type",
-              })}
-              className="w-full border border-purple-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400"
-            >
-              <option value="NID">NID</option>
-              <option value="Passport">Passport</option>
-              <option value="Driving License">Driving License</option>
-            </select>
-            {errors.documentType && (
-              <p className="text-red-500 text-sm">
-                {errors.documentType.message}
-              </p>
-            )}
-          </div>
-
-          {/* Multiple Image Upload */}
-          <div>
-            <label className="block text-sm font-medium text-purple-700 mb-1">
+            <label className="block text-sm font-medium mb-1">
               Upload Document Images (Multiple)
             </label>
             <input
@@ -181,7 +195,10 @@ const BecomeSeller = () => {
                 required: "Please upload at least one document",
               })}
               multiple
-              className="w-full text-center file:bg-purple-100 file:border-none file:text-purple-700 file:rounded-md file:py-2 file:px-4"
+              onChange={(e) => {
+                handleImagePreview(e);
+              }}
+              className="lg:w-1/2 w-2/3 rounded-lg p-1 border-dashed border-2 file:bg-purple-100 file:border-none file:text-purple-700 file:rounded-md file:py-2 file:px-4"
             />
             {errors.documents && (
               <p className="text-red-500 text-sm">{errors.documents.message}</p>
@@ -189,9 +206,22 @@ const BecomeSeller = () => {
             <p className="text-sm mt-2 text-gray-500">
               You can upload multiple images (Max 5MB each)
             </p>
+
+            {previewImages.length > 0 && (
+              <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                {previewImages.map((img, index) => (
+                  <div key={index}>
+                    <img
+                      src={img}
+                      alt={`preview ${index}`}
+                      className="w-full h-32 object-cover rounded-lg border border-purple-300"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Terms and Conditions Checkbox */}
           <div className="flex items-start gap-2">
             <input
               type="checkbox"
@@ -200,7 +230,7 @@ const BecomeSeller = () => {
               })}
               className="mt-1"
             />
-            <label className="text-sm text-gray-700">
+            <label className="text-sm">
               I agree to the{" "}
               <a href="#" className="text-purple-600 underline">
                 Terms and Conditions
@@ -213,7 +243,6 @@ const BecomeSeller = () => {
             </p>
           )}
 
-          {/* Submit Button */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
