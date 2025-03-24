@@ -1,6 +1,11 @@
 import { FaBars } from "react-icons/fa";
-import { Outlet, useLocation } from "react-router-dom";
-import DashboardNavbar from "./shared/DashboardNavbar";
+import {
+  Link,
+  Navigate,
+  Outlet,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import { useContext, useEffect, useRef, useState } from "react";
 import {
   Bell,
@@ -13,15 +18,20 @@ import {
 import { FaSun, FaMoon } from "react-icons/fa";
 import ThemeContext from "../Context/ThemeContext";
 import { AuthContexts } from "../../providers/AuthProvider";
+import auth from "../../firebase/firebase.init";
+import { toast } from "react-toastify";
+import { signOut } from "firebase/auth";
 
 const MainContent = () => {
-  const { dbUser, user } = useContext(AuthContexts);
+  const { user, setUser, setLoading, setError, dbUser } =
+    useContext(AuthContexts);
   const { isDarkMode, toggleTheme } = useContext(ThemeContext);
   const [notificationCount, setNotificationCount] = useState(3);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const profileRef = useRef(null);
   const location = useLocation();
+  const navigate = useNavigate();
 
   // Get current page name from location
   const getPageName = () => {
@@ -55,21 +65,30 @@ const MainContent = () => {
     };
   }, []);
 
-  const handleLogout = () => {
-    console.log("Logging out...");
-  };
-
   const handleNotificationClick = () => {
     setNotificationCount(0);
   };
-  // dbUser.role = "admin";
-  // const user = {
-  //   photoURL: "https://i.ibb.co.com/Y75m1Mk9/Final-Boss.jpg",
-  //   name: "Sourav Debnath",
-  //   email: "sourav@example.com",
-  //   role: "admin",
-  // };
 
+  const handleLogout = async () => {
+    // setLoading(true);
+    // try {
+    //   await signOut(auth);
+    //   setUser(null);
+    //   setError(null);
+    //   toast.success("Successfully signed out", {
+    //     position: "top-right",
+    //     autoClose: 3000,
+    //   });
+    //   navigate("/login");
+    // } catch (err) {
+    //   console.error("Sign-Out error:", err.message);
+    //   setError(err.message);
+    //   toast.error(err.message);
+    // } finally {
+    //   setLoading(false);
+    // }
+    console.log("logging Out .....");
+  };
   return (
     <div
       className={`drawer-content flex flex-col md:flex-row justify-between items-stretch 
@@ -124,7 +143,9 @@ const MainContent = () => {
                   <button
                     onClick={() => setIsSearchOpen(!isSearchOpen)}
                     className={`p-2 rounded-full ${
-                      isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                      isDarkMode
+                        ? "hover:bg-gray-700 "
+                        : "hover:bg-gray-100 text-black"
                     } transition-colors duration-200`}
                   >
                     <Search className="h-5 w-5" />
@@ -162,7 +183,9 @@ const MainContent = () => {
                 {/* Notifications */}
                 <button
                   className={`relative p-2 rounded-full ${
-                    isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                    isDarkMode
+                      ? "hover:bg-gray-700"
+                      : "hover:bg-gray-100 text-black"
                   } transition-colors duration-200`}
                   onClick={handleNotificationClick}
                 >
@@ -197,7 +220,9 @@ const MainContent = () => {
                   >
                     <div
                       className={`h-10 w-10 rounded-full border-2 overflow-hidden ${
-                        isDarkMode ? "border-purple-600" : "border-purple-400"
+                        isDarkMode
+                          ? "border-purple-600"
+                          : "border-purple-400 text-black"
                       }`}
                     >
                       {user.photoURL ? (
@@ -243,7 +268,7 @@ const MainContent = () => {
                     >
                       <div
                         className={`p-3 border-b ${
-                          isDarkMode ? "border-gray-700" : "border-gray-200"
+                          isDarkMode ? "border-gray-700" : "border-gray-200 "
                         }`}
                       >
                         <p className="text-sm font-medium">{user.name}</p>
@@ -256,21 +281,22 @@ const MainContent = () => {
                         </p>
                       </div>
                       <div className="py-1">
-                        <button
+                        <Link
+                          to={`/dashboard/profile`}
                           className={`w-full flex items-center px-4 py-2 text-sm ${
                             isDarkMode
                               ? "hover:bg-gray-700"
-                              : "hover:bg-gray-100"
+                              : "hover:bg-gray-100 text-black"
                           }`}
                         >
                           <User className="h-4 w-4 mr-2" />
                           Profile
-                        </button>
+                        </Link>
                         <button
                           className={`w-full flex items-center px-4 py-2 text-sm ${
                             isDarkMode
                               ? "hover:bg-gray-700"
-                              : "hover:bg-gray-100"
+                              : "hover:bg-gray-100 text-black"
                           }`}
                         >
                           <Settings className="h-4 w-4 mr-2" />
