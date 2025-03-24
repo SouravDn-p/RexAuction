@@ -1,13 +1,15 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
 import { toast } from "react-hot-toast";
 import useAxiosPublic from "../../../hooks/useAxiosPublic";
+import { AuthContexts } from "../../../providers/AuthProvider";
 
 const image_hosting_key = import.meta.env.VITE_IMAGE_HOSTING_KEY;
 const image_hosting_api = `https://api.imgbb.com/1/upload?key=${image_hosting_key}`;
 
 const BecomeSeller = () => {
+  const { dbUser, user } = useContext(AuthContexts);
   const axiosPublic = useAxiosPublic();
   const {
     register,
@@ -42,11 +44,14 @@ const BecomeSeller = () => {
         }
       }
 
+      console.log("dbUser in seller request", dbUser);
       const requestData = {
         name: data.name,
-        email: data.email,
+        email: user.email,
         address: data.address,
         documentType: data.documentType,
+        role: dbUser.role,
+        uid: dbUser.uid,
         documents: uploadedImages,
       };
 

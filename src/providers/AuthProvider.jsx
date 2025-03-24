@@ -152,6 +152,8 @@ const AuthProvider = ({ children }) => {
     userProfileUpdate,
     signInWithGoogle,
     logOut,
+    dbUser,
+    setDbUser
   };
 
   return (
