@@ -168,9 +168,9 @@ const BuyerDetails = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-100 via-white to-purple-50 py-10 px-4 md:px-8">
-      <h2 className="text-4xl font-bold text-center text-purple-800 mb-10">
+      {/* <h2 className="text-4xl font-bold text-center text-purple-800 mb-10">
         Buyer Details
-      </h2>
+      </h2> */}
       <h2
         className={`${
           isDarkMode

@@ -22,7 +22,7 @@ import UserManagement from "../component/dashboard/admin/UserManagement";
 import SellerRequest from "../component/dashboard/admin/SellerRequest";
 import AnnouncementDetails from "../component/dashboard/shared/AnnouncementDetails";
 import Reports from "../component/dashboard/shared/Reports";
-// import ManageAuctions from "../component/dashboard/admin/ManageAuctions";
+import ManageAuctions from "../component/dashboard/shared/ManageAuctions";
 
 export const router = createBrowserRouter([
   {
@@ -53,10 +53,6 @@ export const router = createBrowserRouter([
       {
         path: "/register",
         element: <Register />,
-      },
-      {
-        path: "/profile",
-        element: <Profile></Profile>,
       },
       {
         path: "/forgotPassword",
@@ -90,10 +86,11 @@ export const router = createBrowserRouter([
         path: "userManagement",
         element: <UserManagement />,
       },
-      // {
-      //   path: "manageAuctions",
-      //   element: <ManageAuctions />,
-      // },
+
+      {
+        path: "manageAuctions",
+        element: <ManageAuctions />,
+      },
       {
         path: "sellerRequest",
         element: <SellerRequest />,

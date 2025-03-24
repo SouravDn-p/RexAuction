@@ -12,6 +12,7 @@ import ThemeContext from "../../Context/ThemeContext";
 const Announcement = () => {
   const isAdmin = true;
   const [announcements, refetch, isLoading] = useAnnouncement();
+  const { isDarkMode } = useContext(ThemeContext);
   const [selectedAnnouncement, setSelectedAnnouncement] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
@@ -47,9 +48,20 @@ const Announcement = () => {
       }`}
 
       
+
+      className={`px-4 md:px-16 py-10 ${
+        isDarkMode ? "bg-gray-900 text-white" : "bg-purple-50 text-gray-800"
+      } min-h-screen`}
+
     >
       {/* Heading */}
-      <h1 className="text-4xl font-bold text-purple-800 mb-2 text-center">
+      <h2
+        className={`text-4xl font-bold text-purple-800 mb-2 text-center ${
+          isDarkMode
+            ? "text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-violet-700 to-indigo-800"
+            : "text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-500 to-indigo-600"
+        }`}
+      >
         🗞 Announcements
       </h1>
       <p 
@@ -59,6 +71,9 @@ const Announcement = () => {
         isDarkMode ? "text-purple-300" : "text-purple-700"
       } mb-10 `}
       >
+
+      </h2>
+      <p className="text-center text-slate-600 mb-10 max-w-xl mx-auto">
         Stay updated with the latest news and upcoming bidding events from
         <strong> RexAuction</strong>. Explore exciting opportunities!
       </p>

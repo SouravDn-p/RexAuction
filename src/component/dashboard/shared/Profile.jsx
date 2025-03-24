@@ -3,11 +3,11 @@ import SdProfile from "./SdProfile";
 import ThemeContext from "../../Context/ThemeContext";
 import CountUp from "react-countup";
 import { useInView } from "react-intersection-observer";
-
+import { AuthContexts } from "../../../providers/AuthProvider";
 
 const profileData = {
   user: {
-    name: "Sourav Debnath",
+    name: "Sourav Debnath"  ,
     location: "Dhaka, BD",
     memberSince: "2024",
     profilePicture: "https://i.ibb.co/BmxHqZm/Screenshot-2025-03-23-164850.png",
@@ -108,6 +108,7 @@ const profileData = {
 };
 
 const Profile = () => {
+  const { user } = useContext(AuthContexts);
   const [activeTab, setActiveTab] = useState("All");
   const { isDarkMode } = useContext(ThemeContext);
   const renderStatusBadge = (status) => {
@@ -186,59 +187,59 @@ const Profile = () => {
 
       {/* Profile Info */}
       <div className="px-6">
-      <div
-  className={`flex flex-col md:flex-row items-center gap-6 -mt-16 mb-6 ${
-    isDarkMode ? "text-white" : "text-black"
-  }`}
->
-  {/* Profile Picture */}
-  <div className="relative flex-shrink-0">
-    <div
-      className={`w-28 h-28 rounded-full border-4 ${
-        isDarkMode ? "border-gray-700 bg-gray-800" : "border-white bg-gray-200"
-      } overflow-hidden`}
-    >
-      <img
-        src={profileData.user.profilePicture || "/placeholder.svg"}
-        alt="Profile picture"
-        className="w-full h-full object-cover"
-      />
-    </div>
-  </div>
+        <div
+          className={`flex flex-col md:flex-row items-center gap-6 -mt-16 mb-6 ${
+            isDarkMode ? "text-white" : "text-black"
+          }`}
+        >
+          {/* Profile Picture */}
+          <div className="relative flex-shrink-0">
+            <div
+              className={`w-28 h-28 rounded-full border-4 ${
+                isDarkMode
+                  ? "border-gray-700 bg-gray-800"
+                  : "border-white bg-gray-200"
+              } overflow-hidden`}
+            >
+              <img
+                src={profileData.user.profilePicture || "/placeholder.svg"}
+                alt="Profile picture"
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+        </div>
 
- 
-</div>
+        <div className="lg:text-left text-center w-full">
+          {/* Profile Information */}
+          <h1
+            className={`text-2xl font-bold ${
+              isDarkMode ? "text-white" : "text-black"
+            }`}
+          >
+            {profileData.user.name}
+          </h1>
+          <p
+            className={`text-gray-500 ${
+              isDarkMode ? "text-gray-400" : "text-gray-500"
+            }`}
+          >
+            Location : {profileData.user.location} . Member since{" "}
+            {profileData.user.memberSince}
+          </p>
 
-<div className="lg:text-left text-center w-full">
-    {/* Profile Information */}
-    <h1
-      className={`text-2xl font-bold ${
-        isDarkMode ? "text-white" : "text-black"
-      }`}
-    >
-      {profileData.user.name}
-    </h1>
-    <p
-      className={`text-gray-500 ${
-        isDarkMode ? "text-gray-400" : "text-gray-500"
-      }`}
-    >
-      Location : {profileData.user.location} . Member since{" "}
-      {profileData.user.memberSince}
-    </p>
-
-    <div className="mt-4">
-      <button
-        className={`px-3 py-1 text-sm border rounded-md ${
-          isDarkMode
-            ? "border-gray-600 bg-gray-700 text-white hover:bg-gray-600"
-            : "border-gray-300 bg-white text-black hover:bg-gray-50"
-        }`}
-      >
-        Edit Profile
-      </button>
-    </div>
-  </div>
+          <div className="mt-4">
+            <button
+              className={`px-3 py-1 text-sm border rounded-md ${
+                isDarkMode
+                  ? "border-gray-600 bg-gray-700 text-white hover:bg-gray-600"
+                  : "border-gray-300 bg-white text-black hover:bg-gray-50"
+              }`}
+            >
+              Edit Profile
+            </button>
+          </div>
+        </div>
         {/* Stats */}
         <div className="grid mt-5 grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           {/* Auctions Won */}
@@ -605,132 +606,134 @@ const Profile = () => {
 
         {/* Bidding History */}
         <div
-      className={`border rounded-lg shadow-sm mb-6 ${
-        isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
-      }`}
-    >
-      <div
-        className={`flex items-center justify-between p-4 border-b ${
-          isDarkMode ? "border-gray-700" : "border-gray-200"
-        }`}
-      >
-        <h2
-          className={`text-base font-medium ${
-            isDarkMode ? "text-white" : "text-black"
+          className={`border rounded-lg shadow-sm mb-6 ${
+            isDarkMode
+              ? "bg-gray-800 border-gray-700"
+              : "bg-white border-gray-200"
           }`}
         >
-          Bidding History
-        </h2>
-        <button
-          className={`h-8 px-2 text-sm flex items-center ${
-            isDarkMode ? "text-white bg-gray-700" : "text-black bg-white"
-          }`}
-        >
-          <svg
-            className="w-4 h-4 mr-1"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M3 6h18M6 12h12M9 18h6"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          Filter
-        </button>
-      </div>
-      <div className="p-4">
-        <div className="overflow-x-auto">
-          <table
-            className={`w-full text-sm ${
-              isDarkMode ? "text-white" : "text-black"
-            }`}
-          >
-            <thead>
-              <tr className="text-left border-b">
-                <th className="pb-2 font-medium">Item</th>
-                <th className="pb-2 font-medium">Auction</th>
-                <th className="pb-2 font-medium">Bid Amount</th>
-                <th className="pb-2 font-medium">Date</th>
-                <th className="pb-2 font-medium">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {profileData.biddingHistory.map((bid) => (
-                <tr key={bid.id} className="border-b">
-                  <td className="py-3">{bid.item}</td>
-                  <td className="py-3">{bid.auction}</td>
-                  <td className="py-3">{bid.bidAmount}</td>
-                  <td className="py-3">{bid.date}</td>
-                  <td className="py-3">{renderStatusBadge(bid.status)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
           <div
-            className={`flex items-center justify-between text-sm mt-3 ${
-              isDarkMode ? "text-white" : "text-black"
+            className={`flex items-center justify-between p-4 border-b ${
+              isDarkMode ? "border-gray-700" : "border-gray-200"
             }`}
           >
-            <div>
-              Showing 1-{profileData.biddingHistory.length} of 127 items
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                className={`h-8 w-8 flex items-center justify-center border rounded-md ${
-                  isDarkMode
-                    ? "border-gray-600 hover:bg-gray-700 bg-gray-800 text-white"
-                    : "border-gray-300 hover:bg-gray-50 bg-white text-black"
+            <h2
+              className={`text-base font-medium ${
+                isDarkMode ? "text-white" : "text-black"
+              }`}
+            >
+              Bidding History
+            </h2>
+            <button
+              className={`h-8 px-2 text-sm flex items-center ${
+                isDarkMode ? "text-white bg-gray-700" : "text-black bg-white"
+              }`}
+            >
+              <svg
+                className="w-4 h-4 mr-1"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M3 6h18M6 12h12M9 18h6"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              Filter
+            </button>
+          </div>
+          <div className="p-4">
+            <div className="overflow-x-auto">
+              <table
+                className={`w-full text-sm ${
+                  isDarkMode ? "text-white" : "text-black"
                 }`}
               >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M15 18L9 12L15 6"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </button>
-              <button
-                className={`h-8 w-8 flex items-center justify-center border rounded-md ${
-                  isDarkMode
-                    ? "border-gray-600 hover:bg-gray-700 bg-gray-800 text-white"
-                    : "border-gray-300 hover:bg-gray-50 bg-white text-black"
+                <thead>
+                  <tr className="text-left border-b">
+                    <th className="pb-2 font-medium">Item</th>
+                    <th className="pb-2 font-medium">Auction</th>
+                    <th className="pb-2 font-medium">Bid Amount</th>
+                    <th className="pb-2 font-medium">Date</th>
+                    <th className="pb-2 font-medium">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {profileData.biddingHistory.map((bid) => (
+                    <tr key={bid.id} className="border-b">
+                      <td className="py-3">{bid.item}</td>
+                      <td className="py-3">{bid.auction}</td>
+                      <td className="py-3">{bid.bidAmount}</td>
+                      <td className="py-3">{bid.date}</td>
+                      <td className="py-3">{renderStatusBadge(bid.status)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <div
+                className={`flex items-center justify-between text-sm mt-3 ${
+                  isDarkMode ? "text-white" : "text-black"
                 }`}
               >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M9 6L15 12L9 18"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </button>
+                <div>
+                  Showing 1-{profileData.biddingHistory.length} of 127 items
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    className={`h-8 w-8 flex items-center justify-center border rounded-md ${
+                      isDarkMode
+                        ? "border-gray-600 hover:bg-gray-700 bg-gray-800 text-white"
+                        : "border-gray-300 hover:bg-gray-50 bg-white text-black"
+                    }`}
+                  >
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M15 18L9 12L15 6"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </button>
+                  <button
+                    className={`h-8 w-8 flex items-center justify-center border rounded-md ${
+                      isDarkMode
+                        ? "border-gray-600 hover:bg-gray-700 bg-gray-800 text-white"
+                        : "border-gray-300 hover:bg-gray-50 bg-white text-black"
+                    }`}
+                  >
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M9 6L15 12L9 18"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </div>
       </div>
       <SdProfile />
     </div>
