@@ -20,6 +20,9 @@ import CreateAuction from "../component/dashboard/seller/CreateAuction";
 import AuctionStatus from "../component/dashboard/buyer/AuctionStatus";
 import UserManagement from "../component/dashboard/admin/UserManagement";
 import SellerRequest from "../component/dashboard/admin/SellerRequest";
+import AnnouncementDetails from "../component/dashboard/shared/AnnouncementDetails";
+import Reports from "../component/dashboard/shared/Reports";
+import ManageAuctions from "../component/dashboard/shared/ManageAuctions";
 
 export const router = createBrowserRouter([
   {
@@ -52,12 +55,12 @@ export const router = createBrowserRouter([
         element: <Register />,
       },
       {
-        path: "/profile",
-        element: <Profile></Profile>,
-      },
-      {
         path: "/forgotPassword",
         element: <ForgotPass />,
+      },
+      {
+        path: "announcementDetails/:id",
+        element: <AnnouncementDetails />,
       },
     ],
   },
@@ -75,7 +78,6 @@ export const router = createBrowserRouter([
         path: "createAnnouncement",
         element: <CreateAnnouncement />,
       },
-
       {
         path: "buyerDetails",
         element: <BuyerDetails />,
@@ -83,6 +85,11 @@ export const router = createBrowserRouter([
       {
         path: "userManagement",
         element: <UserManagement />,
+      },
+
+      {
+        path: "manageAuctions",
+        element: <ManageAuctions />,
       },
       {
         path: "sellerRequest",
@@ -93,7 +100,6 @@ export const router = createBrowserRouter([
         path: "createAuction",
         element: <CreateAuction />,
       },
-
       // Buyer only
       {
         path: "bidHistory",
@@ -118,7 +124,10 @@ export const router = createBrowserRouter([
         path: "profile",
         element: <Profile />,
       },
-
+      {
+        path: "reports",
+        element: <Reports />,
+      },
       {
         path: "announcement",
         element: <Announcement />,

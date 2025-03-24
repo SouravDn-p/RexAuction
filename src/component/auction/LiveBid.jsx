@@ -14,7 +14,7 @@ export default function LiveBid() {
   ];
 
   return (
-    <div className="w-11/12 mx-auto my-8 bg-gray-50 p-6 rounded-xl shadow-lg">
+    <div className="w-11/12 mx-auto mb-8 mt-24 bg-gray-50 p-6 rounded-xl shadow-lg ">
       <div className="flex flex-col lg:flex-row justify-between gap-8">
 
         {/* Left Side (Images & Details) */}
