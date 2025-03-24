@@ -12,19 +12,40 @@ import { createContext, useContext, useEffect, useState } from "react";
 import auth from "../firebase/firebase.init";
 import useAxiosPublic from "../hooks/useAxiosPublic";
 import { toast } from "react-hot-toast"; // ✅ Hot toast
+import LoadingSpinner from "../component/LoadingSpinner";
 
 export const AuthContexts = createContext(null);
 const googleProvider = new GoogleAuthProvider();
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [DbUser, setDbUser] = useState("");
+  const [dbUser, setDbUser] = useState("");
   const [response, setResponse] = useState(null);
   const axiosPublic = useAxiosPublic();
   const [errorMessage, setErrorMessage] = useState("");
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
   const [loading, setLoading] = useState(true);
 
+  // get specific user data
+  useEffect(() => {
+    if (user?.email) {
+      setLoading(true);
+      axiosPublic
+        .get(`/user/${user.email}`)
+        .then((res) => {
+          setDbUser(res.data);
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.error("Error fetching user data:", error);
+          setErrorMessage("Failed to load user data");
+          setLoading(false);
+        });
+    }
+  }, [user?.email]);
+
+  
+// Toggle between light and dark themes
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
     setTheme(newTheme);
@@ -37,11 +58,15 @@ const AuthProvider = ({ children }) => {
     document.documentElement.setAttribute("data-theme", theme);
   }, [theme]);
 
+
+// Create a new user with email and password
   const createUser = (email, password) => {
     setLoading(true);
     return createUserWithEmailAndPassword(auth, email, password);
   };
 
+
+  // Log in an existing user with email and password
   const login = async (email, password) => {
     setLoading(true);
     try {
@@ -55,16 +80,19 @@ const AuthProvider = ({ children }) => {
     }
   };
 
+  // Sign in the user with Google using Firebase Authentication
   const signInWithGoogle = () => {
     setLoading(true);
     return signInWithPopup(auth, googleProvider);
   };
 
+  // Log the user out using Firebase Authentication
   const logOut = () => {
     setLoading(true);
     return signOut(auth);
   };
 
+  // Update the user's profile information using Firebase Authentication
   const userProfileUpdate = (name, photo) => {
     setLoading(true);
     return updateProfile(auth.currentUser, {
@@ -73,6 +101,8 @@ const AuthProvider = ({ children }) => {
     });
   };
 
+
+  // Sends a password reset email to the provided email address using Firebase Authentication
   const changePassword = (auth, email) => {
     sendPasswordResetEmail(auth, email)
       .then(() => {
@@ -83,6 +113,7 @@ const AuthProvider = ({ children }) => {
       });
   };
 
+  // This useEffect hook listens to authentication state changes using Firebase's onAuthStateChanged
   useEffect(() => {
     const unSubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
@@ -96,7 +127,6 @@ const AuthProvider = ({ children }) => {
         } catch (error) {
           console.error("Error fetching token:", error);
         }
-
       } else {
         localStorage.removeItem("access-token");
       }
