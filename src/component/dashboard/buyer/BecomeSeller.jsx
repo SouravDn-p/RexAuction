@@ -50,7 +50,6 @@ const BecomeSeller = () => {
         email: user.email,
         address: data.address,
         documentType: data.documentType,
-        role: dbUser.role,
         uid: dbUser.uid,
         documents: uploadedImages,
       };
