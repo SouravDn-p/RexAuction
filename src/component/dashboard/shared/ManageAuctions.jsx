@@ -50,40 +50,43 @@ function ManageAuctions() {
     <div className="p-6 bg-gray-900 text-white">
       <h2 className="text-2xl font-bold mb-6">Manage Auctions</h2>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-gray-800 border border-gray-700">
-          <thead>
-            <tr className="bg-gray-700">
-              <th className="py-2 px-4 border border-gray-600">Image</th>
-              <th className="py-2 px-4 border border-gray-600">Auction Name</th>
-              <th className="py-2 px-4 border border-gray-600">Category</th>
-              <th className="py-2 px-4 border border-gray-600">Starting Price</th>
-              <th className="py-2 px-4 border border-gray-600">Start Time</th>
-              <th className="py-2 px-4 border border-gray-600">Status</th>
-              <th className="py-2 px-4 border border-gray-600">User Email</th>
-              <th className="py-2 px-4 border border-gray-600">Actions</th>
+      <div className="overflow-x-auto rounded-lg">
+        <table className="min-w-full bg-gray-800 rounded-lg overflow-hidden">
+          <thead className="bg-gray-700">
+            <tr>
+              <th className="py-3 px-6 text-left rounded-tl-lg">Image</th>
+              <th className="py-3 px-6 text-left">Auction Name</th>
+              <th className="py-3 px-6 text-left">Category</th>
+              <th className="py-3 px-6 text-left">Starting Price</th>
+              <th className="py-3 px-6 text-left">Start Time</th>
+              <th className="py-3 px-6 text-left">Status</th>
+              <th className="py-3 px-6 text-left">User Email</th>
+              <th className="py-3 px-6 text-left rounded-tr-lg">Actions</th>
             </tr>
           </thead>
           <tbody>
             {auctions.map((auction) => (
-              <tr key={auction._id} className="text-center">
-                <td className="py-2 px-4 border border-gray-600">
+              <tr
+                key={auction._id}
+                className="hover:bg-gray-600 transition-colors"
+              >
+                <td className="py-4 px-6">
                   <img
                     src={auction.images?.[0]}
                     alt={auction.name}
                     className="w-16 h-16 object-cover rounded"
                   />
                 </td>
-                <td className="py-2 px-4 border border-gray-600">{auction.name}</td>
-                <td className="py-2 px-4 border border-gray-600">{auction.category}</td>
-                <td className="py-2 px-4 border border-gray-600">${auction.startingPrice}</td>
-                <td className="py-2 px-4 border border-gray-600">
+                <td className="py-4 px-6">{auction.name}</td>
+                <td className="py-4 px-6">{auction.category}</td>
+                <td className="py-4 px-6">${auction.startingPrice}</td>
+                <td className="py-4 px-6">
                   {new Date(auction.startTime).toLocaleString()}
                 </td>
-                <td className="py-2 px-4 border border-gray-600">{auction.status}</td>
-                <td className="py-2 px-4 border border-gray-600">{auction.sellerEmail}</td>
-                <td className="py-2 px-4 border border-gray-600">
-                  <div className="flex space-x-4 justify-center">
+                <td className="py-4 px-6">{auction.status}</td>
+                <td className="py-4 px-6">{auction.sellerEmail}</td>
+                <td className="py-4 px-6">
+                  <div className="flex space-x-4">
                     {/* Accept Button */}
                     <button
                       onClick={() => updateAuctionStatus(auction._id, "Accepted")}
