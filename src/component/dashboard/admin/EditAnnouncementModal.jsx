@@ -85,8 +85,8 @@ const EditAnnouncementModal = ({
               </label>
               <input
                 type="text"
-                className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 shadow-sm"
-                value={title}
+                className="w-full px-4 py-2  text-black border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 shadow-sm"
+                defaultValue={title}
                 onChange={(e) => setTitle(e.target.value)}
                 required
               />
@@ -96,7 +96,7 @@ const EditAnnouncementModal = ({
                 Content
               </label>
               <textarea
-                className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 shadow-sm"
+                className="w-full px-4 py-2 text-black border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 shadow-sm"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 required
@@ -108,7 +108,7 @@ const EditAnnouncementModal = ({
               </label>
               <input
                 type="date"
-                className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 shadow-sm"
+                className="w-full px-4 py-2 text-black border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 shadow-sm"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 required
