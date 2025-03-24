@@ -21,6 +21,7 @@ import { AuthContexts } from "../../providers/AuthProvider";
 import auth from "../../firebase/firebase.init";
 import { toast } from "react-toastify";
 import { signOut } from "firebase/auth";
+import LoadingSpinner from "../LoadingSpinner";
 
 const MainContent = () => {
   const { user, setUser, setLoading, setError, dbUser } =
@@ -68,6 +69,10 @@ const MainContent = () => {
   const handleNotificationClick = () => {
     setNotificationCount(0);
   };
+
+  if (!user) {
+    <LoadingSpinner />;
+  }
 
   const handleLogout = async () => {
     // setLoading(true);
@@ -225,10 +230,10 @@ const MainContent = () => {
                           : "border-purple-400 text-black"
                       }`}
                     >
-                      {user.photoURL ? (
+                      {user?.photoURL ? (
                         <img
-                          src={user.photoURL || "/placeholder.svg"}
-                          alt={user.name}
+                          src={user?.photoURL || "/placeholder.svg"}
+                          alt={user?.name}
                           className="h-full w-full object-cover"
                         />
                       ) : (
@@ -237,18 +242,18 @@ const MainContent = () => {
                             isDarkMode ? "bg-purple-800" : "bg-purple-600"
                           } text-white`}
                         >
-                          {user.name.charAt(0)}
+                          {user?.name.charAt(0)}
                         </div>
                       )}
                     </div>
                     <div className="hidden md:block text-left">
-                      <p className="font-medium text-sm">{user.name}</p>
+                      <p className="font-medium text-sm">{user?.name}</p>
                       <p
                         className={`text-xs ${
                           isDarkMode ? "text-gray-400" : "text-gray-500"
                         }`}
                       >
-                        {dbUser.role}
+                        {dbUser?.role}
                       </p>
                     </div>
                     <ChevronDown
@@ -271,13 +276,13 @@ const MainContent = () => {
                           isDarkMode ? "border-gray-700" : "border-gray-200 "
                         }`}
                       >
-                        <p className="text-sm font-medium">{user.name}</p>
+                        <p className="text-sm font-medium">{user?.name}</p>
                         <p
                           className={`text-xs ${
                             isDarkMode ? "text-gray-400" : "text-gray-500"
                           }`}
                         >
-                          {user.email}
+                          {user?.email}
                         </p>
                       </div>
                       <div className="py-1">
