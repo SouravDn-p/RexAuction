@@ -55,7 +55,7 @@ const AboutUs = () => {
   return (
     <div style={darkModeStyles}>
       {/* 🔹 First Section - Hero */}
-      <div className={`flex flex-col-reverse md:flex-row items-center gap-6 lg:p-0 ${isDarkMode ? "bg-gray-900" : "bg-purple-300"}`}>
+      <div className={`flex flex-col-reverse md:flex-row items-center gap-6 lg:p-0 ${isDarkMode ? "bg-gray-800" : "bg-purple-300"}`}>
         {/* Text Section */}
         <div className="w-full lg:ml-[50px] my-10 lg:mb-[70px] md:w-1/2 text-center md:text-left">
           <h1 className={`text-3xl md:text-4xl font-bold mb-4 ${isDarkMode ? "text-white" : "text-black"}`}>
