@@ -28,7 +28,7 @@ const Announcement = () => {
   const handleDelete = async (id) => {
     try {
       const response = await axios.delete(
-        `http://localhost:5000/announcement/${id}`
+        `http://localhost:3000/announcement/${id}`
       );
       if (response.status === 200) {
         toast.success("Announcement deleted successfully!");
