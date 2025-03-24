@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { FaSearch, FaSort } from "react-icons/fa";
 import img from "../../../assets/LiveBidAuctionDetails.jpg";
+import ThemeContext from "../../Context/ThemeContext";
 
 export default function BidHistory() {
   // Sample bid history data
@@ -14,6 +15,7 @@ export default function BidHistory() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOrder, setSortOrder] = useState("desc");
+ const {isDarkMode} = useContext(ThemeContext)
 
   // Filter bids by search query
   const filteredBids = bids
@@ -26,75 +28,209 @@ export default function BidHistory() {
     .sort((a, b) => (sortOrder === "desc" ? b.bidAmount - a.bidAmount : a.bidAmount - b.bidAmount));
 
   return (
-    <div className="w-11/12 mx-auto my-8">
-      <h2 className="text-3xl font-semibold text-gray-800 mb-6">Bid History</h2>
+    <div
+      className={`p-4 md:p-6 h-full ${
+        isDarkMode
+          ? "bg-gray-900 border-gray-600 text-white"
+          : "bg-gradient-to-b from-purple-100 via-white to-purple-50 placeholder-gray-500"
+      }`}
+    >
+      {/* Header with Title and Search */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+        <h1
+          className={`text-2xl md:text-3xl font-bold ${
+            isDarkMode
+              ? "text-transparent bg-clip-text bg-gradient-to-r from-white via-violet-100 to-violet-100"
+              : "text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-500 to-indigo-600"
+          }`}
+        >
+          Bid History
+        </h1>
 
-      {/* Search & Sorting Section */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
-        {/* Search Bar */}
-        <div className="relative w-full md:w-1/3 mb-4 md:mb-0">
+        <div className="relative w-full md:w-64">
           <input
             type="text"
+            placeholder="Search bids..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-white text-black px-4 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-600"
-            placeholder="Search by bidder, bid amount, or status"
+            className={`w-full pl-10 pr-4 py-2 rounded-lg border ${
+              isDarkMode
+                ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                : "bg-white border-gray-300 text-gray-800 placeholder-gray-700"
+            } focus:outline-none focus:ring-2 focus:ring-purple-500`}
           />
-          <FaSearch className="absolute top-3 right-3 text-gray-600" />
+          <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+        </div>
+      </div>
+
+      {/* Filters and Actions */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setSortOrder("desc")}
+            className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+              sortOrder === "desc"
+                ? isDarkMode
+                  ? "bg-purple-600 text-white"
+                  : "bg-purple-600 text-white"
+                : isDarkMode
+                ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            }`}
+          >
+            Sort: Highest to Lowest
+          </button>
+          <button
+            onClick={() => setSortOrder("asc")}
+            className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+              sortOrder === "asc"
+                ? isDarkMode
+                  ? "bg-purple-600 text-white"
+                  : "bg-purple-600 text-white"
+                : isDarkMode
+                ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            }`}
+          >
+            Sort: Lowest to Highest
+          </button>
         </div>
 
-        {/* Sort Button */}
-        <button
-          onClick={() => setSortOrder(sortOrder === "desc" ? "asc" : "desc")}
-          className="px-4 py-2 flex items-center gap-2 bg-gray-200 text-gray-700 rounded-lg shadow-md hover:bg-gray-300"
-        >
-          <FaSort /> {sortOrder === "desc" ? "Sort: Highest to Lowest" : "Sort: Lowest to Highest"}
-        </button>
+        <div className="flex items-center gap-2">
+          <span
+            className={`text-sm ${
+              isDarkMode ? "text-gray-400" : "text-gray-500"
+            }`}
+          >
+            {filteredBids.length} bids found
+          </span>
+        </div>
       </div>
 
       {/* Bid History Table */}
-      <div className="overflow-x-auto bg-white rounded-lg shadow-md">
-        <table className="w-full table-auto">
-          <thead className="bg-gray-100">
+      <div
+        className={`overflow-x-auto rounded-lg border ${
+          isDarkMode ? "border-gray-700" : "border-gray-200"
+        }`}
+      >
+        <table
+          className={`min-w-full divide-y ${
+            isDarkMode
+              ? "divide-gray-700 bg-gray-800"
+              : "divide-gray-200 bg-white"
+          }`}
+        >
+          <thead className={isDarkMode ? "bg-gray-700 text-gray-100" : "bg-gray-50 text-black"}>
             <tr>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Bidder</th>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Bid Amount</th>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Time</th>
-              <th className="px-6 py-3 text-left text-sm font-medium text-gray-600">Status</th>
+              <th
+                scope="col"
+                className="px-6  py-3 text-left text-xs font-medium uppercase tracking-wider"
+              >
+                Bidder
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+              >
+                Bid Amount
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+              >
+                Time
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+              >
+                Status
+              </th>
             </tr>
           </thead>
-          <tbody>
-            {filteredBids.map((bid, index) => (
-              <tr key={index} className="border-t hover:bg-gray-50">
-                <td className="px-6 py-4 text-sm text-gray-800">
-                  <div className="flex items-center gap-3">
-                    <img src={img} alt="Bidder" className="w-10 h-10 rounded-full" />
-                    <span>{bid.bidder}</span>
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-sm text-purple-600 font-semibold">${bid.bidAmount.toFixed(2)}</td>
-                <td className="px-6 py-4 text-sm text-gray-600">{bid.time}</td>
-                <td
-                  className={`px-6 py-4 text-sm font-semibold ${
-                    bid.status === "Won" ? "text-green-600" : "text-red-600"
-                  }`}
+          <tbody
+            className={`divide-y ${
+              isDarkMode ? "divide-gray-700" : "divide-gray-200"
+            }`}
+          >
+            {filteredBids.length > 0 ? (
+              filteredBids.map((bid, index) => (
+                <tr
+                  key={index}
+                  className={`${
+                    isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50 text-gray-600"
+                  } transition-colors`}
                 >
-                  {bid.status}
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="flex items-center">
+                      <div className="flex-shrink-0 h-10 w-10">
+                        <img src={img} alt="Bidder" className="w-10 h-10 rounded-full" />
+                      </div>
+                      <div className="ml-4">
+                        <div className="text-sm font-medium">{bid.bidder}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-semibold text-purple-600">
+                      ${bid.bidAmount.toFixed(2)}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                      {bid.time}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span
+                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        bid.status === "Won"
+                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                          : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                      }`}
+                    >
+                      {bid.status}
+                    </span>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="4" className="px-6 py-4 text-center text-sm">
+                  No bids found matching your criteria
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
 
       {/* Pagination */}
-      <div className="flex justify-center items-center mt-6 space-x-2">
-        <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
-          Previous
-        </button>
-        <button className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
-          Next
-        </button>
+      <div className="flex justify-between items-center mt-4 flex-wrap gap-4">
+        <div className="text-sm text-gray-500 dark:text-gray-400">
+          Showing {filteredBids.length} of {bids.length} bids
+        </div>
+
+        <div className="flex space-x-1">
+          <button
+            className={`px-3 py-1 rounded-md ${
+              isDarkMode
+                ? "bg-gray-700 hover:bg-gray-600"
+                : "bg-gray-400 hover:bg-gray-600"
+            }`}
+          >
+            Previous
+          </button>
+          <button
+            className={`px-3 py-1 rounded-md ${
+              isDarkMode
+                ? "bg-gray-700 hover:bg-gray-600"
+                : "bg-gray-400 hover:bg-gray-600"
+            }`}
+          >
+            Next
+          </button>
+        </div>
       </div>
     </div>
   );
