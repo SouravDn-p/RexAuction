@@ -6,7 +6,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Bold, Italic, Underline, AlignRight, Link, Upload, Calendar as CalendarIcon } from "lucide-react";
+import { Bold, Italic, Underline, AlignRight, Link, Upload, Calendar as CalendarIcon, X } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Document, Packer, Paragraph, TextRun, HeadingLevel } from "docx";
@@ -15,7 +15,6 @@ import ThemeContext from "../../Context/ThemeContext";
 import Swal from "sweetalert2";
 import toast from "react-hot-toast";
 import withReactContent from "sweetalert2-react-content";
-// import { toast } from "react-hot-toast";
 
 const MySwal = withReactContent(Swal);
 
@@ -28,6 +27,7 @@ export default function CreateAnnouncement() {
   const [startDate, setStartDate] = useState();
   const [endDate, setEndDate] = useState();
   const [files, setFiles] = useState([]);
+  const [previews, setPreviews] = useState([]);
   const [linkUrl, setLinkUrl] = useState("");
   const [showLinkInput, setShowLinkInput] = useState(false);
   const fileInputRef = useRef(null);
@@ -57,6 +57,7 @@ export default function CreateAnnouncement() {
     setStartDate(undefined);
     setEndDate(undefined);
     setFiles([]);
+    setPreviews([]);
     setLinkUrl("");
     setShowLinkInput(false);
     setIsBold(false);
@@ -92,6 +93,40 @@ export default function CreateAnnouncement() {
     }
   }, [isRTL]);
 
+  // Generate previews for image files
+  const generatePreviews = (files) => {
+    const imageFiles = files.filter(file => file.type.startsWith('image/'));
+    const newPreviews = [];
+    
+    imageFiles.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        newPreviews.push({
+          url: e.target.result,
+          name: file.name,
+          size: file.size,
+          type: file.type
+        });
+        
+        // Update previews when all images are loaded
+        if (newPreviews.length === imageFiles.length) {
+          setPreviews(newPreviews);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+    
+    // If no image files, clear previews
+    if (imageFiles.length === 0) {
+      setPreviews([]);
+    }
+  };
+
+  // Handle file changes
+  useEffect(() => {
+    generatePreviews(files);
+  }, [files]);
+
   const handleDrop = (e) => {
     e.preventDefault();
     if (e.dataTransfer.files) {
@@ -116,7 +151,27 @@ export default function CreateAnnouncement() {
   const handleFileSelect = (e) => {
     if (e.target.files) {
       const selectedFiles = Array.from(e.target.files);
-      setFiles((prev) => [...prev, ...selectedFiles]);
+      const supportedFiles = selectedFiles.filter((file) => {
+        const fileType = file.type.toLowerCase();
+        return (
+          fileType.includes("image") ||
+          fileType.includes("pdf") ||
+          fileType.includes("mp4") ||
+          fileType.includes("webm")
+        );
+      });
+      setFiles((prev) => [...prev, ...supportedFiles]);
+    }
+  };
+
+  const handleRemoveFile = (index) => {
+    const newFiles = [...files];
+    const removedFile = newFiles.splice(index, 1)[0];
+    setFiles(newFiles);
+    
+    // Also remove the corresponding preview if it's an image
+    if (removedFile.type.startsWith('image/')) {
+      setPreviews(prev => prev.filter(p => p.name !== removedFile.name));
     }
   };
 
@@ -217,7 +272,12 @@ export default function CreateAnnouncement() {
             new Paragraph({
               children: [
                 new TextRun({
-                  text: "Target Audience: " + (targetAudience === "all" ? "All Users" : selectedGroups.join(", ")),
+                  text: "Target Audience: " + 
+                    (targetAudience === "all" 
+                      ? "All Users" 
+                      : Array.isArray(selectedGroups) 
+                        ? selectedGroups.join(", ") 
+                        : String(selectedGroups)),
                 }),
               ],
               bidirectional: isRTL,
@@ -262,6 +322,7 @@ export default function CreateAnnouncement() {
   };
 
   const handlePublish = async () => {
+    // Validate required fields
     if (!title || !content || !startDate || !endDate) {
       await MySwal.fire({
         title: "Missing Information",
@@ -271,7 +332,18 @@ export default function CreateAnnouncement() {
       });
       return;
     }
-
+  
+    // Validate specific groups selection
+    if (targetAudience === "specific" && selectedGroups.length === 0) {
+      await MySwal.fire({
+        title: "Groups Required",
+        text: "Please select at least one group when targeting specific audiences",
+        icon: "error",
+        confirmButtonColor: "#3b82f6",
+      });
+      return;
+    }
+  
     try {
       // Show loading toast
       const toastId = toast.loading("Publishing announcement...");
@@ -310,7 +382,6 @@ export default function CreateAnnouncement() {
       });
     }
   };
-
   return (
     <div className={`min-h-screen p-4 md:p-8 ${bgMain} ${textColor}`}>
       <div className={`max-w-6xl mx-auto p-6 rounded-lg  ${cardBg}`}>
@@ -470,23 +541,27 @@ export default function CreateAnnouncement() {
             </RadioGroup>
 
             {targetAudience === "specific" && (
-              <div className="mt-2">
-                <Select
-                  multiple
-                  onValueChange={(values) => setSelectedGroups(values)}
-                >
-                  <SelectTrigger className={`w-full ${inputBg} ${borderColor} ${textColor}`}>
-                    <SelectValue placeholder="Select groups" />
-                  </SelectTrigger>
-                  <SelectContent className={`${cardBg} ${borderColor} ${textColor}`}>
-                    <SelectItem value="admin">Administrators</SelectItem>
-                    <SelectItem value="staff">Staff</SelectItem>
-                    <SelectItem value="students">Students</SelectItem>
-                    <SelectItem value="faculty">Faculty</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
+  <div className="mt-2">
+   <Select
+  multiple
+  value={selectedGroups}
+  onValueChange={(values) => setSelectedGroups(values)}
+>
+  <SelectTrigger className={`w-full ${inputBg} ${borderColor} ${textColor}`}>
+    <SelectValue placeholder="Select groups" />
+  </SelectTrigger>
+  <SelectContent className={`${cardBg} ${borderColor} ${textColor}`}>
+    <SelectItem value="admin">Administrators</SelectItem>
+    <SelectItem value="staff">Staff</SelectItem>
+    <SelectItem value="students">Students</SelectItem>
+    <SelectItem value="faculty">Faculty</SelectItem>
+  </SelectContent>
+</Select>
+    {targetAudience === "specific" && selectedGroups.length === 0 && (
+      <p className="text-red-500 text-xs mt-1">Please select at least one group</p>
+    )}
+  </div>
+)}
           </div>
 
           {/* Display Dates */}
@@ -585,17 +660,67 @@ export default function CreateAnnouncement() {
               </Button>
             </div>
 
+            {/* Image Previews */}
+            {previews.length > 0 && (
+              <div className="mt-4">
+                <h4 className={`text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"} mb-2`}>
+                  Image Previews:
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  {previews.map((preview, index) => (
+                    <div key={index} className={`relative border ${borderColor} rounded-md overflow-hidden group`}>
+                      <img 
+                        src={preview.url} 
+                        alt={preview.name} 
+                        className="w-full h-40 object-cover"
+                      />
+                      <div className={`p-2 ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}`}>
+                        <p className={`text-xs truncate ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                          {preview.name}
+                        </p>
+                        <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                          {(preview.size / 1024).toFixed(1)} KB
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveFile(files.findIndex(f => f.name === preview.name))}
+                        className={`absolute top-1 right-1 p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity ${isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'}`}
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Other Files List */}
             {files.length > 0 && (
               <div className="mt-4">
                 <h4 className={`text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"} mb-2`}>
                   Selected Files:
                 </h4>
                 <ul className="space-y-1">
-                  {files.map((file, index) => (
-                    <li key={index} className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                      {file.name} ({(file.size / 1024).toFixed(1)} KB)
-                    </li>
-                  ))}
+                  {files.map((file, index) => {
+                    // Skip image files since they're shown in preview
+                    if (file.type.startsWith('image/')) return null;
+                    
+                    return (
+                      <li key={index} className={`flex justify-between items-center text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                        <span>
+                          {file.name} ({(file.size / 1024).toFixed(1)} KB)
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveFile(index)}
+                          className={`p-1 rounded-full ${isDarkMode ? 'hover:bg-gray-600' : 'hover:bg-gray-200'}`}
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             )}
