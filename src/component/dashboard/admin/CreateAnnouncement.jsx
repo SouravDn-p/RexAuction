@@ -45,7 +45,7 @@ const CreateAnnouncement = () => {
 
       // Send POST Request
       const res = await axios.post(
-        "http://localhost:3000/announcement",
+        "http://localhost:5000/announcement",
         announcementData
       );
 
