@@ -16,7 +16,6 @@ const Announcement = () => {
   const [selectedAnnouncement, setSelectedAnnouncement] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
-  const { isDarkMode } = useContext(ThemeContext);
 
   if (isLoading) return <LoadingSpinner />;
 
@@ -28,7 +27,7 @@ const Announcement = () => {
   const handleDelete = async (id) => {
     try {
       const response = await axios.delete(
-        `http://localhost:5000/announcement/${id}`
+        `http://localhost:3000/announcement/${id}`
       );
       if (response.status === 200) {
         toast.success("Announcement deleted successfully!");
@@ -46,13 +45,9 @@ const Announcement = () => {
           ? "bg-gray-900 text-white"
           : "bg-gradient-to-b from-purple-100 via-white to-purple-50 text-black"
       }`}
-
-      
-
       className={`px-4 md:px-16 py-10 ${
         isDarkMode ? "bg-gray-900 text-white" : "bg-purple-50 text-gray-800"
       } min-h-screen`}
-
     >
       {/* Heading */}
       <h2
@@ -63,17 +58,13 @@ const Announcement = () => {
         }`}
       >
         🗞 Announcements
-      </h1>
-      <p 
-   
-      
-      className={`  max-w-xl mx-auto text-center ${
-        isDarkMode ? "text-purple-300" : "text-purple-700"
-      } mb-10 `}
-      >
-
       </h2>
-      <p className="text-center text-slate-600 mb-10 max-w-xl mx-auto">
+
+      <p
+        className={`max-w-xl mx-auto text-center ${
+          isDarkMode ? "text-purple-300" : "text-purple-700"
+        } mb-10`}
+      >
         Stay updated with the latest news and upcoming bidding events from
         <strong> RexAuction</strong>. Explore exciting opportunities!
       </p>
@@ -84,14 +75,24 @@ const Announcement = () => {
           <div key={item._id} className="card-flip-container">
             <div className="card-flip-inner">
               {/* Front */}
-              <div className={`card-flip-front border ${isDarkMode ? "bg-gray-700":"text-white"} border-purple-200 rounded-xl overflow-hidden shadow-md relative`}>
+              <div
+                className={`card-flip-front border ${
+                  isDarkMode ? "bg-gray-700" : "text-white"
+                } border-purple-200 rounded-xl overflow-hidden shadow-md relative`}
+              >
                 <img
                   src={item.image}
                   alt={item.title}
                   className="w-full h-48 object-cover"
                 />
                 <div className="p-4">
-                  <p className={`text-sm text-gray-300 mb-1 ${isDarkMode?'text-gray-300' :"text-gray-800"}`}>{item.date}</p>
+                  <p
+                    className={`text-sm text-gray-300 mb-1 ${
+                      isDarkMode ? "text-gray-300" : "text-gray-800"
+                    }`}
+                  >
+                    {item.date}
+                  </p>
                   <h2 className="text-lg font-bold text-purple-500 mb-2">
                     {item.title}
                   </h2>
@@ -99,9 +100,13 @@ const Announcement = () => {
               </div>
 
               {/* Back */}
-              <div className={`card-flip-back ${isDarkMode ? "bg-gray-700":"text-black"} border border-purple-200 rounded-xl p-4 flex flex-col justify-between shadow-md`}>
+              <div
+                className={`card-flip-back ${
+                  isDarkMode ? "bg-gray-700" : "text-black"
+                } border border-purple-200 rounded-xl p-4 flex flex-col justify-between shadow-md`}
+              >
                 <p className="text-sm ">{item.content}</p>
-                  {/* Edit and Delete buttons */}
+                {/* Edit and Delete buttons */}
                 {isAdmin && (
                   <div className="absolute top-2 right-2 flex gap-2">
                     <button
@@ -124,8 +129,6 @@ const Announcement = () => {
                 >
                   Read More →
                 </button>
-
-              
               </div>
             </div>
           </div>
