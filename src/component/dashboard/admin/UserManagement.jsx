@@ -30,7 +30,7 @@ const UserManagement = () => {
     const fetchUsers = async () => {
       try {
         setLoading(true);
-        const response = await fetch("http://localhost:3000/users");
+        const response = await fetch("http://localhost:5000/users");
         const data = await response.json();
         setUsers(data);
         setLoading(false);
@@ -56,14 +56,14 @@ const UserManagement = () => {
       if (result.isConfirmed) {
         try {
           const res = await axios.patch(
-            `http://localhost:3000/users/${userId}`,
+            `http://localhost:5000/users/${userId}`,
             { role }
           );
 
           if (res.data.success) {
             Swal.fire("Updated!", "User role has been changed.", "success");
             // Refresh user list after update
-            const response = await fetch("http://localhost:3000/users");
+            const response = await fetch("http://localhost:5000/users");
             const data = await response.json();
             setUsers(data);
           } else {
@@ -89,7 +89,7 @@ const UserManagement = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         axios
-          .delete(`http://localhost:3000/users/${userId}`)
+          .delete(`http://localhost:5000/users/${userId}`)
           .then((response) => {
             if (response.data.success) {
               Swal.fire({
@@ -169,7 +169,7 @@ const UserManagement = () => {
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
   const currentUsers = sortedUsers.slice(indexOfFirstUser, indexOfLastUser);
-  
+
   const totalPages = Math.ceil(sortedUsers.length / usersPerPage);
 
   // Generate page numbers
