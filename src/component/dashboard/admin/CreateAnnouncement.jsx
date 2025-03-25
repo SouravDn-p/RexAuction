@@ -20,7 +20,6 @@ const MySwal = withReactContent(Swal);
 
 export default function CreateAnnouncement() {
   const { isDarkMode } = useContext(ThemeContext);
-
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [targetAudience, setTargetAudience] = useState("all");
@@ -35,23 +34,20 @@ export default function CreateAnnouncement() {
   const editorRef = useRef(null);
   const linkInputRef = useRef(null);
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm();
+  // Text formatting states
+  const [isBold, setIsBold] = useState(false);
+  const [isItalic, setIsItalic] = useState(false);
+  const [isUnderline, setIsUnderline] = useState(false);
+  const [isRTL, setIsRTL] = useState(false);
 
-
-  const onSubmit = async (data) => {
-    try {
-      let imageUrl = "";
-
-      // Handle Image Upload
-      if (data.image && data.image.length > 0) {
-        const formData = new FormData();
-        formData.append("image", data.image[0]);
-
+  // Theme classes
+  const bgMain = isDarkMode ? "bg-gray-900" : "bg-gray-50";
+  const cardBg = isDarkMode ? "" : "bg-white";
+  const textColor = isDarkMode ? "text-white" : "text-gray-900";
+  const borderColor = isDarkMode ? "border-gray-700" : "border-gray-200";
+  const inputBg = isDarkMode ? "bg-gray-700" : "bg-white";
+  const toolbarBg = isDarkMode ? "bg-gray-700" : "bg-gray-100";
+  const activeButtonBg = isDarkMode ? "bg-gray-600" : "bg-gray-300";
 
   const resetForm = () => {
     setTitle("");
@@ -77,16 +73,23 @@ export default function CreateAnnouncement() {
     }
   };
 
-        const response = await axios.post(image_hosting_api, formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
-
-
-        if (response.data.success) {
-          imageUrl = response.data.data.url;
+  // Set up RTL mode properly when it changes
+  useEffect(() => {
+    if (editorRef.current) {
+      editorRef.current.style.direction = isRTL ? "rtl" : "ltr";
+      editorRef.current.style.textAlign = isRTL ? "right" : "left";
+      editorRef.current.style.unicodeBidi = isRTL ? "embed" : "normal";
+      
+      if (editorRef.current.innerHTML === "") {
+        const range = document.createRange();
+        const selection = window.getSelection();
+        range.selectNodeContents(editorRef.current);
+        range.collapse(!isRTL);
+        if (selection) {
+          selection.removeAllRanges();
+          selection.addRange(range);
         }
       }
-
     }
   }, [isRTL]);
 
@@ -172,26 +175,58 @@ export default function CreateAnnouncement() {
     }
   };
 
-      // Prepare Announcement Data
-      const announcementData = {
-        title: data.title,
-        content: data.content,
-        date: data.date,
-        status: data.status,
-        image: imageUrl,
-      };
+  const handleBrowseFiles = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
 
-      // Send POST Request
-      const res = await axios.post(
-        "http://localhost:3000/announcement",
-        announcementData
-      );
+  const toggleStyle = (style) => {
+    if (style === "rtl") {
+      const newRTLState = !isRTL;
+      setIsRTL(newRTLState);
+      
+      setTimeout(() => {
+        if (editorRef.current) {
+          const range = document.createRange();
+          const selection = window.getSelection();
+          range.selectNodeContents(editorRef.current);
+          range.collapse(!newRTLState);
+          if (selection) {
+            selection.removeAllRanges();
+            selection.addRange(range);
+          }
+          editorRef.current.focus();
+        }
+      }, 0);
+      return;
+    }
 
-      if (res.data.success) {
-        toast.success("Announcement created successfully!");
-        reset();
+    document.execCommand(style, false, null);
+
+    switch (style) {
+      case "bold":
+        setIsBold(!isBold);
+        break;
+      case "italic":
+        setIsItalic(!isItalic);
+        break;
+      case "underline":
+        setIsUnderline(!isUnderline);
+        break;
+      default:
+        break;
+    }
+
+    updateContent();
+  };
+
+  const handleAddLink = () => {
+    if (showLinkInput) {
+      if (linkUrl) {
+        document.execCommand("createLink", false, linkUrl);
+        setLinkUrl("");
       }
-
       setShowLinkInput(false);
     } else {
       setShowLinkInput(true);
@@ -336,8 +371,6 @@ export default function CreateAnnouncement() {
         confirmButtonColor: "#3b82f6",
       });
       
-
-
     } catch (error) {
       toast.error("Failed to publish announcement");
       console.error("Error:", error);
@@ -717,4 +750,4 @@ export default function CreateAnnouncement() {
   );
 }
 
-// hi 
+// hi hi hi
