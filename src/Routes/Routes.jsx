@@ -23,6 +23,7 @@ import SellerRequest from "../component/dashboard/admin/SellerRequest";
 import AnnouncementDetails from "../component/dashboard/shared/AnnouncementDetails";
 import Reports from "../component/dashboard/shared/Reports";
 import ManageAuctions from "../component/dashboard/shared/ManageAuctions";
+import TermsAndConditionsBuyer from "../component/dashboard/buyer/TermsCondtionsBuyer";
 
 export const router = createBrowserRouter([
   {
@@ -101,6 +102,10 @@ export const router = createBrowserRouter([
         element: <CreateAuction />,
       },
       // Buyer only
+      {
+        path: "termsConditionsBuyer",
+        element: <TermsAndConditionsBuyer />,
+      },
       {
         path: "bidHistory",
         element: <BidHistory />,
