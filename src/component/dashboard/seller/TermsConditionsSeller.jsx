@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { useState, useContext, useEffect } from "react";
 import ThemeContext from "../../Context/ThemeContext";
 
-export default function TermsAndConditionsBuyer() {
+export default function TermsAndConditionsSeller() {
   const [accepted, setAccepted] = useState(false);
   const { isDarkMode } = useContext(ThemeContext);
 
@@ -15,18 +15,18 @@ export default function TermsAndConditionsBuyer() {
   }, [isDarkMode]);
 
   const terms = [
-    "All buyers must be at least 18 years old to register.",
-    "Bidders are required to provide accurate personal and payment details.",
-    "All bids placed are legally binding and cannot be withdrawn.",
-    "Winning bidders must complete payment within 48 hours.",
-    "RexAuction reserves the right to cancel or suspend accounts due to misconduct.",
-    "Items sold are ‘as is’ and returns/refunds are not permitted unless stated otherwise.",
-    "Shill bidding (artificially inflating bids) is strictly prohibited.",
-    "RexAuction is not liable for shipping delays or item damages post-auction.",
-    "Bidders must comply with all local and international trade laws.",
-    "Personal data will be protected under our privacy policy.",
-    "Sellers may impose additional terms, which must be followed.",
-    "Violation of any terms may result in account suspension or legal action.",
+    "Sellers must provide accurate descriptions and images of listed items.",
+    "All items must comply with legal and marketplace regulations.",
+    "Once an item receives a bid, sellers cannot withdraw the listing.",
+    "Sellers are responsible for packaging and shipping sold items within the specified timeframe.",
+    "Misrepresentation of products may lead to account suspension or legal action.",
+    "All transactions must be conducted through RexAuction's payment system.",
+    "RexAuction reserves the right to remove any listings that violate policies.",
+    "Sellers must honor the winning bid and complete the transaction as agreed.",
+    "Refunds and returns must follow the marketplace's stated policy.",
+    "Sellers are responsible for resolving disputes with buyers professionally.",
+    "Violation of any terms may result in suspension or termination of the seller account.",
+    "Personal and business data provided will be managed according to the privacy policy.",
   ];
 
   return (
@@ -39,7 +39,7 @@ export default function TermsAndConditionsBuyer() {
     >
       {/* Heading */}
       <h2 className="text-3xl lg:text-4xl font-bold text-purple-700 dark:text-purple-300 text-center mb-6">
-        Terms & Conditions for a Buyer
+        Terms & Conditions for a Seller
       </h2>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
