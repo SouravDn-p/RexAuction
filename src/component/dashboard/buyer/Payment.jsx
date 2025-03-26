@@ -3,6 +3,7 @@ import { FaLock, FaRegCreditCard, FaShieldAlt } from "react-icons/fa";
 import { GrPaypal } from "react-icons/gr";
 import { IoMdCheckmarkCircleOutline } from "react-icons/io";
 import ThemeContext from "../../Context/ThemeContext";
+import Payment2 from "./Payment2";
 
 export default function Payment() {
   const [isAgreed, setIsAgreed] = useState(false);
@@ -51,75 +52,7 @@ export default function Payment() {
 
           {/* Payment Method */}
           <div>
-            <h3 className="text-lg font-medium mb-3">Payment Method</h3>
-            <div className="flex gap-3 mb-4 flex-wrap">
-              <button className="bg-blue-100 flex gap-2 text-blue-700 px-4 py-2 rounded font-medium mb-2 md:mb-0">
-                <FaRegCreditCard className="mt-1 text-xl" />
-                <h1>Credit/Debit Card</h1>
-              </button>
-              <button className={`${cardBg} ${textColor} px-4 py-2 rounded flex gap-1 mb-2 md:mb-0`}>
-                <GrPaypal className="mt-1" />
-                <span>PayPal</span>
-              </button>
-              <button className={`${cardBg} ${textColor} px-4 py-2 rounded mb-2 md:mb-0`}>
-                More Options
-              </button>
-            </div>
-
-            {/* Card Form */}
-            <div className="space-y-4">
-              <input type="text" placeholder="1234 5678 9012 3456" className={`p-2 rounded-lg ${borderColor} w-full ${inputBg}`} />
-              <div className="flex gap-4">
-                <input type="text" placeholder="MM/YY" className={`p-2 rounded-lg ${borderColor} w-full ${inputBg}`} />
-                <input type="text" placeholder="123" className={`p-2 rounded-lg ${borderColor} w-full ${inputBg}`} />
-              </div>
-              <input type="text" placeholder="Name on card" className={`p-2 rounded-lg ${borderColor} w-full ${inputBg}`} />
-            </div>
-
-            {/* Billing Address */}
-            <div className="mt-6">
-              <h4 className="font-medium mb-2">Billing Address</h4>
-              <label className="flex items-center space-x-2 mb-3">
-                <input type="checkbox" className="w-4 h-4" />
-                <span>Same as shipping address</span>
-              </label>
-              <div className="space-y-3">
-                <input type="text" placeholder="Street address" className={`p-2 rounded-lg ${borderColor} w-full ${inputBg}`} />
-                <input type="text" placeholder="Apt, suite, etc. (optional)" className={`p-2 rounded-lg ${borderColor} w-full ${inputBg}`} />
-                <div className="flex gap-4">
-                  <input type="text" placeholder="City" className={`p-2 rounded-lg ${borderColor} w-full ${inputBg}`} />
-                  <select className={`p-2 rounded-lg ${borderColor} w-full ${inputBg}`}>
-                    <option disabled selected>Select State</option>
-                    <option>NY</option>
-                    <option>CA</option>
-                  </select>
-                </div>
-                <div className="flex gap-4">
-                  <input type="text" placeholder="ZIP" className={`p-2 rounded-lg ${borderColor} w-full ${inputBg}`} />
-                  <select className={`p-2 rounded-lg ${borderColor} w-full ${inputBg}`}>
-                    <option>United States</option>
-                    <option>Canada</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            {/* Terms */}
-            <div className="mt-6">
-              <label className="flex items-center space-x-2 mb-4">
-                <input type="checkbox" className="w-4 h-4" checked={isAgreed} onChange={handleCheckboxChange} />
-                <span>
-                  I agree to the{" "}
-                  <a href="#" className="underline text-blue-600">Terms and Conditions</a>
-                </span>
-              </label>
-              <button
-                className={`${isAgreed ? "bg-purple-600" : "bg-gray-400 cursor-not-allowed"} text-white w-full py-3 rounded text-lg font-semibold`}
-                disabled={!isAgreed}
-              >
-                Pay $2,475.00
-              </button>
-            </div>
+            <Payment2/>
           </div>
         </div>
 

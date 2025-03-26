@@ -1,5 +1,10 @@
 import React, { useState, useEffect, useContext } from "react";
-import { FaSortAmountUp, FaSortAmountDown, FaTrash, FaEdit } from "react-icons/fa";
+import {
+  FaSortAmountUp,
+  FaSortAmountDown,
+  FaTrash,
+  FaEdit,
+} from "react-icons/fa";
 import ThemeContext from "../../Context/ThemeContext";
 import Swal from "sweetalert2";
 import axios from "axios";
@@ -24,11 +29,14 @@ const SellerRequest = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const res = await axios.patch(`http://localhost:3000/users/${userId}`, { role });
+          const res = await axios.patch(
+            `http://localhost:5000/users/${userId}`,
+            { role }
+          );
           if (res.data.success) {
             Swal.fire("Updated!", "User role has been changed.", "success");
             // Refresh user list after update
-            const response = await fetch("http://localhost:3000/users");
+            const response = await fetch("http://localhost:5000/users");
             const data = await response.json();
             setUsers(data);
           } else {
@@ -53,7 +61,7 @@ const SellerRequest = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         axios
-          .delete(`http://localhost:3000/sellerRequest/${userId}`)
+          .delete(`http://localhost:5000/sellerRequest/${userId}`)
           .then((response) => {
             if (response.data.success) {
               Swal.fire({
@@ -93,7 +101,7 @@ const SellerRequest = () => {
     });
   };
   useEffect(() => {
-    fetch("http://localhost:3000/sellerRequest")
+    fetch("http://localhost:5000/sellerRequest")
       .then((res) => res.json())
       .then((data) => setUsers(data));
   }, []);
@@ -116,32 +124,53 @@ const SellerRequest = () => {
 
   return (
     <div className="p-4">
-      <p className="text-center font-bold text-3xl mb-4">Seller Request Management</p>
+      <p className="text-center font-bold text-3xl mb-4">
+        Seller Request Management
+      </p>
       <div className="overflow-x-auto rounded-lg border border-gray-300 dark:border-gray-700">
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className={isDarkMode ? "bg-gray-700" : "bg-gray-50"}>
             <tr>
               {["name", "email", "date"].map((field) => (
-                <th key={field} className="px-6 py-3 text-left text-xs font-medium uppercase">
-                  <div className="flex items-center cursor-pointer" onClick={() => handleSort(field)}>
-                    <span>{field.charAt(0).toUpperCase() + field.slice(1)}</span>
+                <th
+                  key={field}
+                  className="px-6 py-3 text-left text-xs font-medium uppercase"
+                >
+                  <div
+                    className="flex items-center cursor-pointer"
+                    onClick={() => handleSort(field)}
+                  >
+                    <span>
+                      {field.charAt(0).toUpperCase() + field.slice(1)}
+                    </span>
                     {sortField === field && (
                       <span className="ml-1">
-                        {sortDirection === "asc" ? <FaSortAmountUp size={14} /> : <FaSortAmountDown size={14} />}
+                        {sortDirection === "asc" ? (
+                          <FaSortAmountUp size={14} />
+                        ) : (
+                          <FaSortAmountDown size={14} />
+                        )}
                       </span>
                     )}
                   </div>
                 </th>
               ))}
-              <th className="px-6 py-3 text-right text-xs font-medium uppercase">Actions</th>
+              <th className="px-6 py-3 text-right text-xs font-medium uppercase">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
             {sortedUsers.map((user, index) => (
-              <tr key={user._id || index} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+              <tr
+                key={user._id || index}
+                className="hover:bg-gray-50 dark:hover:bg-gray-700"
+              >
                 <td className="px-6 py-4 flex items-center">
                   <div className="h-10 w-10 flex items-center justify-center bg-purple-100 dark:bg-purple-900 rounded-full">
-                    <span className="text-purple-700 dark:text-purple-300">{user.name?.charAt(0).toUpperCase() || "?"}</span>
+                    <span className="text-purple-700 dark:text-purple-300">
+                      {user.name?.charAt(0).toUpperCase() || "?"}
+                    </span>
                   </div>
                   <span className="ml-4">{user.name}</span>
                 </td>
@@ -165,22 +194,28 @@ const SellerRequest = () => {
                         className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm"
                       >
                         <li>
-                          <a onClick={() => handleRoleChange(dbUser._id, "seller")}>Seller</a>
+                          <a
+                            onClick={() =>
+                              handleRoleChange(dbUser._id, "seller")
+                            }
+                          >
+                            Seller
+                          </a>
                         </li>
                       </ul>
                     </div>
                   </button>
                   <button
-                        onClick={() => handleDelete(user._id)}
-                        className={`p-1 rounded-full ${
-                          isDarkMode
-                            ? "hover:bg-gray-600 text-red-400 hover:text-red-300"
-                            : "hover:bg-red-100 text-red-600 hover:text-red-800"
-                        }`}
-                        title="Delete User"
-                      >
-                        <FaTrash size={16} />
-                      </button>
+                    onClick={() => handleDelete(user._id)}
+                    className={`p-1 rounded-full ${
+                      isDarkMode
+                        ? "hover:bg-gray-600 text-red-400 hover:text-red-300"
+                        : "hover:bg-red-100 text-red-600 hover:text-red-800"
+                    }`}
+                    title="Delete User"
+                  >
+                    <FaTrash size={16} />
+                  </button>
                 </td>
               </tr>
             ))}
