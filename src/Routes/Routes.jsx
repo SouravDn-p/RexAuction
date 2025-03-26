@@ -25,6 +25,7 @@ import Reports from "../component/dashboard/shared/Reports";
 import ManageAuctions from "../component/dashboard/shared/ManageAuctions";
 import TermsAndConditionsBuyer from "../component/dashboard/buyer/TermsCondtionsBuyer";
 import TermsAndConditionsSeller from "../component/dashboard/seller/TermsConditionsSeller";
+import Feedback from "../component/shared/FeedBack";
 
 export const router = createBrowserRouter([
   {
@@ -141,6 +142,10 @@ export const router = createBrowserRouter([
       {
         path: "announcement",
         element: <Announcement />,
+      },
+      {
+        path: "feedback",
+        element: <Feedback />,
       },
     ],
   },
