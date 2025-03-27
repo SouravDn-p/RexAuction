@@ -670,7 +670,7 @@ const Sidebar = () => {
             </span>
           </NavLink>
           <NavLink
-            to="/settings"
+            to="/dashboard/settings"
             className={({ isActive }) =>
               `flex items-center gap-3 py-2.5 px-3 rounded-lg transition-all duration-200 ${
                 isActive
