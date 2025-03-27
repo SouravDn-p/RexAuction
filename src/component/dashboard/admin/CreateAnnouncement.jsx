@@ -4,28 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Bold,
-  Italic,
-  Underline,
-  AlignRight,
-  Link,
-  Upload,
-  Calendar as CalendarIcon,
-  X,
-} from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Bold, Italic, Underline, AlignRight, Link, Upload, Calendar as CalendarIcon, X } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Document, Packer, Paragraph, TextRun, HeadingLevel } from "docx";
@@ -83,7 +64,7 @@ export default function CreateAnnouncement() {
     setIsItalic(false);
     setIsUnderline(false);
     setIsRTL(false);
-
+    
     if (editorRef.current) {
       editorRef.current.innerHTML = "";
       editorRef.current.style.direction = "ltr";
@@ -98,11 +79,7 @@ export default function CreateAnnouncement() {
       editorRef.current.style.direction = isRTL ? "rtl" : "ltr";
       editorRef.current.style.textAlign = isRTL ? "right" : "left";
       editorRef.current.style.unicodeBidi = isRTL ? "embed" : "normal";
-<<<<<<< HEAD
       
-=======
-
->>>>>>> 9b38bf233a8a407d3907b0e10075bdf9570594a4
       if (editorRef.current.innerHTML === "") {
         const range = document.createRange();
         const selection = window.getSelection();
@@ -118,19 +95,19 @@ export default function CreateAnnouncement() {
 
   // Generate previews for image files
   const generatePreviews = (files) => {
-    const imageFiles = files.filter((file) => file.type.startsWith("image/"));
+    const imageFiles = files.filter(file => file.type.startsWith('image/'));
     const newPreviews = [];
-
-    imageFiles.forEach((file) => {
+    
+    imageFiles.forEach(file => {
       const reader = new FileReader();
       reader.onload = (e) => {
         newPreviews.push({
           url: e.target.result,
           name: file.name,
           size: file.size,
-          type: file.type,
+          type: file.type
         });
-
+        
         // Update previews when all images are loaded
         if (newPreviews.length === imageFiles.length) {
           setPreviews(newPreviews);
@@ -138,7 +115,7 @@ export default function CreateAnnouncement() {
       };
       reader.readAsDataURL(file);
     });
-
+    
     // If no image files, clear previews
     if (imageFiles.length === 0) {
       setPreviews([]);
@@ -191,10 +168,10 @@ export default function CreateAnnouncement() {
     const newFiles = [...files];
     const removedFile = newFiles.splice(index, 1)[0];
     setFiles(newFiles);
-
+    
     // Also remove the corresponding preview if it's an image
-    if (removedFile.type.startsWith("image/")) {
-      setPreviews((prev) => prev.filter((p) => p.name !== removedFile.name));
+    if (removedFile.type.startsWith('image/')) {
+      setPreviews(prev => prev.filter(p => p.name !== removedFile.name));
     }
   };
 
@@ -208,7 +185,6 @@ export default function CreateAnnouncement() {
     if (style === "rtl") {
       const newRTLState = !isRTL;
       setIsRTL(newRTLState);
-<<<<<<< HEAD
       
       setTimeout(() => {
         if (editorRef.current) {
@@ -226,25 +202,6 @@ export default function CreateAnnouncement() {
       return;
     }
 
-=======
-
-      setTimeout(() => {
-        if (editorRef.current) {
-          const range = document.createRange();
-          const selection = window.getSelection();
-          range.selectNodeContents(editorRef.current);
-          range.collapse(!newRTLState);
-          if (selection) {
-            selection.removeAllRanges();
-            selection.addRange(range);
-          }
-          editorRef.current.focus();
-        }
-      }, 0);
-      return;
-    }
-
->>>>>>> 9b38bf233a8a407d3907b0e10075bdf9570594a4
     document.execCommand(style, false, null);
 
     switch (style) {
@@ -315,13 +272,12 @@ export default function CreateAnnouncement() {
             new Paragraph({
               children: [
                 new TextRun({
-                  text:
-                    "Target Audience: " +
-                    (targetAudience === "all"
-                      ? "All Users"
-                      : Array.isArray(selectedGroups)
-                      ? selectedGroups.join(", ")
-                      : String(selectedGroups)),
+                  text: "Target Audience: " + 
+                    (targetAudience === "all" 
+                      ? "All Users" 
+                      : Array.isArray(selectedGroups) 
+                        ? selectedGroups.join(", ") 
+                        : String(selectedGroups)),
                 }),
               ],
               bidirectional: isRTL,
@@ -376,7 +332,7 @@ export default function CreateAnnouncement() {
       });
       return;
     }
-
+  
     // Validate specific groups selection
     if (targetAudience === "specific" && selectedGroups.length === 0) {
       await MySwal.fire({
@@ -387,26 +343,26 @@ export default function CreateAnnouncement() {
       });
       return;
     }
-
+  
     try {
       // Show loading toast
       const toastId = toast.loading("Publishing announcement...");
-
+      
       // Generate DOCX file
       await generateDocx();
-
+      
       // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       // Success toast
       toast.success("Announcement published successfully!", {
         id: toastId,
         duration: 4000,
       });
-
+      
       // Reset form
       resetForm();
-
+      
       // Show success alert
       await MySwal.fire({
         title: "Success!",
@@ -414,10 +370,7 @@ export default function CreateAnnouncement() {
         icon: "success",
         confirmButtonColor: "#3b82f6",
       });
-<<<<<<< HEAD
       
-=======
->>>>>>> 9b38bf233a8a407d3907b0e10075bdf9570594a4
     } catch (error) {
       toast.error("Failed to publish announcement");
       console.error("Error:", error);
@@ -440,12 +393,7 @@ export default function CreateAnnouncement() {
         <div className="space-y-6">
           {/* Title */}
           <div>
-            <Label
-              htmlFor="title"
-              className={`block text-sm font-medium mb-1 ${
-                isDarkMode ? "text-gray-300" : "text-gray-700"
-              }`}
-            >
+            <Label htmlFor="title" className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
               Announcement Title <span className="text-red-500">*</span>
             </Label>
             <Input
@@ -460,18 +408,11 @@ export default function CreateAnnouncement() {
 
           {/* Content */}
           <div>
-            <Label
-              htmlFor="content"
-              className={`block text-sm font-medium mb-1 ${
-                isDarkMode ? "text-gray-300" : "text-gray-700"
-              }`}
-            >
+            <Label htmlFor="content" className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
               Announcement Content <span className="text-red-500">*</span>
             </Label>
             <div className={`border ${borderColor} rounded-md overflow-hidden`}>
-              <div
-                className={`${toolbarBg} p-2 border-b ${borderColor} flex gap-2`}
-              >
+              <div className={`${toolbarBg} p-2 border-b ${borderColor} flex gap-2`}>
                 <Button
                   type="button"
                   variant="ghost"
@@ -520,7 +461,7 @@ export default function CreateAnnouncement() {
                   <span className="sr-only">Add Link</span>
                 </Button>
               </div>
-
+              
               {showLinkInput && (
                 <div className={`p-2 ${toolbarBg} border-b ${borderColor}`}>
                   <Input
@@ -538,7 +479,7 @@ export default function CreateAnnouncement() {
                   />
                 </div>
               )}
-
+              
               <div
                 ref={editorRef}
                 contentEditable
@@ -552,18 +493,12 @@ export default function CreateAnnouncement() {
                       if (selection?.rangeCount > 0) {
                         const range = selection.getRangeAt(0);
                         if (e.key === "ArrowLeft") {
-                          range.setStart(
-                            range.startContainer,
-                            Math.max(0, range.startOffset - 1)
-                          );
+                          range.setStart(range.startContainer, Math.max(0, range.startOffset - 1));
                         } else {
-                          range.setStart(
-                            range.startContainer,
-                            Math.min(
-                              range.startContainer.length,
-                              range.startOffset + 1
-                            )
-                          );
+                          range.setStart(range.startContainer, Math.min(
+                            range.startContainer.length, 
+                            range.startOffset + 1
+                          ));
                         }
                         range.collapse(true);
                         selection.removeAllRanges();
@@ -583,16 +518,12 @@ export default function CreateAnnouncement() {
 
           {/* Target Audience */}
           <div>
-            <Label
-              className={`block text-sm font-medium mb-2 ${
-                isDarkMode ? "text-gray-300" : "text-gray-700"
-              }`}
-            >
+            <Label className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
               Target Audience <span className="text-red-500">*</span>
             </Label>
-            <RadioGroup
-              value={targetAudience}
-              onValueChange={setTargetAudience}
+            <RadioGroup 
+              value={targetAudience} 
+              onValueChange={setTargetAudience} 
               className="space-y-2"
             >
               <div className="flex items-center space-x-2">
@@ -610,44 +541,33 @@ export default function CreateAnnouncement() {
             </RadioGroup>
 
             {targetAudience === "specific" && (
-              <div className="mt-2">
-                <Select
-                  multiple
-                  value={selectedGroups}
-                  onValueChange={(values) => setSelectedGroups(values)}
-                >
-                  <SelectTrigger
-                    className={`w-full ${inputBg} ${borderColor} ${textColor}`}
-                  >
-                    <SelectValue placeholder="Select groups" />
-                  </SelectTrigger>
-                  <SelectContent
-                    className={`${cardBg} ${borderColor} ${textColor}`}
-                  >
-                    <SelectItem value="admin">Administrators</SelectItem>
-                    <SelectItem value="staff">Staff</SelectItem>
-                    <SelectItem value="students">Students</SelectItem>
-                    <SelectItem value="faculty">Faculty</SelectItem>
-                  </SelectContent>
-                </Select>
-                {targetAudience === "specific" &&
-                  selectedGroups.length === 0 && (
-                    <p className="text-red-500 text-xs mt-1">
-                      Please select at least one group
-                    </p>
-                  )}
-              </div>
-            )}
+  <div className="mt-2">
+   <Select
+  multiple
+  value={selectedGroups}
+  onValueChange={(values) => setSelectedGroups(values)}
+>
+  <SelectTrigger className={`w-full ${inputBg} ${borderColor} ${textColor}`}>
+    <SelectValue placeholder="Select groups" />
+  </SelectTrigger>
+  <SelectContent className={`${cardBg} ${borderColor} ${textColor}`}>
+    <SelectItem value="admin">Administrators</SelectItem>
+    <SelectItem value="staff">Staff</SelectItem>
+    <SelectItem value="students">Students</SelectItem>
+    <SelectItem value="faculty">Faculty</SelectItem>
+  </SelectContent>
+</Select>
+    {targetAudience === "specific" && selectedGroups.length === 0 && (
+      <p className="text-red-500 text-xs mt-1">Please select at least one group</p>
+    )}
+  </div>
+)}
           </div>
 
           {/* Display Dates */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label
-                className={`block text-sm font-medium mb-1 ${
-                  isDarkMode ? "text-gray-300" : "text-gray-700"
-                }`}
-              >
+              <Label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                 Display Start Date <span className="text-red-500">*</span>
               </Label>
               <Popover>
@@ -660,16 +580,10 @@ export default function CreateAnnouncement() {
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {startDate ? (
-                      format(startDate, "yyyy/MM/dd")
-                    ) : (
-                      <span>Pick a date</span>
-                    )}
+                    {startDate ? format(startDate, "yyyy/MM/dd") : <span>Pick a date</span>}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent
-                  className={`w-auto p-0 ${cardBg} ${borderColor}`}
-                >
+                <PopoverContent className={`w-auto p-0 ${cardBg} ${borderColor}`}>
                   <Calendar
                     mode="single"
                     selected={startDate}
@@ -682,11 +596,7 @@ export default function CreateAnnouncement() {
             </div>
 
             <div>
-              <Label
-                className={`block text-sm font-medium mb-1 ${
-                  isDarkMode ? "text-gray-300" : "text-gray-700"
-                }`}
-              >
+              <Label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                 Display End Date <span className="text-red-500">*</span>
               </Label>
               <Popover>
@@ -699,16 +609,10 @@ export default function CreateAnnouncement() {
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {endDate ? (
-                      format(endDate, "yyyy/MM/dd")
-                    ) : (
-                      <span>Pick a date</span>
-                    )}
+                    {endDate ? format(endDate, "yyyy/MM/dd") : <span>Pick a date</span>}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent
-                  className={`w-auto p-0 ${cardBg} ${borderColor}`}
-                >
+                <PopoverContent className={`w-auto p-0 ${cardBg} ${borderColor}`}>
                   <Calendar
                     mode="single"
                     selected={endDate}
@@ -723,11 +627,7 @@ export default function CreateAnnouncement() {
 
           {/* Media Upload */}
           <div>
-            <Label
-              className={`block text-sm font-medium mb-1 ${
-                isDarkMode ? "text-gray-300" : "text-gray-700"
-              }`}
-            >
+            <Label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
               Media Upload
             </Label>
             <div
@@ -736,36 +636,24 @@ export default function CreateAnnouncement() {
               onDragOver={handleDragOver}
             >
               <Upload className="h-10 w-10 mx-auto text-gray-500" />
-              <p
-                className={`mt-2 text-sm ${
-                  isDarkMode ? "text-gray-400" : "text-gray-600"
-                }`}
-              >
+              <p className={`mt-2 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
                 Drag and drop files here or click to upload
               </p>
-              <p
-                className={`text-xs ${
-                  isDarkMode ? "text-gray-500" : "text-gray-400"
-                } mt-1`}
-              >
+              <p className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"} mt-1`}>
                 Supported formats: JPG, PNG, MP4, PDF, WebM
               </p>
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileSelect}
-                className="hidden"
-                multiple
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                onChange={handleFileSelect} 
+                className="hidden" 
+                multiple 
                 accept="image/*,video/*,application/pdf"
               />
               <Button
                 type="button"
                 variant="outline"
-                className={`mt-4 ${
-                  isDarkMode
-                    ? "bg-gray-700 border-gray-600 hover:bg-gray-600"
-                    : "bg-gray-100 border-gray-300 hover:bg-gray-200"
-                } ${textColor}`}
+                className={`mt-4 ${isDarkMode ? "bg-gray-700 border-gray-600 hover:bg-gray-600" : "bg-gray-100 border-gray-300 hover:bg-gray-200"} ${textColor}`}
                 onClick={handleBrowseFiles}
               >
                 Browse Files
@@ -775,56 +663,29 @@ export default function CreateAnnouncement() {
             {/* Image Previews */}
             {previews.length > 0 && (
               <div className="mt-4">
-                <h4
-                  className={`text-sm font-medium ${
-                    isDarkMode ? "text-gray-300" : "text-gray-700"
-                  } mb-2`}
-                >
+                <h4 className={`text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"} mb-2`}>
                   Image Previews:
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                   {previews.map((preview, index) => (
-                    <div
-                      key={index}
-                      className={`relative border ${borderColor} rounded-md overflow-hidden group`}
-                    >
-                      <img
-                        src={preview.url}
-                        alt={preview.name}
+                    <div key={index} className={`relative border ${borderColor} rounded-md overflow-hidden group`}>
+                      <img 
+                        src={preview.url} 
+                        alt={preview.name} 
                         className="w-full h-40 object-cover"
                       />
-                      <div
-                        className={`p-2 ${
-                          isDarkMode ? "bg-gray-800" : "bg-gray-50"
-                        }`}
-                      >
-                        <p
-                          className={`text-xs truncate ${
-                            isDarkMode ? "text-gray-300" : "text-gray-700"
-                          }`}
-                        >
+                      <div className={`p-2 ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}`}>
+                        <p className={`text-xs truncate ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                           {preview.name}
                         </p>
-                        <p
-                          className={`text-xs ${
-                            isDarkMode ? "text-gray-400" : "text-gray-500"
-                          }`}
-                        >
+                        <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                           {(preview.size / 1024).toFixed(1)} KB
                         </p>
                       </div>
                       <button
                         type="button"
-                        onClick={() =>
-                          handleRemoveFile(
-                            files.findIndex((f) => f.name === preview.name)
-                          )
-                        }
-                        className={`absolute top-1 right-1 p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity ${
-                          isDarkMode
-                            ? "bg-gray-700 hover:bg-gray-600"
-                            : "bg-gray-200 hover:bg-gray-300"
-                        }`}
+                        onClick={() => handleRemoveFile(files.findIndex(f => f.name === preview.name))}
+                        className={`absolute top-1 right-1 p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity ${isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'}`}
                       >
                         <X className="h-4 w-4" />
                       </button>
@@ -837,36 +698,23 @@ export default function CreateAnnouncement() {
             {/* Other Files List */}
             {files.length > 0 && (
               <div className="mt-4">
-                <h4
-                  className={`text-sm font-medium ${
-                    isDarkMode ? "text-gray-300" : "text-gray-700"
-                  } mb-2`}
-                >
+                <h4 className={`text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"} mb-2`}>
                   Selected Files:
                 </h4>
                 <ul className="space-y-1">
                   {files.map((file, index) => {
                     // Skip image files since they're shown in preview
-                    if (file.type.startsWith("image/")) return null;
-
+                    if (file.type.startsWith('image/')) return null;
+                    
                     return (
-                      <li
-                        key={index}
-                        className={`flex justify-between items-center text-sm ${
-                          isDarkMode ? "text-gray-400" : "text-gray-600"
-                        }`}
-                      >
+                      <li key={index} className={`flex justify-between items-center text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
                         <span>
                           {file.name} ({(file.size / 1024).toFixed(1)} KB)
                         </span>
                         <button
                           type="button"
                           onClick={() => handleRemoveFile(index)}
-                          className={`p-1 rounded-full ${
-                            isDarkMode
-                              ? "hover:bg-gray-600"
-                              : "hover:bg-gray-200"
-                          }`}
+                          className={`p-1 rounded-full ${isDarkMode ? 'hover:bg-gray-600' : 'hover:bg-gray-200'}`}
                         >
                           <X className="h-4 w-4" />
                         </button>
@@ -880,21 +728,17 @@ export default function CreateAnnouncement() {
 
           {/* Action Buttons */}
           <div className="flex justify-end space-x-4 pt-4">
-            <Button
-              variant="outline"
-              type="button"
-              className={`${
-                isDarkMode
-                  ? "bg-gray-700 border-gray-600 hover:bg-gray-600"
-                  : "bg-white border-gray-300 hover:bg-gray-50"
-              } ${textColor}`}
+            <Button 
+              variant="outline" 
+              type="button" 
+              className={`${isDarkMode ? "bg-gray-700 border-gray-600 hover:bg-gray-600" : "bg-white border-gray-300 hover:bg-gray-50"} ${textColor}`}
               onClick={resetForm}
             >
               Cancel
             </Button>
-            <Button
-              type="button"
-              className="bg-indigo-600 hover:bg-indigo-700 text-white"
+            <Button 
+              type="button" 
+              className="bg-indigo-600 hover:bg-indigo-700 text-white" 
               onClick={handlePublish}
             >
               Publish
@@ -906,7 +750,3 @@ export default function CreateAnnouncement() {
   );
 }
 
-<<<<<<< HEAD
-// hi hi hi
-=======
->>>>>>> 9b38bf233a8a407d3907b0e10075bdf9570594a4
