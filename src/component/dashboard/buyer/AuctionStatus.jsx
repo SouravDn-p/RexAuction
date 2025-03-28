@@ -72,7 +72,7 @@ const AuctionStatus = ({ userRole, userId }) => {
 
   return (
     <motion.div
-      className={`max-w-5xl mx-auto p-6 rounded-2xl shadow-xl mt-10 transition-all duration-300
+      className={`max-w-full mx-auto p-12 shadow-xl mt-10 transition-all duration-300
         ${
           isDarkMode
             ? "bg-gray-900 text-white border border-gray-700"
