@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
   FaFacebookF,
   FaTwitter,
@@ -10,20 +10,25 @@ import {
 } from "react-icons/fa";
 import footerBG from "../../assets/footer.jpg";
 import Newsletter from "./Newsletter";
+import ThemeContext from "../Context/ThemeContext";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
-
+  const { isDarkMode } = useContext(ThemeContext);
   return (
     <footer
-      className="bg-no-repeat bg-cover bg-center py-12 relative"
+      // className="bg-no-repeat bg-cover bg-center py-12 relative"
+      className={` bg-no-repeat bg-cover bg-center opacity-80  py-12 relative ${
+        isDarkMode
+          ? "bg-gray-950 text-white"
+          : "bg-gradient-to-b from-violet-50 to-violet-100 text-gray-800"
+      }`}
       style={{ backgroundImage: `url(${footerBG})` }}
     >
       {/* Overlay */}
       <div className="absolute inset-0 bg-black/70"></div>
 
       <div className="container mx-auto px-6 md:px-12 relative z-10">
-
         {/* Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 text-center md:text-left">
           {/* Logo and Description */}

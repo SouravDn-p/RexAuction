@@ -44,8 +44,7 @@ const AuthProvider = ({ children }) => {
     }
   }, [user?.email]);
 
-  
-// Toggle between light and dark themes
+  // Toggle between light and dark themes
   const toggleTheme = () => {
     const newTheme = theme === "light" ? "dark" : "light";
     setTheme(newTheme);
@@ -58,13 +57,11 @@ const AuthProvider = ({ children }) => {
     document.documentElement.setAttribute("data-theme", theme);
   }, [theme]);
 
-
-// Create a new user with email and password
+  // Create a new user with email and password
   const createUser = (email, password) => {
     setLoading(true);
     return createUserWithEmailAndPassword(auth, email, password);
   };
-
 
   // Log in an existing user with email and password
   const login = async (email, password) => {
@@ -100,7 +97,6 @@ const AuthProvider = ({ children }) => {
       photoURL: photo,
     });
   };
-
 
   // Sends a password reset email to the provided email address using Firebase Authentication
   const changePassword = (auth, email) => {
@@ -153,7 +149,7 @@ const AuthProvider = ({ children }) => {
     signInWithGoogle,
     logOut,
     dbUser,
-    setDbUser
+    setDbUser,
   };
 
   return (
