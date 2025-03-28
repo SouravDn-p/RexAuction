@@ -98,7 +98,7 @@ const MainContent = () => {
       className={`drawer-content flex flex-col md:flex-row justify-between items-stretch 
        `}
     >
-      <div className="mx-auto w-11/12 md:w-full ">
+      <div className="mx-auto w-full ">
         {/* Top Navigation Bar */}
         <header
           className={`sticky top-0 z-10 mx-auto ${

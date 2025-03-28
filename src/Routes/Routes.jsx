@@ -33,6 +33,7 @@ import SettingsLayout from "../component/Settings/SettingsLayout";
 import Plan from "../component/Settings/Plan";
 import TermsAndConditionsBuyer from "../extra/terms/TermsConditionsBuyer";
 import TermsAndConditionsSeller from "../extra/terms/TermsConditionsSeller";
+import useAxiosPublic from "../hooks/useAxiosPublic";
 
 // import TeamSettings from "../component/Settings/TeamSettings";
 // import PlanSettings from "../component/Settings/PlanSettings";
@@ -57,7 +58,7 @@ export const router = createBrowserRouter([
         element: <Auction />,
       },
       {
-        path: "/liveBid",
+        path: "/liveBid/:id",
         element: <LiveBid />,
       },
       {

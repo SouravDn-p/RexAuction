@@ -20,6 +20,7 @@ const googleProvider = new GoogleAuthProvider();
 
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [liveBid, setLiveBid] = useState(null);
   const [dbUser, setDbUser] = useState("");
   const [response, setResponse] = useState(null);
   const axiosPublic = useAxiosPublic();
@@ -148,6 +149,8 @@ const AuthProvider = ({ children }) => {
     logOut,
     dbUser,
     setDbUser,
+    liveBid,
+    setLiveBid,
   };
 
   return (

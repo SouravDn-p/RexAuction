@@ -33,9 +33,10 @@ const BrowsCategory = () => {
 
   return (
     <section
-      // style={{ backgroundImage: `url(${bg})` }}
-      className={`transition-colors duration-300 ${
-        isDarkMode ? "bg-[#2A2A2A]  text-white" : "bg-purple-100 text-gray-900"
+      className={`transition-colors duration-300  ${
+        isDarkMode
+          ? "bg-gray-950 text-white"
+          : "bg-gradient-to-b from-violet-50 to-violet-100 text-gray-800"
       }`}
     >
       <div
@@ -53,7 +54,7 @@ const BrowsCategory = () => {
           >
             Browse Categories
           </h2>
-          <div className="w-1/5 h-[2px] bg-purple-500 rounded-full mx-auto mt-2"></div>
+          <div className="w-1/5 h-[2px] bg-purple-500 rounded-lg mx-auto mt-2"></div>
           <p
             className={`mt-4 ${
               isDarkMode ? "text-gray-200" : "text-gray-600"
@@ -68,7 +69,7 @@ const BrowsCategory = () => {
               key={category.id}
               className={`group flex flex-col items-center justify-center 
         w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-36 lg:h-36
-        rounded-full border shadow-md transition-all duration-300
+        rounded-lg border shadow-md transition-all duration-300
         ${
           isDarkMode
             ? "bg-[#1f2a38] text-white border-gray-700 hover:border-purple-600 hover:bg-[#2e3d57]"
