@@ -6,6 +6,7 @@ import { useEffect } from "react";
 // Create a secure axios instance
 export const axiosSecure = axios.create({
   baseURL: "http://localhost:5000",
+  withCredentials: true,
 });
 
 const useAxiosSecure = () => {

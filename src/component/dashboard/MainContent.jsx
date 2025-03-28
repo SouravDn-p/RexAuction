@@ -24,7 +24,7 @@ import { signOut } from "firebase/auth";
 import LoadingSpinner from "../LoadingSpinner";
 
 const MainContent = () => {
-  const { user, setUser, setLoading, setError, dbUser } =
+  const { user, setUser, setLoading, errorMessage, setErrorMessage, dbUser } =
     useContext(AuthContexts);
   const { isDarkMode, toggleTheme } = useContext(ThemeContext);
   const [notificationCount, setNotificationCount] = useState(3);
@@ -75,24 +75,23 @@ const MainContent = () => {
   }
 
   const handleLogout = async () => {
-    // setLoading(true);
-    // try {
-    //   await signOut(auth);
-    //   setUser(null);
-    //   setError(null);
-    //   toast.success("Successfully signed out", {
-    //     position: "top-right",
-    //     autoClose: 3000,
-    //   });
-    //   navigate("/login");
-    // } catch (err) {
-    //   console.error("Sign-Out error:", err.message);
-    //   setError(err.message);
-    //   toast.error(err.message);
-    // } finally {
-    //   setLoading(false);
-    // }
-    console.log("logging Out .....");
+    setLoading(true);
+    try {
+      await signOut(auth);
+      setUser(null);
+      setErrorMessage(null);
+      toast.success("Successfully signed out", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      navigate("/");
+    } catch (err) {
+      console.error("Sign-Out error:", err.message);
+      setErrorMessage(err.message);
+      toast.error(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
   return (
     <div
