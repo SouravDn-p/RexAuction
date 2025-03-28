@@ -9,7 +9,8 @@ import { signOut } from "firebase/auth";
 import { MdOutlineLogout } from "react-icons/md";
 
 const Navbar = () => {
-  const { user, setUser, setLoading, setError } = useContext(AuthContexts);
+  const { user, setUser, setLoading, setErrorMessage } =
+    useContext(AuthContexts);
   const { isDarkMode, toggleTheme } = useContext(ThemeContext);
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -46,14 +47,14 @@ const Navbar = () => {
     try {
       await signOut(auth);
       setUser(null);
-      setError(null);
+      setErrorMessage(null);
       toast.success("Successfully signed out", {
         position: "top-right",
         autoClose: 3000,
       });
     } catch (err) {
       console.error("Sign-Out error:", err.message);
-      setError(err.message);
+      setErrorMessage(err.message);
       toast.error(err.message);
     } finally {
       setLoading(false);

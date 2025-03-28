@@ -1,18 +1,18 @@
-import { useContext, useState } from "react";
-import SdProfile from "./SdProfile";
-import ThemeContext from "../../Context/ThemeContext";
-import CountUp from "react-countup";
-import { useInView } from "react-intersection-observer";
-import { AuthContexts } from "../../../providers/AuthProvider";
 
+
+import { useContext, useState } from "react"
+import SdProfile from "./SdProfile"
+import ThemeContext from "../../Context/ThemeContext"
+import CountUp from "react-countup"
+import { useInView } from "react-intersection-observer"
+import useAuth from "../../../hooks/useAuth"
+
+// Hardcoded profile data for the UI elements
 const profileData = {
   user: {
-    name: "Sourav Debnath"  ,
     location: "Dhaka, BD",
     memberSince: "2024",
-    profilePicture: "https://i.ibb.co/BmxHqZm/Screenshot-2025-03-23-164850.png",
-    coverImage:
-      "https://i.ibb.co/HDLKt1VF/Green-and-Purple-Line-Tech-Action-Adventure-Facebook-Cover-1.jpg",
+    coverImage: "https://i.ibb.co/HDLKt1VF/Green-and-Purple-Line-Tech-Action-Adventure-Facebook-Cover-1.jpg",
   },
   stats: {
     auctionsWon: 327,
@@ -105,51 +105,40 @@ const profileData = {
       status: "Won",
     },
   ],
-};
+}
 
 const Profile = () => {
-  const { user } = useContext(AuthContexts);
-  const [activeTab, setActiveTab] = useState("All");
-  const { isDarkMode } = useContext(ThemeContext);
+  // Get real user data from auth context
+  const { user, loading: authLoading } = useAuth()
+  const [activeTab, setActiveTab] = useState("All")
+  const { isDarkMode } = useContext(ThemeContext)
+
   const renderStatusBadge = (status) => {
     switch (status) {
       case "Won":
-        return (
-          <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-md">
-            Won
-          </span>
-        );
+        return <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-md">Won</span>
       case "Active":
-        return (
-          <span className="text-xs bg-blue-500 text-white px-2 py-0.5 rounded-md">
-            Active
-          </span>
-        );
+        return <span className="text-xs bg-blue-500 text-white px-2 py-0.5 rounded-md">Active</span>
       case "Outbid":
-        return (
-          <span className="text-xs border border-gray-300 px-2 py-0.5 rounded-md text-black bg-white">
-            Outbid
-          </span>
-        );
+        return <span className="text-xs border border-gray-300 px-2 py-0.5 rounded-md text-black bg-white">Outbid</span>
       default:
         return (
-          <span className="text-xs border border-gray-300 px-2 py-0.5 rounded-md text-black bg-white">
-            {status}
-          </span>
-        );
+          <span className="text-xs border border-gray-300 px-2 py-0.5 rounded-md text-black bg-white">{status}</span>
+        )
     }
-  };
-  const boxStyle = `border  rounded-lg shadow-sm ${
-    isDarkMode
-      ? "bg-gray-800 hover:bg-gray-600 border-gray-700"
-      : "bg-white border"
-  }`;
+  }
 
-  const titleStyle = `text-2xl font-bold ${
-    isDarkMode ? "text-white" : "text-black"
-  }`;
-  const { ref, inView } = useInView({ triggerOnce: true });
-  const labelStyle = `text-sm ${isDarkMode ? "text-gray-300" : "text-black"}`;
+  const boxStyle = `border rounded-lg shadow-sm ${
+    isDarkMode ? "bg-gray-800 hover:bg-gray-600 border-gray-700" : "bg-white border"
+  }`
+
+  const titleStyle = `text-2xl font-bold ${isDarkMode ? "text-white" : "text-black"}`
+
+  const { ref, inView } = useInView({ triggerOnce: true })
+  const labelStyle = `text-sm ${isDarkMode ? "text-gray-300" : "text-black"}`
+
+  if (authLoading) return <div className="flex justify-center py-8">Loading profile...</div>
+
   return (
     <div
       className={`min-h-screen ${
@@ -192,17 +181,15 @@ const Profile = () => {
             isDarkMode ? "text-white" : "text-black"
           }`}
         >
-          {/* Profile Picture */}
+          {/* Profile Picture - Using real user photo */}
           <div className="relative flex-shrink-0">
             <div
               className={`w-28 h-28 rounded-full border-4 ${
-                isDarkMode
-                  ? "border-gray-700 bg-gray-800"
-                  : "border-white bg-gray-200"
+                isDarkMode ? "border-gray-700 bg-gray-800" : "border-white bg-gray-200"
               } overflow-hidden`}
             >
               <img
-                src={profileData.user.profilePicture || "/placeholder.svg"}
+                src={user?.photoURL || "https://i.ibb.co/BmxHqZm/Screenshot-2025-03-23-164850.png"}
                 alt="Profile picture"
                 className="w-full h-full object-cover"
               />
@@ -211,20 +198,12 @@ const Profile = () => {
         </div>
 
         <div className="lg:text-left text-center w-full">
-          {/* Profile Information */}
-          <h1
-            className={`text-2xl font-bold ${
-              isDarkMode ? "text-white" : "text-black"
-            }`}
-          >
-            {profileData.user.name}
+          {/* Profile Information - Using real user name */}
+          <h1 className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-black"}`}>
+            {user?.displayName || "No name"}
           </h1>
-          <p
-            className={`text-gray-500 ${
-              isDarkMode ? "text-gray-400" : "text-gray-500"
-            }`}
-          >
-            Location : {profileData.user.location} . Member since{" "}
+          <p className={`text-gray-500 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+            Email: {user?.email || "No email"} • Location: {profileData.user.location} • Member since{" "}
             {profileData.user.memberSince}
           </p>
 
@@ -246,11 +225,7 @@ const Profile = () => {
           <div className={boxStyle}>
             <div className="p-4 text-center">
               <div className={titleStyle}>
-                <CountUp
-                  end={profileData.stats.auctionsWon}
-                  duration={3.5}
-                  enableScrollSpy
-                />
+                <CountUp end={profileData.stats.auctionsWon} duration={3.5} enableScrollSpy />
               </div>
               <div className={labelStyle}>Auctions Won</div>
             </div>
@@ -260,11 +235,7 @@ const Profile = () => {
           <div className={boxStyle}>
             <div className="p-4 text-center">
               <div className={titleStyle}>
-                <CountUp
-                  end={profileData.stats.activeBids}
-                  duration={3.5}
-                  enableScrollSpy
-                />
+                <CountUp end={profileData.stats.activeBids} duration={3.5} enableScrollSpy />
               </div>
               <div className={labelStyle}>Active Bids</div>
             </div>
@@ -274,12 +245,7 @@ const Profile = () => {
           <div className={boxStyle}>
             <div className="p-4 text-center">
               <div className={titleStyle}>
-                <CountUp
-                  end={profileData.stats.successRate}
-                  duration={3.5}
-                  suffix="%"
-                  enableScrollSpy
-                />
+                <CountUp end={profileData.stats.successRate} duration={3.5} suffix="%" enableScrollSpy />
               </div>
               <div className={labelStyle}>Success Rate</div>
             </div>
@@ -289,12 +255,7 @@ const Profile = () => {
           <div className={boxStyle}>
             <div className="p-4 text-center">
               <div className={titleStyle}>
-                <CountUp
-                  end={profileData.stats.totalSpent}
-                  duration={1.5}
-                  prefix="$"
-                  enableScrollSpy
-                />
+                <CountUp end={profileData.stats.totalSpent} duration={1.5} prefix="$" enableScrollSpy />
               </div>
               <div className={labelStyle}>Total Spent</div>
             </div>
@@ -308,47 +269,18 @@ const Profile = () => {
             <div
               ref={ref}
               className={`border rounded-lg shadow-sm ${
-                isDarkMode
-                  ? "bg-gray-800 border-gray-700"
-                  : "bg-white border-gray-200"
+                isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
               }`}
             >
-              <div
-                className={`p-4 border-b ${
-                  isDarkMode ? "border-gray-700" : "border-gray-200"
-                }`}
-              >
-                <h2
-                  className={`text-base font-medium ${
-                    isDarkMode ? "text-white" : "text-black"
-                  }`}
-                >
-                  Account Balance
-                </h2>
+              <div className={`p-4 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+                <h2 className={`text-base font-medium ${isDarkMode ? "text-white" : "text-black"}`}>Account Balance</h2>
               </div>
               <div className="p-4">
-                <div
-                  className={`text-2xl font-bold mb-3 ${
-                    isDarkMode ? "text-white" : "text-black"
-                  }`}
-                >
-                  {inView ? (
-                    <CountUp
-                      end={profileData.accountBalance}
-                      duration={1.5}
-                      prefix="$"
-                    />
-                  ) : (
-                    "$0"
-                  )}
+                <div className={`text-2xl font-bold mb-3 ${isDarkMode ? "text-white" : "text-black"}`}>
+                  {inView ? <CountUp end={profileData.accountBalance} duration={1.5} prefix="$" /> : "$0"}
                 </div>
                 <button className="w-full flex items-center justify-center bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-md">
-                  <svg
-                    className="w-4 h-4 mr-2"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
+                  <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
                       d="M12 5v14m-7-7h14"
                       stroke="currentColor"
@@ -365,71 +297,35 @@ const Profile = () => {
             {/* Payment Methods */}
             <div
               className={`border rounded-lg shadow-sm ${
-                isDarkMode
-                  ? "bg-gray-800 border-gray-700"
-                  : "bg-white border-gray-200"
+                isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
               }`}
             >
-              <div
-                className={`p-4 border-b ${
-                  isDarkMode ? "border-gray-700" : "border-gray-200"
-                }`}
-              >
-                <h2
-                  className={`text-base font-medium ${
-                    isDarkMode ? "text-white" : "text-black"
-                  }`}
-                >
-                  Payment Methods
-                </h2>
+              <div className={`p-4 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+                <h2 className={`text-base font-medium ${isDarkMode ? "text-white" : "text-black"}`}>Payment Methods</h2>
               </div>
               <div className="p-4 space-y-3">
                 {profileData.paymentMethods.map((method) => (
                   <div
                     key={method.id}
                     className={`flex items-center justify-between p-2 border rounded-md ${
-                      isDarkMode
-                        ? "bg-gray-700 border-gray-600"
-                        : "bg-white border-gray-200"
+                      isDarkMode ? "bg-gray-700 border-gray-600" : "bg-white border-gray-200"
                     }`}
                   >
                     <div className="flex items-center">
                       <svg
-                        className={`w-4 h-4 mr-2 ${
-                          isDarkMode ? "text-white" : "text-black"
-                        }`}
+                        className={`w-4 h-4 mr-2 ${isDarkMode ? "text-white" : "text-black"}`}
                         viewBox="0 0 24 24"
                         fill="none"
                         xmlns="http://www.w3.org/2000/svg"
                       >
-                        <rect
-                          x="2"
-                          y="5"
-                          width="20"
-                          height="14"
-                          rx="2"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        />
-                        <path
-                          d="M2 10h20"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        />
+                        <rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" strokeWidth="2" />
+                        <path d="M2 10h20" stroke="currentColor" strokeWidth="2" />
                       </svg>
-                      <span
-                        className={`text-sm ${
-                          isDarkMode ? "text-white" : "text-black"
-                        }`}
-                      >
-                        {method.cardNumber}
-                      </span>
+                      <span className={`text-sm ${isDarkMode ? "text-white" : "text-black"}`}>{method.cardNumber}</span>
                     </div>
                     <span
                       className={`text-xs border px-2 py-0.5 rounded-md ${
-                        isDarkMode
-                          ? "text-white border-gray-400"
-                          : "text-black border-gray-300"
+                        isDarkMode ? "text-white border-gray-400" : "text-black border-gray-300"
                       }`}
                     >
                       {method.provider}
@@ -455,23 +351,11 @@ const Profile = () => {
             {/* Recent Activity */}
             <div
               className={`border rounded-lg shadow-sm ${
-                isDarkMode
-                  ? "bg-gray-800 border-gray-700"
-                  : "bg-white border-gray-200"
+                isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
               }`}
             >
-              <div
-                className={`p-4 border-b ${
-                  isDarkMode ? "border-gray-700" : "border-gray-200"
-                }`}
-              >
-                <h2
-                  className={`text-base font-medium ${
-                    isDarkMode ? "text-white" : "text-black"
-                  }`}
-                >
-                  Recent Activity
-                </h2>
+              <div className={`p-4 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+                <h2 className={`text-base font-medium ${isDarkMode ? "text-white" : "text-black"}`}>Recent Activity</h2>
               </div>
 
               <div className="p-4">
@@ -502,30 +386,20 @@ const Profile = () => {
                     <div key={activity.id} className="flex items-center gap-3">
                       <div
                         className={`w-12 h-12 rounded-md overflow-hidden border ${
-                          isDarkMode
-                            ? "bg-gray-700 border-gray-600"
-                            : "bg-white border-gray-200"
+                          isDarkMode ? "bg-gray-700 border-gray-600" : "bg-white border-gray-200"
                         }`}
                       >
                         <img
-                          src={activity.image || "/placeholder.svg"}
+                          src={activity.image || "/placeholder.svg?height=48&width=48"}
                           alt={activity.item}
                           className="w-full h-full object-cover"
                         />
                       </div>
                       <div className="flex-grow">
-                        <div
-                          className={`text-sm font-medium ${
-                            isDarkMode ? "text-white" : "text-black"
-                          }`}
-                        >
+                        <div className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-black"}`}>
                           {activity.item}
                         </div>
-                        <div
-                          className={`text-sm ${
-                            isDarkMode ? "text-gray-300" : "text-black"
-                          }`}
-                        >
+                        <div className={`text-sm ${isDarkMode ? "text-gray-300" : "text-black"}`}>
                           {activity.price} • {activity.time}
                         </div>
                       </div>
@@ -542,32 +416,18 @@ const Profile = () => {
             {/* Watching Now */}
             <div
               className={`border rounded-lg shadow-sm ${
-                isDarkMode
-                  ? "bg-gray-800 border-gray-700"
-                  : "bg-white border-gray-200"
+                isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
               }`}
             >
-              <div
-                className={`p-4 border-b ${
-                  isDarkMode ? "border-gray-700" : "border-gray-200"
-                }`}
-              >
-                <h2
-                  className={`text-base font-medium ${
-                    isDarkMode ? "text-white" : "text-black"
-                  }`}
-                >
-                  Watching Now
-                </h2>
+              <div className={`p-4 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+                <h2 className={`text-base font-medium ${isDarkMode ? "text-white" : "text-black"}`}>Watching Now</h2>
               </div>
               <div className="p-4 space-y-3">
                 {profileData.watchingNow.map((item) => (
                   <div
                     key={item.id}
                     className={`flex items-center gap-3 ${
-                      isDarkMode
-                        ? "bg-gray-700 border-gray-600"
-                        : "bg-white border-gray-200"
+                      isDarkMode ? "bg-gray-700 border-gray-600" : "bg-white border-gray-200"
                     } p-2 rounded-md`}
                   >
                     <div
@@ -576,26 +436,16 @@ const Profile = () => {
                       }`}
                     >
                       <img
-                        src={item.image || "/placeholder.svg"}
+                        src={item.image || "/placeholder.svg?height=48&width=48"}
                         alt={item.item}
                         className="w-full h-full object-cover"
                       />
                     </div>
                     <div>
-                      <div
-                        className={`text-sm font-medium ${
-                          isDarkMode ? "text-white" : "text-black"
-                        }`}
-                      >
+                      <div className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-black"}`}>
                         {item.item}
                       </div>
-                      <div
-                        className={`text-xs ${
-                          isDarkMode ? "text-gray-400" : "text-black"
-                        }`}
-                      >
-                        {item.timeLeft}
-                      </div>
+                      <div className={`text-xs ${isDarkMode ? "text-gray-400" : "text-black"}`}>{item.timeLeft}</div>
                     </div>
                   </div>
                 ))}
@@ -607,9 +457,7 @@ const Profile = () => {
         {/* Bidding History */}
         <div
           className={`border rounded-lg shadow-sm mb-6 ${
-            isDarkMode
-              ? "bg-gray-800 border-gray-700"
-              : "bg-white border-gray-200"
+            isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
           }`}
         >
           <div
@@ -617,24 +465,13 @@ const Profile = () => {
               isDarkMode ? "border-gray-700" : "border-gray-200"
             }`}
           >
-            <h2
-              className={`text-base font-medium ${
-                isDarkMode ? "text-white" : "text-black"
-              }`}
-            >
-              Bidding History
-            </h2>
+            <h2 className={`text-base font-medium ${isDarkMode ? "text-white" : "text-black"}`}>Bidding History</h2>
             <button
               className={`h-8 px-2 text-sm flex items-center ${
                 isDarkMode ? "text-white bg-gray-700" : "text-black bg-white"
               }`}
             >
-              <svg
-                className="w-4 h-4 mr-1"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
+              <svg className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
                   d="M3 6h18M6 12h12M9 18h6"
                   stroke="currentColor"
@@ -648,11 +485,7 @@ const Profile = () => {
           </div>
           <div className="p-4">
             <div className="overflow-x-auto">
-              <table
-                className={`w-full text-sm ${
-                  isDarkMode ? "text-white" : "text-black"
-                }`}
-              >
+              <table className={`w-full text-sm ${isDarkMode ? "text-white" : "text-black"}`}>
                 <thead>
                   <tr className="text-left border-b">
                     <th className="pb-2 font-medium">Item</th>
@@ -675,13 +508,9 @@ const Profile = () => {
                 </tbody>
               </table>
               <div
-                className={`flex items-center justify-between text-sm mt-3 ${
-                  isDarkMode ? "text-white" : "text-black"
-                }`}
+                className={`flex items-center justify-between text-sm mt-3 ${isDarkMode ? "text-white" : "text-black"}`}
               >
-                <div>
-                  Showing 1-{profileData.biddingHistory.length} of 127 items
-                </div>
+                <div>Showing 1-{profileData.biddingHistory.length} of 127 items</div>
                 <div className="flex items-center gap-2">
                   <button
                     className={`h-8 w-8 flex items-center justify-center border rounded-md ${
@@ -690,13 +519,7 @@ const Profile = () => {
                         : "border-gray-300 hover:bg-gray-50 bg-white text-black"
                     }`}
                   >
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path
                         d="M15 18L9 12L15 6"
                         stroke="currentColor"
@@ -713,13 +536,7 @@ const Profile = () => {
                         : "border-gray-300 hover:bg-gray-50 bg-white text-black"
                     }`}
                   >
-                    <svg
-                      width="16"
-                      height="16"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path
                         d="M9 6L15 12L9 18"
                         stroke="currentColor"
@@ -737,7 +554,8 @@ const Profile = () => {
       </div>
       <SdProfile />
     </div>
-  );
-};
+  )
+}
 
-export default Profile;
+export default Profile
+

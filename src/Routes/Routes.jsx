@@ -23,6 +23,21 @@ import SellerRequest from "../component/dashboard/admin/SellerRequest";
 import AnnouncementDetails from "../component/dashboard/shared/AnnouncementDetails";
 import Reports from "../component/dashboard/shared/Reports";
 import ManageAuctions from "../component/dashboard/shared/ManageAuctions";
+import TermsAndConditionsBuyer from "../component/dashboard/buyer/TermsCondtionsBuyer";
+import TermsAndConditionsSeller from "../component/dashboard/seller/TermsConditionsSeller";
+import Feedback from "../component/shared/FeedBack";
+// import SettingsLayout from "../component/Settings/SettingsLayout";
+import BillingSettings from "../component/Settings/BillingSettings";
+import ProfileSettings from "../component/Settings/ProfileSettings";
+import PasswordSettings from "../component/Settings/PasswordSettings";
+import NotificationSettings from "../component/Settings/NotificationSettings";
+import SettingsLayout from "../component/Settings/SettingsLayout";
+import Plan from "../component/Settings/Plan";
+
+// import TeamSettings from "../component/Settings/TeamSettings";
+// import PlanSettings from "../component/Settings/PlanSettings";
+// import EmailSettings from "../component/Settings/EmailSettings";
+
 
 export const router = createBrowserRouter([
   {
@@ -86,7 +101,6 @@ export const router = createBrowserRouter([
         path: "userManagement",
         element: <UserManagement />,
       },
-
       {
         path: "manageAuctions",
         element: <ManageAuctions />,
@@ -100,7 +114,15 @@ export const router = createBrowserRouter([
         path: "createAuction",
         element: <CreateAuction />,
       },
+      {
+        path: "termsConditionsSeller",
+        element: <TermsAndConditionsSeller />,
+      },
       // Buyer only
+      {
+        path: "termsConditionsBuyer",
+        element: <TermsAndConditionsBuyer />,
+      },
       {
         path: "bidHistory",
         element: <BidHistory />,
@@ -109,7 +131,6 @@ export const router = createBrowserRouter([
         path: "status",
         element: <AuctionStatus />,
       },
-
       {
         path: "payment",
         element: <Payment />,
@@ -118,11 +139,54 @@ export const router = createBrowserRouter([
         path: "becomeSeller",
         element: <BecomeSeller />,
       },
-
       // Shared
       {
         path: "profile",
         element: <Profile />,
+      },
+      {
+        path: "settings",
+        element: <SettingsLayout />,
+        children: [
+         
+          {
+            path: "profile",
+            element: <ProfileSettings />,
+          },
+          {
+            path: "password",
+            element: <PasswordSettings />,
+          },
+          // {
+          //   path: "team",
+          //   element: <TeamSettings />,
+          // },
+          {
+            path: "billings",
+            element: <BillingSettings />,
+          // },
+          // {
+          //   path: "plan",
+          //   element: <PlanSettings />,
+          // },
+          // {
+          //   path: "email",
+          //   element: <EmailSettings />,
+          },
+          {
+            path: "notifications",
+            element: <NotificationSettings />,
+          },
+          {
+            index: true,
+              element: <ProfileSettings />,
+            
+          },
+          {
+            path: "plan",
+            element: <Plan />,
+          },
+        ],
       },
       {
         path: "reports",
@@ -131,6 +195,11 @@ export const router = createBrowserRouter([
       {
         path: "announcement",
         element: <Announcement />,
+      },
+     
+      {
+        path: "feedback",
+        element: <Feedback />,
       },
     ],
   },

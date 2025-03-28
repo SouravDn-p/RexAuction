@@ -877,4 +877,3 @@ export default function CreateAnnouncement() {
     </div>
   );
 }
-
