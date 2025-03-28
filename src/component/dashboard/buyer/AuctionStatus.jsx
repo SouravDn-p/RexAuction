@@ -72,7 +72,7 @@ const AuctionStatus = ({ userRole, userId }) => {
 
   return (
     <motion.div
-      className={`max-w-5xl mx-auto p-6 bg-purple-100 text-white rounded-2xl shadow-xl mt-10 transition-all duration-300
+      className={`max-w-5xl mx-auto p-6 rounded-2xl shadow-xl mt-10 transition-all duration-300
         ${
           isDarkMode
             ? "bg-gray-900 text-white border border-gray-700"
@@ -84,14 +84,22 @@ const AuctionStatus = ({ userRole, userId }) => {
       transition={{ duration: 0.8, ease: "easeOut" }}
     >
       {/* Profile Info */}
-      <div className=" animate-border bg-purple-300 rounded-xl p-6 text-center mb-8 shadow-md relative">
+      <div
+        className={`animate-border rounded-xl p-6 text-center mb-8 shadow-md relative
+        ${
+          isDarkMode
+            ? "bg-gray-700 text-gray-300"
+            : "bg-purple-300 text-gray-800"
+        }
+        `}
+      >
         <img
           src={buyerPhoto}
           alt="Buyer"
           className="w-24 h-24 mx-auto rounded-full border-4 border-purple-400 shadow-md mb-4"
         />
         <h2 className="text-xl font-bold mb-1">Buyer : {buyerName}</h2>
-        <p className="text-gray-900">{buyerEmail}</p>
+        <p>{buyerEmail}</p>
       </div>
 
       {/* Product Info Section */}
@@ -102,7 +110,7 @@ const AuctionStatus = ({ userRole, userId }) => {
             You're Bidding On:
           </h3>
           <p className="text-xl font-bold mb-4">{biddingOnProduct}</p>
-          <p className="text-gray-700">
+          <p className="text-gray-500">
             This is a rare collectible item up for auction. Make sure you place
             your bids wisely!
           </p>
@@ -120,22 +128,40 @@ const AuctionStatus = ({ userRole, userId }) => {
 
       {/* Bidding Status */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-        <div className="bg-purple-300 rounded-lg p-4">
-          <p className="text-sm text-gray-800">Position</p>
-          <p className="font-semibold text-purple-800">
+        <div
+          className={` ${
+            isDarkMode
+              ? "bg-gray-700 text-gray-300"
+              : "bg-purple-300 text-gray-800"
+          }  rounded-lg p-4`}
+        >
+          <p className="text-sm ">Position</p>
+          <p className="font-semibold text-purple-700">
             #{currentPosition} of {totalBidders}
           </p>
         </div>
 
-        <div className="bg-purple-300 rounded-lg p-4">
+        <div
+          className={` ${
+            isDarkMode
+              ? "bg-gray-700 text-gray-300"
+              : "bg-purple-300 text-gray-800"
+          }  rounded-lg p-4`}
+        >
           <p className="text-sm text-gray-8s00">Status</p>
-          <p className="font-semibold text-green-800">
+          <p className="font-semibold text-green-700">
             {isWinning ? "Winning 🏆" : "Still Competing 🔁"}
           </p>
         </div>
 
-        <div className="bg-purple-300 rounded-lg p-4">
-          <p className="text-sm text-gray-800">Payment Due</p>
+        <div
+          className={` ${
+            isDarkMode
+              ? "bg-gray-700 text-gray-300"
+              : "bg-purple-300 text-gray-800"
+          }  rounded-lg p-4`}
+        >
+          <p className="text-sm ">Payment Due</p>
           <p className="font-semibold text-yellow-700">
             {hasDuePayment ? "Yes 🔔" : "No ✅"}
           </p>
