@@ -110,9 +110,6 @@ const Navbar = () => {
 
             {user?.email ? (
               <>
-                <Link to="/profile" className={getNavLinkClass("/profile")}>
-                  Profile
-                </Link>
                 <Link to="/dashboard" className={getNavLinkClass("/dashboard")}>
                   Dashboard
                 </Link>
@@ -225,13 +222,6 @@ const Navbar = () => {
 
             {user?.email ? (
               <>
-                <Link
-                  to="/profile"
-                  className={getNavLinkClass("/profile")}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Profile
-                </Link>
                 <Link
                   to="/dashboard"
                   className={getNavLinkClass("/dashboard")}

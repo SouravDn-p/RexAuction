@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useState, useContext, useEffect } from "react";
-import ThemeContext from "../../Context/ThemeContext";
+import ThemeContext from "../../component/Context/ThemeContext";
 
 export default function TermsAndConditionsBuyer() {
   const [accepted, setAccepted] = useState(false);
@@ -27,6 +27,18 @@ export default function TermsAndConditionsBuyer() {
     "Personal data will be protected under our privacy policy.",
     "Sellers may impose additional terms, which must be followed.",
     "Violation of any terms may result in account suspension or legal action.",
+    "Sellers must provide accurate descriptions and images of listed items.",
+    "All items must comply with legal and marketplace regulations.",
+    "Once an item receives a bid, sellers cannot withdraw the listing.",
+    "Sellers are responsible for packaging and shipping sold items within the specified timeframe.",
+    "Misrepresentation of products may lead to account suspension or legal action.",
+    "All transactions must be conducted through RexAuction's payment system.",
+    "RexAuction reserves the right to remove any listings that violate policies.",
+    "Sellers must honor the winning bid and complete the transaction as agreed.",
+    "Refunds and returns must follow the marketplace's stated policy.",
+    "Sellers are responsible for resolving disputes with buyers professionally.",
+    "Violation of any terms may result in suspension or termination of the seller account.",
+    "Personal and business data provided will be managed according to the privacy policy.",
   ];
 
   return (
@@ -39,7 +51,8 @@ export default function TermsAndConditionsBuyer() {
     >
       {/* Heading */}
       <h2 className="text-3xl lg:text-4xl font-bold text-purple-700 dark:text-purple-300 text-center mb-6">
-        Terms & Conditions for a Buyer
+        Terms & Conditions
+         {/* for a Buyer */}
       </h2>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -52,7 +65,9 @@ export default function TermsAndConditionsBuyer() {
         {/* Terms List with Scroll */}
         <div
           className={`h-64 lg:h-80 border p-4 rounded-md overflow-y-auto transition-colors duration-300 ${
-            isDarkMode ? "bg-gray-600 border-gray-600 " : "bg-gray-100"
+            isDarkMode
+              ? "bg-gray-600 border-gray-600 text-white "
+              : "bg-gray-100"
           }`}
         >
           {terms.map((term, index) => (
@@ -66,7 +81,11 @@ export default function TermsAndConditionsBuyer() {
               <span className="mr-2 text-purple-700 dark:text-purple-400 font-bold">
                 •
               </span>
-              <p className="text-gray-700 dark:text-gray-200 text-sm lg:text-base">
+              <p
+                className={`${
+                  isDarkMode ? "text-white" : "text-gray-700"
+                } dark:text-gray-200 text-sm lg:text-base`}
+              >
                 {term}
               </p>
             </motion.div>

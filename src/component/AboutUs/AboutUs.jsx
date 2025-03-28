@@ -18,6 +18,8 @@ import {
 import { FaGavel, FaGlobe, FaShieldAlt, FaUserCheck } from "react-icons/fa";
 import { FiBell, FiFileText, FiGrid } from "react-icons/fi";
 import ThemeContext from "../Context/ThemeContext";
+import { AuthContexts } from "../../providers/AuthProvider";
+import { Link } from "react-router-dom";
 
 const AboutUs = () => {
   const carouselSettings = {
@@ -32,6 +34,7 @@ const AboutUs = () => {
   };
 
   const { isDarkMode } = useContext(ThemeContext);
+  const { user } = useContext(AuthContexts);
 
   const darkModeStyles = {
     backgroundColor: isDarkMode ? "#1a1a1a" : "",
@@ -407,39 +410,41 @@ const AboutUs = () => {
       </div>
 
       {/* CTA Section */}
-      <div
-        className={`${
-          isDarkMode ? "bg-gray-800" : "bg-purple-100"
-        } py-16 text-center`}
-      >
-        <h2
-          className={`text-2xl md:text-3xl font-bold mb-4 ${
-            isDarkMode ? "text-white" : "text-black"
-          }`}
+      {!user && (
+        <div
+          className={`${
+            isDarkMode ? "bg-gray-800" : "bg-purple-100"
+          } py-16 text-center`}
         >
-          Ready to Get Started?
-        </h2>
-        <div className="flex flex-col md:flex-row justify-center gap-4 mt-6">
-          <button className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-lg transition">
-            Join as Buyer
-          </button>
-          <button className="bg-purple-700 hover:bg-purple-800 text-white px-6 py-3 rounded-lg transition">
-            Start Selling
-          </button>
-        </div>
-        <div className="mt-4">
-          <a
-            href="#"
-            className={`underline text-sm ${
-              isDarkMode
-                ? "text-purple-400 hover:text-purple-300"
-                : "text-purple-600 hover:text-purple-800"
+          <h2
+            className={`text-2xl md:text-3xl font-bold mb-4 ${
+              isDarkMode ? "text-white" : "text-black"
             }`}
           >
-            Learn More
-          </a>
+            Ready to Get Started?
+          </h2>
+          <div className="flex flex-col md:flex-row justify-center gap-4 mt-6">
+            <button className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-lg transition">
+              Join as Buyer
+            </button>
+            <button className="bg-purple-700 hover:bg-purple-800 text-white px-6 py-3 rounded-lg transition">
+              Start Selling
+            </button>
+          </div>
+          <div className="mt-4">
+            <Link
+              to="/terms"
+              className={`underline text-sm ${
+                isDarkMode
+                  ? "text-purple-400 hover:text-purple-300"
+                  : "text-purple-600 hover:text-purple-800"
+              }`}
+            >
+              Terms And Condition
+            </Link>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

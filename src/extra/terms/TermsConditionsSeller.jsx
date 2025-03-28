@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useState, useContext, useEffect } from "react";
-import ThemeContext from "../../Context/ThemeContext";
+import ThemeContext from "../../component/Context/ThemeContext";
 
 export default function TermsAndConditionsSeller() {
   const [accepted, setAccepted] = useState(false);
@@ -39,7 +39,7 @@ export default function TermsAndConditionsSeller() {
     >
       {/* Heading */}
       <h2 className="text-3xl lg:text-4xl font-bold text-purple-700 dark:text-purple-300 text-center mb-6">
-        Terms & Conditions for a Seller
+        Terms & Conditions for a Buyer
       </h2>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -52,7 +52,9 @@ export default function TermsAndConditionsSeller() {
         {/* Terms List with Scroll */}
         <div
           className={`h-64 lg:h-80 border p-4 rounded-md overflow-y-auto transition-colors duration-300 ${
-            isDarkMode ? "bg-gray-600 border-gray-600 " : "bg-gray-100"
+            isDarkMode
+              ? "bg-gray-600 border-gray-600 text-white "
+              : "bg-gray-100"
           }`}
         >
           {terms.map((term, index) => (
@@ -66,7 +68,11 @@ export default function TermsAndConditionsSeller() {
               <span className="mr-2 text-purple-700 dark:text-purple-400 font-bold">
                 •
               </span>
-              <p className="text-gray-700 dark:text-gray-200 text-sm lg:text-base">
+              <p
+                className={`${
+                  isDarkMode ? "text-white" : "text-gray-700"
+                } dark:text-gray-200 text-sm lg:text-base`}
+              >
                 {term}
               </p>
             </motion.div>

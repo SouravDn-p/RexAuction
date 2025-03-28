@@ -4,7 +4,11 @@ import { AiOutlineInteraction } from "react-icons/ai";
 import { CgProfile } from "react-icons/cg";
 import { CiSquareQuestion, CiUser } from "react-icons/ci";
 import { FaHome } from "react-icons/fa";
-import { MdHistory, MdManageAccounts, MdOutlineDashboard } from "react-icons/md";
+import {
+  MdHistory,
+  MdManageAccounts,
+  MdOutlineDashboard,
+} from "react-icons/md";
 import { RiAuctionLine } from "react-icons/ri";
 import { TfiAnnouncement } from "react-icons/tfi";
 import { NavLink } from "react-router-dom";
@@ -61,8 +65,7 @@ const Sidebar = () => {
             <img
               className="w-12 h-12 rounded-full border-2 border-pink-400 p-0.5"
               src={
-                user?.photoURL ||
-                "https://i.ibb.co.com/Y75m1Mk9/Final-Boss.jpg"
+                user?.photoURL || "https://i.ibb.co.com/Y75m1Mk9/Final-Boss.jpg"
               }
               alt=""
             />
