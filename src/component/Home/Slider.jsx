@@ -1,74 +1,93 @@
-import { Navigation, Pagination } from "swiper/modules";
-import { animate } from "https://cdn.jsdelivr.net/npm/motion@11.11.13/+esm";
-import { Swiper, SwiperSlide } from "swiper/react";
+import React from 'react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Autoplay, Pagination } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/pagination';
+import 'swiper/css/autoplay';
+import Lottie from 'lottie-react';
+import celebrationAnimation from '../../assets/Lotties/celebrate.json'; // You'll need to import your Lottie JSON file
 
-// Import Swiper styles
-import "swiper/css";
-import "swiper/css/pagination";
-
-import { useEffect } from "react";
 const Slider = () => {
-  useEffect(() => {
-    animate(".box", { opacity: 1, rotate: 360 }, { duration: 1 });
-  }, []);
+  const banners = [
+    {
+      id: 1,
+      img: 'https://i.ibb.co.com/Z1K8Y0kW/Untitled-design-33.jpg',
+      alt: 'Banner 1'
+    },
+    {
+      id: 2,
+      img: 'https://i.ibb.co.com/B28vwn2h/Untitled-design-36.jpg',
+      alt: 'Banner 2'
+    },
+    {
+      id: 3,
+      img: 'https://i.ibb.co.com/Pvc4sVfL/Untitled-design-35.jpg',
+      alt: 'Banner 3'
+    }
+  ];
+
   return (
-    <div>
+    <div className="relative w-full">
       <Swiper
-        spaceBetween={200}
-        centeredSlides={true}
+        modules={[Autoplay, Pagination]} 
+        spaceBetween={0}
         slidesPerView={1}
+        autoplay={{
+          delay: 3000, 
+          disableOnInteraction: false,
+        }}
         pagination={{
           clickable: true,
+          dynamicBullets: true,
         }}
-        navigation={false}
-        modules={[Pagination, Navigation]}
+        className="h-[55vh] sm:h-[65vh] md:h-[75vh] lg:h-[90vh] w-full"
       >
-        <SwiperSlide>
-          <div>
-            <img
-              className="h-80 md:h-1/3 object-contain"
-              src="https://i.ibb.co.com/jvKJ82Qs/rex-auction.png"
-              alt=""
-            />
-            <div className="rounded-2xl shadow-lg max-w-4xl mx-auto focus:ring-2 border border-gray-300 absolute top-[83.33%] left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-              <div className="flex items-center p-2 rounded-2xl shadow-md">
-                {/* Search Input */}
-                <input
-                  type="text"
-                  placeholder="Search goods or services here..."
-                  className="flex-grow bg-gray-300 p-3 outline-none text-white rounded-l-2xl search-placeholder"
-                />
-
-                {/* Dropdown */}
-                <select className="bg-gray-100 px-2 p-3 border-l border-gray-300 text-gray-700">
-                  <option>All Categories</option>
-                  <option>Electronics</option>
-                  <option>Real Estate</option>
-                  <option>Luxury Cars</option>
-                </select>
-
-                {/* Search Button */}
-                <button className="bg-gradient-to-r from-purple-600 via-violet-700 to-purple-800 hover:bg-purple-800 text-white px-5 py-3 rounded-r-lg">
-                  Search Now!
-                </button>
+        {banners.map((banner) => (
+          <SwiperSlide key={banner.id}>
+            <div className="relative h-full w-full overflow-hidden">
+              <img
+                src={banner.img}
+                alt={banner.alt}
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+              
+              {/* Glowing yellow circles */}
+              <div className="absolute inset-0">
+                <div className="absolute top-1/4 left-1/4 w-20 h-20 rounded-full bg-yellow-400 opacity-50 filter blur-xl animate-pulse"></div>
+                <div className="absolute bottom-1/3 right-1/4 w-16 h-16 rounded-full bg-yellow-400 opacity-50 filter blur-xl animate-pulse delay-300"></div>
+                <div className="absolute top-1/3 right-1/3 w-24 h-24 rounded-full bg-yellow-400 opacity-40 filter blur-xl animate-pulse delay-500"></div>
+              </div>
+              
+              {/* Content overlay */}
+              <div className="absolute inset-0 bg-black/50 flex items-center justify-left">
+                <div className="text-left px-4 ml-4 md:ml-10 lg:ml-20 text-white relative z-10">
+                  <h1 className="text-xl md:text-5xl lg:text-4xl font-bold mb-4 text-yellow-400">
+                    EID SPECIAL AUCTIONS
+                  </h1>
+                  <p className="text-xs md:text-xl lg:text-xl mb-6 max-w-xs lg:max-w-md">
+                    Celebrate Eid with exciting auctions! Our Eid Special Auctions bring you exclusive deals, rare collectibles, and premium items at unbeatable prices.
+                  </p>
+                  
+                  {/* 50% offer with Lottie animation */}
+                  <div className="relative inline-block">
+                    <div className="bg-red-600 text-white text-sm md:text-base lg:text-lg px-4 py-2 rounded-full animate-pulse relative z-20">
+                      🎉 50% DISCOUNT ON BECOMING A SELLER 🎉
+                    </div>
+                    <div className="absolute -top-20 -left-10 w-40 h-40 z-10 pointer-events-none">
+                      <Lottie 
+                        animationData={celebrationAnimation} 
+                        loop={true}
+                        autoplay={true}
+                        style={{ width: '100%', height: '100%' }}
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </SwiperSlide>
-        <SwiperSlide>
-          <img
-            className="h-80 md:h-1/3 object-contain"
-            src="https://i.ibb.co.com/S4CMgd9J/rex-auction.png"
-            alt=""
-          />
-        </SwiperSlide>
-        <SwiperSlide>
-          <img
-            className=" h-80 md:h-1/3 object-contain"
-            src="https://i.ibb.co.com/d4PQcWSn/Buy-Now.png"
-            alt=""
-          />
-        </SwiperSlide>
+          </SwiperSlide>
+        ))}
       </Swiper>
     </div>
   );
