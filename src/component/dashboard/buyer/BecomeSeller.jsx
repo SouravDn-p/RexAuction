@@ -5,6 +5,7 @@ import { toast } from "react-hot-toast";
 import useAxiosPublic from "../../../hooks/useAxiosPublic";
 import { AuthContexts } from "../../../providers/AuthProvider";
 import ThemeContext from "../../Context/ThemeContext";
+import { Link } from "react-router-dom";
 
 const image_hosting_key = import.meta.env.VITE_IMAGE_HOSTING_KEY;
 const image_hosting_api = `https://api.imgbb.com/1/upload?key=${image_hosting_key}`;
@@ -162,8 +163,7 @@ const BecomeSeller = () => {
 
             <div className="w-1/2">
               <label className="block text-sm font-medium mb-1">
-                Select Verification {" "}
-                <span className="text-red-500">*</span>
+                Select Verification <span className="text-red-500">*</span>
               </label>
               <select
                 {...register("documentType", {
@@ -231,9 +231,9 @@ const BecomeSeller = () => {
             />
             <label className="text-sm">
               I agree to the{" "}
-              <a href="#" className="text-purple-600 underline">
+              <Link to={`/terms`} className="text-purple-600 underline">
                 Terms and Conditions
-              </a>
+              </Link>
             </label>
           </div>
           {errors.termsAccepted && (

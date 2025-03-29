@@ -4,7 +4,11 @@ import { AiOutlineInteraction } from "react-icons/ai";
 import { CgProfile } from "react-icons/cg";
 import { CiSquareQuestion, CiUser } from "react-icons/ci";
 import { FaHome } from "react-icons/fa";
-import { MdHistory, MdManageAccounts, MdOutlineDashboard } from "react-icons/md";
+import {
+  MdHistory,
+  MdManageAccounts,
+  MdOutlineDashboard,
+} from "react-icons/md";
 import { RiAuctionLine } from "react-icons/ri";
 import { TfiAnnouncement } from "react-icons/tfi";
 import { NavLink } from "react-router-dom";
@@ -61,8 +65,7 @@ const Sidebar = () => {
             <img
               className="w-12 h-12 rounded-full border-2 border-pink-400 p-0.5"
               src={
-                user?.photoURL ||
-                "https://i.ibb.co.com/Y75m1Mk9/Final-Boss.jpg"
+                user?.photoURL || "https://i.ibb.co.com/Y75m1Mk9/Final-Boss.jpg"
               }
               alt=""
             />
@@ -574,6 +577,34 @@ const Sidebar = () => {
                   }`}
                 >
                   Announcements
+                </span>
+              </NavLink>
+              <NavLink
+                to="/dashboard/createAuction"
+                className={({ isActive }) =>
+                  `flex items-center gap-3 py-2.5 px-3 rounded-lg transition-all duration-200 ${
+                    isActive
+                      ? isDarkMode
+                        ? "bg-emerald-700/60 text-white font-bold shadow-md"
+                        : "bg-blue-500 text-white font-bold shadow-md"
+                      : isDarkMode
+                      ? "hover:bg-emerald-800/40 text-emerald-100"
+                      : "hover:bg-blue-400 text-white"
+                  }`
+                }
+              >
+                <AiOutlineInteraction
+                  size={20}
+                  className={`${
+                    isDarkMode ? "text-emerald-300" : "text-blue-700"
+                  }`}
+                />
+                <span
+                  className={`${
+                    isDarkMode ? "text-emerald-300" : "text-blue-700"
+                  }`}
+                >
+                  Create Auction
                 </span>
               </NavLink>
               <NavLink

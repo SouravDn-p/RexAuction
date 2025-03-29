@@ -1,9 +1,8 @@
 import Swal from "sweetalert2";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import useAuth from "../../../hooks/useAuth";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import axios from "axios";
-import { useCallback } from "react";
 import ThemeContext from "../../Context/ThemeContext";
 
 const apiKey = import.meta.env.VITE_IMAGE_HOSTING_KEY;
@@ -11,17 +10,13 @@ const imageHostingApi = `https://api.imgbb.com/1/upload?key=${apiKey}`;
 
 export default function CreateAuction() {
   const axiosSecure = useAxiosSecure();
-  const auth = useAuth();
-  const categories = [
-    "Electronics",
-    "Antiques",
-    "Vehicles",
-    "Furniture",
-    "Jewelry",
-  ];
-  const { isDarkMode } = useCallback(ThemeContext);
+  const { user } = useAuth();
+  const { isDarkMode } = useContext(ThemeContext);
   const [selectedImages, setSelectedImages] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const categories = ["Electronics", "Antiques", "Vehicles", "Furniture", "Jewelry"];
+  const conditions = ["New", "Like New", "Good", "Fair", "Poor"];
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
@@ -44,8 +39,18 @@ export default function CreateAuction() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    const form = new FormData(e.target);
+    
+    // Show progress popup
+    Swal.fire({
+      title: "Creating Auction",
+      text: "Please wait while we process your auction...",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
 
+    const form = new FormData(e.target);
     const startTime = new Date(form.get("startTime"));
     const endTime = new Date(form.get("endTime"));
 
@@ -66,9 +71,13 @@ export default function CreateAuction() {
       startTime,
       endTime,
       description: form.get("description"),
+      condition: form.get("condition"),
+      itemYear: form.get("itemYear"),
       status: "pending",
-      sellerEmail: auth?.user?.email,
+      sellerDisplayName: user?.displayName,
+      sellerEmail: user?.email,
       images: [],
+      topBidders: [],
     };
 
     try {
@@ -151,7 +160,6 @@ export default function CreateAuction() {
                 required
               />
             </div>
-
             <div className="w-1/2">
               <label
                 className={`block text-sm font-medium ${
@@ -179,8 +187,58 @@ export default function CreateAuction() {
             </div>
           </div>
 
+          <div className="flex space-x-4">
+            <div className="w-1/2">
+              <label
+                className={`block text-sm font-medium ${
+                  Viscount
+                    ? "text-purple-300"
+                    : "text-purple-700"
+                } mb-1`}
+              >
+                Condition:
+              </label>
+              <select
+                name="condition"
+                className={`w-full border ${
+                  isDarkMode
+                    ? "border-gray-700 bg-gray-500 text-white"
+                    : "border-gray-300 bg-gray-300 text-black"
+                } rounded-lg px-4 py-2`}
+                required
+              >
+                <option value="">Select Condition</option>
+                {conditions.map((cond) => (
+                  <option key={cond} value={cond}>
+                    {cond}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="w-1/2">
+              <label
+                className={`block text-sm font-medium ${
+                  isDarkMode ? "text-purple-300" : "text-purple-700"
+                } mb-1`}
+              >
+                Item Year:
+              </label>
+              <input
+                type="number"
+                name="itemYear"
+                min="1900"
+                max={new Date().getFullYear()}
+                className={`w-full border ${
+                  isDarkMode
+                    ? "border-gray-700 bg-gray-500 text-white"
+                    : "border-gray-300 bg-gray-300 text-black"
+                } rounded-lg px-4 py-2`}
+                required
+              />
+            </div>
+          </div>
+
           <div className="flex gap-4">
-            {/* Left Side: Image Upload */}
             <div className="w-1/2">
               <label
                 className={`block text-sm font-medium ${
@@ -189,9 +247,8 @@ export default function CreateAuction() {
               >
                 Upload Images (Multiple):
               </label>
-
-              <label className="flex flex-col py-5 items-center justify-center w-full h-10  border border-dashed rounded-lg cursor-pointer  hover:bg-gray-100 bg-white dark:border-gray-600 dark:hover:bg-gray-200 transition text-xs ">
-                <div className="flex flex-col  items-center justify-center"></div>
+              <label className="flex flex-col py-5 items-center justify-center w-full h-10 border border-dashed rounded-lg cursor-pointer hover:bg-gray-100 bg-white dark:border-gray-600 dark:hover:bg-gray-200 transition text-xs">
+                <div className="flex flex-col items-center justify-center"></div>
                 <input
                   type="file"
                   multiple
@@ -205,7 +262,6 @@ export default function CreateAuction() {
                   required
                 />
               </label>
-
               {selectedImages.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-3">
                   {selectedImages.map((image, index) => (
@@ -219,8 +275,6 @@ export default function CreateAuction() {
                 </div>
               )}
             </div>
-
-            {/* Right Side: Starting Price */}
             <div className="w-1/2">
               <label
                 className={`block text-sm font-medium ${
@@ -262,7 +316,6 @@ export default function CreateAuction() {
                 required
               />
             </div>
-
             <div className="w-1/2">
               <label
                 className={`block text-sm font-medium ${

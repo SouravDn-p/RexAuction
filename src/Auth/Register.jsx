@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { updateProfile } from "firebase/auth";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -11,6 +11,8 @@ import useAxiosPublic from "../hooks/useAxiosPublic";
 
 const Register = () => {
   const { createUser } = useAuth();
+  const location = useLocation();
+  const isRegister = location.pathname.includes("register");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -20,7 +22,7 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const axiosPublic =useAxiosPublic()
+  const axiosPublic = useAxiosPublic();
   const navigate = useNavigate();
 
   // Password validation criteria
@@ -90,7 +92,7 @@ const Register = () => {
   };
 
   return (
-    <div className="flex justify-center items-center lg:p-16 bg-gray-100">
+    <div className="flex justify-center items-center p-12 sm:p-8 md:p-12 bg-gray-100 min-h-screen">
       <div className="flex flex-col md:flex-row bg-white lg:rounded-lg shadow-lg max-w-4xl w-full overflow-hidden">
         <div
           className="w-full lg:h-[460px] h-[200px] md:w-1/2 bg-cover bg-center bg-no-repeat flex flex-col justify-center items-center text-black p-8"
@@ -103,13 +105,15 @@ const Register = () => {
           <div className="flex mb-4 gap-2">
             <NavLink
               to="/login"
-              className="w-1/2 py-2 border border-purple-600 text-purple-600 font-semibold text-center rounded-md hover:bg-purple-600 hover:text-white transition-all"
+              className={`w-1/2 py-2 border border-purple-600 text-purple-600 font-semibold text-center rounded-md hover:bg-purple-600 hover:text-white transition-all  `}
             >
               Log In
             </NavLink>
             <NavLink
               to="/register"
-              className="w-1/2 py-2 border border-orange-500 text-orange-500 font-semibold text-center rounded-md hover:bg-orange-500 hover:text-white transition-all"
+              className={`w-1/2 py-2 border border-orange-500 text-orange-500 font-semibold text-center rounded-md hover:bg-orange-500 hover:text-white transition-all ${
+                isRegister ? "bg-orange-500 text-white" : ""
+              }`}
             >
               Register
             </NavLink>
