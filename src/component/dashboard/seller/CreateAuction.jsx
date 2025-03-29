@@ -15,7 +15,13 @@ export default function CreateAuction() {
   const [selectedImages, setSelectedImages] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const categories = ["Electronics", "Antiques", "Vehicles", "Furniture", "Jewelry"];
+  const categories = [
+    "Electronics",
+    "Antiques",
+    "Vehicles",
+    "Furniture",
+    "Jewelry",
+  ];
   const conditions = ["New", "Like New", "Good", "Fair", "Poor"];
 
   const handleFileChange = (e) => {
@@ -39,7 +45,7 @@ export default function CreateAuction() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
+
     // Show progress popup
     Swal.fire({
       title: "Creating Auction",
@@ -78,6 +84,7 @@ export default function CreateAuction() {
       sellerEmail: user?.email,
       images: [],
       topBidders: [],
+      history: form.get("history"),
     };
 
     try {
@@ -119,14 +126,14 @@ export default function CreateAuction() {
 
   return (
     <div
-      className={`flex justify-center min-h-screen items-center ${
+      className={`flex justify-center min-h-screen  items-center ${
         isDarkMode
           ? "bg-gray-900 text-white"
           : "bg-gradient-to-b from-purple-100 via-white to-purple-50 text-black"
       }`}
     >
       <div
-        className={`max-w-xl p-8 mx-auto ${
+        className={`max-w-xl p-8 mx-auto w-full ${
           isDarkMode
             ? "bg-gray-800"
             : "bg-gradient-to-b from-white via-purple-50 to-white"
@@ -152,10 +159,11 @@ export default function CreateAuction() {
               <input
                 type="text"
                 name="name"
+                placeholder="name"
                 className={`w-full border ${
                   isDarkMode
-                    ? "border-gray-700 bg-gray-500 text-white"
-                    : "border-gray-300 bg-gray-300 text-black"
+                    ? "border-gray-700 bg-gray-500 text-white placeholder-white "
+                    : "border-gray-300 bg-gray-300 text-black placeholder-black "
                 } rounded-lg px-4 py-2`}
                 required
               />
@@ -191,9 +199,7 @@ export default function CreateAuction() {
             <div className="w-1/2">
               <label
                 className={`block text-sm font-medium ${
-                  Viscount
-                    ? "text-purple-300"
-                    : "text-purple-700"
+                  isDarkMode ? "text-purple-300" : "text-purple-700"
                 } mb-1`}
               >
                 Condition:
@@ -202,8 +208,8 @@ export default function CreateAuction() {
                 name="condition"
                 className={`w-full border ${
                   isDarkMode
-                    ? "border-gray-700 bg-gray-500 text-white"
-                    : "border-gray-300 bg-gray-300 text-black"
+                    ? "border-gray-700 bg-gray-500 text-white "
+                    : "border-gray-300 bg-gray-300 text-black "
                 } rounded-lg px-4 py-2`}
                 required
               >
@@ -226,12 +232,13 @@ export default function CreateAuction() {
               <input
                 type="number"
                 name="itemYear"
-                min="1900"
+                min="1000"
+                placeholder="year"
                 max={new Date().getFullYear()}
                 className={`w-full border ${
                   isDarkMode
-                    ? "border-gray-700 bg-gray-500 text-white"
-                    : "border-gray-300 bg-gray-300 text-black"
+                    ? "border-gray-700 bg-gray-500 text-white placeholder-white"
+                    : "border-gray-300 bg-gray-300 text-black placeholder-black"
                 } rounded-lg px-4 py-2`}
                 required
               />
@@ -256,8 +263,8 @@ export default function CreateAuction() {
                   onChange={handleFileChange}
                   className={`w-full rounded-lg border p-1 ${
                     isDarkMode
-                      ? "border-gray-700 bg-gray-500 file:bg-purple-600 file:text-white"
-                      : "border-gray-300 bg-gray-300"
+                      ? "border-gray-700 bg-gray-500 file:bg-purple-600 file:text-white placeholder-white"
+                      : "border-gray-300 bg-gray-300 placeholder-black"
                   } file:border-none file:py-2 file:px-4 file:bg-purple-100 file:text-purple-700`}
                   required
                 />
@@ -286,10 +293,11 @@ export default function CreateAuction() {
               <input
                 type="number"
                 name="startingPrice"
+                placeholder=" Starting Price"
                 className={`w-full border ${
                   isDarkMode
-                    ? "border-gray-700 bg-gray-500 text-white"
-                    : "border-gray-300 bg-gray-300 text-black"
+                    ? "border-gray-700 bg-gray-500 text-white placeholder-white"
+                    : "border-gray-300 bg-gray-300 text-black placeholder-black"
                 } rounded-lg px-4 py-2`}
                 required
               />
@@ -347,10 +355,31 @@ export default function CreateAuction() {
             </label>
             <textarea
               name="description"
+              placeholder="description"
               className={`w-full border ${
                 isDarkMode
-                  ? "border-gray-700 bg-gray-500 text-white"
-                  : "border-gray-300 bg-gray-300 text-black"
+                  ? "border-gray-700 bg-gray-500 text-white placeholder-white"
+                  : "border-gray-300 bg-gray-300 text-black placeholder-black"
+              } rounded-lg px-4 py-2`}
+              rows="3"
+              required
+            ></textarea>
+          </div>
+          <div>
+            <label
+              className={`block text-sm font-medium ${
+                isDarkMode ? "text-purple-300" : "text-purple-700"
+              } mb-1`}
+            >
+              History:
+            </label>
+            <textarea
+              name="history"
+              placeholder="history"
+              className={`w-full border ${
+                isDarkMode
+                  ? "border-gray-700 bg-gray-500 text-white placeholder-white"
+                  : "border-gray-300 bg-gray-300 text-black placeholder-black "
               } rounded-lg px-4 py-2`}
               rows="3"
               required

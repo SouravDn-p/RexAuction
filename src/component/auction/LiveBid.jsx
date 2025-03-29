@@ -35,6 +35,7 @@ export default function LiveBid() {
 
   useEffect(() => {
     setLoading(true);
+    console.log(id);
     axiosPublic.get(`/auction/${id}`).then((res) => {
       console.log(res.data), setLiveBid(res.data);
     });
