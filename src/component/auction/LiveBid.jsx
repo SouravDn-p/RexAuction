@@ -90,7 +90,7 @@ export default function LiveBid() {
             </div>
             <h3 className="text-xl font-semibold pt-3">Description:</h3>
             <p className="text-gray-500 text-sm sm:text-base leading-relaxed">
-              {liveBid.description}
+              {liveBid?.description}
             </p>
           </div>
 
@@ -122,7 +122,7 @@ export default function LiveBid() {
               <div>
                 <h3 className="text-xl text-black font-semibold">John Doe</h3>
                 <h3 className="text-xl text-black font-semibold">
-                  {liveBid.sellerEmail}
+                  {liveBid?.sellerEmail}
                 </h3>
                 <p className="text-green-600 flex items-center">
                   <MdVerifiedUser className="mr-1" /> Verified seller
@@ -136,10 +136,8 @@ export default function LiveBid() {
         <div className="lg:w-1/3 w-full space-y-6">
           <div className="flex items-center gap-6">
             {/* Auction Timer */}
-            <div className="bg-white p-6 rounded-lg shadow-lg text-center transition transform hover:scale-105">
-              <p className="font-semibold text-xl text-gray-700">
-                Auction ends in
-              </p>
+            <div className="bg-white  p-6 rounded-lg shadow-lg text-center transition transform hover:scale-105">
+              <p className=" text-xl font-bold text-red-600">Ends in</p>
               <h3 className="font-bold text-3xl text-red-600">00:00:00</h3>
             </div>
 

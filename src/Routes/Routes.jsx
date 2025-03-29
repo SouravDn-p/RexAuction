@@ -34,6 +34,7 @@ import Plan from "../component/Settings/Plan";
 import TermsAndConditionsBuyer from "../extra/terms/TermsConditionsBuyer";
 import TermsAndConditionsSeller from "../extra/terms/TermsConditionsSeller";
 import useAxiosPublic from "../hooks/useAxiosPublic";
+import SdCreateAuction from "../component/dashboard/seller/SdCreateAuction";
 
 // import TeamSettings from "../component/Settings/TeamSettings";
 // import PlanSettings from "../component/Settings/PlanSettings";
@@ -117,6 +118,10 @@ export const router = createBrowserRouter([
       {
         path: "createAuction",
         element: <CreateAuction />,
+      },
+      {
+        path: "sdcreateAuction",
+        element: <SdCreateAuction />,
       },
       {
         path: "termsConditionsSeller",
