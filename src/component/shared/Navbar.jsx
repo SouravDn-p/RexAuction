@@ -74,7 +74,7 @@ const Navbar = () => {
               ? "bg-gray-900 bg-opacity-90 lg:backdrop-blur-md"
               : "bg-purple-600 bg-opacity-70 lg:backdrop-blur-md"
             : isDarkMode
-            ? "lg:bg-gray-900 border-b-0 bg-gray-900"
+            ? " border-b-0 "
             : "lg:bg-inherit border-b-0 bg-purple-600"
         }`}
       >
