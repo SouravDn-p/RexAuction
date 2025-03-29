@@ -16,6 +16,7 @@ const HotAuction = () => {
   const itemRefs = useRef([]);
   const axiosSecure = useAxiosSecure();
 
+  // Fetch auction data using React Query
   const { data: auctionData = [], isLoading, error } = useQuery({
     queryKey: ["auctionData"],
     queryFn: async () => {
@@ -24,8 +25,10 @@ const HotAuction = () => {
     },
   });
 
+  // Filter auctions with status 'Accepted'
   const acceptedAuctions = auctionData.filter((item) => item.status === "Accepted");
 
+  // Intersection Observer for animations
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -86,7 +89,7 @@ const HotAuction = () => {
           autoplay={{
             delay: 2500,
             disableOnInteraction: false,
-            pauseOnMouseEnter: true,
+            pauseOnMouseEnter: false,
           }}
           navigation
           modules={[Navigation, Autoplay]}
@@ -95,35 +98,28 @@ const HotAuction = () => {
           {acceptedAuctions.map((item, index) => (
             <SwiperSlide key={item._id || index}>
               <div
-                className={`group relative rounded-lg overflow-hidden transition-all duration-300 ${
+                className={`rounded-lg overflow-hidden transition-transform duration-500 ${
                   isDarkMode
                     ? "bg-gradient-to-r border-purple-400 border from-[#2c150c] to-[#32223f]"
                     : "bg-white"
-                } shadow-lg hover:shadow-xl hover:-translate-y-1`}
+                } shadow-lg`}
                 ref={(el) => (itemRefs.current[index] = el)}
                 data-index={index}
               >
-                {/* Image container with flash effect */}
-                <div className="w-full h-56 overflow-hidden relative">
+                {/* Auction Image */}
+                <div className="w-full h-56 overflow-hidden">
                   <img
-                    src={item.images?.[0] || "default-image-url"}
+                    src={item.images?.[0] || "default-image-url"} // Fallback to a default image
                     alt={item.name}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    className="w-full h-full object-cover"
                   />
-                  {/* Flash overlay (image only) */}
-                  <div
-                    className={`absolute inset-0 ${
-                      isDarkMode ? "bg-white" : "bg-black"
-                    } opacity-0 group-hover:opacity-50 group-hover:animate-flash pointer-events-none`}
-                  ></div>
                 </div>
 
-                {/* Rest of the card content */}
+                {/* Auction Details */}
                 <div className={`p-4 ${isDarkMode ? "text-white" : "text-gray-900"}`}>
-                  <h3 className="text-lg font-semibold mb-2 group-hover:text-purple-500 transition-colors">
-                    {item.name}
-                  </h3>
+                  <h3 className="text-lg font-semibold mb-2">{item.name}</h3>
 
+                  {/* Price and Time Left */}
                   <div className="flex justify-between items-center mb-4">
                     <p className="text-yellow-500 font-bold text-xl">${item.startingPrice}</p>
                     <span className="text-sm text-gray-500">
@@ -133,6 +129,7 @@ const HotAuction = () => {
 
                   <p className="text-sm text-gray-500 mb-4">Category: {item.category}</p>
 
+                  {/* Progress Bar */}
                   <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden mb-4">
                     <div
                       className={`bg-yellow-500 h-2 rounded-full progress-bar ${
@@ -144,10 +141,11 @@ const HotAuction = () => {
                     ></div>
                   </div>
 
+                  {/* Action Button */}
                   <div className="flex justify-between items-center">
                     <Link
                       to={`LiveBid`}
-                      className="w-full text-center bg-gradient-to-r from-purple-600 via-violet-700 to-purple-800 text-white py-2 rounded-lg hover:from-purple-500 hover:via-violet-600 hover:to-indigo-700 transition"
+                      className="w-full bg-gradient-to-r from-purple-600 via-violet-700 to-purple-800 text-white py-2 rounded-lg hover:from-purple-500 hover:via-violet-600 hover:to-indigo-700 transition"
                     >
                       Bid Now
                     </Link>
@@ -157,18 +155,6 @@ const HotAuction = () => {
             </SwiperSlide>
           ))}
         </Swiper>
-
-        {/* Animation styles */}
-        <style jsx global>{`
-          @keyframes flash {
-            0% { opacity: 0; }
-            20% { opacity: 0.3; }
-            100% { opacity: 0; }
-          }
-          .animate-flash {
-            animation: flash 0.6s ease-out;
-          }
-        `}</style>
       </div>
     </section>
   );
