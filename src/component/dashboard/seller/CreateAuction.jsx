@@ -4,13 +4,18 @@ import useAuth from "../../../hooks/useAuth";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import axios from "axios";
 import ThemeContext from "../../Context/ThemeContext";
+import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
+import { Player } from "@lottiefiles/react-lottie-player";
+import sellerAnimation from "../../../assets/Lotties/BecomeSeller.json";
+import SellerLandingPage from "../buyer/SellerLandingPage";
 
 const apiKey = import.meta.env.VITE_IMAGE_HOSTING_KEY;
 const imageHostingApi = `https://api.imgbb.com/1/upload?key=${apiKey}`;
 
 export default function CreateAuction() {
   const axiosSecure = useAxiosSecure();
-  const { user } = useAuth();
+  const { user, dbUser } = useAuth();
   const { isDarkMode } = useContext(ThemeContext);
   const [selectedImages, setSelectedImages] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -21,6 +26,7 @@ export default function CreateAuction() {
     "Vehicles",
     "Furniture",
     "Jewelry",
+    "Others",
   ];
   const conditions = ["New", "Like New", "Good", "Fair", "Poor"];
 
@@ -37,6 +43,15 @@ export default function CreateAuction() {
         text: "Some images exceed 5MB and were not added.",
         icon: "warning",
       });
+    }
+
+    if (validImages.length + selectedImages.length < 3) {
+      Swal.fire({
+        title: "Error",
+        text: "You must upload at least 3 images.",
+        icon: "error",
+      });
+      return;
     }
 
     setSelectedImages((prev) => [...prev, ...validImages]);
@@ -82,9 +97,12 @@ export default function CreateAuction() {
       status: "pending",
       sellerDisplayName: user?.displayName,
       sellerEmail: user?.email,
+      sellerPhotoUrl: dbUser?.photo,
       images: [],
       topBidders: [],
       history: form.get("history"),
+      bids: 0,
+      currentBid: 0,
     };
 
     try {
@@ -125,280 +143,286 @@ export default function CreateAuction() {
   };
 
   return (
-    <div
-      className={`flex justify-center min-h-screen  items-center ${
-        isDarkMode
-          ? "bg-gray-900 text-white"
-          : "bg-gradient-to-b from-purple-100 via-white to-purple-50 text-black"
-      }`}
-    >
-      <div
-        className={`max-w-xl p-8 mx-auto w-full ${
-          isDarkMode
-            ? "bg-gray-800"
-            : "bg-gradient-to-b from-white via-purple-50 to-white"
-        } shadow-xl rounded-xl mt-20`}
-      >
-        <h2
-          className={`text-2xl sm:text-3xl font-bold ${
-            isDarkMode ? "text-purple-300" : "text-purple-700"
-          } mb-6 text-center sm:text-left`}
+    <>
+      {dbUser.role == "seller" ? (
+        <div
+          className={`flex justify-center min-h-screen  items-center ${
+            isDarkMode
+              ? "bg-gray-900 text-white"
+              : "bg-gradient-to-b from-purple-100 via-white to-purple-50 text-black"
+          }`}
         >
-          Create New Auction
-        </h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex space-x-4">
-            <div className="w-1/2">
-              <label
-                className={`block text-sm font-medium ${
-                  isDarkMode ? "text-purple-300" : "text-purple-700"
-                } mb-1`}
-              >
-                Auction Name:
-              </label>
-              <input
-                type="text"
-                name="name"
-                placeholder="name"
-                className={`w-full border ${
-                  isDarkMode
-                    ? "border-gray-700 bg-gray-500 text-white placeholder-white "
-                    : "border-gray-300 bg-gray-300 text-black placeholder-black "
-                } rounded-lg px-4 py-2`}
-                required
-              />
-            </div>
-            <div className="w-1/2">
-              <label
-                className={`block text-sm font-medium ${
-                  isDarkMode ? "text-purple-300" : "text-purple-700"
-                } mb-1`}
-              >
-                Category:
-              </label>
-              <select
-                name="category"
-                className={`w-full border ${
-                  isDarkMode
-                    ? "border-gray-700 bg-gray-500 text-white"
-                    : "border-gray-300 bg-gray-300 text-black"
-                } rounded-lg px-4 py-2`}
-                required
-              >
-                <option value="">Select Category</option>
-                {categories.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div className="flex space-x-4">
-            <div className="w-1/2">
-              <label
-                className={`block text-sm font-medium ${
-                  isDarkMode ? "text-purple-300" : "text-purple-700"
-                } mb-1`}
-              >
-                Condition:
-              </label>
-              <select
-                name="condition"
-                className={`w-full border ${
-                  isDarkMode
-                    ? "border-gray-700 bg-gray-500 text-white "
-                    : "border-gray-300 bg-gray-300 text-black "
-                } rounded-lg px-4 py-2`}
-                required
-              >
-                <option value="">Select Condition</option>
-                {conditions.map((cond) => (
-                  <option key={cond} value={cond}>
-                    {cond}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="w-1/2">
-              <label
-                className={`block text-sm font-medium ${
-                  isDarkMode ? "text-purple-300" : "text-purple-700"
-                } mb-1`}
-              >
-                Item Year:
-              </label>
-              <input
-                type="number"
-                name="itemYear"
-                min="1000"
-                placeholder="year"
-                max={new Date().getFullYear()}
-                className={`w-full border ${
-                  isDarkMode
-                    ? "border-gray-700 bg-gray-500 text-white placeholder-white"
-                    : "border-gray-300 bg-gray-300 text-black placeholder-black"
-                } rounded-lg px-4 py-2`}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="flex gap-4">
-            <div className="w-1/2">
-              <label
-                className={`block text-sm font-medium ${
-                  isDarkMode ? "text-purple-300" : "text-purple-700"
-                } mb-1`}
-              >
-                Upload Images (Multiple):
-              </label>
-              <label className="flex flex-col py-5 items-center justify-center w-full h-10 border border-dashed rounded-lg cursor-pointer hover:bg-gray-100 bg-white dark:border-gray-600 dark:hover:bg-gray-200 transition text-xs">
-                <div className="flex flex-col items-center justify-center"></div>
-                <input
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className={`w-full rounded-lg border p-1 ${
-                    isDarkMode
-                      ? "border-gray-700 bg-gray-500 file:bg-purple-600 file:text-white placeholder-white"
-                      : "border-gray-300 bg-gray-300 placeholder-black"
-                  } file:border-none file:py-2 file:px-4 file:bg-purple-100 file:text-purple-700`}
-                  required
-                />
-              </label>
-              {selectedImages.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-3">
-                  {selectedImages.map((image, index) => (
-                    <img
-                      key={index}
-                      src={URL.createObjectURL(image)}
-                      alt={`Preview ${index}`}
-                      className="w-20 h-20 object-cover rounded border border-gray-300 shadow-sm"
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-            <div className="w-1/2">
-              <label
-                className={`block text-sm font-medium ${
-                  isDarkMode ? "text-purple-300" : "text-purple-700"
-                } mb-1`}
-              >
-                Starting Price ($):
-              </label>
-              <input
-                type="number"
-                name="startingPrice"
-                placeholder=" Starting Price"
-                className={`w-full border ${
-                  isDarkMode
-                    ? "border-gray-700 bg-gray-500 text-white placeholder-white"
-                    : "border-gray-300 bg-gray-300 text-black placeholder-black"
-                } rounded-lg px-4 py-2`}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="flex space-x-4">
-            <div className="w-1/2">
-              <label
-                className={`block text-sm font-medium ${
-                  isDarkMode ? "text-purple-300" : "text-purple-700"
-                } mb-1`}
-              >
-                Start Time:
-              </label>
-              <input
-                type="datetime-local"
-                name="startTime"
-                className={`w-full border ${
-                  isDarkMode
-                    ? "border-gray-700 bg-gray-500 text-white"
-                    : "border-gray-300 bg-gray-300 text-black"
-                } rounded-lg px-4 py-2`}
-                required
-              />
-            </div>
-            <div className="w-1/2">
-              <label
-                className={`block text-sm font-medium ${
-                  isDarkMode ? "text-purple-300" : "text-purple-700"
-                } mb-1`}
-              >
-                End Time:
-              </label>
-              <input
-                type="datetime-local"
-                name="endTime"
-                className={`w-full border ${
-                  isDarkMode
-                    ? "border-gray-700 bg-gray-500 text-white"
-                    : "border-gray-300 bg-gray-300 text-black"
-                } rounded-lg px-4 py-2`}
-                required
-              />
-            </div>
-          </div>
-
-          <div>
-            <label
-              className={`block text-sm font-medium ${
-                isDarkMode ? "text-purple-300" : "text-purple-700"
-              } mb-1`}
-            >
-              Description:
-            </label>
-            <textarea
-              name="description"
-              placeholder="description"
-              className={`w-full border ${
-                isDarkMode
-                  ? "border-gray-700 bg-gray-500 text-white placeholder-white"
-                  : "border-gray-300 bg-gray-300 text-black placeholder-black"
-              } rounded-lg px-4 py-2`}
-              rows="3"
-              required
-            ></textarea>
-          </div>
-          <div>
-            <label
-              className={`block text-sm font-medium ${
-                isDarkMode ? "text-purple-300" : "text-purple-700"
-              } mb-1`}
-            >
-              History:
-            </label>
-            <textarea
-              name="history"
-              placeholder="history"
-              className={`w-full border ${
-                isDarkMode
-                  ? "border-gray-700 bg-gray-500 text-white placeholder-white"
-                  : "border-gray-300 bg-gray-300 text-black placeholder-black "
-              } rounded-lg px-4 py-2`}
-              rows="3"
-              required
-            ></textarea>
-          </div>
-
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className={`w-full py-2 rounded-lg transition ${
-              isSubmitting
-                ? "bg-gray-400"
-                : "bg-purple-600 hover:bg-purple-700 text-white"
-            }`}
+          <div
+            className={`max-w-xl p-8 mx-auto w-10/12 md:w-full ${
+              isDarkMode
+                ? "bg-gray-800"
+                : "bg-gradient-to-b from-white via-purple-50 to-white"
+            } shadow-xl rounded-xl mt-20`}
           >
-            {isSubmitting ? "Creating..." : "Create Auction"}
-          </button>
-        </form>
-      </div>
-    </div>
+            <h2
+              className={`text-2xl sm:text-3xl font-bold ${
+                isDarkMode ? "text-purple-300" : "text-purple-700"
+              } mb-6 text-center sm:text-left`}
+            >
+              Create New Auction
+            </h2>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 ">
+                <div className=" ">
+                  <label
+                    className={`block text-sm font-medium ${
+                      isDarkMode ? "text-purple-300" : "text-purple-700"
+                    } mb-1`}
+                  >
+                    Auction Name:
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    placeholder="name"
+                    className={`w-full border ${
+                      isDarkMode
+                        ? "border-gray-700 bg-gray-500 text-white placeholder-white "
+                        : "border-gray-300 bg-gray-300 text-black placeholder-black "
+                    } rounded-lg px-4 py-2`}
+                    required
+                  />
+                </div>
+                <div>
+                  <label
+                    className={`block text-sm font-medium ${
+                      isDarkMode ? "text-purple-300" : "text-purple-700"
+                    } mb-1`}
+                  >
+                    Category:
+                  </label>
+                  <select
+                    name="category"
+                    className={`w-full border ${
+                      isDarkMode
+                        ? "border-gray-700 bg-gray-500 text-white"
+                        : "border-gray-300 bg-gray-300 text-black"
+                    } rounded-lg px-4 py-2`}
+                    required
+                  >
+                    <option value="">Select Category</option>
+                    {categories.map((cat) => (
+                      <option key={cat} value={cat}>
+                        {cat}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 ">
+                <div>
+                  <label
+                    className={`block text-sm font-medium ${
+                      isDarkMode ? "text-purple-300" : "text-purple-700"
+                    } mb-1`}
+                  >
+                    Condition:
+                  </label>
+                  <select
+                    name="condition"
+                    className={`w-full border ${
+                      isDarkMode
+                        ? "border-gray-700 bg-gray-500 text-white "
+                        : "border-gray-300 bg-gray-300 text-black "
+                    } rounded-lg px-4 py-2`}
+                    required
+                  >
+                    <option value="">Select Condition</option>
+                    {conditions.map((cond) => (
+                      <option key={cond} value={cond}>
+                        {cond}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label
+                    className={`block text-sm font-medium ${
+                      isDarkMode ? "text-purple-300" : "text-purple-700"
+                    } mb-1`}
+                  >
+                    Item Year:
+                  </label>
+                  <input
+                    type="number"
+                    name="itemYear"
+                    min="1000"
+                    placeholder="year"
+                    max={new Date().getFullYear()}
+                    className={`w-full border ${
+                      isDarkMode
+                        ? "border-gray-700 bg-gray-500 text-white placeholder-white"
+                        : "border-gray-300 bg-gray-300 text-black placeholder-black"
+                    } rounded-lg px-4 py-2`}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div>
+                  <label
+                    className={`block text-sm font-medium ${
+                      isDarkMode ? "text-purple-300" : "text-purple-700"
+                    } mb-1`}
+                  >
+                    Upload Images ( at least 4 ) :
+                  </label>
+                  <label className="flex flex-col py-5 items-center justify-center w-full h-10 border border-dashed rounded-lg cursor-pointer hover:bg-gray-100 bg-white dark:border-gray-600 dark:hover:bg-gray-200 transition text-xs">
+                    <div className="flex flex-col items-center justify-center"></div>
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className={`w-full rounded-lg border p-1 ${
+                        isDarkMode
+                          ? "border-gray-700 bg-gray-500 file:bg-purple-600 file:text-white placeholder-white"
+                          : "border-gray-300 bg-gray-300 placeholder-black"
+                      } file:border-none file:py-2 file:px-4 file:bg-purple-100 file:text-purple-700`}
+                      required
+                    />
+                  </label>
+                  {selectedImages.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      {selectedImages.map((image, index) => (
+                        <img
+                          key={index}
+                          src={URL.createObjectURL(image)}
+                          alt={`Preview ${index}`}
+                          className="w-20 h-20 object-cover rounded border border-gray-300 shadow-sm"
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <label
+                    className={`block text-sm font-medium ${
+                      isDarkMode ? "text-purple-300" : "text-purple-700"
+                    } mb-1`}
+                  >
+                    Starting Price ($):
+                  </label>
+                  <input
+                    type="number"
+                    name="startingPrice"
+                    placeholder=" Starting Price"
+                    className={`w-full border ${
+                      isDarkMode
+                        ? "border-gray-700 bg-gray-500 text-white placeholder-white"
+                        : "border-gray-300 bg-gray-300 text-black placeholder-black"
+                    } rounded-lg px-4 py-2`}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                <div>
+                  <label
+                    className={`block text-sm font-medium ${
+                      isDarkMode ? "text-purple-300" : "text-purple-700"
+                    } mb-1`}
+                  >
+                    Start Time:
+                  </label>
+                  <input
+                    type="datetime-local"
+                    name="startTime"
+                    className={`w-full border ${
+                      isDarkMode
+                        ? "border-gray-700 bg-gray-500 text-white"
+                        : "border-gray-300 bg-gray-300 text-black"
+                    } rounded-lg px-4 py-2`}
+                    required
+                  />
+                </div>
+                <div>
+                  <label
+                    className={`block text-sm font-medium ${
+                      isDarkMode ? "text-purple-300" : "text-purple-700"
+                    } mb-1`}
+                  >
+                    End Time:
+                  </label>
+                  <input
+                    type="datetime-local"
+                    name="endTime"
+                    className={`w-full border ${
+                      isDarkMode
+                        ? "border-gray-700 bg-gray-500 text-white"
+                        : "border-gray-300 bg-gray-300 text-black"
+                    } rounded-lg px-4 py-2`}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label
+                  className={`block text-sm font-medium ${
+                    isDarkMode ? "text-purple-300" : "text-purple-700"
+                  } mb-1`}
+                >
+                  Description:
+                </label>
+                <textarea
+                  name="description"
+                  placeholder="description"
+                  className={`w-full border ${
+                    isDarkMode
+                      ? "border-gray-700 bg-gray-500 text-white placeholder-white"
+                      : "border-gray-300 bg-gray-300 text-black placeholder-black"
+                  } rounded-lg px-4 py-2`}
+                  rows="3"
+                  required
+                ></textarea>
+              </div>
+              <div>
+                <label
+                  className={`block text-sm font-medium ${
+                    isDarkMode ? "text-purple-300" : "text-purple-700"
+                  } mb-1`}
+                >
+                  History:
+                </label>
+                <textarea
+                  name="history"
+                  placeholder="history"
+                  className={`w-full border ${
+                    isDarkMode
+                      ? "border-gray-700 bg-gray-500 text-white placeholder-white"
+                      : "border-gray-300 bg-gray-300 text-black placeholder-black "
+                  } rounded-lg px-4 py-2`}
+                  rows="3"
+                  required
+                ></textarea>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className={`w-full py-2 rounded-lg transition ${
+                  isSubmitting
+                    ? "bg-gray-400"
+                    : "bg-purple-600 hover:bg-purple-700 text-white"
+                }`}
+              >
+                {isSubmitting ? "Creating..." : "Create Auction"}
+              </button>
+            </form>
+          </div>
+        </div>
+      ) : (
+        <SellerLandingPage />
+      )}
+    </>
   );
 }

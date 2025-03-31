@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import img from "../../assets/LiveBidAuctionDetails.jpg";
 import { GiSelfLove } from "react-icons/gi";
 import { FaShare } from "react-icons/fa6";
@@ -15,6 +15,8 @@ export default function LiveBid() {
     useContext(AuthContexts);
   const axiosPublic = useAxiosPublic();
   const { id } = useParams();
+  const [countdowns, setCountdowns] = useState(null);
+
   const topBidders = [
     {
       name: "John Doe",
@@ -37,11 +39,40 @@ export default function LiveBid() {
     setLoading(true);
     console.log(id);
     axiosPublic.get(`/auction/${id}`).then((res) => {
-      console.log(res.data), setLiveBid(res.data);
+      setLiveBid(res.data);
     });
     setLoading(false);
   }, []);
 
+  useEffect(() => {
+    if (!liveBid || !liveBid.endTime) return;
+
+    const interval = setInterval(() => {
+      const endTime = new Date(liveBid.endTime).getTime();
+      const currentTime = new Date().getTime();
+      const remainingSecond = Math.floor((0, (endTime - currentTime) / 1000));
+      setCountdowns(remainingSecond);
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [liveBid]);
+
+  const formatTime = (seconds) => {
+    if (seconds <= 0) return "Ended";
+
+    const days = Math.floor(seconds / (24 * 60 * 60));
+    const hours = Math.floor((seconds % (24 * 60 * 60)) / (60 * 60));
+    const minutes = Math.floor((seconds % (60 * 60)) / 60);
+    const secs = seconds % 60;
+
+    if (days > 0) {
+      return `${days}d ${hours}h`;
+    } else if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    } else {
+      return `${minutes}m ${secs}s`;
+    }
+  };
   if (loading) {
     return LoadingSpinner;
   }
@@ -50,33 +81,26 @@ export default function LiveBid() {
     <div className="w-11/12 mx-auto mb-8 mt-24 bg-gray-50 p-6 rounded-xl shadow-lg ">
       <div className="flex flex-col lg:flex-row justify-between gap-8">
         {/* Left Side (Images & Details) */}
-        <div className="lg:w-2/3 w-full">
+        <div className="lg:w-2/3 w-full ">
           {/* Main Image */}
           <div className="w-full rounded-xl overflow-hidden shadow-md">
             <img
-              src={liveBid?.images}
-              className="w-full h-auto object-cover transition-transform hover:scale-105 duration-300"
+              src={liveBid?.images[0]}
+              className="w-full h-96 object-cover transition-transform hover:scale-105 duration-300"
               alt="Auction Item"
             />
           </div>
 
           {/* Thumbnail Images */}
-          <div className="grid grid-cols-3 gap-3 pt-3">
-            <img
-              src={img}
-              className="rounded-lg shadow-md hover:scale-105 transition"
-              alt="Thumbnail"
-            />
-            <img
-              src={img}
-              className="rounded-lg shadow-md hover:scale-105 transition"
-              alt="Thumbnail"
-            />
-            <img
-              src={img}
-              className="rounded-lg shadow-md hover:scale-105 transition"
-              alt="Thumbnail"
-            />
+          <div className="grid grid-cols-3 gap-3 pt-3 ">
+            {liveBid?.images.slice(1, 4).map((image, index) => (
+              <img
+                key={index}
+                src={image}
+                className="rounded-lg shadow-md hover:scale-105 transition h-56 w-full object-cover"
+                alt={`Thumbnail ${index + 1}`}
+              />
+            ))}
           </div>
 
           {/* Product Name & Description */}
@@ -99,19 +123,21 @@ export default function LiveBid() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-5 text-black font-semibold bg-white p-4 rounded-lg shadow-md">
             <div>
               <h3 className="text-gray-700">Condition:</h3>
-              <p className="text-gray-500">Good</p>
+              <p className="text-gray-500">{liveBid?.condition}</p>
             </div>
             <div>
               <h3 className="text-gray-700">Year</h3>
-              <p className="text-gray-500">1823</p>
+              <p className="text-gray-500"> {liveBid?.itemYear}</p>
             </div>
             <div>
               <h3 className="text-gray-700">Starting Price:</h3>
-              <p className="text-gray-500">$5000.00</p>
+              <p className="text-gray-500">$ {liveBid?.startingPrice}</p>
             </div>
             <div>
               <h3 className="text-gray-700">Reference</h3>
-              <p className="text-gray-500">#HHDDJ77</p>
+              <p className="text-gray-500">
+                # {liveBid?.reference ? liveBid?.reference : " None"}
+              </p>
             </div>
           </div>
 
@@ -119,9 +145,17 @@ export default function LiveBid() {
           <div className="pt-6">
             <h3 className="text-xl text-black font-semibold pb-2">Seller</h3>
             <div className="flex gap-3 items-center bg-white p-4 rounded-lg shadow-md">
-              <img src={img} className="w-16 h-16 rounded-full" alt="Seller" />
+              <img
+                src={liveBid?.sellerPhotoUrl}
+                className="w-16 h-16 rounded-full"
+                alt="Seller"
+              />
               <div>
-                <h3 className="text-xl text-black font-semibold">John Doe</h3>
+                <h3 className="text-xl text-black font-semibold">
+                  {liveBid?.sellerDisplayName
+                    ? liveBid?.sellerDisplayName
+                    : "User"}
+                </h3>
                 <h3 className="text-xl text-black font-semibold">
                   {liveBid?.sellerEmail}
                 </h3>
@@ -135,17 +169,23 @@ export default function LiveBid() {
 
         {/* Right Side (Bidding & Auction Info) */}
         <div className="lg:w-1/3 w-full space-y-6">
-          <div className="flex items-center gap-6">
+          <div className="grid grid-cols-2  items-center gap-6">
             {/* Auction Timer */}
-            <div className="bg-white  p-6 rounded-lg shadow-lg text-center transition transform hover:scale-105">
-              <p className=" text-xl font-bold text-red-600">Ends in</p>
-              <h3 className="font-bold text-3xl text-red-600">00:00:00</h3>
+            <div className="bg-white h-28 p-6 rounded-lg shadow-lg text-center transition transform hover:scale-105 flex justify-center items-center flex-col">
+              {formatTime(countdowns) === "Ended" || (
+                <p className=" text-xl font-bold text-red-600  ">Ends In</p>
+              )}
+              <h3 className="font-bold text-3xl text-red-600">
+                {formatTime(countdowns)}
+              </h3>
             </div>
 
             {/* Current Bid */}
-            <div className="border border-gray-200 bg-white text-black p-6 rounded-lg shadow-lg text-center transition transform hover:scale-105 flex-1">
+            <div className="border h-28 border-gray-200 bg-white text-black p-6 rounded-lg shadow-lg text-center transition transform hover:scale-105 flex-1">
               <p className="font-semibold text-xl text-gray-700">Current bid</p>
-              <h3 className="font-bold text-3xl text-purple-600">$8000.00</h3>
+              <h3 className="font-bold text-3xl text-purple-600">
+                $ {liveBid?.currentBid}
+              </h3>
             </div>
           </div>
 

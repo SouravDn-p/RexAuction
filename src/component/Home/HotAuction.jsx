@@ -34,39 +34,30 @@ const HotAuction = () => {
   useEffect(() => {
     if (!auctionData || auctionData.length === 0) return;
 
-    const initialCountdowns = {};
+    const interval = setInterval(() => {
+      const updatedCountdowns = {};
+      const acceptedAuctions = auctionData.filter(
+        (item) => item.status === "Accepted"
+      );
 
-    auctionData.forEach((item, index) => {
-      if (!item.timeLeft) return; // Ensure timeLeft exists
+      acceptedAuctions.forEach((item, index) => {
+        if (!item.endTime) return;
 
-      const timeString = item.timeLeft;
-      let totalSeconds = 0;
+        const endTime = new Date(item.endTime).getTime();
+        const currentTime = new Date().getTime();
+        const remainingSecond = Math.max(
+          0,
+          Math.floor((endTime - currentTime) / 1000)
+        );
 
-      if (timeString?.includes("d")) {
-        // Check if timeString is valid
-        const days = parseInt(timeString.split("d")[0]);
-        totalSeconds += days * 24 * 60 * 60;
+        console.log(auctionData[index]);
+        updatedCountdowns[index] = remainingSecond;
+      });
 
-        const hoursPart = timeString.split("d ")[1];
-        if (hoursPart && hoursPart.includes("h")) {
-          const hours = parseInt(hoursPart.split("h")[0]);
-          totalSeconds += hours * 60 * 60;
-        }
-      } else if (timeString?.includes("h")) {
-        const hours = parseInt(timeString.split("h")[0]);
-        totalSeconds += hours * 60 * 60;
+      setCountdowns(updatedCountdowns);
+    }, 1000);
 
-        const minutesPart = timeString.split("h ")[1];
-        if (minutesPart && minutesPart.includes("m")) {
-          const minutes = parseInt(minutesPart.split("m")[0]);
-          totalSeconds += minutes * 60;
-        }
-      }
-
-      initialCountdowns[index] = totalSeconds;
-    });
-
-    setCountdowns(initialCountdowns);
+    return () => clearInterval(interval);
   }, [auctionData]); // Added dependency
 
   // Filter auctions with status 'Accepted'
@@ -229,7 +220,7 @@ const HotAuction = () => {
                         </div>
                         <div className="flex items-center">
                           <FaGavel className="mr-1 text-violet-600" />
-                          <span>{item.bids} bids</span>
+                          <span>{item.bids || 0} bids</span>
                         </div>
                       </div>
                       <div className="flex justify-between items-center text-gray-400 text-sm my-2">

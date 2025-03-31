@@ -1,52 +1,22 @@
+"use client";
+
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import Swal from "sweetalert2";
-import { useState } from "react";
-import {
-  FaSearch,
-  FaSort,
-  FaSortUp,
-  FaSortDown,
-  FaSpinner,
-} from "react-icons/fa";
 
 function ManageTable() {
   const axiosSecure = useAxiosSecure();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [sortField, setSortField] = useState("startTime");
-  const [sortDirection, setSortDirection] = useState("desc");
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+  const [selectedAuction, setSelectedAuction] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const {
-    data: auctionsData = { auctions: [], totalCount: 0 },
-    refetch,
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: [
-      "auctionData",
-      currentPage,
-      sortField,
-      sortDirection,
-      searchTerm,
-    ],
+  const { data: auctions = [], refetch } = useQuery({
+    queryKey: ["auctionData"],
     queryFn: async () => {
-      const res = await axiosSecure.get("/auctions", {
-        params: {
-          page: currentPage,
-          limit: itemsPerPage,
-          sort: sortField,
-          order: sortDirection,
-          search: searchTerm,
-        },
-      });
-      return res.data || { auctions: [], totalCount: 0 };
+      const res = await axiosSecure.get("/auctions");
+      return res.data || [];
     },
   });
-
-  const auctions = auctionsData.auctions || [];
-  const totalPages = Math.ceil((auctionsData.totalCount || 0) / itemsPerPage);
 
   // Function to handle status update with confirmation
   const updateAuctionStatus = async (id, status) => {
@@ -71,6 +41,9 @@ function ManageTable() {
           text: `Auction ${status.toLowerCase()} successfully.`,
           icon: "success",
         });
+
+        // Close the modal after successful update
+        setIsModalOpen(false);
       }
     } catch (error) {
       Swal.fire({
@@ -82,228 +55,180 @@ function ManageTable() {
     }
   };
 
-  const handleSort = (field) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-    } else {
-      setSortField(field);
-      setSortDirection("asc");
-    }
+  const openDetailsModal = (auction) => {
+    setSelectedAuction(auction);
+    setIsModalOpen(true);
   };
-
-  const getSortIcon = (field) => {
-    if (sortField !== field) return <FaSort className="inline ml-1" />;
-    return sortDirection === "asc" ? (
-      <FaSortUp className="inline ml-1" />
-    ) : (
-      <FaSortDown className="inline ml-1" />
-    );
-  };
-
-  if (isLoading) {
-    return (
-      <div className="p-6 bg-gray-900 text-white flex justify-center items-center min-h-[400px]">
-        <FaSpinner className="animate-spin text-4xl text-blue-500" />
-      </div>
-    );
-  }
-
-  if (isError) {
-    return (
-      <div className="p-6 bg-gray-900 text-white">
-        <div className="bg-red-900 p-4 rounded-lg text-center">
-          <h2 className="text-xl font-bold">Error loading auctions</h2>
-          <p>Please try again later or contact support.</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="p-6 bg-gray-900 text-white">
       <h2 className="text-2xl font-bold mb-6">Manage Auctions</h2>
 
-      {/* Search and filters */}
-      <div className="mb-6 flex flex-col md:flex-row gap-4">
-        <div className="relative flex-grow">
-          <input
-            type="text"
-            placeholder="Search auctions..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-gray-800 border border-gray-700 rounded-lg py-2 px-4 pl-10 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-        </div>
+      <div className="overflow-x-auto rounded-lg">
+        <table className="min-w-full bg-gray-800 rounded-lg overflow-hidden">
+          <thead className="bg-gray-700">
+            <tr>
+              <th className="py-3 px-6 text-left">Photo</th>
+              {/* <th className="py-3 px-6 text-left">Email</th> */}
+              <th className="py-3 px-6 text-left">Auction Title</th>
+              <th className="py-3 px-6 text-left">Start Time</th>
+              <th className="py-3 px-6 text-left">End Time</th>
+              <th className="py-3 px-6 text-left">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {auctions.map((auction) => (
+              <tr
+                key={auction?._id}
+                className="hover:bg-gray-600 transition-colors"
+              >
+                <td><img src={auction?.images[0]} className="h-20 w-24 p-2 rounded" alt="" /></td>
+                {/* <td className="py-4 px-6">{auction?.images || "N/A"}</td> */}
+                {/* <td className="py-4 px-6">{auction?.sellerEmail}</td> */}
+                <td className="py-4 px-6">{auction.name}</td>
+                <td className="py-4 px-6">
+                  {new Date(auction.startTime).toLocaleString()}
+                </td>
+                <td className="py-4 px-6">
+                  {new Date(auction.endTime).toLocaleString()}
+                </td>
+                <td className="py-4 px-6">
+                  <button
+                    onClick={() => openDetailsModal(auction)}
+                    className="px-4 py-2 rounded bg-blue-500 hover:bg-blue-600 text-white"
+                  >
+                    Details
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
-      {auctions.length === 0 ? (
-        <div className="bg-gray-800 rounded-lg p-8 text-center">
-          <h3 className="text-xl font-semibold mb-2">No auctions found</h3>
-          <p className="text-gray-400">Try adjusting your search or filters</p>
-        </div>
-      ) : (
-        <>
-          <div className="overflow-x-auto rounded-lg">
-            <table className="min-w-full bg-gray-800 rounded-lg overflow-hidden">
-              <thead className="bg-gray-700">
-                <tr>
-                  <th className="py-3 px-6 text-left rounded-tl-lg">Image</th>
-                  <th
-                    className="py-3 px-6 text-left cursor-pointer"
-                    onClick={() => handleSort("name")}
-                  >
-                    Auction Name {getSortIcon("name")}
-                  </th>
-                  <th
-                    className="py-3 px-6 text-left cursor-pointer"
-                    onClick={() => handleSort("category")}
-                  >
-                    Category {getSortIcon("category")}
-                  </th>
-                  <th
-                    className="py-3 px-6 text-left cursor-pointer"
-                    onClick={() => handleSort("startingPrice")}
-                  >
-                    Starting Price {getSortIcon("startingPrice")}
-                  </th>
-                  <th
-                    className="py-3 px-6 text-left cursor-pointer"
-                    onClick={() => handleSort("startTime")}
-                  >
-                    Start Time {getSortIcon("startTime")}
-                  </th>
-                  <th
-                    className="py-3 px-6 text-left cursor-pointer"
-                    onClick={() => handleSort("status")}
-                  >
-                    Status {getSortIcon("status")}
-                  </th>
-                  <th className="py-3 px-6 text-left">User Email</th>
-                  <th className="py-3 px-6 text-left rounded-tr-lg">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {auctions.map((auction) => (
-                  <tr
-                    key={auction._id}
-                    className="hover:bg-gray-600 transition-colors"
-                  >
-                    <td className="py-4 px-6">
-                      <img
-                        src={auction.images?.[0] || "/placeholder.svg"}
-                        alt={auction.name}
-                        className="w-16 h-16 object-cover rounded"
-                      />
-                    </td>
-                    <td className="py-4 px-6">{auction.name}</td>
-                    <td className="py-4 px-6">{auction.category}</td>
-                    <td className="py-4 px-6">${auction.startingPrice}</td>
-                    <td className="py-4 px-6">
-                      {new Date(auction.startTime).toLocaleString()}
-                    </td>
-                    <td className="py-4 px-6">
-                      <span
-                        className={`px-2 py-1 rounded text-xs font-semibold ${
-                          auction.status === "Accepted"
-                            ? "bg-green-900 text-green-300"
-                            : auction.status === "Rejected"
-                            ? "bg-red-900 text-red-300"
-                            : "bg-yellow-900 text-yellow-300"
-                        }`}
-                      >
-                        {auction.status}
-                      </span>
-                    </td>
-                    <td className="py-4 px-6">{auction.sellerEmail}</td>
-                    <td className="py-4 px-6">
-                      <div className="flex space-x-4">
-                        {/* Accept Button */}
-                        <button
-                          onClick={() =>
-                            updateAuctionStatus(auction._id, "Accepted")
-                          }
-                          className={`px-4 py-2 rounded ${
-                            auction.status === "Accepted"
-                              ? "bg-gray-500 text-gray-300 cursor-not-allowed"
-                              : "bg-green-500 text-white hover:bg-green-600"
-                          }`}
-                          disabled={auction.status === "Accepted"}
-                        >
-                          Accept
-                        </button>
-                        {/* Reject Button */}
-                        <button
-                          onClick={() =>
-                            updateAuctionStatus(auction._id, "Rejected")
-                          }
-                          className={`px-4 py-2 rounded ${
-                            auction.status === "Rejected"
-                              ? "bg-gray-500 text-gray-300 cursor-not-allowed"
-                              : "bg-red-500 text-white hover:bg-red-600"
-                          }`}
-                          disabled={auction.status === "Rejected"}
-                        >
-                          Reject
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="mt-6 flex justify-center">
-              <div className="flex space-x-2">
+      {/* Custom Modal Dialog */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-gray-800 text-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="border-b border-gray-700 p-4">
+              <div className="flex justify-between items-center">
+                <h3 className="text-xl font-bold">
+                  Auction Details: {selectedAuction.name}
+                </h3>
                 <button
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.max(prev - 1, 1))
-                  }
-                  disabled={currentPage === 1}
-                  className={`px-4 py-2 rounded ${
-                    currentPage === 1
-                      ? "bg-gray-700 text-gray-500 cursor-not-allowed"
-                      : "bg-gray-700 text-white hover:bg-gray-600"
-                  }`}
+                  onClick={() => setIsModalOpen(false)}
+                  className="text-gray-400 hover:text-white"
                 >
-                  Previous
-                </button>
-
-                <div className="flex space-x-1">
-                  {[...Array(totalPages).keys()].map((page) => (
-                    <button
-                      key={page + 1}
-                      onClick={() => setCurrentPage(page + 1)}
-                      className={`px-4 py-2 rounded ${
-                        currentPage === page + 1
-                          ? "bg-blue-600 text-white"
-                          : "bg-gray-700 text-white hover:bg-gray-600"
-                      }`}
-                    >
-                      {page + 1}
-                    </button>
-                  ))}
-                </div>
-                <button
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                  }
-                  disabled={currentPage === totalPages}
-                  className={`px-4 py-2 rounded ${
-                    currentPage === totalPages
-                      ? "bg-gray-700 text-gray-500 cursor-not-allowed"
-                      : "bg-gray-700 text-white hover:bg-gray-600"
-                  }`}
-                >
-                  Next
+                  ✕
                 </button>
               </div>
             </div>
-          )}
-        </>
+
+            {/* Modal Content */}
+            <div className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <div className="mb-6">
+                    <img
+                      src={selectedAuction.images?.[0] || "/placeholder.svg"}
+                      alt={selectedAuction.name}
+                      className="w-full h-64 object-cover rounded-lg"
+                    />
+                  </div>
+
+                  <div className="grid gap-2">
+                    <p>
+                      <span className="font-semibold">Category:</span>{" "}
+                      {selectedAuction.category}
+                    </p>
+                    <p>
+                      <span className="font-semibold">Starting Price:</span> $
+                      {selectedAuction.startingPrice}
+                    </p>
+                    <p>
+                      <span className="font-semibold">Current Status:</span>{" "}
+                      {selectedAuction.status}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <h3 className="font-semibold text-lg mb-2">
+                      Seller Information
+                    </h3>
+                    <p>
+                      <span className="font-semibold">Name:</span>{" "}
+                      {selectedAuction?.sellerDisplayName || "N/A"}
+                    </p>
+                    <p>
+                      <span className="font-semibold">Email:</span>{" "}
+                      {selectedAuction?.sellerEmail}
+                    </p>
+                  </div>
+
+                  <div>
+                    <h3 className="font-semibold text-lg mb-2">
+                      Auction Timing
+                    </h3>
+                    <p>
+                      <span className="font-semibold">Start Time:</span>{" "}
+                      {new Date(selectedAuction.startTime).toLocaleString()}
+                    </p>
+                    <p>
+                      <span className="font-semibold">End Time:</span>{" "}
+                      {new Date(selectedAuction.endTime).toLocaleString()}
+                    </p>
+                  </div>
+
+                  {selectedAuction.description && (
+                    <div>
+                      <h3 className="font-semibold text-lg mb-2">
+                        Description
+                      </h3>
+                      <p className="text-gray-300">
+                        {selectedAuction.description}
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="pt-4">
+                    <h3 className="font-semibold text-lg mb-2">Actions</h3>
+                    <div className="flex space-x-4">
+                      <button
+                        onClick={() =>
+                          updateAuctionStatus(selectedAuction._id, "Accepted")
+                        }
+                        className={`px-4 py-2 rounded ${
+                          selectedAuction.status === "Accepted"
+                            ? "bg-gray-500 text-gray-300 cursor-not-allowed"
+                            : "bg-green-500 hover:bg-green-600 text-white"
+                        }`}
+                        disabled={selectedAuction.status === "Accepted"}
+                      >
+                        Accept
+                      </button>
+                      <button
+                        onClick={() =>
+                          updateAuctionStatus(selectedAuction._id, "Rejected")
+                        }
+                        className={`px-4 py-2 rounded ${
+                          selectedAuction.status === "Rejected"
+                            ? "bg-gray-500 text-gray-300 cursor-not-allowed"
+                            : "bg-red-500 hover:bg-red-600 text-white"
+                        }`}
+                        disabled={selectedAuction.status === "Rejected"}
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

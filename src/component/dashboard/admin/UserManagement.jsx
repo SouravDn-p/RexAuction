@@ -13,8 +13,10 @@ import {
 } from "react-icons/fa";
 import Swal from "sweetalert2";
 import ThemeContext from "../../Context/ThemeContext";
+import useAxiosPublic from "../../../hooks/useAxiosPublic";
 
 const UserManagement = () => {
+  const axiosPublic = useAxiosPublic();
   const { isDarkMode } = useContext(ThemeContext);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
