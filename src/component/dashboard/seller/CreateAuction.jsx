@@ -45,23 +45,20 @@ export default function CreateAuction() {
   
     if (validImages.length === 0) return;
   
-    
-    if (selectedImages.length < 3) {
-      if (validImages.length + selectedImages.length < 3) {
+    if (selectedImages.length < 4) {
+      if (validImages.length + selectedImages.length < 4) {
         Swal.fire({
           title: "Error",
-          text: `You need to upload at least ${3 - selectedImages.length} more image(s).`,
+          text: `You need to upload at least ${4 - selectedImages.length} more image(s).`,
           icon: "error",
           background: isDarkMode ? "#1f2937" : "#fff",
           color: isDarkMode ? "#fff" : "#000",
         });
         return;
       }
-      
-      
+  
       setSelectedImages((prev) => [...prev, ...validImages]);
     } else {
-     
       setSelectedImages((prev) => [...prev, ...validImages]);
     }
   };
@@ -320,92 +317,100 @@ export default function CreateAuction() {
               </div>
 
               <div>
-                <label
-                  className={`block text-sm font-medium ${
-                    isDarkMode ? "text-purple-300" : "text-purple-700"
-                  } mb-1`}
-                >
-                  Upload Images (Minimum 3 required):
-                </label>
-                <label
-                  className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer ${
-                    isDarkMode
-                      ? "border-gray-600 hover:bg-gray-700"
-                      : "border-gray-300 hover:bg-gray-50"
-                  } transition`}
-                >
-                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                    <svg
-                      className="w-8 h-8 mb-4"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 20 16"
-                    >
-                      <path
-                        stroke="currentColor"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
-                      />
-                    </svg>
-                    <p className={`mb-2 text-sm ${
-                      isDarkMode ? "text-gray-400" : "text-gray-500"
-                    }`}>
-                      <span className="font-semibold">Click to upload</span> or drag and drop
-                    </p>
-                    <p className={`text-xs ${
-                      isDarkMode ? "text-gray-500" : "text-gray-400"
-                    }`}>
-                      PNG, JPG, JPEG (MAX. 5MB each)
-                    </p>
-                  </div>
-                  <input
-                    type="file"
-                    multiple
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="hidden"
-                  />
-                </label>
-                {selectedImages.length > 0 && (
-                  <div className="mt-3">
-                    <p className={`text-sm ${
-                      isDarkMode ? "text-gray-300" : "text-gray-600"
-                    }`}>
-                      Selected images: {selectedImages.length}/3
-                    </p>
-                    <div className="flex flex-wrap gap-3 mt-2">
-                      {selectedImages.map((image, index) => (
-                        <div key={index} className="relative group">
-                          <img
-                            src={URL.createObjectURL(image)}
-                            alt={`Preview ${index}`}
-                            className="w-20 h-20 object-cover rounded border shadow-sm"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removeImage(index)}
-                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            ×
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {selectedImages.length < 3 && (
-                  <p className={`text-sm mt-1 ${
-                    isDarkMode ? "text-red-300" : "text-red-500"
-                  }`}>
-                    {selectedImages.length === 0
-                      ? "Please upload at least 3 images"
-                      : `Please upload ${3 - selectedImages.length} more image(s)`}
-                  </p>
-                )}
-              </div>
+  <label
+    className={`block text-sm font-medium ${
+      isDarkMode ? "text-purple-300" : "text-purple-700"
+    } mb-1`}
+  >
+    Upload Images (Minimum 4 required):
+  </label>
+  <label
+    className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer ${
+      isDarkMode
+        ? "border-gray-600 hover:bg-gray-700"
+        : "border-gray-300 hover:bg-gray-50"
+    } transition`}
+  >
+    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+      <svg
+        className="w-8 h-8 mb-4"
+        aria-hidden="true"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 20 16"
+      >
+        <path
+          stroke="currentColor"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+          d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+        />
+      </svg>
+      <p
+        className={`mb-2 text-sm ${
+          isDarkMode ? "text-gray-400" : "text-gray-500"
+        }`}
+      >
+        <span className="font-semibold">Click to upload</span> or drag and drop
+      </p>
+      <p
+        className={`text-xs ${
+          isDarkMode ? "text-gray-500" : "text-gray-400"
+        }`}
+      >
+        PNG, JPG, JPEG (MAX. 5MB each)
+      </p>
+    </div>
+    <input
+      type="file"
+      multiple
+      accept="image/*"
+      onChange={handleFileChange}
+      className="hidden"
+    />
+  </label>
+  {selectedImages.length > 0 && (
+    <div className="mt-3">
+      <p
+        className={`text-sm ${
+          isDarkMode ? "text-gray-300" : "text-gray-600"
+        }`}
+      >
+        Selected images: {selectedImages.length}/4
+      </p>
+      <div className="flex flex-wrap gap-3 mt-2">
+        {selectedImages.map((image, index) => (
+          <div key={index} className="relative group">
+            <img
+              src={URL.createObjectURL(image)}
+              alt={`Preview ${index}`}
+              className="w-20 h-20 object-cover rounded border shadow-sm"
+            />
+            <button
+              type="button"
+              onClick={() => removeImage(index)}
+              className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              ×
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  )}
+  {selectedImages.length < 4 && (
+    <p
+      className={`text-sm mt-1 ${
+        isDarkMode ? "text-red-300" : "text-red-500"
+      }`}
+    >
+      {selectedImages.length === 0
+        ? "Please upload at least 4 images"
+        : `Please upload ${4 - selectedImages.length} more image(s)`}
+    </p>
+  )}
+</div>
 
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>

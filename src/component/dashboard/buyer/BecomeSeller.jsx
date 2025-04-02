@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
 import { toast } from "react-hot-toast";
@@ -18,17 +18,35 @@ const BecomeSeller = () => {
     handleSubmit,
     reset,
     watch,
+    setValue,
     formState: { errors },
   } = useForm();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [previewImages, setPreviewImages] = useState([]);
+  const [frontPreview, setFrontPreview] = useState(null);
+  const [backPreview, setBackPreview] = useState(null);
   const { isDarkMode } = useContext(ThemeContext);
 
-  const handleImagePreview = (e) => {
-    const files = Array.from(e.target.files);
-    const imageUrls = files.map((file) => URL.createObjectURL(file));
-    setPreviewImages(imageUrls);
+  // Auto-fill user data when component mounts or user changes
+  useEffect(() => {
+    if (user) {
+      setValue("email", user.email);
+      setValue("name", user.displayName || dbUser?.name || "");
+    }
+  }, [user, dbUser, setValue]);
+
+  const handleFrontImagePreview = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFrontPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleBackImagePreview = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setBackPreview(URL.createObjectURL(file));
+    }
   };
 
   const onSubmit = async (data) => {
@@ -36,21 +54,26 @@ const BecomeSeller = () => {
     setIsSubmitting(true);
 
     try {
-      const uploadedImages = [];
+      // Upload front document image
+      const frontFormData = new FormData();
+      frontFormData.append("image", data.frontDocument[0]);
+      const frontResponse = await fetch(image_hosting_api, {
+        method: "POST",
+        body: frontFormData,
+      });
+      const frontResult = await frontResponse.json();
 
-      for (const file of data.documents) {
-        const formData = new FormData();
-        formData.append("image", file);
+      // Upload back document image
+      const backFormData = new FormData();
+      backFormData.append("image", data.backDocument[0]);
+      const backResponse = await fetch(image_hosting_api, {
+        method: "POST",
+        body: backFormData,
+      });
+      const backResult = await backResponse.json();
 
-        const response = await fetch(image_hosting_api, {
-          method: "POST",
-          body: formData,
-        });
-
-        const result = await response.json();
-        if (result.success) {
-          uploadedImages.push(result.data.url);
-        }
+      if (!frontResult.success || !backResult.success) {
+        throw new Error("Image upload failed");
       }
 
       const requestData = {
@@ -59,7 +82,9 @@ const BecomeSeller = () => {
         address: data.address,
         documentType: data.documentType,
         uid: dbUser.uid,
-        documents: uploadedImages,
+        frontDocument: frontResult.data.url,
+        backDocument: backResult.data.url,
+        becomeSellerStatus: "pending",
       };
 
       const res = await axiosPublic.post("become_seller", requestData);
@@ -67,7 +92,8 @@ const BecomeSeller = () => {
       if (res.data.success) {
         toast.success("Seller request submitted successfully!");
         reset();
-        setPreviewImages([]);
+        setFrontPreview(null);
+        setBackPreview(null);
       } else {
         throw new Error("Request failed");
       }
@@ -83,7 +109,7 @@ const BecomeSeller = () => {
 
   return (
     <div
-      className={`min-h-screen  px-4 py-8 sm:px-6 lg:px-8 transition-colors duration-300 ${
+      className={`min-h-screen px-4 py-8 sm:px-6 lg:px-8 transition-colors duration-300 ${
         isDarkMode ? "bg-gray-900 text-white" : "bg-purple-50 text-gray-900"
       }`}
     >
@@ -117,6 +143,7 @@ const BecomeSeller = () => {
                 placeholder="Enter your full name"
                 {...register("name", { required: "Full Name is required" })}
                 className="w-full border border-purple-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 bg-transparent"
+                readOnly
               />
               {errors.name && (
                 <p className="text-red-500 text-sm">{errors.name.message}</p>
@@ -138,6 +165,7 @@ const BecomeSeller = () => {
                   },
                 })}
                 className="w-full border border-purple-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 bg-transparent"
+                readOnly
               />
               {errors.email && (
                 <p className="text-red-500 text-sm">{errors.email.message}</p>
@@ -183,42 +211,64 @@ const BecomeSeller = () => {
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Upload Document Images (Multiple)
-            </label>
-            <input
-              type="file"
-              accept="image/*"
-              {...register("documents", {
-                required: "Please upload at least one document",
-              })}
-              multiple
-              onChange={(e) => {
-                handleImagePreview(e);
-              }}
-              className="lg:w-1/2 w-2/3 rounded-lg p-1 border-dashed border-2 file:bg-purple-100 file:border-none file:text-purple-700 file:rounded-md file:py-2 file:px-4"
-            />
-            {errors.documents && (
-              <p className="text-red-500 text-sm">{errors.documents.message}</p>
-            )}
-            <p className="text-sm mt-2 text-gray-500">
-              You can upload multiple images (Max 5MB each)
-            </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Front of Document <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                {...register("frontDocument", {
+                  required: "Front document is required",
+                })}
+                onChange={handleFrontImagePreview}
+                className="w-full rounded-lg p-1 border-dashed border-2 file:bg-purple-100 file:border-none file:text-purple-700 file:rounded-md file:py-2 file:px-4"
+              />
+              {errors.frontDocument && (
+                <p className="text-red-500 text-sm">
+                  {errors.frontDocument.message}
+                </p>
+              )}
+              {frontPreview && (
+                <div className="mt-4">
+                  <img
+                    src={frontPreview}
+                    alt="Front document preview"
+                    className="w-full h-48 object-contain rounded-lg border border-purple-300"
+                  />
+                </div>
+              )}
+            </div>
 
-            {previewImages.length > 0 && (
-              <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                {previewImages.map((img, index) => (
-                  <div key={index}>
-                    <img
-                      src={img}
-                      alt={`preview ${index}`}
-                      className="w-full h-32 object-cover rounded-lg border border-purple-300"
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Back of Document <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                {...register("backDocument", {
+                  required: "Back document is required",
+                })}
+                onChange={handleBackImagePreview}
+                className="w-full rounded-lg p-1 border-dashed border-2 file:bg-purple-100 file:border-none file:text-purple-700 file:rounded-md file:py-2 file:px-4"
+              />
+              {errors.backDocument && (
+                <p className="text-red-500 text-sm">
+                  {errors.backDocument.message}
+                </p>
+              )}
+              {backPreview && (
+                <div className="mt-4">
+                  <img
+                    src={backPreview}
+                    alt="Back document preview"
+                    className="w-full h-48 object-contain rounded-lg border border-purple-300"
+                  />
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="flex items-start gap-2">
