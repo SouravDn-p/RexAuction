@@ -14,18 +14,37 @@ const SellerRequest = () => {
   const [users, setUsers] = useState([]);
   const [sortField, setSortField] = useState(null);
   const [sortDirection, setSortDirection] = useState("asc");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [usersPerPage] = useState(5);
   const { isDarkMode } = useContext(ThemeContext);
-  const { dbUser, user } = useContext(AuthContexts);
-  console.log(dbUser);
+  const { dbUser } = useContext(AuthContexts);
 
+  // Fetch users
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/sellerRequest");
+        const data = await response.json();
+        setUsers(data);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+    fetchUsers();
+  }, []);
+
+  // Handle role change
   const handleRoleChange = async (userId, role) => {
     Swal.fire({
       title: "Are you sure?",
       text: `Do you want to change the role to ${role}?`,
+      icon: "question",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, change it!",
+      background: isDarkMode ? "#1f2937" : "#fff",
+      color: isDarkMode ? "#fff" : "#000",
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
@@ -34,21 +53,41 @@ const SellerRequest = () => {
             { role }
           );
           if (res.data.success) {
-            Swal.fire("Updated!", "User role has been changed.", "success");
+            Swal.fire({
+              title: "Updated!",
+              text: "User role has been changed.",
+              icon: "success",
+              background: isDarkMode ? "#1f2937" : "#fff",
+              color: isDarkMode ? "#fff" : "#000",
+            });
             // Refresh user list after update
             const response = await fetch("http://localhost:5000/users");
             const data = await response.json();
             setUsers(data);
           } else {
-            Swal.fire("Failed!", "Could not update user role.", "error");
+            Swal.fire({
+              title: "Failed!",
+              text: "Could not update user role.",
+              icon: "error",
+              background: isDarkMode ? "#1f2937" : "#fff",
+              color: isDarkMode ? "#fff" : "#000",
+            });
           }
         } catch (error) {
           console.error("Error updating role:", error);
-          Swal.fire("Error!", "Something went wrong!", "error");
+          Swal.fire({
+            title: "Error!",
+            text: "Something went wrong!",
+            icon: "error",
+            background: isDarkMode ? "#1f2937" : "#fff",
+            color: isDarkMode ? "#fff" : "#000",
+          });
         }
       }
     });
   };
+
+  // Handle delete user
   const handleDelete = async (userId) => {
     Swal.fire({
       title: "Are you sure?",
@@ -58,6 +97,8 @@ const SellerRequest = () => {
       confirmButtonColor: "#d33",
       cancelButtonColor: "#3085d6",
       confirmButtonText: "Yes, delete it!",
+      background: isDarkMode ? "#1f2937" : "#fff",
+      color: isDarkMode ? "#fff" : "#000",
     }).then((result) => {
       if (result.isConfirmed) {
         axios
@@ -68,11 +109,9 @@ const SellerRequest = () => {
                 title: "Deleted!",
                 text: "User has been deleted.",
                 icon: "success",
-                customClass: {
-                  popup: isDarkMode ? "swal-dark-theme" : "",
-                },
+                background: isDarkMode ? "#1f2937" : "#fff",
+                color: isDarkMode ? "#fff" : "#000",
               });
-              // Remove the user from UI
               setUsers((prevUsers) =>
                 prevUsers.filter((user) => user._id !== userId)
               );
@@ -81,9 +120,8 @@ const SellerRequest = () => {
                 title: "Error!",
                 text: response.data.message,
                 icon: "error",
-                customClass: {
-                  popup: isDarkMode ? "swal-dark-theme" : "",
-                },
+                background: isDarkMode ? "#1f2937" : "#fff",
+                color: isDarkMode ? "#fff" : "#000",
               });
             }
           })
@@ -92,20 +130,15 @@ const SellerRequest = () => {
               title: "Failed!",
               text: "Something went wrong.",
               icon: "error",
-              customClass: {
-                popup: isDarkMode ? "swal-dark-theme" : "",
-              },
+              background: isDarkMode ? "#1f2937" : "#fff",
+              color: isDarkMode ? "#fff" : "#000",
             });
           });
       }
     });
   };
-  useEffect(() => {
-    fetch("http://localhost:5000/sellerRequest")
-      .then((res) => res.json())
-      .then((data) => setUsers(data));
-  }, []);
 
+  // Sort users
   const handleSort = (field) => {
     if (sortField === field) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
@@ -115,112 +148,203 @@ const SellerRequest = () => {
     }
   };
 
+  // Sort logic
   const sortedUsers = [...users].sort((a, b) => {
     if (!sortField) return 0;
+    if (sortField === "date") {
+      return sortDirection === "asc"
+        ? new Date(a[sortField]) - new Date(b[sortField])
+        : new Date(b[sortField]) - new Date(a[sortField]);
+    }
     return sortDirection === "asc"
       ? a[sortField]?.localeCompare(b[sortField])
       : b[sortField]?.localeCompare(a[sortField]);
   });
 
+  // Pagination logic
+  const indexOfLastUser = currentPage * usersPerPage;
+  const indexOfFirstUser = indexOfLastUser - usersPerPage;
+  const currentUsers = sortedUsers.slice(indexOfFirstUser, indexOfLastUser);
+  const totalPages = Math.ceil(sortedUsers.length / usersPerPage);
+
+  // Format date
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    const options = { year: "numeric", month: "short", day: "numeric" };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
   return (
-    <div className="p-4">
-      <p className="text-center font-bold text-3xl mb-4">
-        Seller Request Management
-      </p>
-      <div className="overflow-x-auto rounded-lg border border-gray-300 dark:border-gray-700">
-        <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead className={isDarkMode ? "bg-gray-700" : "bg-gray-50"}>
-            <tr>
-              {["name", "email", "date"].map((field) => (
-                <th
-                  key={field}
-                  className="px-6 py-3 text-left text-xs font-medium uppercase"
-                >
-                  <div
-                    className="flex items-center cursor-pointer"
-                    onClick={() => handleSort(field)}
+    <div className={`p-4 min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
+      <div className={`max-w-6xl mx-auto p-6 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-md`}>
+        <h1 className={`text-2xl md:text-3xl font-bold mb-6 text-center ${isDarkMode ? "text-white" : "text-gray-800"}`}>
+          Seller Request Management
+        </h1>
+        
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead className={isDarkMode ? "bg-gray-700" : "bg-gray-50"}>
+              <tr>
+                {["name", "email", "date"].map((field) => (
+                  <th
+                    key={field}
+                    scope="col"
+                    className={`px-4 py-3 text-left text-xs font-medium ${isDarkMode ? "text-gray-300" : "text-gray-500"} uppercase tracking-wider`}
                   >
-                    <span>
-                      {field.charAt(0).toUpperCase() + field.slice(1)}
-                    </span>
-                    {sortField === field && (
-                      <span className="ml-1">
-                        {sortDirection === "asc" ? (
-                          <FaSortAmountUp size={14} />
-                        ) : (
-                          <FaSortAmountDown size={14} />
-                        )}
+                    <div
+                      className="flex items-center cursor-pointer hover:text-blue-500 transition-colors"
+                      onClick={() => handleSort(field)}
+                    >
+                      <span>
+                        {field.charAt(0).toUpperCase() + field.slice(1)}
                       </span>
-                    )}
-                  </div>
-                </th>
-              ))}
-              <th className="px-6 py-3 text-right text-xs font-medium uppercase">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-            {sortedUsers.map((user, index) => (
-              <tr
-                key={user._id || index}
-                className="hover:bg-gray-50 dark:hover:bg-gray-700"
-              >
-                <td className="px-6 py-4 flex items-center">
-                  <div className="h-10 w-10 flex items-center justify-center bg-purple-100 dark:bg-purple-900 rounded-full">
-                    <span className="text-purple-700 dark:text-purple-300">
-                      {user.name?.charAt(0).toUpperCase() || "?"}
-                    </span>
-                  </div>
-                  <span className="ml-4">{user.name}</span>
-                </td>
-                <td className="px-6 py-4">{user.email}</td>
-                <td className="px-6 py-4">{user.date || "N/A"}</td>
-                <td className="px-6 py-4 text-right flex justify-end space-x-2">
-                  <button
-                    className={`p-1 rounded-full ${
-                      isDarkMode
-                        ? "hover:bg-gray-600 text-blue-400 hover:text-blue-300"
-                        : "hover:bg-blue-100 text-blue-600 hover:text-blue-800"
-                    }`}
-                    title="Edit User"
-                  >
-                    <div className="dropdown dropdown-center ">
-                      <div tabIndex={0} role="button" className="btn">
-                        <FaEdit size={16} />
-                      </div>
-                      <ul
-                        tabIndex={0}
-                        className="dropdown-content menu bg-base-100 rounded-box z-1 w-52 p-2 shadow-sm"
-                      >
-                        <li>
-                          <a
-                            onClick={() =>
-                              handleRoleChange(dbUser._id, "seller")
-                            }
-                          >
-                            Seller
-                          </a>
-                        </li>
-                      </ul>
+                      {sortField === field && (
+                        <span className="ml-1">
+                          {sortDirection === "asc" ? (
+                            <FaSortAmountUp size={14} />
+                          ) : (
+                            <FaSortAmountDown size={14} />
+                          )}
+                        </span>
+                      )}
                     </div>
-                  </button>
-                  <button
-                    onClick={() => handleDelete(user._id)}
-                    className={`p-1 rounded-full ${
-                      isDarkMode
-                        ? "hover:bg-gray-600 text-red-400 hover:text-red-300"
-                        : "hover:bg-red-100 text-red-600 hover:text-red-800"
-                    }`}
-                    title="Delete User"
-                  >
-                    <FaTrash size={16} />
-                  </button>
-                </td>
+                  </th>
+                ))}
+                <th
+                  scope="col"
+                  className={`px-4 py-3 text-right text-xs font-medium ${isDarkMode ? "text-gray-300" : "text-gray-500"} uppercase tracking-wider`}
+                >
+                  Actions
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className={`divide-y divide-gray-200 dark:divide-gray-700 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+              {currentUsers.length > 0 ? (
+                currentUsers.map((user) => (
+                  <tr
+                    key={user._id}
+                    className={`hover:${isDarkMode ? "bg-gray-700" : "bg-gray-50"} transition-colors`}
+                  >
+                    <td className="px-4 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className={`h-10 w-10 flex items-center justify-center rounded-full ${isDarkMode ? "bg-purple-900" : "bg-purple-100"}`}>
+                          <span className={isDarkMode ? "text-purple-300" : "text-purple-700"}>
+                            {user.name?.charAt(0).toUpperCase() || "?"}
+                          </span>
+                        </div>
+                        <div className="ml-4">
+                          <div className={`text-sm font-medium ${isDarkMode ? "text-white" : "text-gray-900"}`}>
+                            {user.name}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className={`px-4 py-4 whitespace-nowrap text-sm ${isDarkMode ? "text-gray-300" : "text-gray-500"}`}>
+                      {user.email}
+                    </td>
+                    <td className={`px-4 py-4 whitespace-nowrap text-sm ${isDarkMode ? "text-gray-300" : "text-gray-500"}`}>
+                      {formatDate(user.date)}
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex justify-end space-x-2">
+                        <div className="dropdown dropdown-end">
+                          <button
+                            tabIndex={0}
+                            className={`p-2 rounded-full ${isDarkMode ? "hover:bg-gray-600 text-blue-400" : "hover:bg-blue-100 text-blue-600"}`}
+                            title="Edit User"
+                          >
+                            <FaEdit size={16} />
+                          </button>
+                          <ul
+                            tabIndex={0}
+                            className={`dropdown-content menu p-2 shadow rounded-box w-52 ${isDarkMode ? "bg-gray-700" : "bg-white"}`}
+                          >
+                            <li>
+                              <button
+                                onClick={() => handleRoleChange(user._id, "seller")}
+                                className={`${isDarkMode ? "hover:bg-gray-600" : "hover:bg-gray-100"}`}
+                              >
+                                Approve as Seller
+                              </button>
+                            </li>
+                          </ul>
+                        </div>
+                        <button
+                          onClick={() => handleDelete(user._id)}
+                          className={`p-2 rounded-full ${isDarkMode ? "hover:bg-gray-600 text-red-400" : "hover:bg-red-100 text-red-600"}`}
+                          title="Delete User"
+                        >
+                          <FaTrash size={16} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="4" className="px-4 py-6 text-center">
+                    <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                      No seller requests found
+                    </p>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className={`flex items-center justify-between px-4 py-3 sm:px-6 ${isDarkMode ? "bg-gray-700" : "bg-gray-50"} rounded-b-lg`}>
+            <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+              <div>
+                <p className={`text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
+                  Showing <span className="font-medium">{indexOfFirstUser + 1}</span> to{" "}
+                  <span className="font-medium">
+                    {Math.min(indexOfLastUser, sortedUsers.length)}
+                  </span>{" "}
+                  of <span className="font-medium">{sortedUsers.length}</span> results
+                </p>
+              </div>
+              <div>
+                <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                  <button
+                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                    className={`relative inline-flex items-center px-2 py-2 rounded-l-md border ${isDarkMode ? "border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600" : "border-gray-300 bg-white text-gray-500 hover:bg-gray-50"} text-sm font-medium ${currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""}`}
+                  >
+                    <span className="sr-only">Previous</span>
+                    &larr; Previous
+                  </button>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${currentPage === page
+                        ? isDarkMode
+                          ? "bg-blue-600 text-white border-blue-600"
+                          : "bg-blue-50 text-blue-600 border-blue-500"
+                        : isDarkMode
+                        ? "border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600"
+                        : "border-gray-300 bg-white text-gray-500 hover:bg-gray-50"
+                        }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                    className={`relative inline-flex items-center px-2 py-2 rounded-r-md border ${isDarkMode ? "border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600" : "border-gray-300 bg-white text-gray-500 hover:bg-gray-50"} text-sm font-medium ${currentPage === totalPages ? "opacity-50 cursor-not-allowed" : ""}`}
+                  >
+                    <span className="sr-only">Next</span>
+                    Next &rarr;
+                  </button>
+                </nav>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
