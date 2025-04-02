@@ -10,6 +10,13 @@ import { Link } from "react-router-dom";
 const image_hosting_key = import.meta.env.VITE_IMAGE_HOSTING_KEY;
 const image_hosting_api = `https://api.imgbb.com/1/upload?key=${image_hosting_key}`;
 
+const countryCodes = [
+  { code: "+880", name: "Bangladesh", flag: "🇧🇩" },
+  { code: "+1", name: "USA", flag: "🇺🇸" },
+  { code: "+44", name: "UK", flag: "🇬🇧" },
+  { code: "+91", name: "India", flag: "🇮🇳" },
+];
+
 const BecomeSeller = () => {
   const { dbUser, user } = useContext(AuthContexts);
   const axiosPublic = useAxiosPublic();
@@ -25,6 +32,7 @@ const BecomeSeller = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [frontPreview, setFrontPreview] = useState(null);
   const [backPreview, setBackPreview] = useState(null);
+  const [selectedCountryCode, setSelectedCountryCode] = useState("+880");
   const { isDarkMode } = useContext(ThemeContext);
 
   // Auto-fill user data when component mounts or user changes
@@ -32,6 +40,16 @@ const BecomeSeller = () => {
     if (user) {
       setValue("email", user.email);
       setValue("name", user.displayName || dbUser?.name || "");
+      if (dbUser?.phoneNumber) {
+        // Extract country code if present
+        const phoneParts = dbUser.phoneNumber.split(" ");
+        if (phoneParts.length > 1) {
+          setSelectedCountryCode(phoneParts[0]);
+          setValue("phoneNumber", phoneParts.slice(1).join(""));
+        } else {
+          setValue("phoneNumber", dbUser.phoneNumber);
+        }
+      }
     }
   }, [user, dbUser, setValue]);
 
@@ -76,9 +94,13 @@ const BecomeSeller = () => {
         throw new Error("Image upload failed");
       }
 
+      // Combine country code with phone number
+      const fullPhoneNumber = `${selectedCountryCode} ${data.phoneNumber}`;
+
       const requestData = {
         name: data.name,
         email: user.email,
+        phoneNumber: fullPhoneNumber,
         address: data.address,
         documentType: data.documentType,
         uid: dbUser.uid,
@@ -176,6 +198,42 @@ const BecomeSeller = () => {
           <div className="flex gap-3">
             <div className="w-1/2">
               <label className="block text-sm font-medium mb-1">
+                Phone Number <span className="text-red-500">*</span>
+              </label>
+              <div className="flex">
+                <select
+                  value={selectedCountryCode}
+                  onChange={(e) => setSelectedCountryCode(e.target.value)}
+                  className="w-24 border border-purple-300 rounded-l-lg px-2 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 bg-transparent"
+                >
+                  {countryCodes.map((country) => (
+                    <option key={country.code} value={country.code}>
+                      {country.flag} {country.code}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="tel"
+                  placeholder="Enter phone number"
+                  {...register("phoneNumber", {
+                    required: "Phone number is required",
+                    pattern: {
+                      value: /^[0-9]{10,15}$/,
+                      message: "Invalid phone number format (10-15 digits)",
+                    },
+                  })}
+                  className="flex-1 border border-purple-300 rounded-r-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 bg-transparent"
+                />
+              </div>
+              {errors.phoneNumber && (
+                <p className="text-red-500 text-sm">
+                  {errors.phoneNumber.message}
+                </p>
+              )}
+            </div>
+
+            <div className="w-1/2">
+              <label className="block text-sm font-medium mb-1">
                 Address <span className="text-red-500">*</span>
               </label>
               <input
@@ -188,7 +246,9 @@ const BecomeSeller = () => {
                 <p className="text-red-500 text-sm">{errors.address.message}</p>
               )}
             </div>
+          </div>
 
+          <div className="flex gap-3">
             <div className="w-1/2">
               <label className="block text-sm font-medium mb-1">
                 Select Verification <span className="text-red-500">*</span>
@@ -199,6 +259,7 @@ const BecomeSeller = () => {
                 })}
                 className="w-full border text-gray-400 border-purple-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 bg-transparent"
               >
+                <option value="">Select Document Type</option>
                 <option value="NID">NID</option>
                 <option value="Passport">Passport</option>
                 <option value="Driving License">Driving License</option>
@@ -209,64 +270,205 @@ const BecomeSeller = () => {
                 </p>
               )}
             </div>
+            <div className="w-1/2"></div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Front Document Upload */}
             <div>
-              <label className="block text-sm font-medium mb-1">
+              <label className="block text-sm font-medium mb-2">
                 Front of Document <span className="text-red-500">*</span>
               </label>
-              <input
-                type="file"
-                accept="image/*"
-                {...register("frontDocument", {
-                  required: "Front document is required",
-                })}
-                onChange={handleFrontImagePreview}
-                className="w-full rounded-lg p-1 border-dashed border-2 file:bg-purple-100 file:border-none file:text-purple-700 file:rounded-md file:py-2 file:px-4"
-              />
+              <div
+                className={`relative border-2 border-dashed rounded-lg p-4 text-center ${
+                  isDarkMode
+                    ? "border-gray-600 hover:border-purple-400"
+                    : "border-purple-300 hover:border-purple-500"
+                } transition-colors`}
+              >
+                {frontPreview ? (
+                  <div className="relative">
+                    <img
+                      src={frontPreview}
+                      alt="Front document preview"
+                      className="w-full h-48 object-contain rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setValue("frontDocument", null);
+                        setFrontPreview(null);
+                      }}
+                      className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                      <svg
+                        className="w-8 h-8 mb-4 text-purple-500"
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 20 16"
+                      >
+                        <path
+                          stroke="currentColor"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                        />
+                      </svg>
+                      <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                        <span className="font-semibold">Click to upload</span>{" "}
+                        or drag and drop
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        PNG, JPG (MAX. 5MB)
+                      </p>
+                    </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      {...register("frontDocument", {
+                        required: "Front document is required",
+                        validate: {
+                          lessThan5MB: (files) =>
+                            files[0]?.size < 5000000 || "Max 5MB file size",
+                          acceptedFormats: (files) =>
+                            ["image/jpeg", "image/png"].includes(
+                              files[0]?.type
+                            ) || "Only JPG/PNG files allowed",
+                        },
+                      })}
+                      onChange={handleFrontImagePreview}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                  </>
+                )}
+              </div>
               {errors.frontDocument && (
-                <p className="text-red-500 text-sm">
+                <p className="mt-1 text-sm text-red-600">
                   {errors.frontDocument.message}
                 </p>
               )}
               {frontPreview && (
-                <div className="mt-4">
-                  <img
-                    src={frontPreview}
-                    alt="Front document preview"
-                    className="w-full h-48 object-contain rounded-lg border border-purple-300"
-                  />
-                </div>
+                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                  {watch("frontDocument")?.[0]?.name || "Selected file"}
+                </p>
               )}
             </div>
 
+            {/* Back Document Upload */}
             <div>
-              <label className="block text-sm font-medium mb-1">
+              <label className="block text-sm font-medium mb-2">
                 Back of Document <span className="text-red-500">*</span>
               </label>
-              <input
-                type="file"
-                accept="image/*"
-                {...register("backDocument", {
-                  required: "Back document is required",
-                })}
-                onChange={handleBackImagePreview}
-                className="w-full rounded-lg p-1 border-dashed border-2 file:bg-purple-100 file:border-none file:text-purple-700 file:rounded-md file:py-2 file:px-4"
-              />
+              <div
+                className={`relative border-2 border-dashed rounded-lg p-4 text-center ${
+                  isDarkMode
+                    ? "border-gray-600 hover:border-purple-400"
+                    : "border-purple-300 hover:border-purple-500"
+                } transition-colors`}
+              >
+                {backPreview ? (
+                  <div className="relative">
+                    <img
+                      src={backPreview}
+                      alt="Back document preview"
+                      className="w-full h-48 object-contain rounded-lg"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setValue("backDocument", null);
+                        setBackPreview(null);
+                      }}
+                      className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                      <svg
+                        className="w-8 h-8 mb-4 text-purple-500"
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 20 16"
+                      >
+                        <path
+                          stroke="currentColor"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                        />
+                      </svg>
+                      <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                        <span className="font-semibold">Click to upload</span>{" "}
+                        or drag and drop
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        PNG, JPG (MAX. 5MB)
+                      </p>
+                    </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      {...register("backDocument", {
+                        required: "Back document is required",
+                        validate: {
+                          lessThan5MB: (files) =>
+                            files[0]?.size < 5000000 || "Max 5MB file size",
+                          acceptedFormats: (files) =>
+                            ["image/jpeg", "image/png"].includes(
+                              files[0]?.type
+                            ) || "Only JPG/PNG files allowed",
+                        },
+                      })}
+                      onChange={handleBackImagePreview}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                  </>
+                )}
+              </div>
               {errors.backDocument && (
-                <p className="text-red-500 text-sm">
+                <p className="mt-1 text-sm text-red-600">
                   {errors.backDocument.message}
                 </p>
               )}
               {backPreview && (
-                <div className="mt-4">
-                  <img
-                    src={backPreview}
-                    alt="Back document preview"
-                    className="w-full h-48 object-contain rounded-lg border border-purple-300"
-                  />
-                </div>
+                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                  {watch("backDocument")?.[0]?.name || "Selected file"}
+                </p>
               )}
             </div>
           </div>
@@ -319,4 +521,3 @@ const BecomeSeller = () => {
 };
 
 export default BecomeSeller;
-// just updated
