@@ -117,7 +117,7 @@ const BecomeSeller = () => {
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className={`max-w-xl mx-auto shadow-xl rounded-xl p-6 sm:p-8 transition-all ${
+        className={`max-w-4xl mx-auto shadow-xl rounded-xl p-6 sm:p-8 transition-all ${
           isDarkMode ? "bg-gray-800" : "bg-white"
         }`}
       >
@@ -319,3 +319,4 @@ const BecomeSeller = () => {
 };
 
 export default BecomeSeller;
+// just updated
