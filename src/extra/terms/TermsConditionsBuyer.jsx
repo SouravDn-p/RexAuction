@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { useState, useContext, useEffect } from "react";
 import ThemeContext from "../../component/Context/ThemeContext";
+import { NavLink } from "react-router-dom";
 
 export default function TermsAndConditionsBuyer() {
   const [accepted, setAccepted] = useState(false);
@@ -52,7 +53,7 @@ export default function TermsAndConditionsBuyer() {
       {/* Heading */}
       <h2 className="text-3xl lg:text-4xl font-bold text-purple-700 dark:text-purple-300 text-center mb-6">
         Terms & Conditions
-         {/* for a Buyer */}
+        {/* for a Buyer */}
       </h2>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -106,8 +107,9 @@ export default function TermsAndConditionsBuyer() {
         </div>
 
         {/* Button */}
-        <button
-          className={`w-full mt-6 px-5 py-3 text-white font-bold rounded-lg transition duration-300 ${
+        <NavLink
+          to={`/dashboard/becomeSeller`}
+          className={`w-full block text-center mt-6 px-5 py-3 text-white font-bold rounded-lg transition duration-300 ${
             accepted
               ? "bg-purple-700 hover:bg-purple-800"
               : "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
@@ -115,7 +117,7 @@ export default function TermsAndConditionsBuyer() {
           disabled={!accepted}
         >
           Accept & Continue
-        </button>
+        </NavLink>
       </motion.div>
     </div>
   );

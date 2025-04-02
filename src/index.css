@@ -205,3 +205,8 @@ body{
     @apply bg-background text-foreground;
   }
 }
+
+
+.lottie-container svg {
+  background: transparent !important;
+}

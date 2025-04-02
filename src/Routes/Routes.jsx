@@ -32,7 +32,6 @@ import NotificationSettings from "../component/Settings/NotificationSettings";
 import SettingsLayout from "../component/Settings/SettingsLayout";
 import Plan from "../component/Settings/Plan";
 import TermsAndConditionsBuyer from "../extra/terms/TermsConditionsBuyer";
-import TermsAndConditionsSeller from "../extra/terms/TermsConditionsSeller";
 import useAxiosPublic from "../hooks/useAxiosPublic";
 
 // import TeamSettings from "../component/Settings/TeamSettings";
@@ -118,10 +117,7 @@ export const router = createBrowserRouter([
         path: "createAuction",
         element: <CreateAuction />,
       },
-      {
-        path: "termsConditionsSeller",
-        element: <TermsAndConditionsSeller />,
-      },
+
       // Buyer only
       {
         path: "termsConditionsBuyer",
