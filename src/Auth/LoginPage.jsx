@@ -2,38 +2,68 @@ import React, { useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import biddingImg from "../assets/Logos/login.jpg";
 import SocialLogin from "../component/SocialLogin";
-import useAuth from "../hooks/useAuth";
-import { toast } from "react-hot-toast"; 
+import { toast } from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  setUser,
+  toggleLoading,
+  setErrorMessage,
+} from "../redux/features/user/userSlice";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import auth from "../firebase/firebase.init";
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isLogin = location.pathname.includes("login");
-  const { loading, setLoading, login, setUser, errorMessage, setErrorMessage } =
-    useAuth();
+
+  // Redux dispatch and state
+  const dispatch = useDispatch();
+  const { loading, errorMessage } = useSelector((state) => state.userSlice);
+
+  // Local state for email and password
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleEmailPasswordLogin = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setErrorMessage(null);
+    dispatch(toggleLoading(true));
+    dispatch(setErrorMessage(null));
 
     try {
-      const userCredential = await login(email, password);
-      setUser(userCredential.user);
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+
+      // Dispatch the user data to Redux store
+      dispatch(
+        setUser({
+          uid: user.uid,
+          name: user.displayName,
+          email: user.email,
+          photoURL: user.photoURL,
+          role: "buyer",
+        })
+      );
+
       navigate("/");
+      toast.success("Login successful");
     } catch (err) {
       console.error("Login error:", err.message);
       if (err.message.includes("auth/invalid-credential")) {
-        setErrorMessage("Password is incorrect");
+        dispatch(setErrorMessage("Password is incorrect"));
         toast.error("Password is incorrect");
       } else {
-        setErrorMessage("Login failed. Please check your credentials.");
+        dispatch(
+          setErrorMessage("Login failed. Please check your credentials.")
+        );
         toast.error("Login failed");
       }
     } finally {
-      setLoading(false);
+      dispatch(toggleLoading(false));
     }
   };
 

@@ -1,30 +1,29 @@
 import React, { useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { updateProfile } from "firebase/auth";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
+import { useDispatch, useSelector } from "react-redux";
+import { createUser } from "../redux/features/user/userSlice";
+import { useAddUserMutation, useUpdateUserMutation } from "../redux/features/api/userApi";
 import logo from "../assets/Logos/register.jpg";
 import SocialLogin from "../component/SocialLogin";
-import useAuth from "../hooks/useAuth";
-import useAxiosPublic from "../hooks/useAxiosPublic";
 
 const Register = () => {
-  const { createUser } = useAuth();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const location = useLocation();
   const isRegister = location.pathname.includes("register");
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     photoURL: "",
   });
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const axiosPublic = useAxiosPublic();
-  const navigate = useNavigate();
 
+  const { isLoading, isError, error } = useSelector((state) => state.userSlice);
+  const [newUser] = useAddUserMutation();
+ 
   // Password validation criteria
   const passwordCriteria = [
     { test: /[A-Z]/, message: "One uppercase letter" },
@@ -43,51 +42,45 @@ const Register = () => {
 
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  const validationError = validatePassword(formData.password);
 
   const handleRegister = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setError(null);
 
-    const { name, email, password, photoURL } = formData;
-    const validationError = validatePassword(password);
-
+    // Check password validation before proceeding
     if (validationError) {
-      setError(validationError);
-      setLoading(false);
+      toast.error(validationError);
       return;
     }
 
     try {
-      const userCredential = await createUser(email, password);
-      const user = userCredential.user;
-
-      await updateProfile(user, {
-        displayName: name,
-        photoURL:
-          photoURL ||
-          `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
-      });
-
       const userData = {
-        uid: user?.uid,
-        name: user?.displayName,
-        email: user?.email,
-        photo: user?.photoURL,
-        role: "buyer",
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+        photoURL:
+          formData.photoURL ||
+          `https://api.dicebear.com/7.x/avataaars/svg?seed=${formData.email}`,
       };
 
-      await axiosPublic.post("/users", userData);
+      // Dispatch Redux Thunk to Register User
+      const result = await dispatch(createUser(userData)).unwrap();
+
+      // If successful, add user to database
+      await newUser({
+        uid: result.uid,
+        name: result.name,
+        email: result.email,
+        photo: result.photoURL,
+        role: "buyer",
+      });
 
       toast.success("Registration successful! Redirecting...");
       setTimeout(() => {
         navigate("/login");
       }, 2000);
     } catch (err) {
-      setError(err.message);
       toast.error(err.message);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -95,17 +88,15 @@ const Register = () => {
     <div className="flex justify-center items-center p-12 sm:p-8 md:p-12 bg-gray-100 min-h-screen">
       <div className="flex flex-col md:flex-row bg-white lg:rounded-lg shadow-lg max-w-4xl w-full overflow-hidden">
         <div
-          className="w-full lg:h-[460px] h-[200px] md:w-1/2 bg-cover bg-center bg-no-repeat flex flex-col justify-center items-center text-black p-8"
-          style={{
-            backgroundImage: `url(${logo})`,
-          }}
+          className="w-full lg:h-[460px] h-[200px] md:w-1/2 bg-cover bg-center bg-no-repeat"
+          style={{ backgroundImage: `url(${logo})` }}
         ></div>
 
         <div className="w-full md:w-1/2 p-4 md:p-8 bg-gray-100">
           <div className="flex mb-4 gap-2">
             <NavLink
               to="/login"
-              className={`w-1/2 py-2 border border-purple-600 text-purple-600 font-semibold text-center rounded-md hover:bg-purple-600 hover:text-white transition-all  `}
+              className="w-1/2 py-2 border border-purple-600 text-purple-600 font-semibold text-center rounded-md hover:bg-purple-600 hover:text-white transition-all"
             >
               Log In
             </NavLink>
@@ -120,7 +111,7 @@ const Register = () => {
           </div>
 
           <form onSubmit={handleRegister}>
-            <div className="flex gap-2 mb-4 ">
+            <div className="flex gap-2 mb-4">
               <div className="w-full sm:w-1/2">
                 <label className="block text-sm font-semibold text-gray-700">
                   Name
@@ -165,17 +156,17 @@ const Register = () => {
                   required
                 />
               </div>
-              <div className="w-full  sm:w-1/2">
-                <label className="block  text-sm font-semibold text-gray-700">
+              <div className="w-full sm:w-1/2">
+                <label className="block text-sm font-semibold text-gray-700">
                   Password
                 </label>
                 <input
-                  type={showPassword ? "text" : "password"}
+                  type="password"
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
                   placeholder="Enter your password"
-                  className="w-full p-3 mt-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white text-black font-bold  "
+                  className="w-full p-3 mt-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white text-black font-bold"
                   required
                 />
               </div>
@@ -199,14 +190,14 @@ const Register = () => {
               </div>
             )}
 
-            {error && <p className="text-red-500 text-xs mt-2">{error}</p>}
+            {isError && <p className="text-red-500 text-xs mt-2">{error}</p>}
 
             <button
               type="submit"
               className="w-full py-3 mt-3 bg-purple-600 text-white font-semibold rounded-lg shadow-md hover:bg-purple-700 transition-all"
-              disabled={loading}
+              disabled={isLoading}
             >
-              {loading ? "Registering..." : "Register"}
+              {isLoading ? "Registering..." : "Register"}
             </button>
           </form>
           <SocialLogin />

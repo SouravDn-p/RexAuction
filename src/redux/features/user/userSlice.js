@@ -7,28 +7,38 @@ const initialState = {
   name: "",
   email: "",
   photoURL: "",
-  role: "buyer", 
-  isLoading: true,
+  role: "buyer",
+  isLoading: false,
   isError: false,
   error: "",
 };
 
-// create async thunk
+// Create User with Firebase Authentication
 export const createUser = createAsyncThunk(
   "userSlice/createUser",
-  async ({ email, password, name, photoURL }) => {
-    const data = await createUserWithEmailAndPassword(auth, email, password);
-    await updateProfile(auth.currentUser, {
-      displayName: name,
-      photoURL: photoURL,
-    });
-    return {
-      uid: data.user.uid,
-      email: data.user.email,
-      name: data.user.displayName,
-      photoURL: data.user.photoURL,
-      role: "buyer",
-    };
+  async ({ email, password, name, photoURL }, { rejectWithValue }) => {
+    try {
+      const data = await createUserWithEmailAndPassword(auth, email, password);
+
+      // Update user profile
+      await updateProfile(auth.currentUser, {
+        displayName: name,
+        photoURL: photoURL,
+      });
+
+      // Fetch updated user data
+      const updatedUser = auth.currentUser;
+
+      return {
+        uid: updatedUser.uid,
+        email: updatedUser.email,
+        name: updatedUser.displayName,
+        photoURL: updatedUser.photoURL,
+        role: "buyer",
+      };
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
   }
 );
 
@@ -53,21 +63,21 @@ const userSlice = createSlice({
       state.photoURL = "";
       state.role = "buyer";
     },
+    setErrorMessage: (state, { payload }) => {
+      state.isError = true;
+      state.error = payload;
+    },
   },
-
   extraReducers: (builder) => {
     builder
       .addCase(createUser.pending, (state) => {
+        console.log("Creating user...");
         state.isLoading = true;
         state.isError = false;
-        state.uid = "";
-        state.email = "";
-        state.name = "";
-        state.photoURL = "";
-        state.role = "buyer";
         state.error = "";
       })
       .addCase(createUser.fulfilled, (state, { payload }) => {
+        console.log("User created successfully:", payload);
         state.isLoading = false;
         state.isError = false;
         state.uid = payload.uid;
@@ -78,18 +88,14 @@ const userSlice = createSlice({
         state.error = "";
       })
       .addCase(createUser.rejected, (state, action) => {
+        console.log("Registration failed:", action.payload);
         state.isLoading = false;
         state.isError = true;
-        state.uid = "";
-        state.email = "";
-        state.name = "";
-        state.photoURL = "";
-        state.role = "buyer";
-        state.error = action.error.message;
+        state.error = action.payload;
       });
   },
 });
 
-export const { setUser, toggleLoading, logout } = userSlice.actions;
-
+export const { setUser, toggleLoading, logout, setErrorMessage } =
+  userSlice.actions;
 export default userSlice.reducer;
