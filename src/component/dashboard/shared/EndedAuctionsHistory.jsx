@@ -1,78 +1,39 @@
 import { useContext, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
-import Swal from "sweetalert2";
 import ThemeContext from "../../Context/ThemeContext";
 
-function ManageTable() {
+function EndedAuctionsHistory() {
   const axiosSecure = useAxiosSecure();
+  const [currentPage, setCurrentPage] = useState(1);
   const [selectedAuction, setSelectedAuction] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [filterStatus, setFilterStatus] = useState("All");
-  const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
   const { isDarkMode } = useContext(ThemeContext);
 
-  const { data: auctions = [], refetch } = useQuery({
-    queryKey: ["auctionData", filterStatus],
+  const { data: auctions = [] } = useQuery({
+    queryKey: ["endedAuctions"],
     queryFn: async () => {
       const res = await axiosSecure.get("/auctions");
       return res.data || [];
     },
   });
 
-  // Function to check if an auction has ended
   const isAuctionEnded = (endTime) => {
     return new Date(endTime) < new Date();
   };
 
-  const filteredAuctions = auctions.filter((auction) => {
-    if (filterStatus === "All") return !isAuctionEnded(auction.endTime); // Exclude ended auctions from "All"
-    return auction.status === filterStatus && !isAuctionEnded(auction.endTime); // Exclude ended auctions from specific filters
-  });
+  // Filter only ended auctions
+  const endedAuctions = auctions.filter((auction) => isAuctionEnded(auction.endTime));
 
-  const totalItems = filteredAuctions.length;
+  const totalItems = endedAuctions.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const paginatedAuctions = filteredAuctions.slice(startIndex, endIndex);
+  const paginatedAuctions = endedAuctions.slice(startIndex, endIndex);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
-  };
-
-  const updateAuctionStatus = async (id, status) => {
-    try {
-      const result = await Swal.fire({
-        title: `Are you sure?`,
-        text: `You want to ${status.toLowerCase()} this auction?`,
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: `Yes, ${status}`,
-        cancelButtonText: "Cancel",
-        confirmButtonColor: status === "Accepted" ? "#22c55e" : "#ef4444",
-      });
-
-      if (result.isConfirmed) {
-        await axiosSecure.patch(`/auctions/${id}`, { status });
-        await refetch();
-
-        Swal.fire({
-          title: "Success!",
-          text: `Auction ${status.toLowerCase()} successfully.`,
-          icon: "success",
-        });
-
-        setIsModalOpen(false);
-      }
-    } catch (error) {
-      Swal.fire({
-        title: "Error!",
-        text: `Failed to ${status.toLowerCase()} auction.`,
-        icon: "error",
-      });
-      console.error(`Error updating auction status to ${status}:`, error);
-    }
   };
 
   const openDetailsModal = (auction) => {
@@ -105,26 +66,8 @@ function ManageTable() {
     >
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
         <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-0">
-          Manage Auctions
+          Ended Auctions History
         </h2>
-        <div className="flex flex-wrap gap-2">
-          {["All", "pending", "Accepted", "Rejected"].map((status) => (
-            <button
-              key={status}
-              onClick={() => {
-                setFilterStatus(status);
-                setCurrentPage(1);
-              }}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                filterStatus === status
-                  ? `${themeStyles.activeFilterBg} ${themeStyles.activeFilterText}`
-                  : `${themeStyles.buttonBg} ${themeStyles.buttonText} ${themeStyles.buttonHover}`
-              }`}
-            >
-              {status}
-            </button>
-          ))}
-        </div>
       </div>
 
       <div className={`overflow-x-auto rounded-lg ${themeStyles.shadow}`}>
@@ -176,26 +119,14 @@ function ManageTable() {
                   {new Date(auction.endTime).toLocaleString()}
                 </td>
                 <td className="py-4 px-4 sm:px-6 text-sm sm:text-base">
-                  <span
-                    className={`text-xs font-bold py-1 rounded-full px-2 ${
-                      isAuctionEnded(auction.endTime)
-                        ? "bg-gray-200 text-gray-600"
-                        : auction.status === "pending"
-                        ? "bg-yellow-200 text-yellow-600"
-                        : auction.status === "Accepted"
-                        ? "bg-green-200 text-green-600"
-                        : auction.status === "Rejected"
-                        ? "bg-red-200 text-red-600"
-                        : "bg-gray-200 text-gray-600"
-                    }`}
-                  >
-                    {isAuctionEnded(auction.endTime) ? "ended" : auction.status}
+                  <span className="text-xs font-bold py-1 rounded-full px-2 bg-red-500 text-gray-200">
+                    ended
                   </span>
                 </td>
                 <td className="py-4 px-4 sm:px-6">
                   <button
                     onClick={() => openDetailsModal(auction)}
-                    className="px-3 py-1 sm:px-4 sm:py-2 rounded bg-blue-500 hover:bg-blue-600 text-white text-sm sm:text-base transition-colors"
+                    className="px-3 py-1 sm:px-4 sm:py-2 rounded bg-purple-400 hover:bg-purple-600 text-white text-sm sm:text-base transition-colors"
                   >
                     Details
                   </button>
@@ -208,7 +139,7 @@ function ManageTable() {
                   colSpan="6"
                   className={`py-4 px-6 text-center ${themeStyles.secondaryText}`}
                 >
-                  No auctions found for {filterStatus} status
+                  No ended auctions found
                 </td>
               </tr>
             )}
@@ -257,6 +188,7 @@ function ManageTable() {
           <div
             className={`${themeStyles.modalBg} ${themeStyles.modalText} rounded-xl shadow-2xl w-full max-w-[95vw] sm:max-w-4xl max-h-[90vh] overflow-y-auto transition-all duration-300 transform scale-95 hover:scale-100`}
           >
+            {/* Header */}
             <div
               className={`border-b ${themeStyles.modalBorder} p-4 sm:p-5 sticky top-0 ${themeStyles.modalBg} z-10 flex justify-between items-center`}
             >
@@ -290,7 +222,9 @@ function ManageTable() {
               </button>
             </div>
 
+            {/* Content */}
             <div className="p-4 sm:p-6 space-y-8">
+              {/* Images Gallery */}
               <div>
                 <div className="flex items-center mb-4">
                   <svg
@@ -328,8 +262,11 @@ function ManageTable() {
                 </div>
               </div>
 
+              {/* Details Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Left Column */}
                 <div className="space-y-6">
+                  {/* Auction Details Card */}
                   <div
                     className={`p-4 sm:p-5 rounded-lg border ${themeStyles.modalBorder} shadow-sm hover:shadow-md transition-shadow`}
                   >
@@ -363,20 +300,8 @@ function ManageTable() {
                       </div>
                       <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
                         <span className="font-medium">Status</span>
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            isAuctionEnded(selectedAuction.endTime)
-                              ? "bg-gray-100 text-gray-800"
-                              : selectedAuction.status === "pending"
-                              ? "bg-yellow-100 text-yellow-800"
-                              : selectedAuction.status === "Accepted"
-                              ? "bg-green-100 text-green-800"
-                              : "bg-red-100 text-red-800"
-                          }`}
-                        >
-                          {isAuctionEnded(selectedAuction.endTime)
-                            ? "ended"
-                            : selectedAuction.status}
+                        <span className="px-2 py-1 rounded-full text-xs font-medium bg-gray-200 text-gray-600">
+                          ended
                         </span>
                       </div>
                       <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
@@ -394,6 +319,7 @@ function ManageTable() {
                     </div>
                   </div>
 
+                  {/* Description Card */}
                   {selectedAuction.description && (
                     <div
                       className={`p-4 sm:p-5 rounded-lg border ${themeStyles.modalBorder} shadow-sm hover:shadow-md transition-shadow`}
@@ -422,7 +348,9 @@ function ManageTable() {
                   )}
                 </div>
 
+                {/* Right Column */}
                 <div className="space-y-6">
+                  {/* Seller Info Card */}
                   <div
                     className={`p-4 sm:p-5 rounded-lg border ${themeStyles.modalBorder} shadow-sm hover:shadow-md transition-shadow`}
                   >
@@ -478,6 +406,7 @@ function ManageTable() {
                     </div>
                   </div>
 
+                  {/* Timing Card */}
                   <div
                     className={`p-4 sm:p-5 rounded-lg border ${themeStyles.modalBorder} shadow-sm hover:shadow-md transition-shadow`}
                   >
@@ -524,6 +453,7 @@ function ManageTable() {
                     </div>
                   </div>
 
+                  {/* History Card */}
                   {selectedAuction.history && (
                     <div
                       className={`p-4 sm:p-5 rounded-lg border ${themeStyles.modalBorder} shadow-sm hover:shadow-md transition-shadow`}
@@ -554,86 +484,6 @@ function ManageTable() {
                   )}
                 </div>
               </div>
-
-              <div
-                className={`p-4 sm:p-5 rounded-lg border ${themeStyles.modalBorder} shadow-sm`}
-              >
-                <div className="flex items-center mb-4">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 mr-2 text-red-500"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <h3 className="font-bold text-lg">Auction Actions</h3>
-                </div>
-                <div className="flex flex-wrap gap-3">
-                  <button
-                    onClick={() =>
-                      updateAuctionStatus(selectedAuction._id, "Accepted")
-                    }
-                    className={`flex-1 min-w-[120px] px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-all ${
-                      selectedAuction.status === "Accepted" ||
-                      isAuctionEnded(selectedAuction.endTime)
-                        ? "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
-                        : "bg-green-500 hover:bg-green-600 text-white shadow-md hover:shadow-lg"
-                    }`}
-                    disabled={
-                      selectedAuction.status === "Accepted" ||
-                      isAuctionEnded(selectedAuction.endTime)
-                    }
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    Accept
-                  </button>
-                  <button
-                    onClick={() =>
-                      updateAuctionStatus(selectedAuction._id, "Rejected")
-                    }
-                    className={`flex-1 min-w-[120px] px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-all ${
-                      selectedAuction.status === "Rejected" ||
-                      isAuctionEnded(selectedAuction.endTime)
-                        ? "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
-                        : "bg-red-500 hover:bg-red-600 text-white shadow-md hover:shadow-lg"
-                    }`}
-                    disabled={
-                      selectedAuction.status === "Rejected" ||
-                      isAuctionEnded(selectedAuction.endTime)
-                    }
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    Reject
-                  </button>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -642,4 +492,4 @@ function ManageTable() {
   );
 }
 
-export default ManageTable;
+export default EndedAuctionsHistory;

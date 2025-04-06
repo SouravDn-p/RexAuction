@@ -34,6 +34,8 @@ import ThemeContext from "../../Context/ThemeContext";
 import Swal from "sweetalert2";
 import toast from "react-hot-toast";
 import withReactContent from "sweetalert2-react-content";
+import { useAddAnnouncementMutation } from "../../../redux/features/api/announcementApi";
+// import { useAddAnnouncementMutation } from "../../../api/announcementApi"; // Import the mutation hook
 
 const MySwal = withReactContent(Swal);
 
@@ -53,11 +55,13 @@ export default function CreateAnnouncement() {
   const editorRef = useRef(null);
   const linkInputRef = useRef(null);
 
-  // Text formatting states
+
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
   const [isRTL, setIsRTL] = useState(false);
+
+  const [addAnnouncement, { isLoading: isPublishing }] = useAddAnnouncementMutation();
 
   // Theme classes
   const bgMain = isDarkMode ? "bg-gray-900" : "bg-gray-50";
@@ -92,7 +96,7 @@ export default function CreateAnnouncement() {
     }
   };
 
-  // Set up RTL mode properly when it changes
+
   useEffect(() => {
     if (editorRef.current) {
       editorRef.current.style.direction = isRTL ? "rtl" : "ltr";
@@ -127,7 +131,7 @@ export default function CreateAnnouncement() {
           type: file.type,
         });
 
-        // Update previews when all images are loaded
+     
         if (newPreviews.length === imageFiles.length) {
           setPreviews(newPreviews);
         }
@@ -135,7 +139,6 @@ export default function CreateAnnouncement() {
       reader.readAsDataURL(file);
     });
 
-    // If no image files, clear previews
     if (imageFiles.length === 0) {
       setPreviews([]);
     }
@@ -368,11 +371,31 @@ export default function CreateAnnouncement() {
       // Show loading toast
       const toastId = toast.loading("Publishing announcement...");
 
+      // Prepare announcement data
+      const announcementData = {
+        title,
+        content,
+        targetAudience,
+        selectedGroups: targetAudience === "specific" ? selectedGroups : [],
+        startDate: startDate ? startDate.toISOString() : null,
+        endDate: endDate ? endDate.toISOString() : null,
+        // Since the backend doesn't handle file uploads, we'll include file metadata (e.g., file names)
+        // In a real-world scenario, you should upload the files to a storage service (e.g., AWS S3) and include the URLs
+        files: files.map((file) => ({
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          // If you upload files to a service, include the URL here
+          // url: "https://your-storage-service.com/path/to/file",
+        })),
+        createdAt: new Date().toISOString(),
+      };
+
+      // Send POST request using RTK Query mutation
+      const response = await addAnnouncement(announcementData).unwrap();
+
       // Generate DOCX file
       await generateDocx();
-
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       // Success toast
       toast.success("Announcement published successfully!", {
@@ -391,8 +414,10 @@ export default function CreateAnnouncement() {
         confirmButtonColor: "#3b82f6",
       });
     } catch (error) {
-      toast.error("Failed to publish announcement");
-      console.error("Error:", error);
+      toast.error("Failed to publish announcement", {
+        duration: 4000,
+      });
+      console.error("Error publishing announcement:", error);
       await MySwal.fire({
         title: "Error",
         text: "Something went wrong while publishing your announcement",
@@ -401,9 +426,10 @@ export default function CreateAnnouncement() {
       });
     }
   };
+
   return (
     <div className={`min-h-screen p-4 md:p-8 ${bgMain} ${textColor}`}>
-      <div className={`max-w-6xl mx-auto p-6 rounded-lg  ${cardBg}`}>
+      <div className={`max-w-6xl mx-auto p-6 rounded-lg ${cardBg}`}>
         <h1 className="text-2xl font-bold mb-1">Create Announcement</h1>
         <p className={`mb-8 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
           Create and publish announcements to your target audience
@@ -613,7 +639,7 @@ export default function CreateAnnouncement() {
           </div>
 
           {/* Display Dates */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <Label
                 className={`block text-sm font-medium mb-1 ${
@@ -868,8 +894,9 @@ export default function CreateAnnouncement() {
               type="button"
               className="bg-indigo-600 hover:bg-indigo-700 text-white"
               onClick={handlePublish}
+              disabled={isPublishing}
             >
-              Publish
+              {isPublishing ? "Publishing..." : "Publish"}
             </Button>
           </div>
         </div>
