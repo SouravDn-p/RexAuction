@@ -390,7 +390,7 @@ const SellerRequest = () => {
                       isDarkMode ? "text-gray-400" : "text-gray-500"
                     }`}
                   >
-                    No seller requests found
+                    No seller requests found there
                   </p>
                 </td>
               </tr>
