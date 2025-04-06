@@ -8,6 +8,8 @@ import AuthProvider from "./providers/AuthProvider.jsx";
 import { ThemeProvider } from "./component/Context/ThemeContext.jsx";
 import { Toaster } from "react-hot-toast";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Provider } from "react-redux";
+import store from "./redux/store.js";
 
 const queryClient = new QueryClient();
 
@@ -15,6 +17,7 @@ createRoot(document.getElementById("root")).render(
   <StrictMode>
     <div className="min-h-screen">
       <HelmetProvider>
+        <Provider store={store}>
         <AuthProvider>
           <QueryClientProvider client={queryClient}>
             <ThemeProvider>
@@ -23,6 +26,7 @@ createRoot(document.getElementById("root")).render(
             </ThemeProvider>
           </QueryClientProvider>
         </AuthProvider>
+        </Provider>
       </HelmetProvider>
     </div>
   </StrictMode>

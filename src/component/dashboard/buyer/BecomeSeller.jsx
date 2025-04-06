@@ -35,13 +35,11 @@ const BecomeSeller = () => {
   const [selectedCountryCode, setSelectedCountryCode] = useState("+880");
   const { isDarkMode } = useContext(ThemeContext);
 
-  // Auto-fill user data when component mounts or user changes
   useEffect(() => {
     if (user) {
       setValue("email", user.email);
       setValue("name", user.displayName || dbUser?.name || "");
       if (dbUser?.phoneNumber) {
-        // Extract country code if present
         const phoneParts = dbUser.phoneNumber.split(" ");
         if (phoneParts.length > 1) {
           setSelectedCountryCode(phoneParts[0]);
@@ -72,29 +70,35 @@ const BecomeSeller = () => {
     setIsSubmitting(true);
 
     try {
-      // Upload front document image
-      const frontFormData = new FormData();
-      frontFormData.append("image", data.frontDocument[0]);
-      const frontResponse = await fetch(image_hosting_api, {
-        method: "POST",
-        body: frontFormData,
-      });
-      const frontResult = await frontResponse.json();
+      let frontUrl = null;
+      let backUrl = null;
 
-      // Upload back document image
-      const backFormData = new FormData();
-      backFormData.append("image", data.backDocument[0]);
-      const backResponse = await fetch(image_hosting_api, {
-        method: "POST",
-        body: backFormData,
-      });
-      const backResult = await backResponse.json();
-
-      if (!frontResult.success || !backResult.success) {
-        throw new Error("Image upload failed");
+      if (data.frontDocument && data.frontDocument[0]) {
+        const frontFormData = new FormData();
+        frontFormData.append("image", data.frontDocument[0]);
+        const frontResponse = await axiosPublic.post(image_hosting_api, frontFormData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        const frontResult = frontResponse.data;
+        if (!frontResult.success) {
+          throw new Error("Front image upload failed: " + (frontResult.error?.message || "Unknown error"));
+        }
+        frontUrl = frontResult.data.url;
       }
 
-      // Combine country code with phone number
+      if (data.backDocument && data.backDocument[0]) {
+        const backFormData = new FormData();
+        backFormData.append("image", data.backDocument[0]);
+        const backResponse = await axiosPublic.post(image_hosting_api, backFormData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        const backResult = backResponse.data;
+        if (!backResult.success) {
+          throw new Error("Back image upload failed: " + (backResult.error?.message || "Unknown error"));
+        }
+        backUrl = backResult.data.url;
+      }
+
       const fullPhoneNumber = `${selectedCountryCode} ${data.phoneNumber}`;
 
       const requestData = {
@@ -104,8 +108,8 @@ const BecomeSeller = () => {
         address: data.address,
         documentType: data.documentType,
         uid: dbUser.uid,
-        frontDocument: frontResult.data.url,
-        backDocument: backResult.data.url,
+        frontDocument: frontUrl,
+        backDocument: backUrl,
         becomeSellerStatus: "pending",
       };
 
@@ -117,11 +121,11 @@ const BecomeSeller = () => {
         setFrontPreview(null);
         setBackPreview(null);
       } else {
-        throw new Error("Request failed");
+        throw new Error("Server response indicated failure.");
       }
     } catch (error) {
-      console.error("Error submitting form:", error);
-      toast.error("Something went wrong! Please try again.");
+      console.error("Error submitting form:", error.message);
+      toast.error(error.message || "Something went wrong! Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -170,7 +174,7 @@ const BecomeSeller = () => {
               {errors.name && (
                 <p className="text-red-500 text-sm">{errors.name.message}</p>
               )}
-            </div>
+           </div>
 
             <div className="w-1/2">
               <label className="block text-sm font-medium mb-1">
@@ -195,61 +199,63 @@ const BecomeSeller = () => {
             </div>
           </div>
 
-          <div className="flex gap-3">
-            <div className="w-1/2">
-              <label className="block text-sm font-medium mb-1">
-                Phone Number <span className="text-red-500">*</span>
-              </label>
-              <div className="flex">
-                <select
-                  value={selectedCountryCode}
-                  onChange={(e) => setSelectedCountryCode(e.target.value)}
-                  className="w-24 border border-purple-300 rounded-l-lg px-2 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 bg-transparent"
-                >
-                  {countryCodes.map((country) => (
-                    <option key={country.code} value={country.code}>
-                      {country.flag} {country.code}
-                    </option>
-                  ))}
-                </select>
-                <input
-                  type="tel"
-                  placeholder="Enter phone number"
-                  {...register("phoneNumber", {
-                    required: "Phone number is required",
-                    pattern: {
-                      value: /^[0-9]{10,15}$/,
-                      message: "Invalid phone number format (10-15 digits)",
-                    },
-                  })}
-                  className="flex-1 border border-purple-300 rounded-r-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 bg-transparent"
-                />
+          <div className="space-y-4">
+            <div className="flex flex-col lg:flex-row gap-4">
+              <div className="w-full lg:w-1/2">
+                <label className="block text-sm font-medium mb-1">
+                  Phone Number <span className="text-red-500">*</span>
+                </label>
+                <div className="flex">
+                  <select
+                    value={selectedCountryCode}
+                    onChange={(e) => setSelectedCountryCode(e.target.value)}
+                    className="w-24 border border-purple-300 rounded-l-lg px-2 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 bg-transparent"
+                  >
+                    {countryCodes.map((country) => (
+                      <option key={country.code} value={country.code}>
+                        {country.flag} {country.code}
+                      </option>
+                    ))}
+                  </select>
+                  <input
+                    type="tel"
+                    placeholder="Enter phone number"
+                    {...register("phoneNumber", {
+                      required: "Phone number is required",
+                      pattern: {
+                        value: /^[0-9]{10,15}$/,
+                        message: "Invalid phone number format (10-15 digits)",
+                      },
+                    })}
+                    className="flex-1 border border-purple-300 rounded-r-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 bg-transparent"
+                  />
+                </div>
+                {errors.phoneNumber && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.phoneNumber.message}
+                  </p>
+                )}
               </div>
-              {errors.phoneNumber && (
-                <p className="text-red-500 text-sm">
-                  {errors.phoneNumber.message}
-                </p>
-              )}
+
+              <div className="w-full lg:w-1/2">
+                <label className="block text-sm font-medium mb-1">
+                  Address <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter your address"
+                  {...register("address", { required: "Address is required" })}
+                  className="w-full border border-purple-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 bg-transparent"
+                />
+                {errors.address && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.address.message}
+                  </p>
+                )}
+              </div>
             </div>
 
-            <div className="w-1/2">
-              <label className="block text-sm font-medium mb-1">
-                Address <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="text"
-                placeholder="Enter your address"
-                {...register("address", { required: "Address is required" })}
-                className="w-full border border-purple-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 bg-transparent"
-              />
-              {errors.address && (
-                <p className="text-red-500 text-sm">{errors.address.message}</p>
-              )}
-            </div>
-          </div>
-
-          <div className="flex gap-3">
-            <div className="w-1/2">
+            <div className="w-full lg:w-1/2">
               <label className="block text-sm font-medium mb-1">
                 Select Verification <span className="text-red-500">*</span>
               </label>
@@ -265,19 +271,17 @@ const BecomeSeller = () => {
                 <option value="Driving License">Driving License</option>
               </select>
               {errors.documentType && (
-                <p className="text-red-500 text-sm">
+                <p className="text-red-500 text-sm mt-1">
                   {errors.documentType.message}
                 </p>
               )}
             </div>
-            <div className="w-1/2"></div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Front Document Upload */}
             <div>
               <label className="block text-sm font-medium mb-2">
-                Front of Document <span className="text-red-500">*</span>
+                Front of Document
               </label>
               <div
                 className={`relative border-2 border-dashed rounded-lg p-4 text-center ${
@@ -304,14 +308,14 @@ const BecomeSeller = () => {
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         className="h-4 w-4"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                       >
-                        <path
-                          fillRule="evenodd"
-                          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                          clipRule="evenodd"
-                        />
+                        <path d="M18 6L6 18M6 6l12 12" />
                       </svg>
                     </button>
                   </div>
@@ -345,14 +349,11 @@ const BecomeSeller = () => {
                       type="file"
                       accept="image/*"
                       {...register("frontDocument", {
-                        required: "Front document is required",
                         validate: {
                           lessThan5MB: (files) =>
-                            files[0]?.size < 5000000 || "Max 5MB file size",
+                            !files[0] || files[0].size < 5000000 || "Max 5MB file size",
                           acceptedFormats: (files) =>
-                            ["image/jpeg", "image/png"].includes(
-                              files[0]?.type
-                            ) || "Only JPG/PNG files allowed",
+                            !files[0] || ["image/jpeg", "image/png"].includes(files[0].type) || "Only JPG/PNG files allowed",
                         },
                       })}
                       onChange={handleFrontImagePreview}
@@ -373,10 +374,9 @@ const BecomeSeller = () => {
               )}
             </div>
 
-            {/* Back Document Upload */}
             <div>
               <label className="block text-sm font-medium mb-2">
-                Back of Document <span className="text-red-500">*</span>
+                Back of Document
               </label>
               <div
                 className={`relative border-2 border-dashed rounded-lg p-4 text-center ${
@@ -403,14 +403,14 @@ const BecomeSeller = () => {
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         className="h-4 w-4"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                       >
-                        <path
-                          fillRule="evenodd"
-                          d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                          clipRule="evenodd"
-                        />
+                        <path d="M18 6L6 18M6 6l12 12" />
                       </svg>
                     </button>
                   </div>
@@ -444,14 +444,11 @@ const BecomeSeller = () => {
                       type="file"
                       accept="image/*"
                       {...register("backDocument", {
-                        required: "Back document is required",
                         validate: {
                           lessThan5MB: (files) =>
-                            files[0]?.size < 5000000 || "Max 5MB file size",
+                            !files[0] || files[0].size < 5000000 || "Max 5MB file size",
                           acceptedFormats: (files) =>
-                            ["image/jpeg", "image/png"].includes(
-                              files[0]?.type
-                            ) || "Only JPG/PNG files allowed",
+                            !files[0] || ["image/jpeg", "image/png"].includes(files[0].type) || "Only JPG/PNG files allowed",
                         },
                       })}
                       onChange={handleBackImagePreview}

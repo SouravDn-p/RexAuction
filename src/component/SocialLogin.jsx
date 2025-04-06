@@ -1,34 +1,66 @@
 import { useNavigate } from "react-router-dom";
 import google from "../assets/Untitled_design__19_-removebg-preview.png";
-import useAxiosPublic from "../hooks/useAxiosPublic";
-import useAuth from "../hooks/useAuth";
+import { useDispatch } from "react-redux";
+import {
+  setUser,
+  toggleLoading,
+  setErrorMessage,
+} from "../redux/features/user/userSlice";
 import toast from "react-hot-toast";
+import useAuth from "../hooks/useAuth";
+import { useAddUserMutation } from "../redux/features/api/userApi";
+
+
 const SocialLogin = () => {
   const navigate = useNavigate();
-  const axiosPublic = useAxiosPublic();
-  const { signInWithGoogle, setUser } = useAuth();
+  const dispatch = useDispatch();
+  const { signInWithGoogle } = useAuth();
+  const [addUser] = useAddUserMutation();
 
   const handleGoogleLogin = () => {
+    dispatch(toggleLoading(true));
     signInWithGoogle()
       .then((result) => {
         const user = result.user;
-        setUser(user);
-        toast.success(" Login successful");
 
+        // Update Redux store with user data
+        dispatch(
+          setUser({
+            uid: user?.uid,
+            name: user?.displayName,
+            email: user?.email,
+            photoURL: user?.photoURL,
+            role: "buyer",
+          })
+        );
+
+        toast.success("Login successful");
+
+        // User data to be saved
         const userData = {
           uid: user?.uid,
           name: user?.displayName,
           email: user?.email,
           photo: user?.photoURL,
-          role:"buyer"
+          role: "buyer",
         };
 
-        axiosPublic.post("/users", userData);
-
-        navigate("/");
+        // Save user data to the backend using the addUser API
+        addUser(userData)
+          .then(() => {
+            navigate("/");
+          })
+          .catch((error) => {
+            dispatch(setErrorMessage(error.message));
+            toast.error("Failed to save user data");
+          });
       })
-      .catch(() => {
-        toast.error(" Login Unsuccessful");
+      .catch((error) => {
+        dispatch(setErrorMessage(error.message));
+        toast.error("Login Unsuccessful");
+      })
+      .finally(() => {
+        dispatch(toggleLoading(false));
       });
   };
 
