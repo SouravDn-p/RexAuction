@@ -216,7 +216,7 @@ const Sidebar = () => {
                 </span>
               </NavLink>
               <NavLink
-                to="/dashboard/categories"
+                to="/dashboard/endedAuctions"
                 className={({ isActive }) =>
                   `flex items-center gap-3 py-2.5 px-3 rounded-lg transition-all duration-200 ${
                     isActive
@@ -240,37 +240,10 @@ const Sidebar = () => {
                     isDarkMode ? "text-indigo-100" : "text-indigo-800"
                   }`}
                 >
-                  Categories
+                 Ended Auctions History
                 </span>
               </NavLink>
-              <NavLink
-                to="/dashboard/reports"
-                className={({ isActive }) =>
-                  `flex items-center gap-3 py-2.5 px-3 rounded-lg transition-all duration-200 ${
-                    isActive
-                      ? isDarkMode
-                        ? "bg-indigo-700/60 text-white font-bold shadow-md"
-                        : "bg-indigo-200 text-indigo-900 font-bold shadow-md"
-                      : isDarkMode
-                      ? "hover:bg-indigo-800/40 text-indigo-100"
-                      : "hover:bg-indigo-100 text-indigo-800"
-                  }`
-                }
-              >
-                <TbMessageReport
-                  size={20}
-                  className={`${
-                    isDarkMode ? "text-indigo-300" : "text-indigo-700"
-                  }`}
-                />
-                <span
-                  className={`${
-                    isDarkMode ? "text-indigo-100" : "text-indigo-800"
-                  }`}
-                >
-                  Reports
-                </span>
-              </NavLink>
+             
               <NavLink
                 to="/dashboard/createAnnouncement"
                 className={({ isActive }) =>
@@ -423,6 +396,34 @@ const Sidebar = () => {
                   }`}
                 >
                   Manage Auction
+                </span>
+              </NavLink>
+              <NavLink
+                to="/dashboard/reports"
+                className={({ isActive }) =>
+                  `flex items-center gap-3 py-2.5 px-3 rounded-lg transition-all duration-200 ${
+                    isActive
+                      ? isDarkMode
+                        ? "bg-indigo-700/60 text-white font-bold shadow-md"
+                        : "bg-indigo-200 text-indigo-900 font-bold shadow-md"
+                      : isDarkMode
+                      ? "hover:bg-indigo-800/40 text-indigo-100"
+                      : "hover:bg-indigo-100 text-indigo-800"
+                  }`
+                }
+              >
+                <TbMessageReport
+                  size={20}
+                  className={`${
+                    isDarkMode ? "text-indigo-300" : "text-indigo-700"
+                  }`}
+                />
+                <span
+                  className={`${
+                    isDarkMode ? "text-indigo-100" : "text-indigo-800"
+                  }`}
+                >
+                  Reports
                 </span>
               </NavLink>
             </div>

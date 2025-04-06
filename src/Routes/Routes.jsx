@@ -33,6 +33,7 @@ import SettingsLayout from "../component/Settings/SettingsLayout";
 import Plan from "../component/Settings/Plan";
 import TermsAndConditionsBuyer from "../extra/terms/TermsConditionsBuyer";
 import useAxiosPublic from "../hooks/useAxiosPublic";
+import EndedAuctionsHistory from "../component/dashboard/shared/EndedAuctionsHistory";
 
 // import TeamSettings from "../component/Settings/TeamSettings";
 // import PlanSettings from "../component/Settings/PlanSettings";
@@ -107,6 +108,10 @@ export const router = createBrowserRouter([
       {
         path: "manageAuctions",
         element: <ManageAuctions />,
+      },
+      {
+        path: "endedAuctions",
+        element: <EndedAuctionsHistory/>,
       },
       {
         path: "sellerRequest",
