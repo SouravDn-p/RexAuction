@@ -147,7 +147,7 @@ export default function LiveBid() {
   if (loading) return <LoadingSpinner />;
 
   return (
-    <div className={`min-h-screen mt-20 ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
+    <div className={`min-h-screen mt-20 ${isDarkMode ? "bg-gray-900" : "bg-purple-200/80"}`}>
       <div className={`w-11/12 mx-auto py-12 ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Left Side (Images & Details) */}

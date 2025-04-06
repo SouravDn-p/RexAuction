@@ -75,8 +75,8 @@ const Navbar = () => {
               ? "bg-gray-900 bg-opacity-90 lg:backdrop-blur-md"
               : "bg-purple-600 bg-opacity-70 lg:backdrop-blur-md"
             : isDarkMode
-            ? " border-b-0 "
-            : "lg:bg-inherit border-b-0 bg-purple-600"
+            ? "  bg-gray-800 "
+            : "lg:bg-purple-700   bg-purple-600"
         }`}
       >
         <div className="container mx-auto flex justify-between items-center">

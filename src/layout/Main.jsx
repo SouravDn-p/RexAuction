@@ -11,7 +11,7 @@ const Main = () => {
     location.pathname.includes("forgotPassword");
 
   return (
-    <div className="mx-auto bg-white">
+    <div className="mx-auto ">
       {head || <Navbar />}
       <Outlet />
       {head || <Footer />}
