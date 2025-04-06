@@ -46,6 +46,7 @@ const UserManagement = () => {
   }, []);
 
   const handleRoleChange = async (userId, role) => {
+    console.log(userId, role);
     Swal.fire({
       title: "Are you sure?",
       text: `Do you want to change the role to ${role}?`,
