@@ -26,7 +26,6 @@ function ManageTable() {
     return auction.status === filterStatus;
   });
 
-  // Pagination
   const totalItems = filteredAuctions.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -76,7 +75,6 @@ function ManageTable() {
     setIsModalOpen(true);
   };
 
-  // Define theme-based styles
   const themeStyles = {
     background: isDarkMode ? "bg-gray-900" : "bg-gray-100",
     text: isDarkMode ? "text-white" : "text-gray-900",
@@ -104,7 +102,6 @@ function ManageTable() {
         <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-0">
           Manage Auctions
         </h2>
-        {/* Filter Buttons */}
         <div className="flex flex-wrap gap-2">
           {["All", "pending", "Accepted", "Rejected"].map((status) => (
             <button
@@ -174,7 +171,19 @@ function ManageTable() {
                   {new Date(auction.endTime).toLocaleString()}
                 </td>
                 <td className="py-4 px-4 sm:px-6 text-sm sm:text-base">
-                  {auction.status}
+                  <span
+                    className={`text-xs font-bold py-1 rounded-full px-2 ${
+                      auction.status === "pending"
+                        ? "bg-yellow-200 text-yellow-600"
+                        : auction.status === "Accepted"
+                        ? "bg-green-200 text-green-600"
+                        : auction.status === "Rejected"
+                        ? "bg-red-200 text-red-600"
+                        : "bg-gray-200 text-gray-600" 
+                    }`}
+                  >
+                    {auction.status}
+                  </span>
                 </td>
                 <td className="py-4 px-4 sm:px-6">
                   <button
@@ -200,7 +209,6 @@ function ManageTable() {
         </table>
       </div>
 
-      {/* Pagination */}
       {totalItems > itemsPerPage && (
         <div className="flex justify-center mt-6">
           <div className="flex gap-2">
@@ -237,13 +245,11 @@ function ManageTable() {
         </div>
       )}
 
-      {/* Custom Modal Dialog */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
           <div
             className={`${themeStyles.modalBg} ${themeStyles.modalText} rounded-xl shadow-2xl w-full max-w-[95vw] sm:max-w-4xl max-h-[90vh] overflow-y-auto transition-all duration-300 transform scale-95 hover:scale-100`}
           >
-            {/* Header */}
             <div
               className={`border-b ${themeStyles.modalBorder} p-4 sm:p-5 sticky top-0 ${themeStyles.modalBg} z-10 flex justify-between items-center`}
             >
@@ -277,9 +283,7 @@ function ManageTable() {
               </button>
             </div>
 
-            {/* Content */}
             <div className="p-4 sm:p-6 space-y-8">
-              {/* Images Gallery */}
               <div>
                 <div className="flex items-center mb-4">
                   <svg
@@ -317,11 +321,8 @@ function ManageTable() {
                 </div>
               </div>
 
-              {/* Details Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Left Column */}
                 <div className="space-y-6">
-                  {/* Auction Details Card */}
                   <div
                     className={`p-4 sm:p-5 rounded-lg border ${themeStyles.modalBorder} shadow-sm hover:shadow-md transition-shadow`}
                   >
@@ -357,7 +358,7 @@ function ManageTable() {
                         <span className="font-medium">Status</span>
                         <span
                           className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            selectedAuction.status === "Pending"
+                            selectedAuction.status === "pending"
                               ? "bg-yellow-100 text-yellow-800"
                               : selectedAuction.status === "Accepted"
                               ? "bg-green-100 text-green-800"
@@ -382,7 +383,6 @@ function ManageTable() {
                     </div>
                   </div>
 
-                  {/* Description Card */}
                   {selectedAuction.description && (
                     <div
                       className={`p-4 sm:p-5 rounded-lg border ${themeStyles.modalBorder} shadow-sm hover:shadow-md transition-shadow`}
@@ -411,9 +411,7 @@ function ManageTable() {
                   )}
                 </div>
 
-                {/* Right Column */}
                 <div className="space-y-6">
-                  {/* Seller Info Card */}
                   <div
                     className={`p-4 sm:p-5 rounded-lg border ${themeStyles.modalBorder} shadow-sm hover:shadow-md transition-shadow`}
                   >
@@ -469,7 +467,6 @@ function ManageTable() {
                     </div>
                   </div>
 
-                  {/* Timing Card */}
                   <div
                     className={`p-4 sm:p-5 rounded-lg border ${themeStyles.modalBorder} shadow-sm hover:shadow-md transition-shadow`}
                   >
@@ -516,7 +513,6 @@ function ManageTable() {
                     </div>
                   </div>
 
-                  {/* History Card */}
                   {selectedAuction.history && (
                     <div
                       className={`p-4 sm:p-5 rounded-lg border ${themeStyles.modalBorder} shadow-sm hover:shadow-md transition-shadow`}
@@ -548,7 +544,6 @@ function ManageTable() {
                 </div>
               </div>
 
-              {/* Actions Card */}
               <div
                 className={`p-4 sm:p-5 rounded-lg border ${themeStyles.modalBorder} shadow-sm`}
               >
