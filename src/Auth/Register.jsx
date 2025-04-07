@@ -4,7 +4,10 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useDispatch, useSelector } from "react-redux";
 import { createUser } from "../redux/features/user/userSlice";
-import { useAddUserMutation, useUpdateUserMutation } from "../redux/features/api/userApi";
+import {
+  useAddUserMutation,
+  useUpdateUserMutation,
+} from "../redux/features/api/userApi";
 import logo from "../assets/Logos/register.jpg";
 import SocialLogin from "../component/SocialLogin";
 
@@ -23,7 +26,7 @@ const Register = () => {
 
   const { isLoading, isError, error } = useSelector((state) => state.userSlice);
   const [newUser] = useAddUserMutation();
- 
+
   // Password validation criteria
   const passwordCriteria = [
     { test: /[A-Z]/, message: "One uppercase letter" },
@@ -73,6 +76,19 @@ const Register = () => {
         email: result.email,
         photo: result.photoURL,
         role: "buyer",
+        AuctionsWon: 0,
+        ActiveBids: 0,
+        TotalSpent: 0,
+        accountBalance: 0,
+        BiddingHistory: [],
+        onGoingBid: 0,
+        Location: "",
+        memberSince: new Date().toLocaleDateString("en-US", {
+          month: "long",
+          year: "numeric",
+        }),
+        recentActivity: [],
+        watchingNow: [],
       });
 
       toast.success("Registration successful! Redirecting...");

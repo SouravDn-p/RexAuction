@@ -46,6 +46,17 @@ const LoginPage = () => {
           email: user.email,
           photoURL: user.photoURL,
           role: "buyer",
+          AuctionsWon: 0,
+          ActiveBids: 0,
+          TotalSpent: 0,
+          AccountBalance: 0,
+          BiddingHistory: 0,
+          onGoingBid: 0,
+          location: "",
+          memberSince: new Date().toLocaleDateString("en-US", {
+            month: "long",
+            year: "numeric",
+          }),
         })
       );
 

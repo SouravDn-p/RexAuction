@@ -10,7 +10,6 @@ import toast from "react-hot-toast";
 import useAuth from "../hooks/useAuth";
 import { useAddUserMutation } from "../redux/features/api/userApi";
 
-
 const SocialLogin = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -31,6 +30,12 @@ const SocialLogin = () => {
             email: user?.email,
             photoURL: user?.photoURL,
             role: "buyer",
+            AuctionsWon: 0,
+            ActiveBids: 0,
+            TotalSpent: 0,
+            accountBalance: 0,
+            BiddingHistory: 0,
+            onGoingBid: 0,
           })
         );
 
@@ -43,6 +48,19 @@ const SocialLogin = () => {
           email: user?.email,
           photo: user?.photoURL,
           role: "buyer",
+          AuctionsWon: 0,
+          ActiveBids: 0,
+          TotalSpent: 0,
+          accountBalance: 0,
+          BiddingHistory: [],
+          onGoingBid: 0,
+          location: "",
+          memberSince: new Date().toLocaleDateString("en-US", {
+            month: "long",
+            year: "numeric",
+          }),
+          recentActivity: [],
+          watchingNow: [],
         };
 
         // Save user data to the backend using the addUser API
