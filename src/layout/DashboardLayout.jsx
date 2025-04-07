@@ -7,7 +7,7 @@ import useAxiosPublic from "../hooks/useAxiosPublic";
 
 const DashboardLayout = () => {
   const { isDarkMode } = useContext(ThemeContext);
-  const { user, dbUser, setDbUser, setLoading, loading } =
+  const { user, dbUser, setDbUser, setLoading, loading, setErrorMessage } =
     useContext(AuthContexts);
   const axiosPublic = useAxiosPublic();
 

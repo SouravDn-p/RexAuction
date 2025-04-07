@@ -10,8 +10,6 @@ import { Link } from "react-router-dom";
 const image_hosting_key = import.meta.env.VITE_IMAGE_HOSTING_KEY;
 const image_hosting_api = `https://api.imgbb.com/1/upload?key=${image_hosting_key}`;
 
-
-
 const countryCodes = [
   { code: "+880", name: "Bangladesh", flag: "🇧🇩" },
   { code: "+1", name: "USA", flag: "🇺🇸" },
@@ -78,12 +76,19 @@ const BecomeSeller = () => {
       if (data.frontDocument && data.frontDocument[0]) {
         const frontFormData = new FormData();
         frontFormData.append("image", data.frontDocument[0]);
-        const frontResponse = await axiosPublic.post(image_hosting_api, frontFormData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+        const frontResponse = await axiosPublic.post(
+          image_hosting_api,
+          frontFormData,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+          }
+        );
         const frontResult = frontResponse.data;
         if (!frontResult.success) {
-          throw new Error("Front image upload failed: " + (frontResult.error?.message || "Unknown error"));
+          throw new Error(
+            "Front image upload failed: " +
+              (frontResult.error?.message || "Unknown error")
+          );
         }
         frontUrl = frontResult.data.url;
       }
@@ -91,12 +96,19 @@ const BecomeSeller = () => {
       if (data.backDocument && data.backDocument[0]) {
         const backFormData = new FormData();
         backFormData.append("image", data.backDocument[0]);
-        const backResponse = await axiosPublic.post(image_hosting_api, backFormData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+        const backResponse = await axiosPublic.post(
+          image_hosting_api,
+          backFormData,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+          }
+        );
         const backResult = backResponse.data;
         if (!backResult.success) {
-          throw new Error("Back image upload failed: " + (backResult.error?.message || "Unknown error"));
+          throw new Error(
+            "Back image upload failed: " +
+              (backResult.error?.message || "Unknown error")
+          );
         }
         backUrl = backResult.data.url;
       }
@@ -110,10 +122,14 @@ const BecomeSeller = () => {
         address: data.address,
         documentType: data.documentType,
         uid: dbUser.uid,
+        dbUserId: dbUser._id,
         frontDocument: frontUrl,
         backDocument: backUrl,
         becomeSellerStatus: "pending",
+        requestDate: new Date().toString(),
       };
+
+      console.log(requestData);
 
       const res = await axiosPublic.post("become_seller", requestData);
 
@@ -176,7 +192,7 @@ const BecomeSeller = () => {
               {errors.name && (
                 <p className="text-red-500 text-sm">{errors.name.message}</p>
               )}
-           </div>
+            </div>
 
             <div className="w-1/2">
               <label className="block text-sm font-medium mb-1">
@@ -353,9 +369,15 @@ const BecomeSeller = () => {
                       {...register("frontDocument", {
                         validate: {
                           lessThan5MB: (files) =>
-                            !files[0] || files[0].size < 5000000 || "Max 5MB file size",
+                            !files[0] ||
+                            files[0].size < 5000000 ||
+                            "Max 5MB file size",
                           acceptedFormats: (files) =>
-                            !files[0] || ["image/jpeg", "image/png"].includes(files[0].type) || "Only JPG/PNG files allowed",
+                            !files[0] ||
+                            ["image/jpeg", "image/png"].includes(
+                              files[0].type
+                            ) ||
+                            "Only JPG/PNG files allowed",
                         },
                       })}
                       onChange={handleFrontImagePreview}
@@ -448,9 +470,15 @@ const BecomeSeller = () => {
                       {...register("backDocument", {
                         validate: {
                           lessThan5MB: (files) =>
-                            !files[0] || files[0].size < 5000000 || "Max 5MB file size",
+                            !files[0] ||
+                            files[0].size < 5000000 ||
+                            "Max 5MB file size",
                           acceptedFormats: (files) =>
-                            !files[0] || ["image/jpeg", "image/png"].includes(files[0].type) || "Only JPG/PNG files allowed",
+                            !files[0] ||
+                            ["image/jpeg", "image/png"].includes(
+                              files[0].type
+                            ) ||
+                            "Only JPG/PNG files allowed",
                         },
                       })}
                       onChange={handleBackImagePreview}
