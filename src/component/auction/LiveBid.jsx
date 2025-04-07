@@ -5,6 +5,7 @@ import { FaShare } from "react-icons/fa6";
 import { IoFlagOutline } from "react-icons/io5";
 import { MdVerifiedUser } from "react-icons/md";
 import { AiFillCrown } from "react-icons/ai";
+import { FaEnvelope } from "react-icons/fa"; // Added for message icon
 import { useParams } from "react-router-dom";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
 import { AuthContexts } from "../../providers/AuthProvider";
@@ -20,14 +21,17 @@ export default function LiveBid() {
   const { isDarkMode } = useContext(ThemeContext);
   const [bidAmount, setBidAmount] = useState("");
   const [addBid, { isLoading: isBidLoading }] = useAddBidsMutation();
-  
+  const [showMessageModal, setShowMessageModal] = useState(false); // State for modal visibility
+  const [message, setMessage] = useState(""); // State for message input
+  const [messageStatus, setMessageStatus] = useState(""); // State for success/error feedback
+
   // Fetch top bidders
   const { data: topBiddersData, refetch: refetchTopBidders, isFetching: isTopBiddersFetching } = useGetTopBiddersQuery(id);
 
   // Fetch recent activity
   const { data: recentActivityData, refetch: refetchRecentActivity, isFetching: isRecentActivityFetching } = useGetRecentActivityQuery(id);
 
-  // Process top bidders (already unique from server)
+  // Process top bidders
   const topBidders = topBiddersData?.map((bidder, index) => ({
     name: bidder.name,
     bid: `$${bidder.amount.toLocaleString()}`,
@@ -44,7 +48,7 @@ export default function LiveBid() {
   })) || [];
 
   // Process recent activity
-  const recentActivity = recentActivityData?.map((bidder, index) => ({
+  const recentActivity = recentActivityData?.map((bidder) => ({
     name: bidder.name,
     bid: `$${bidder.amount.toLocaleString()}`,
     photo: bidder.photo,
@@ -69,10 +73,7 @@ export default function LiveBid() {
 
     const calculateCountdown = () => {
       const currentTime = new Date().getTime();
-      const remainingSeconds = Math.max(
-        0,
-        Math.floor((endTime - currentTime) / 1000)
-      );
+      const remainingSeconds = Math.max(0, Math.floor((endTime - currentTime) / 1000));
       setCountdown(remainingSeconds);
     };
 
@@ -144,6 +145,40 @@ export default function LiveBid() {
     }
   };
 
+  // Handle sending message to seller
+  const handleSendMessage = async () => {
+    if (!user) {
+      alert("Please log in to send a message");
+      return;
+    }
+    if (!message.trim()) {
+      alert("Please enter a message");
+      return;
+    }
+
+    const messageData = {
+      senderEmail: user.email,
+      senderName: user.displayName || "Anonymous",
+      receiverEmail: liveBid?.sellerEmail,
+      auctionId: id,
+      message: message.trim(),
+      timestamp: new Date().toISOString(),
+    };
+
+    try {
+      const response = await axiosPublic.post("/send-message", messageData);
+      if (response.status === 200) {
+        setMessageStatus("Message sent successfully!");
+        setMessage("");
+        setTimeout(() => setMessageStatus(""), 3000); // Clear status after 3 seconds
+      }
+    } catch (error) {
+      console.error("Failed to send message:", error);
+      setMessageStatus("Failed to send message. Please try again.");
+      setTimeout(() => setMessageStatus(""), 3000);
+    }
+  };
+
   if (loading) return <LoadingSpinner />;
 
   return (
@@ -207,22 +242,35 @@ export default function LiveBid() {
               </div>
             </div>
 
+            {/* Seller Information with Message Option */}
             <div className={`p-6 rounded-xl shadow-md ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
               <h3 className="text-xl font-semibold pb-4">Seller Information</h3>
-              <div className="flex gap-4 items-center">
-                <img
-                  src={liveBid?.sellerPhotoUrl || img}
-                  className="w-16 h-16 rounded-full object-cover"
-                  alt="Seller"
-                  onError={(e) => { e.target.src = img; }}
-                />
-                <div>
-                  <h3 className="text-lg font-semibold">{liveBid?.sellerDisplayName || "Anonymous"}</h3>
-                  <p className={`${isDarkMode ? "text-gray-400" : "text-gray-600"} text-sm`}>{liveBid?.sellerEmail}</p>
-                  <p className="text-green-500 flex items-center text-sm mt-1">
-                    <MdVerifiedUser className="mr-1" /> Verified seller
-                  </p>
+              <div className="flex gap-4 items-center justify-between">
+                <div className="flex gap-4 items-center">
+                  <img
+                    src={liveBid?.sellerPhotoUrl || img}
+                    className="w-16 h-16 rounded-full object-cover"
+                    alt="Seller"
+                    onError={(e) => { e.target.src = img; }}
+                  />
+                  <div>
+                    <h3 className="text-lg font-semibold">{liveBid?.sellerDisplayName || "Anonymous"}</h3>
+                    <p className={`${isDarkMode ? "text-gray-400" : "text-gray-600"} text-sm`}>{liveBid?.sellerEmail}</p>
+                    <p className="text-green-500 flex items-center text-sm mt-1">
+                      <MdVerifiedUser className="mr-1" /> Verified seller
+                    </p>
+                  </div>
                 </div>
+                <button
+                  onClick={() => setShowMessageModal(true)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
+                    isDarkMode
+                      ? "bg-gray-700 hover:bg-gray-600 text-gray-200"
+                      : "bg-purple-100 hover:bg-purple-200 text-purple-600"
+                  }`}
+                >
+                  <FaEnvelope /> Message Seller
+                </button>
               </div>
             </div>
           </div>
@@ -265,21 +313,12 @@ export default function LiveBid() {
               <h3 className="text-xl font-bold mb-3">Top Bidders</h3>
               <div className="space-y-3">
                 {isTopBiddersFetching ? (
-                  <p className={`text-center py-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                    Loading bidders...
-                  </p>
+                  <p className={`text-center py-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Loading bidders...</p>
                 ) : topBidders.length > 0 ? (
                   topBidders.map((bidder, index) => (
-                    <div
-                      key={index}
-                      className={`flex items-center gap-3 p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-100"}`}
-                    >
+                    <div key={index} className={`flex items-center gap-3 p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-100"}`}>
                       {bidder.icon}
-                      <img
-                        src={bidder.photo || img}
-                        className="w-10 h-10 rounded-full object-cover"
-                        alt="Bidder"
-                      />
+                      <img src={bidder.photo || img} className="w-10 h-10 rounded-full object-cover" alt="Bidder" />
                       <div className="flex-1">
                         <h3 className="font-medium">{bidder.name}</h3>
                         <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>{bidder.bid}</p>
@@ -341,30 +380,17 @@ export default function LiveBid() {
               <h3 className="text-xl font-bold mb-3">Recent Activity</h3>
               <div className="space-y-3">
                 {isRecentActivityFetching ? (
-                  <p className={`text-center py-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                    Loading recent activity...
-                  </p>
+                  <p className={`text-center py-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>Loading recent activity...</p>
                 ) : recentActivity.length > 0 ? (
                   recentActivity.map((bidder, index) => (
-                    <div
-                      key={index}
-                      className={`flex items-center gap-3 p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}
-                    >
-                      <img
-                        src={bidder.photo || img}
-                        className="w-10 h-10 rounded-full object-cover"
-                        alt="Bidder"
-                      />
+                    <div key={index} className={`flex items-center gap-3 p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}>
+                      <img src={bidder.photo || img} className="w-10 h-10 rounded-full object-cover" alt="Bidder" />
                       <div className="flex-1">
                         <div className="flex justify-between items-center">
                           <h3 className="font-medium">{bidder.name}</h3>
-                          <span className={`text-sm font-semibold ${isDarkMode ? "text-purple-400" : "text-purple-600"}`}>
-                            {bidder.bid}
-                          </span>
+                          <span className={`text-sm font-semibold ${isDarkMode ? "text-purple-400" : "text-purple-600"}`}>{bidder.bid}</span>
                         </div>
-                        <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                          {formatRelativeTime(bidder.createdAt)}
-                        </p>
+                        <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{formatRelativeTime(bidder.createdAt)}</p>
                       </div>
                     </div>
                   ))
@@ -377,6 +403,59 @@ export default function LiveBid() {
             </div>
           </div>
         </div>
+
+        {/* Message Modal */}
+        {showMessageModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className={`w-full max-w-md p-6 rounded-xl shadow-lg ${isDarkMode ? "bg-gray-800 text-gray-200" : "bg-white text-gray-800"}`}>
+              <h3 className="text-xl font-bold mb-4">Message Seller</h3>
+              <p className={`mb-2 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                To: {liveBid?.sellerDisplayName || "Anonymous"} ({liveBid?.sellerEmail})
+              </p>
+              <textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="Type your message here..."
+                className={`w-full p-3 rounded-lg mb-4 focus:outline-none focus:ring-2 ${
+                  isDarkMode
+                    ? "bg-gray-700 border-gray-600 focus:ring-purple-500 text-gray-200"
+                    : "bg-white border-gray-300 focus:ring-purple-400 text-gray-800"
+                } border resize-none h-32`}
+              />
+              {messageStatus && (
+                <p className={`text-sm mb-4 ${messageStatus.includes("Failed") ? "text-red-500" : "text-green-500"}`}>
+                  {messageStatus}
+                </p>
+              )}
+              <div className="flex gap-4">
+                <button
+                  onClick={handleSendMessage}
+                  className={`flex-1 py-2 rounded-lg transition ${
+                    isDarkMode
+                      ? "bg-purple-600 hover:bg-purple-700 text-white"
+                      : "bg-purple-600 hover:bg-purple-700 text-white"
+                  }`}
+                >
+                  Send
+                </button>
+                <button
+                  onClick={() => {
+                    setShowMessageModal(false);
+                    setMessage("");
+                    setMessageStatus("");
+                  }}
+                  className={`flex-1 py-2 rounded-lg transition ${
+                    isDarkMode
+                      ? "bg-gray-600 hover:bg-gray-700 text-gray-200"
+                      : "bg-gray-200 hover:bg-gray-300 text-gray-800"
+                  }`}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
