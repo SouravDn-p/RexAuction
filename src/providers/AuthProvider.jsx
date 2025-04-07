@@ -28,6 +28,7 @@ const AuthProvider = ({ children }) => {
   const [errorMessage, setErrorMessage] = useState("");
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
   const [loading, setLoading] = useState(true);
+  const [walletBalance, setWalletBalance] = useState(0);
 
   // get specific user data
   useEffect(() => {
@@ -151,6 +152,8 @@ const AuthProvider = ({ children }) => {
     setDbUser,
     liveBid,
     setLiveBid,
+    walletBalance,
+    setWalletBalance,
   };
 
   return (

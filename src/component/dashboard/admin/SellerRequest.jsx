@@ -16,7 +16,6 @@ const SellerRequest = () => {
   const { isDarkMode } = useContext(ThemeContext);
   const { dbUser } = useContext(AuthContexts);
   const [selectedRole, setSelectedRole] = useState("pending");
-  console.log(selectedRole);
   const handleRoleFilter = (role) => {
     setSelectedRole(role);
     setCurrentPage(1);
@@ -67,7 +66,6 @@ const SellerRequest = () => {
 
   // Handle role change
   const handleRoleChange = async (userId, dbUserId, role) => {
-    console.log(userId, dbUserId, role);
     Swal.fire({
       title: "Are you sure?",
       text: `Do you want to change the role to ${role}?`,
