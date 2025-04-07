@@ -34,6 +34,7 @@ import Plan from "../component/Settings/Plan";
 import TermsAndConditionsBuyer from "../extra/terms/TermsConditionsBuyer";
 import useAxiosPublic from "../hooks/useAxiosPublic";
 import EndedAuctionsHistory from "../component/dashboard/shared/EndedAuctionsHistory";
+import AccountBalance from "../extra/wallet/AccountBalance";
 
 // import TeamSettings from "../component/Settings/TeamSettings";
 // import PlanSettings from "../component/Settings/PlanSettings";
@@ -81,6 +82,10 @@ export const router = createBrowserRouter([
         path: "terms",
         element: <TermsAndConditionsBuyer />,
       },
+      {
+        path: "addBalance",
+        element: <AccountBalance />,
+      },
     ],
   },
   {
@@ -111,7 +116,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "endedAuctions",
-        element: <EndedAuctionsHistory/>,
+        element: <EndedAuctionsHistory />,
       },
       {
         path: "sellerRequest",
@@ -203,6 +208,10 @@ export const router = createBrowserRouter([
       {
         path: "feedback",
         element: <Feedback />,
+      },
+      {
+        path: "addBalance",
+        element: <AccountBalance />,
       },
     ],
   },

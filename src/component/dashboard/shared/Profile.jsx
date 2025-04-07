@@ -101,7 +101,7 @@ const profileData = {
 
 const Profile = () => {
   // Get real user data from auth context
-  const { user, loading: authLoading, dbUser } = useAuth();
+  const { user, loading: authLoading, dbUser, setDbUser } = useAuth();
   const [activeTab, setActiveTab] = useState("All");
   const { isDarkMode } = useContext(ThemeContext);
 
