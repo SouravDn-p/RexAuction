@@ -21,7 +21,7 @@ export default function Chat({ isDarkMode }) {
   const [unreadMessages, setUnreadMessages] = useState({})
   const [isPageVisible, setIsPageVisible] = useState(true)
 
-  // Initialize socket connection
+  
   useEffect(() => {
     // Initialize socket connection
     if (!socketRef.current) {
@@ -30,7 +30,7 @@ export default function Chat({ isDarkMode }) {
         reconnection: true,
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
-        timeout: 10000, // Increase timeout
+        timeout: 10000,
       })
 
       console.log("Socket initialized")
@@ -44,7 +44,6 @@ export default function Chat({ isDarkMode }) {
       setSocketConnected(true)
       setConnectionError(null)
 
-      // Re-join chat room after reconnection if a user is selected
       const user = auth.currentUser
       const storedUser = JSON.parse(localStorage.getItem("selectedUser"))
 
@@ -69,17 +68,16 @@ export default function Chat({ isDarkMode }) {
       console.log("Socket disconnected:", reason)
       setSocketConnected(false)
       if (reason === "io server disconnect") {
-        // The server has forcefully disconnected the socket
-        socket.connect() // Manually reconnect
+        socket.connect() 
       }
     })
 
-    // Page visibility API to handle background/foreground state
+   
     const handleVisibilityChange = () => {
       const isVisible = document.visibilityState === "visible"
       setIsPageVisible(isVisible)
 
-      // If becoming visible and we have a selected user, refresh messages
+
       if (isVisible && selectedUser) {
         refreshMessages(selectedUser)
       }
@@ -87,7 +85,7 @@ export default function Chat({ isDarkMode }) {
 
     document.addEventListener("visibilitychange", handleVisibilityChange)
 
-    // Clean up on component unmount
+
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange)
 
@@ -98,7 +96,7 @@ export default function Chat({ isDarkMode }) {
         socket.off("disconnect")
       }
     }
-  }, []) // Empty dependency array ensures this runs once on mount
+  }, [])
 
   // Function to refresh messages
   const refreshMessages = async (user) => {
@@ -127,47 +125,46 @@ export default function Chat({ isDarkMode }) {
     const storedUser = JSON.parse(localStorage.getItem("selectedUser"))
 
     if (preSelectedUser) {
-      // If coming from navigation (e.g., LiveBid), use that user
       setSelectedUser(preSelectedUser)
       localStorage.setItem("selectedUser", JSON.stringify(preSelectedUser))
     } else if (storedUser && !selectedUser) {
-      // If no navigation state but there's a stored user, restore it
+   
       setSelectedUser(storedUser)
     }
   }, [location.state])
 
-  // Update localStorage whenever selectedUser changes
+  
   useEffect(() => {
     if (selectedUser) {
       localStorage.setItem("selectedUser", JSON.stringify(selectedUser))
     }
   }, [selectedUser])
 
-  // Set up global message listener for notifications
+
   useEffect(() => {
     const user = auth.currentUser
     if (!user || !socketRef.current) return
 
     const socket = socketRef.current
 
-    // Global message listener for all incoming messages
+    
     const handleGlobalMessage = (message) => {
       console.log("Global message received:", message)
 
       // If this message is for the current user
       if (message.receiverId === user.email) {
-        // If the message is from the currently selected user, update messages
+      
         if (selectedUser && message.senderId === selectedUser.email) {
           setMessages((prev) => [...prev, { ...message, sent: false }])
         }
-        // Otherwise, update unread count for that sender
+    
         else {
           setUnreadMessages((prev) => ({
             ...prev,
             [message.senderId]: (prev[message.senderId] || 0) + 1,
           }))
 
-          // Show browser notification if page is not visible
+
           if (!isPageVisible) {
             showNotification(message)
           }
@@ -249,8 +246,7 @@ export default function Chat({ isDarkMode }) {
           console.log("Ping response:", response)
         })
       }
-    }, 30000) // Every 30 seconds
-
+    }, 30000) 
     return () => {
       clearInterval(pingInterval)
     }
@@ -283,31 +279,29 @@ export default function Chat({ isDarkMode }) {
       roomId: [user.email, selectedUser.email].sort().join("_"),
     }
 
-    // Add message to local state immediately for better UX
     setMessages((prev) => [...prev, { ...messageData, sent: true }])
 
     // Send message through socket
     socketRef.current.emit("sendMessage", messageData, (acknowledgement) => {
       if (!acknowledgement || !acknowledgement.success) {
         console.error("Failed to send message:", acknowledgement?.error || "Unknown error")
-        // Optionally show an error to the user
+        
       }
     })
 
     setNewMessage("")
   }
 
-  // Determine if the current user is the buyer or seller
   const userRole = () => {
     const user = auth.currentUser
     if (!user || !selectedUser) return "User"
     return user.email === selectedUser.email ? "Seller" : "Buyer"
   }
 
-  // Handle user selection from sidebar
+ 
   const handleSelectUser = (user) => {
     setSelectedUser(user)
-    // Reset unread count for this user
+  
     setUnreadMessages((prev) => ({
       ...prev,
       [user.email]: 0,
