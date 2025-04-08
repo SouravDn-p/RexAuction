@@ -1,56 +1,66 @@
-import { useState, useEffect, useRef, useContext } from "react";
-import ChatSidebar from "./ChatSidebar";
-import io from "socket.io-client";
-import axios from "axios";
-import auth from "../../firebase/firebase.init";
-import { useLocation } from "react-router-dom";
-import ThemeContext from "../Context/ThemeContext";
+
+import { useState, useEffect, useRef, useContext } from "react"
+import ChatSidebar from "./ChatSidebar"
+import io from "socket.io-client"
+import axios from "axios"
+import auth from "../../firebase/firebase.init"
+import { useLocation } from "react-router-dom"
+import ThemeContext from "../Context/ThemeContext"
+import { ArrowLeft, Send } from "lucide-react"
 
 export default function Chat() {
-  // Create socket ref to maintain connection across renders
-  const socketRef = useRef(null);
-  const [socketConnected, setSocketConnected] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [messages, setMessages] = useState([]);
-  const [newMessage, setNewMessage] = useState("");
-  const messagesEndRef = useRef(null);
-  const location = useLocation();
-  const [connectionError, setConnectionError] = useState(null);
-  const [unreadMessages, setUnreadMessages] = useState({});
-  const [isPageVisible, setIsPageVisible] = useState(true);
-  const { isDarkMode } = useContext(ThemeContext);
-  const [currentUserRole, setCurrentUserRole] = useState("buyer");
-  const [users, setUsers] = useState([]);
+  const socketRef = useRef(null)
+  const [socketConnected, setSocketConnected] = useState(false)
+  const [selectedUser, setSelectedUser] = useState(null)
+  const [messages, setMessages] = useState([])
+  const [newMessage, setNewMessage] = useState("")
+  const messagesEndRef = useRef(null)
+  const location = useLocation()
+  const [connectionError, setConnectionError] = useState(null)
+  const [unreadMessages, setUnreadMessages] = useState({})
+  const [isPageVisible, setIsPageVisible] = useState(true)
+  const { isDarkMode } = useContext(ThemeContext)
+  const [recentMessages, setRecentMessages] = useState({})
+  const [lastMessageTimestamp, setLastMessageTimestamp] = useState(null)
+  const [users, setUsers] = useState([])
+  const [currentUser, setCurrentUser] = useState(null)
+  const [currentUserRole, setCurrentUserRole] = useState("buyer")
+  const [isMobile, setIsMobile] = useState(false)
 
-  // Fetch current user's role and all users
+  useEffect(() => {
+    const checkIfMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+
+    checkIfMobile()
+    window.addEventListener("resize", checkIfMobile)
+    return () => window.removeEventListener("resize", checkIfMobile)
+  }, [])
+
   useEffect(() => {
     const fetchUserData = async () => {
-      const user = auth.currentUser;
+      const user = auth.currentUser
       if (user) {
+        setCurrentUser(user)
         try {
-          // Fetch current user's role
-          const userResponse = await axios.get(
-            `http://localhost:5000/users/email/${user.email}`,
-            { withCredentials: true }
-          );
-          setCurrentUserRole(userResponse.data.role || "buyer");
+          const userResponse = await axios.get(`http://localhost:5000/user/${user.email}`, {
+            withCredentials: true,
+          })
+          setCurrentUserRole(userResponse.data.role || "buyer")
 
-          // Fetch all users
-          const usersResponse = await axios.get(
-            "http://localhost:5000/users",
-            { withCredentials: true }
-          );
-          setUsers(usersResponse.data);
+          const usersResponse = await axios.get("http://localhost:5000/users", {
+            withCredentials: true,
+          })
+          setUsers(usersResponse.data.filter((u) => u.email !== user.email))
         } catch (error) {
-          console.error("Error fetching user data:", error);
+          console.error("Error fetching user data:", error)
         }
       }
-    };
+    }
 
-    fetchUserData();
-  }, []);
+    fetchUserData()
+  }, [])
 
-  // Initialize socket connection
   useEffect(() => {
     if (!socketRef.current) {
       socketRef.current = io("http://localhost:5000", {
@@ -59,476 +69,586 @@ export default function Chat() {
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
         timeout: 10000,
-      });
-
-      console.log("Socket initialized");
+      })
     }
 
-    const socket = socketRef.current;
+    const socket = socketRef.current
 
-    // Set up event listeners
     socket.on("connect", () => {
-      console.log("Socket connected:", socket.id);
-      setSocketConnected(true);
-      setConnectionError(null);
+      setSocketConnected(true)
+      setConnectionError(null)
 
-      const user = auth.currentUser;
-      const storedUser = JSON.parse(localStorage.getItem("selectedUser"));
+      const user = auth.currentUser
+      const storedUser = JSON.parse(localStorage.getItem("selectedUser"))
 
       if (user && storedUser) {
-        const chatRoomId = [user.email, storedUser.email].sort().join("_");
+        const chatRoomId = [user.email, storedUser.email].sort().join("_")
         socket.emit("joinChat", {
           userId: user.email,
           selectedUserId: storedUser.email,
           roomId: chatRoomId,
-        });
-        console.log(`Rejoining chat room after reconnect: ${chatRoomId}`);
+        })
       }
-    });
+    })
 
     socket.on("connect_error", (error) => {
-      console.error("Socket connection error:", error.message);
-      setSocketConnected(false);
-      setConnectionError(`Connection error: ${error.message}`);
-    });
+      setSocketConnected(false)
+      setConnectionError(`Connection error: ${error.message}`)
+    })
 
     socket.on("disconnect", (reason) => {
-      console.log("Socket disconnected:", reason);
-      setSocketConnected(false);
+      setSocketConnected(false)
       if (reason === "io server disconnect") {
-        socket.connect();
+        socket.connect()
       }
-    });
+    })
 
     const handleVisibilityChange = () => {
-      const isVisible = document.visibilityState === "visible";
-      setIsPageVisible(isVisible);
+      const isVisible = document.visibilityState === "visible"
+      setIsPageVisible(isVisible)
 
       if (isVisible && selectedUser) {
-        refreshMessages(selectedUser);
+        refreshMessages(selectedUser)
       }
-    };
+    }
 
-    document.addEventListener("visibilitychange", handleVisibilityChange);
+    document.addEventListener("visibilitychange", handleVisibilityChange)
 
     return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      document.removeEventListener("visibilitychange", handleVisibilityChange)
 
       if (socketRef.current) {
-        console.log("Cleaning up socket listeners");
-        socket.off("connect");
-        socket.off("connect_error");
-        socket.off("disconnect");
+        socket.off("connect")
+        socket.off("connect_error")
+        socket.off("disconnect")
       }
-    };
-  }, []);
+    }
+  }, [])
 
-  // Function to refresh messages
+  useEffect(() => {
+    const fetchRecentMessages = async () => {
+      const user = auth.currentUser
+      if (!user) return
+
+      try {
+        const response = await axios.get(`http://localhost:5000/recent-messages/${user.email}`, {
+          withCredentials: true,
+        })
+
+        const recentMessagesMap = response.data.reduce((acc, { userEmail, lastMessage }) => {
+          acc[userEmail] = lastMessage
+          return acc
+        }, {})
+
+        setRecentMessages(recentMessagesMap)
+      } catch (error) {
+        console.error("Error fetching recent messages:", error)
+      }
+    }
+
+    fetchRecentMessages()
+  }, [])
+
   const refreshMessages = async (user) => {
-    const currentUser = auth.currentUser;
-    if (!currentUser || !user) return;
+    const currentUser = auth.currentUser
+    if (!currentUser || !user) return
 
     try {
-      const response = await axios.get(
-        `http://localhost:5000/messages/email/${currentUser.email}/${user.email}`,
-        { withCredentials: true }
-      );
+      const since = lastMessageTimestamp ? new Date(lastMessageTimestamp).toISOString() : null
+      const url = `http://localhost:5000/messages/email/${currentUser.email}/${user.email}${
+        since ? `?since=${since}` : ""
+      }`
 
-      setMessages(
-        response.data.map((msg) => ({
+      const response = await axios.get(url, {
+        withCredentials: true,
+      })
+
+      if (response.data.length > 0) {
+        const fetchedMessages = response.data.map((msg) => ({
           ...msg,
           sent: msg.senderId === currentUser.email,
         }))
-      );
-    } catch (error) {
-      console.error("Error refreshing messages:", error);
-    }
-  };
 
-  // Restore selectedUser from localStorage or navigation state on mount
+        setMessages((prevMessages) => {
+          const messageIds = new Set(prevMessages.map((msg) => msg.messageId))
+          const newMessages = fetchedMessages.filter((msg) => !messageIds.has(msg.messageId))
+          return [...prevMessages, ...newMessages]
+        })
+
+        const latestMessage = response.data.reduce((latest, msg) => {
+          const msgTime = new Date(msg.createdAt).getTime()
+          return msgTime > latest ? msgTime : latest
+        }, lastMessageTimestamp || 0)
+        setLastMessageTimestamp(latestMessage)
+      }
+    } catch (error) {
+      console.error("Error refreshing messages:", error)
+    }
+  }
+
   useEffect(() => {
-    const { selectedUser: preSelectedUser } = location.state || {};
-    const storedUser = JSON.parse(localStorage.getItem("selectedUser"));
+    const { selectedUser: preSelectedUser } = location.state || {}
+    const storedUser = JSON.parse(localStorage.getItem("selectedUser"))
 
     if (preSelectedUser) {
-      setSelectedUser(preSelectedUser);
-      localStorage.setItem("selectedUser", JSON.stringify(preSelectedUser));
+      setSelectedUser(preSelectedUser)
+      localStorage.setItem("selectedUser", JSON.stringify(preSelectedUser))
     } else if (storedUser && !selectedUser) {
-      setSelectedUser(storedUser);
+      setSelectedUser(storedUser)
     }
-  }, [location.state]);
+  }, [location.state])
 
-  // Save selectedUser to localStorage when it changes
   useEffect(() => {
     if (selectedUser) {
-      localStorage.setItem("selectedUser", JSON.stringify(selectedUser));
+      localStorage.setItem("selectedUser", JSON.stringify(selectedUser))
     }
-  }, [selectedUser]);
+  }, [selectedUser])
 
-  // Handle incoming messages
   useEffect(() => {
-    const user = auth.currentUser;
-    if (!user || !socketRef.current) return;
+    const user = auth.currentUser
+    if (!user || !socketRef.current) return
 
-    const socket = socketRef.current;
+    const socket = socketRef.current
 
     const handleGlobalMessage = (message) => {
-      console.log("Global message received:", message);
+      const otherUserId = message.senderId === user.email ? message.receiverId : message.senderId
 
-      // If this message is for the current user
+      setRecentMessages((prev) => ({
+        ...prev,
+        [otherUserId]: message,
+      }))
+
       if (message.receiverId === user.email) {
         if (selectedUser && message.senderId === selectedUser.email) {
-          setMessages((prev) => [...prev, { ...message, sent: false }]);
+          setMessages((prev) => {
+            const messageExists = prev.some((msg) => msg.messageId === message.messageId)
+            if (messageExists) return prev
+            return [...prev, { ...message, sent: false }]
+          })
+
+          const msgTime = new Date(message.createdAt).getTime()
+          if (!lastMessageTimestamp || msgTime > lastMessageTimestamp) {
+            setLastMessageTimestamp(msgTime)
+          }
         } else {
           setUnreadMessages((prev) => ({
             ...prev,
             [message.senderId]: (prev[message.senderId] || 0) + 1,
-          }));
+          }))
 
           if (!isPageVisible) {
-            showNotification(message);
+            showNotification(message)
           }
         }
       }
-    };
+    }
 
-    socket.on("receiveMessage", handleGlobalMessage);
+    socket.on("receiveMessage", handleGlobalMessage)
 
     return () => {
-      socket.off("receiveMessage", handleGlobalMessage);
-    };
-  }, [selectedUser, isPageVisible]);
+      socket.off("receiveMessage", handleGlobalMessage)
+    }
+  }, [selectedUser, isPageVisible, lastMessageTimestamp])
 
-  // Show browser notification
   const showNotification = (message) => {
     if ("Notification" in window && Notification.permission === "granted") {
-      const sender = message.senderId.split("@")[0]; // Extract name from email
+      const sender = message.senderId.split("@")[0]
       new Notification("New Message", {
-        body: `${sender}: ${message.text.substring(0, 50)}${
-          message.text.length > 50 ? "..." : ""
-        }`,
-      });
+        body: `${sender}: ${message.text.substring(0, 50)}${message.text.length > 50 ? "..." : ""}`,
+      })
     }
-  };
+  }
 
-  // Request notification permission
   useEffect(() => {
     if ("Notification" in window && Notification.permission !== "denied") {
-      Notification.requestPermission();
+      Notification.requestPermission()
     }
-  }, []);
+  }, [])
 
-  // Fetch messages and set up chat room when selected user changes
   useEffect(() => {
-    const user = auth.currentUser;
-    if (!user || !selectedUser || !socketRef.current) return;
+    const user = auth.currentUser
+    if (!user || !selectedUser || !socketRef.current) return
 
-    const socket = socketRef.current;
+    const socket = socketRef.current
 
     const fetchMessages = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:5000/messages/email/${user.email}/${selectedUser.email}`,
-          { withCredentials: true }
-        );
-        setMessages(
-          response.data.map((msg) => ({
-            ...msg,
-            sent: msg.senderId === user.email,
-          }))
-        );
+        const response = await axios.get(`http://localhost:5000/messages/email/${user.email}/${selectedUser.email}`, {
+          withCredentials: true,
+        })
+
+        const fetchedMessages = response.data.map((msg) => ({
+          ...msg,
+          sent: msg.senderId === user.email,
+        }))
+
+        setMessages(fetchedMessages)
+
+        if (fetchedMessages.length > 0) {
+          const latestMessage = fetchedMessages.reduce((latest, msg) => {
+            const msgTime = new Date(msg.createdAt).getTime()
+            return msgTime > latest ? msgTime : latest
+          }, 0)
+          setLastMessageTimestamp(latestMessage)
+        }
       } catch (error) {
-        console.error("Error fetching messages:", error);
+        console.error("Error fetching messages:", error)
       }
-    };
-    fetchMessages();
+    }
 
-    // Leave any previous chat rooms
-    socket.emit("leaveAllRooms");
+    fetchMessages()
 
-    // Join chat room with emails - this creates a unique room for these two users
-    const chatRoomId = [user.email, selectedUser.email].sort().join("_");
+    socket.emit("leaveAllRooms")
+
+    const chatRoomId = [user.email, selectedUser.email].sort().join("_")
     socket.emit("joinChat", {
       userId: user.email,
       selectedUserId: selectedUser.email,
       roomId: chatRoomId,
-    });
+    })
 
-    console.log(`Joining chat room: ${chatRoomId}`);
-
-    // Reset unread count for this user
     setUnreadMessages((prev) => ({
       ...prev,
       [selectedUser.email]: 0,
-    }));
+    }))
 
-    // Set up ping interval to keep connection alive
     const pingInterval = setInterval(() => {
       if (socket.connected) {
-        socket.emit("ping", (response) => {
-          console.log("Ping response:", response);
-        });
+        socket.emit("ping")
       }
-    }, 30000);
+    }, 30000)
 
     return () => {
-      clearInterval(pingInterval);
-    };
-  }, [selectedUser]);
+      clearInterval(pingInterval)
+    }
+  }, [selectedUser])
 
-  // Auto-scroll to the latest message
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [messages])
 
-  // Send a message
   const handleSendMessage = () => {
-    const user = auth.currentUser;
-    if (!newMessage.trim() || !selectedUser || !user) return;
+    const user = auth.currentUser
+    if (!newMessage.trim() || !selectedUser || !user) return
 
     if (!socketRef.current || !socketConnected) {
-      console.error("Socket not connected. Cannot send message.");
-      // Try to reconnect
+      console.error("Socket not connected. Cannot send message.")
       if (socketRef.current) {
-        socketRef.current.connect();
+        socketRef.current.connect()
       }
-      return;
+      return
     }
 
+    const tempMessageId = `temp-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
+
     const messageData = {
+      messageId: tempMessageId,
       senderId: user.email,
       receiverId: selectedUser.email,
       text: newMessage,
       createdAt: new Date(),
       roomId: [user.email, selectedUser.email].sort().join("_"),
-    };
+    }
 
-    setMessages((prev) => [...prev, { ...messageData, sent: true }]);
+    setMessages((prev) => [...prev, { ...messageData, sent: true }])
 
-    // Send message through socket
+    setRecentMessages((prev) => ({
+      ...prev,
+      [selectedUser.email]: messageData,
+    }))
+
+    const msgTime = new Date(messageData.createdAt).getTime()
+    if (!lastMessageTimestamp || msgTime > lastMessageTimestamp) {
+      setLastMessageTimestamp(msgTime)
+    }
+
     socketRef.current.emit("sendMessage", messageData, (acknowledgement) => {
       if (!acknowledgement || !acknowledgement.success) {
-        console.error(
-          "Failed to send message:",
-          acknowledgement?.error || "Unknown error"
-        );
+        console.error("Failed to send message:", acknowledgement?.error || "Unknown error")
+      } else {
+        setMessages((prev) =>
+          prev.map((msg) => (msg.messageId === tempMessageId ? { ...msg, messageId: acknowledgement.messageId } : msg)),
+        )
+
+        setRecentMessages((prev) => {
+          if (prev[selectedUser.email]?.messageId === tempMessageId) {
+            return {
+              ...prev,
+              [selectedUser.email]: {
+                ...prev[selectedUser.email],
+                messageId: acknowledgement.messageId,
+              },
+            }
+          }
+          return prev
+        })
       }
-    });
+    })
 
-    setNewMessage("");
-  };
+    setNewMessage("")
+  }
 
-  // Get user role with proper formatting
   const getUserRole = (user) => {
-    if (!user) return "User";
-    
-    // Check if user object has role property
+    if (!user) return "User"
+
     if (user.role) {
-      return user.role.charAt(0).toUpperCase() + user.role.slice(1);
+      return user.role.charAt(0).toUpperCase() + user.role.slice(1)
     }
-    
-    // Fallback for old data structure
-    const userEmail = user.email;
-    const foundUser = users.find((u) => u.email === userEmail);
+
+    const userEmail = user.email
+    const foundUser = users.find((u) => u.email === userEmail)
     if (foundUser && foundUser.role) {
-      return foundUser.role.charAt(0).toUpperCase() + foundUser.role.slice(1);
+      return foundUser.role.charAt(0).toUpperCase() + foundUser.role.slice(1)
     }
-    
-    return "User";
-  };
 
-  // Handle user selection
-  const handleSelectUser = (user) => {
-    setSelectedUser(user);
-    setUnreadMessages((prev) => ({
-      ...prev,
-      [user.email]: 0,
-    }));
-  };
+    return "User"
+  }
 
-  // Get role badge color based on role
   const getRoleBadgeColor = (role) => {
     switch (role.toLowerCase()) {
       case "admin":
-        return isDarkMode ? "bg-red-700 text-white" : "bg-red-500 text-white";
+        return isDarkMode ? "bg-red-700 text-white" : "bg-red-500 text-white"
       case "seller":
-        return isDarkMode ? "bg-blue-700 text-white" : "bg-blue-500 text-white";
+        return isDarkMode ? "bg-blue-700 text-white" : "bg-blue-500 text-white"
       case "buyer":
-        return isDarkMode ? "bg-green-700 text-white" : "bg-green-500 text-white";
+        return isDarkMode ? "bg-yellow-600 text-black" : "bg-yellow-500 text-black"
       default:
-        return isDarkMode ? "bg-gray-700 text-white" : "bg-gray-500 text-white";
+        return isDarkMode ? "bg-gray-700 text-white" : "bg-gray-500 text-white"
     }
-  };
+  }
+
+  const handleSelectUser = (user) => {
+    setSelectedUser(user)
+    setUnreadMessages((prev) => ({
+      ...prev,
+      [user.email]: 0,
+    }))
+  }
+
+  const handleBackToSidebar = () => {
+    setSelectedUser(null)
+  }
 
   return (
-    <div className={`flex h-screen ${isDarkMode ? "bg-gray-900" : "bg-gray-100"}`}>
-      <ChatSidebar
-        isDarkMode={isDarkMode}
-        onSelectUser={handleSelectUser}
-        unreadMessages={unreadMessages}
-        selectedUserEmail={selectedUser?.email}
-        currentUserRole={currentUserRole}
-        users={users}
-      />
+    <div className={`flex flex-col h-screen ${isDarkMode ? "bg-gray-900" : "bg-gray-100"}`}>
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar - hidden on mobile when a chat is selected */}
+        <div className={`${isMobile && selectedUser ? "hidden" : "block"} ${isMobile ? "w-full" : "w-80"}`}>
+          <ChatSidebar
+            isDarkMode={isDarkMode}
+            onSelectUser={handleSelectUser}
+            unreadMessages={unreadMessages}
+            selectedUserEmail={selectedUser?.email}
+            recentMessages={recentMessages}
+          />
+        </div>
 
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Connection status indicator */}
-        {!socketConnected && (
-          <div className="bg-red-500 text-white p-2 text-center text-sm">
-            {connectionError || "Disconnected from chat server. Trying to reconnect..."}
-          </div>
-        )}
+        {/* Chat area - full width on mobile when a chat is selected */}
+        <div className={`flex-1 flex flex-col ${isMobile && !selectedUser ? "hidden" : "block"}`}>
+          {/* Connection status indicator */}
+          {!socketConnected && (
+            <div className="bg-red-500 text-white p-2 text-center text-sm">
+              {connectionError || "Disconnected from chat server. Trying to reconnect..."}
+            </div>
+          )}
 
-        {selectedUser ? (
-          <>
-            {/* Sticky Header */}
-            <div
-              className={`sticky h-[87px] top-0 z-10 p-4 border-b ${
-                isDarkMode
-                  ? "bg-gray-800 border-gray-700 text-gray-200"
-                  : "bg-white border-gray-200 text-gray-800"
-              }`}
-            >
-              <div className="flex justify-between items-center">
-                <div>
-                  <h2 className="text-xl font-semibold">{selectedUser.name}</h2>
-                  <p className="text-sm text-gray-500">
-                    {selectedUser.email}
-                  </p>
-                </div>
-                <div className="flex items-center space-x-4">
+          {selectedUser ? (
+            <>
+              <div
+                className={`p-4 border-b ${
+                  isDarkMode ? "bg-gray-800 border-gray-700 text-gray-200" : "bg-white border-gray-200 text-gray-800"
+                }`}
+              >
+                <div className="flex sticky  justify-between items-center">
+                  <div className="flex items-center">
+                    {/* Back button for mobile */}
+                    {isMobile && (
+                      <button
+                        onClick={handleBackToSidebar}
+                        className="mr-3 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+                      >
+                        <ArrowLeft className="h-5 w-5" />
+                      </button>
+                    )}
+
+                    {/* User photo */}
+                    <div className="mr-3">
+                      {selectedUser.photo ? (
+                        <img
+                          src={selectedUser.photo || "/placeholder.svg"}
+                          alt={selectedUser.name || "User"}
+                          className="w-10 h-10 rounded-full object-cover"
+                          onError={(e) => {
+                            e.target.onerror = null
+                            e.target.src = "https://via.placeholder.com/40?text=User"
+                          }}
+                        />
+                      ) : (
+                        <div
+                          className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-semibold ${
+                            isDarkMode ? "bg-gray-700" : "bg-gray-200"
+                          }`}
+                        >
+                          {selectedUser.name?.charAt(0) || selectedUser.email?.charAt(0) || "?"}
+                        </div>
+                      )}
+                    </div>
+
+                    <div>
+                      <h2 className="text-xl font-semibold">{selectedUser.name}</h2>
+                      <p className="text-sm text-gray-500">{selectedUser.email}</p>
+                    </div>
+                  </div>
+
+                  {/* User role badge */}
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-medium ${getRoleBadgeColor(
-                      getUserRole(selectedUser)
+                      getUserRole(selectedUser),
                     )}`}
                   >
                     {getUserRole(selectedUser)}
                   </span>
-                  <div className="flex items-center">
-                    <span
-                      className={`w-2 h-2 rounded-full ${
-                        socketConnected ? "bg-green-500" : "bg-red-500"
-                      } mr-2`}
-                    ></span>
-                    <span className="text-xs text-gray-500">
-                      {socketConnected ? "Online" : "Offline"}
-                    </span>
-                  </div>
+                </div>
+
+                <div className="flex items-center mt-1">
+                  <span
+                    className={`w-2 h-2 rounded-full ${socketConnected ? "bg-green-500" : "bg-red-500"} mr-2`}
+                  ></span>
+                  <span className="text-xs text-gray-500">{socketConnected ? "Online" : "Offline"}</span>
                 </div>
               </div>
-            </div>
 
-            {/* Chat Messages */}
-            <div
-              className={`flex-1 overflow-y-auto p-4 ${
-                isDarkMode ? "bg-gray-800" : "bg-white"
-              }`}
-            >
-              <div className="space-y-4">
-                {messages.length > 0 ? (
-                  messages.map((message, index) => (
-                    <div
-                      key={index}
-                      className={`flex ${message.sent ? "justify-end" : "justify-start"}`}
-                    >
+              <div className={`flex-1 overflow-y-auto p-4 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+                <div className="space-y-4">
+                  {messages.length > 0 ? (
+                    messages.map((message, index) => (
                       <div
-                        className={`max-w-xs md:max-w-md rounded-lg p-3 ${
-                          message.sent
-                            ? isDarkMode
-                              ? "bg-purple-600 text-white"
-                              : "bg-purple-500 text-white"
-                            : isDarkMode
-                            ? "bg-gray-700 text-gray-200"
-                            : "bg-gray-200 text-gray-800"
-                        }`}
+                        key={message.messageId || index}
+                        className={`flex ${message.sent ? "justify-end" : "justify-start"}`}
                       >
-                        <p>{message.text}</p>
-                        <p
-                          className={`text-xs mt-1 ${
-                            isDarkMode
-                              ? "text-gray-300"
-                              : message.sent
-                              ? "text-purple-100"
-                              : "text-gray-500"
+                        {/* Show user avatar for received messages */}
+                        {!message.sent && (
+                          <div className="flex-shrink-0 mr-2">
+                            {selectedUser.photoURL ? (
+                              <img
+                                src={selectedUser.photoURL || "/placeholder.svg"}
+                                alt={selectedUser.name || "User"}
+                                className="w-8 h-8 rounded-full object-cover"
+                                onError={(e) => {
+                                  e.target.onerror = null
+                                  e.target.src = "https://via.placeholder.com/32?text=User"
+                                }}
+                              />
+                            ) : (
+                              <div
+                                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
+                                  isDarkMode ? "bg-gray-700" : "bg-gray-200"
+                                }`}
+                              >
+                                {selectedUser.name?.charAt(0) || selectedUser.email?.charAt(0) || "?"}
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        <div
+                          className={`max-w-xs md:max-w-md rounded-lg p-3 ${
+                            message.sent
+                              ? isDarkMode
+                                ? "bg-purple-600 text-white"
+                                : "bg-purple-500 text-white"
+                              : isDarkMode
+                                ? "bg-gray-700 text-gray-200"
+                                : "bg-gray-200 text-gray-800"
                           }`}
                         >
-                          {new Date(message.createdAt).toLocaleTimeString()} -{" "}
-                          {message.sent ? (
-                            "You"
-                          ) : (
-                            <>
-                              {selectedUser.name}
-                              <span
-                                className={`ml-2 px-2 py-0.5 rounded text-xs ${getRoleBadgeColor(
-                                  getUserRole(selectedUser)
-                                )}`}
-                              >
-                                {getUserRole(selectedUser)}
-                              </span>
-                            </>
-                          )}
-                        </p>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <p
-                    className={`text-center ${
-                      isDarkMode ? "text-gray-400" : "text-gray-500"
-                    }`}
-                  >
-                    No messages yet. Start the conversation!
-                  </p>
-                )}
-                <div ref={messagesEndRef} />
-              </div>
-            </div>
+                          <p>{message.text}</p>
+                          <p
+                            className={`text-xs mt-1 ${
+                              isDarkMode ? "text-gray-300" : message.sent ? "text-purple-100" : "text-gray-500"
+                            }`}
+                          >
+                            {new Date(message.createdAt).toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </p>
+                        </div>
 
-            {/* Input Area */}
-            <div
-              className={`sticky bottom-0 p-4 border-t ${
-                isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
-              }`}
-            >
-              <div className="flex items-center">
-                <input
-                  type="text"
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  placeholder="Type something..."
-                  className={`flex-1 p-3 rounded-l-lg focus:outline-none ${
-                    isDarkMode
-                      ? "bg-gray-700 text-gray-200 border-gray-600"
-                      : "bg-gray-100 text-gray-800 border-gray-300"
-                  } border`}
-                  onKeyPress={(e) => {
-                    if (e.key === "Enter") handleSendMessage();
-                  }}
-                />
-                <button
-                  onClick={handleSendMessage}
-                  disabled={!socketConnected}
-                  className={`p-3 rounded-r-lg ${
-                    isDarkMode
-                      ? "bg-purple-600 hover:bg-purple-700"
-                      : "bg-purple-500 hover:bg-purple-600"
-                  } text-white ${!socketConnected ? "opacity-50 cursor-not-allowed" : ""}`}
-                >
-                  Send
-                </button>
+                        {/* Show current user avatar for sent messages */}
+                        {message.sent && currentUser && (
+                          <div className="flex-shrink-0 ml-2">
+                            {currentUser.photoURL ? (
+                              <img
+                                src={currentUser.photoURL || "/placeholder.svg"}
+                                alt="You"
+                                className="w-8 h-8 rounded-full object-cover"
+                                onError={(e) => {
+                                  e.target.onerror = null
+                                  e.target.src = "https://via.placeholder.com/32?text=You"
+                                }}
+                              />
+                            ) : (
+                              <div
+                                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
+                                  isDarkMode ? "bg-purple-700" : "bg-purple-200"
+                                }`}
+                              >
+                                {currentUser.displayName?.charAt(0) || currentUser.email?.charAt(0) || "Y"}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))
+                  ) : (
+                    <p className={`text-center ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                      No messages yet. Start the conversation!
+                    </p>
+                  )}
+                  <div ref={messagesEndRef} />
+                </div>
               </div>
+
+              <div
+                className={`p-4 border-t ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
+              >
+                <div className="flex items-center">
+                  <input
+                    type="text"
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    placeholder="Type something..."
+                    className={`flex-1 p-3 rounded-l-lg focus:outline-none ${
+                      isDarkMode
+                        ? "bg-gray-700 text-gray-200 border-gray-600"
+                        : "bg-gray-100 text-gray-800 border-gray-300"
+                    } border`}
+                    onKeyPress={(e) => {
+                      if (e.key === "Enter") handleSendMessage()
+                    }}
+                  />
+                  <button
+                    onClick={handleSendMessage}
+                    disabled={!socketConnected}
+                    className={`p-3 rounded-r-lg ${
+                      isDarkMode ? "bg-purple-600 hover:bg-purple-700" : "bg-purple-500 hover:bg-purple-600"
+                    } text-white ${!socketConnected ? "opacity-50 cursor-not-allowed" : ""}`}
+                  >
+                    <Send className="h-5 w-5" />
+                  </button>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div
+              className={`flex-1 flex items-center justify-center ${isDarkMode ? "text-gray-400" : "text-gray-500"} ${isMobile ? "hidden" : "flex"}`}
+            >
+              <p>Select a user to start chatting</p>
             </div>
-          </>
-        ) : (
-          <div
-            className={`flex-1 flex items-center justify-center ${
-              isDarkMode ? "text-gray-400" : "text-gray-500"
-            }`}
-          >
-            <p>Select a user to start chatting</p>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
-  );
+  )
 }
