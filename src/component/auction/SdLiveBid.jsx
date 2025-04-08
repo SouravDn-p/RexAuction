@@ -19,7 +19,7 @@ import {
 import Swal from "sweetalert2";
 import io from "socket.io-client";
 
-export default function LiveBid() {
+export default function SdLiveBid() {
   const { user, loading, setLoading, liveBid, setLiveBid, dbUser, setDbUser } =
     useContext(AuthContexts);
   const axiosPublic = useAxiosPublic();
@@ -28,9 +28,7 @@ export default function LiveBid() {
   const [countdown, setCountdown] = useState(0);
   const { isDarkMode } = useContext(ThemeContext);
   const [bidAmount, setBidAmount] = useState("");
-  const [extraMoney, setExtraMoney] = useState(0);
   const [addBid, { isLoading: isBidLoading }] = useAddBidsMutation();
-  
 
   const {
     data: topBiddersData,
@@ -549,57 +547,35 @@ export default function LiveBid() {
                 Place Your Bid
               </h3>
               <div className="flex gap-3 mb-4">
-                {[100, 200, Math.round(liveBid?.currentBid * 0.1)].map(
-                  (amount) => (
-                    <button
-                      key={amount}
-                      onClick={() => handleBidIncrement(amount)}
-                      className={`flex-1 py-2 rounded-lg transition ${
-                        isDarkMode
-                          ? "bg-gray-700 hover:bg-gray-600 border border-gray-600"
-                          : "bg-purple-100 hover:bg-purple-200 border border-purple-200"
-                      } text-purple-600 font-medium`}
-                    >
-                      +{amount}
-                    </button>
-                  )
-                )}
+                {[100, 200, 300].map((amount) => (
+                  <button
+                    key={amount}
+                    onClick={() => handleBidIncrement(amount)}
+                    className={`flex-1 py-2 rounded-lg transition ${
+                      isDarkMode
+                        ? "bg-gray-700 hover:bg-gray-600 border border-gray-600"
+                        : "bg-purple-100 hover:bg-purple-200 border border-purple-200"
+                    } text-purple-600 font-medium`}
+                  >
+                    +{amount}
+                  </button>
+                ))}
               </div>
               <div className="mb-4">
-                <label htmlFor="totalMoney">New Total Money:</label>
                 <input
                   type="number"
                   value={bidAmount}
-                  onChange={(e) => {
-                    setBidAmount(e.target.value);
-                    setExtraMoney(e.target.value - liveBid?.currentBid);
-                  }}
+                  onChange={(e) => setBidAmount(e.target.value)}
                   placeholder={`Enter bid (min $${
                     (liveBid?.currentBid || liveBid?.startingPrice || 0) + 100
                   })`}
-                  className={`w-full p-3 pb-3 rounded-lg focus:outline-none focus:ring-2 ${
+                  className={`w-full p-3 rounded-lg focus:outline-none focus:ring-2 ${
                     isDarkMode
                       ? "bg-gray-700 border-gray-600 focus:ring-purple-500"
                       : "bg-white border-gray-300 focus:ring-purple-400"
                   } border`}
                 />
               </div>
-              <div className="mb-4">
-                <label htmlFor="extraMoney">Extra Money:</label>
-                <input
-                  id="extraMoney"
-                  type="number"
-                  readOnly
-                  value={Math.max(0, bidAmount - (liveBid?.currentBid || 0))}
-                  placeholder={`Extra $${extraMoney || 0}`}
-                  className={`w-full p-3 pb-3 rounded-lg focus:outline-none focus:ring-2 ${
-                    isDarkMode
-                      ? "bg-gray-700 border-gray-600 focus:ring-purple-500"
-                      : "bg-white border-gray-300 focus:ring-purple-400"
-                  } border`}
-                />
-              </div>
-
               <button
                 onClick={handlePlaceBid}
                 disabled={formatTime(countdown) === "Ended" || isBidLoading}

@@ -34,6 +34,7 @@ import TermsAndConditionsBuyer from "../extra/terms/TermsConditionsBuyer";
 import EndedAuctionsHistory from "../component/dashboard/shared/EndedAuctionsHistory";
 import AccountBalance from "../extra/wallet/AccountBalance";
 import Chat from "../component/Chats/Chat";
+import WalletHistory from "../extra/wallet/WalletHistory";
 
 // import TeamSettings from "../component/Settings/TeamSettings";
 // import PlanSettings from "../component/Settings/PlanSettings";
@@ -198,10 +199,14 @@ export const router = createBrowserRouter([
         path: "addBalance",
         element: <AccountBalance />,
       },
-     {
-      path: "chat", 
-      element: <Chat />,
-     }
+      {
+        path: "chat",
+        element: <Chat />,
+      },
+      {
+        path: "walletHistory",
+        element: <WalletHistory />,
+      },
     ],
   },
 ]);

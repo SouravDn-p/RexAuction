@@ -1,5 +1,10 @@
 import { useContext, useEffect, useState, useRef } from "react";
 import { FaSun, FaMoon, FaWallet, FaPlus, FaUserCircle } from "react-icons/fa";
+import {
+  MdHistory,
+  MdManageAccounts,
+  MdOutlineDashboard,
+} from "react-icons/md";
 import { Link, useLocation } from "react-router-dom";
 import { AuthContexts } from "../../providers/AuthProvider";
 import ThemeContext from "../../component/Context/ThemeContext";
@@ -9,7 +14,6 @@ import { signOut } from "firebase/auth";
 import { MdOutlineLogout } from "react-icons/md";
 import { BiMoney } from "react-icons/bi";
 import Swal from "sweetalert2";
-import axios from "axios";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
 
 const Navbar = () => {
@@ -190,8 +194,8 @@ const Navbar = () => {
 
             {user?.email ? (
               <>
-                <Link to="/dashboard" className={getNavLinkClass("/dashboard")}>
-                  Dashboard
+                <Link to="/auction" className={getNavLinkClass("/dashboard")}>
+                  Auction
                 </Link>
 
                 {/* Wallet Button */}
@@ -206,7 +210,7 @@ const Navbar = () => {
                   >
                     <FaWallet className="text-yellow-400" />
                     <span className="font-medium">
-                      $ {dbUser.accountBalance}
+                      $ {dbUser?.accountBalance}
                     </span>
                     <FaPlus className="text-green-400 text-sm" />
                   </button>
@@ -265,9 +269,21 @@ const Navbar = () => {
                           Your Profile
                         </div>
                       </Link>
-
                       <Link
-                        to="/wallet"
+                        to="/dashboard"
+                        className={`block px-4 py-2 text-sm ${
+                          isDarkMode
+                            ? "text-gray-300 hover:bg-gray-700"
+                            : "text-gray-700 hover:bg-gray-100"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <MdOutlineDashboard />
+                          Dashboard
+                        </div>
+                      </Link>
+                      <Link
+                        to="/dashboard/walletHistory"
                         className={`block px-4 py-2 text-sm ${
                           isDarkMode
                             ? "text-gray-300 hover:bg-gray-700"
@@ -415,7 +431,7 @@ const Navbar = () => {
                   Your Profile
                 </Link>
                 <Link
-                  to="/wallet"
+                  to="/dashboard/walletHistory"
                   className="hover:text-yellow-300"
                   onClick={() => setMobileMenuOpen(false)}
                 >
@@ -476,10 +492,24 @@ const Navbar = () => {
               </div>
               <button
                 onClick={() => setShowWalletModal(false)}
-                className="text-2xl text-gray-500 hover:text-gray-700"
+                className="text-2xl text-white border hover:text-gray-700"
               >
                 ×
               </button>
+            </div>
+            <div
+              className={`px-6 pt-6 pb-2 ${
+                isDarkMode ? "text-gray-300" : "text-gray-700"
+              }`}
+            >
+              <p className="text-sm">Current Balance</p>
+              <p
+                className={`text-2xl font-bold ${
+                  isDarkMode ? "text-white" : "text-gray-800"
+                }`}
+              >
+                {dbUser?.accountBalance?.toLocaleString() || 0} BDT
+              </p>
             </div>
 
             {/* Modal Body */}
