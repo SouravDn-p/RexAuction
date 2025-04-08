@@ -23,7 +23,7 @@ import ThemeContext from "../../Context/ThemeContext";
 const Sidebar = () => {
   const { user, dbUser } = useContext(AuthContexts);
   const { isDarkMode } = useContext(ThemeContext);
-
+  console.log(user);
   const isAdmin = dbUser?.role === "admin";
   const isSeller = dbUser?.role === "seller";
   const isBuyer = dbUser?.role === "buyer";

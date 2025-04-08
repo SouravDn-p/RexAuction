@@ -25,43 +25,52 @@ const BecomeSeller = () => {
     handleSubmit,
     reset,
     watch,
-    setValue,
     formState: { errors },
   } = useForm();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [frontPreview, setFrontPreview] = useState(null);
   const [backPreview, setBackPreview] = useState(null);
+  const [frontFile, setFrontFile] = useState(null);
+  const [backFile, setBackFile] = useState(null);
   const [selectedCountryCode, setSelectedCountryCode] = useState("+880");
   const { isDarkMode } = useContext(ThemeContext);
 
   useEffect(() => {
     if (user) {
-      setValue("email", user.email);
-      setValue("name", user.displayName || dbUser?.name || "");
+      reset({
+        email: user.email,
+        name: user.displayName || dbUser?.name || "",
+        phoneNumber: dbUser?.phoneNumber
+          ? dbUser.phoneNumber.split(" ").slice(1).join("")
+          : "",
+      });
       if (dbUser?.phoneNumber) {
         const phoneParts = dbUser.phoneNumber.split(" ");
         if (phoneParts.length > 1) {
           setSelectedCountryCode(phoneParts[0]);
-          setValue("phoneNumber", phoneParts.slice(1).join(""));
-        } else {
-          setValue("phoneNumber", dbUser.phoneNumber);
         }
       }
     }
-  }, [user, dbUser, setValue]);
+  }, [user, dbUser, reset]);
 
   const handleFrontImagePreview = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setFrontPreview(URL.createObjectURL(file));
+      if (frontPreview) URL.revokeObjectURL(frontPreview);
+      const newPreview = URL.createObjectURL(file);
+      setFrontPreview(newPreview);
+      setFrontFile(file);
     }
   };
 
   const handleBackImagePreview = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setBackPreview(URL.createObjectURL(file));
+      if (backPreview) URL.revokeObjectURL(backPreview);
+      const newPreview = URL.createObjectURL(file);
+      setBackPreview(newPreview);
+      setBackFile(file);
     }
   };
 
@@ -73,29 +82,31 @@ const BecomeSeller = () => {
       let frontUrl = null;
       let backUrl = null;
 
-      if (data.frontDocument && data.frontDocument[0]) {
-        const frontFormData = new FormData();
-        frontFormData.append("image", data.frontDocument[0]);
-        const frontResponse = await axiosPublic.post(
-          image_hosting_api,
-          frontFormData,
-          {
-            headers: { "Content-Type": "multipart/form-data" },
-          }
-        );
-        const frontResult = frontResponse.data;
-        if (!frontResult.success) {
-          throw new Error(
-            "Front image upload failed: " +
-              (frontResult.error?.message || "Unknown error")
-          );
+    
+      if (!frontFile) {
+        throw new Error("Front document is required");
+      }
+      const frontFormData = new FormData();
+      frontFormData.append("image", frontFile);
+      const frontResponse = await axiosPublic.post(
+        image_hosting_api,
+        frontFormData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
         }
-        frontUrl = frontResult.data.url;
+      );
+      if (frontResponse.data.success) {
+        frontUrl =
+          frontResponse.data.data.display_url || frontResponse.data.data.url;
+      } else {
+        throw new Error(
+          frontResponse.data.message || "Front image upload failed"
+        );
       }
 
-      if (data.backDocument && data.backDocument[0]) {
+      if (backFile) {
         const backFormData = new FormData();
-        backFormData.append("image", data.backDocument[0]);
+        backFormData.append("image", backFile);
         const backResponse = await axiosPublic.post(
           image_hosting_api,
           backFormData,
@@ -103,14 +114,14 @@ const BecomeSeller = () => {
             headers: { "Content-Type": "multipart/form-data" },
           }
         );
-        const backResult = backResponse.data;
-        if (!backResult.success) {
+        if (backResponse.data.success) {
+          backUrl =
+            backResponse.data.data.display_url || backResponse.data.data.url;
+        } else {
           throw new Error(
-            "Back image upload failed: " +
-              (backResult.error?.message || "Unknown error")
+            backResponse.data.message || "Back image upload failed"
           );
         }
-        backUrl = backResult.data.url;
       }
 
       const fullPhoneNumber = `${selectedCountryCode} ${data.phoneNumber}`;
@@ -129,24 +140,31 @@ const BecomeSeller = () => {
         requestDate: new Date().toString(),
       };
 
-      console.log(requestData);
-
-      const res = await axiosPublic.post("become_seller", requestData);
+      const res = await axiosPublic.post("/become_seller", requestData);
 
       if (res.data.success) {
         toast.success("Seller request submitted successfully!");
-        reset();
-        setFrontPreview(null);
-        setBackPreview(null);
+        resetForm();
       } else {
-        throw new Error("Server response indicated failure.");
+        throw new Error(res.data.message || "Failed to submit request");
       }
     } catch (error) {
-      console.error("Error submitting form:", error.message);
+      console.error("Error submitting form:", error);
       toast.error(error.message || "Something went wrong! Please try again.");
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const resetForm = () => {
+    reset();
+    if (frontPreview) URL.revokeObjectURL(frontPreview);
+    if (backPreview) URL.revokeObjectURL(backPreview);
+    setFrontPreview(null);
+    setBackPreview(null);
+    setFrontFile(null);
+    setBackFile(null);
+    setSelectedCountryCode("+880");
   };
 
   const termsAccepted = watch("termsAccepted");
@@ -299,7 +317,7 @@ const BecomeSeller = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium mb-2">
-                Front of Document
+                Front of Document <span className="text-red-500">*</span>
               </label>
               <div
                 className={`relative border-2 border-dashed rounded-lg p-4 text-center ${
@@ -318,8 +336,9 @@ const BecomeSeller = () => {
                     <button
                       type="button"
                       onClick={() => {
-                        setValue("frontDocument", null);
+                        if (frontPreview) URL.revokeObjectURL(frontPreview);
                         setFrontPreview(null);
+                        setFrontFile(null);
                       }}
                       className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition"
                     >
@@ -365,18 +384,19 @@ const BecomeSeller = () => {
                     </div>
                     <input
                       type="file"
-                      accept="image/*"
+                      name="frontDocument"
+                      accept="image/jpeg,image/png"
                       {...register("frontDocument", {
+                        required: "Front document is required",
                         validate: {
-                          lessThan5MB: (files) =>
-                            !files[0] ||
-                            files[0].size < 5000000 ||
+                          lessThan5MB: () =>
+                            (frontFile && frontFile.size <= 5000000) ||
                             "Max 5MB file size",
-                          acceptedFormats: (files) =>
-                            !files[0] ||
-                            ["image/jpeg", "image/png"].includes(
-                              files[0].type
-                            ) ||
+                          acceptedFormats: () =>
+                            (frontFile &&
+                              ["image/jpeg", "image/png"].includes(
+                                frontFile.type
+                              )) ||
                             "Only JPG/PNG files allowed",
                         },
                       })}
@@ -391,9 +411,9 @@ const BecomeSeller = () => {
                   {errors.frontDocument.message}
                 </p>
               )}
-              {frontPreview && (
+              {frontFile && (
                 <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                  {watch("frontDocument")?.[0]?.name || "Selected file"}
+                  {frontFile.name}
                 </p>
               )}
             </div>
@@ -419,8 +439,9 @@ const BecomeSeller = () => {
                     <button
                       type="button"
                       onClick={() => {
-                        setValue("backDocument", null);
+                        if (backPreview) URL.revokeObjectURL(backPreview);
                         setBackPreview(null);
+                        setBackFile(null);
                       }}
                       className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition"
                     >
@@ -466,17 +487,18 @@ const BecomeSeller = () => {
                     </div>
                     <input
                       type="file"
-                      accept="image/*"
+                      name="backDocument"
+                      accept="image/jpeg,image/png"
                       {...register("backDocument", {
                         validate: {
-                          lessThan5MB: (files) =>
-                            !files[0] ||
-                            files[0].size < 5000000 ||
+                          lessThan5MB: () =>
+                            !backFile ||
+                            backFile.size <= 5000000 ||
                             "Max 5MB file size",
-                          acceptedFormats: (files) =>
-                            !files[0] ||
+                          acceptedFormats: () =>
+                            !backFile ||
                             ["image/jpeg", "image/png"].includes(
-                              files[0].type
+                              backFile.type
                             ) ||
                             "Only JPG/PNG files allowed",
                         },
@@ -492,9 +514,9 @@ const BecomeSeller = () => {
                   {errors.backDocument.message}
                 </p>
               )}
-              {backPreview && (
+              {backFile && (
                 <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                  {watch("backDocument")?.[0]?.name || "Selected file"}
+                  {backFile.name}
                 </p>
               )}
             </div>
@@ -528,17 +550,37 @@ const BecomeSeller = () => {
             className="pt-4 text-center"
           >
             <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: termsAccepted && !isSubmitting ? 1.05 : 1 }}
+              whileTap={{ scale: termsAccepted && !isSubmitting ? 0.95 : 1 }}
               type="submit"
               disabled={!termsAccepted || isSubmitting}
-              className={`px-8 py-3 rounded-lg shadow-md text-white w-full sm:w-auto ${
+              className={`px-8 py-3 rounded-lg shadow-md text-white w-full sm:w-auto flex justify-center items-center ${
                 termsAccepted && !isSubmitting
                   ? "bg-purple-600 hover:bg-purple-700 transition"
                   : "bg-gray-400 cursor-not-allowed"
               }`}
             >
-              {isSubmitting ? "Submitting..." : "Submit Request"}
+              {isSubmitting ? (
+                <>
+                  <svg
+                    className="animate-spin h-5 w-5 mr-2 text-white"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                      fill="none"
+                    />
+                    <path fill="currentColor" d="M4 12a8 8 0 018-8v8h-8z" />
+                  </svg>
+                  Submitting...
+                </>
+              ) : (
+                "Submit Request"
+              )}
             </motion.button>
           </motion.div>
         </form>
