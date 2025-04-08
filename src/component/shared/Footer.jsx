@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import {
   FaFacebookF,
   FaTwitter,
@@ -8,34 +8,53 @@ import {
   FaEnvelope,
   FaPhone,
 } from "react-icons/fa";
-import footerBG from "../../assets/footer.jpg";
+
+import AOS from "aos";
+import "aos/dist/aos.css";
+
 import Newsletter from "./Newsletter";
 import ThemeContext from "../Context/ThemeContext";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
   const { isDarkMode } = useContext(ThemeContext);
+
+  // particles effect
+  useEffect(() => {
+    AOS.init({ duration: 1000 });
+  }, []);
+
   return (
     <footer
       // className="bg-no-repeat bg-cover bg-center py-12 relative"
-      className={` bg-no-repeat bg-cover bg-center opacity-80  py-12 relative ${
+      className={` relative bg-no-repeat bg-cover bg-center opacity-90 py-10  ${
         isDarkMode
-          ? "bg-gray-950 text-white"
-          : "bg-gradient-to-b from-violet-50 to-violet-100 text-gray-800"
+          ? "bg-gray-900 bg-opacity-100 backdrop-blur-md"
+          : "bg-gradient-to-r from-purple-600 to-purple-400 bg-opacity-90 backdrop-blur-md"
       }`}
-      style={{ backgroundImage: `url(${footerBG})` }}
     >
       {/* Overlay */}
       <div className="absolute inset-0 bg-black/70"></div>
 
-      <div className="container mx-auto px-6 md:px-12 relative z-10">
+      <div className="relative container mx-auto px-6 md:px-12 z-10">
         {/* Footer Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 text-center md:text-left">
           {/* Logo and Description */}
-          <div className="flex flex-col items-center md:items-start">
-            <h1 className="text-3xl font-bold text-white mb-4">
-              <span className="text-violet-400">Rex</span> Auction
-            </h1>
+          <div
+            className="flex flex-col items-center md:items-start"
+            data-aos="fade-up"
+            data-aos-delay="100"
+          >
+            <div className="flex gap-3 items-center">
+              <img
+                className="text-xl border-2 border-violet-500 ring-2 ring-violet-500/60 rounded-full text-white w-[60px] lg:w-[70px] animate-pulse"
+                src="https://i.ibb.co.com/TDRpg4tS/Screenshot-2025-03-20-174700-removebg-preview.png"
+                alt="rexauction"
+              />
+              <h1 className="text-3xl font-bold text-white mb-2">
+                <span className="text-violet-400">Rex</span> Auction
+              </h1>
+            </div>
             <p className="text-gray-300 mt-2 max-w-xs">
               A reliable platform for bidding and auctioning items. Find great
               deals, or auction your own items today.
@@ -43,30 +62,46 @@ const Footer = () => {
 
             {/* Social Media Links */}
             <div className="flex gap-4 mt-6">
+              <style>{`@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+  .glow-border {
+  border : 2px solid #a855f7 ;
+  animation : glow 2s infinite ease-in-out;
+  border-radius: 1rem;
+  }
+.floating-icon {
+  animation: float 2s ease-in-out infinite;
+}`}</style>
               <a
                 href="https://facebook.com"
-                className="w-10 h-10 rounded-full bg-violet-600/20 flex items-center justify-center text-white hover:bg-violet-600 transition-colors duration-300"
+                className=" glow-border w-10 h-10 rounded-full bg-violet-600/20 flex items-center justify-center text-white hover:bg-violet-600 transition-colors duration-300 floating-icon"
                 aria-label="Facebook"
               >
                 <FaFacebookF />
               </a>
               <a
                 href="https://twitter.com"
-                className="w-10 h-10 rounded-full bg-violet-600/20 flex items-center justify-center text-white hover:bg-violet-600 transition-colors duration-300"
+                className="glow-border w-10 h-10 rounded-full bg-violet-600/20 flex items-center justify-center text-white hover:bg-violet-600 transition-colors duration-300 floating-icon"
                 aria-label="Twitter"
               >
                 <FaTwitter />
               </a>
               <a
                 href="https://instagram.com"
-                className="w-10 h-10 rounded-full bg-violet-600/20 flex items-center justify-center text-white hover:bg-violet-600 transition-colors duration-300"
+                className="glow-border w-10 h-10 rounded-full bg-violet-600/20 flex items-center justify-center text-white hover:bg-violet-600 transition-colors duration-300 floating-icon"
                 aria-label="Instagram"
               >
                 <FaInstagram />
               </a>
               <a
                 href="https://linkedin.com"
-                className="w-10 h-10 rounded-full bg-violet-600/20 flex items-center justify-center text-white hover:bg-violet-600 transition-colors duration-300"
+                className="glow-border w-10 h-10 rounded-full bg-violet-600/20 flex items-center justify-center text-white hover:bg-violet-600 transition-colors duration-300 floating-icon"
                 aria-label="LinkedIn"
               >
                 <FaLinkedinIn />
@@ -74,58 +109,12 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Quick Links */}
-          <div className="flex flex-col">
-            <h2 className="text-xl font-bold text-white mb-6 relative inline-block">
-              Quick Links
-              <span className="absolute -bottom-2 left-0 w-12 h-1 bg-violet-500 rounded-full"></span>
-            </h2>
-            <ul className="space-y-3">
-              <li>
-                <a
-                  href="#home"
-                  className="text-gray-300 hover:text-white hover:translate-x-1 transition-all duration-300 flex items-center"
-                >
-                  <span className="mr-2">›</span> Home
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#about"
-                  className="text-gray-300 hover:text-white hover:translate-x-1 transition-all duration-300 flex items-center"
-                >
-                  <span className="mr-2">›</span> About Us
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#auctions"
-                  className="text-gray-300 hover:text-white hover:translate-x-1 transition-all duration-300 flex items-center"
-                >
-                  <span className="mr-2">›</span> Auctions
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#how-it-works"
-                  className="text-gray-300 hover:text-white hover:translate-x-1 transition-all duration-300 flex items-center"
-                >
-                  <span className="mr-2">›</span> How It Works
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#faq"
-                  className="text-gray-300 hover:text-white hover:translate-x-1 transition-all duration-300 flex items-center"
-                >
-                  <span className="mr-2">›</span> FAQs
-                </a>
-              </li>
-            </ul>
-          </div>
-
           {/* Contact Info */}
-          <div className="flex flex-col">
+          <div
+            className="flex flex-col"
+            data-aos="fade-up"
+            data-aos-delay="200"
+          >
             <h2 className="text-xl font-bold text-white mb-6 relative inline-block">
               Contact Us
               <span className="absolute -bottom-2 left-0 w-12 h-1 bg-violet-500 rounded-full"></span>
@@ -137,11 +126,11 @@ const Footer = () => {
               </li>
               <li>
                 <a
-                  href="mailto:support@rexauction.com"
+                  href="mailto:rexauctiontechnorexers@gmail.com"
                   className="flex items-center text-gray-300 hover:text-white transition-colors duration-300"
                 >
                   <FaEnvelope className="mr-3 text-violet-400" />
-                  <span>support@rexauction.com</span>
+                  <span>rexauctiontechnorexers@gmail.com</span>
                 </a>
               </li>
               <li>
@@ -157,7 +146,11 @@ const Footer = () => {
           </div>
 
           {/* Business Hours */}
-          <div className="flex flex-col">
+          <div
+            className="flex flex-col"
+            data-aos="fade-up"
+            data-aos-delay="300"
+          >
             <h2 className="text-xl font-bold text-white mb-6 relative inline-block">
               Business Hours
               <span className="absolute -bottom-2 left-0 w-12 h-1 bg-violet-500 rounded-full"></span>
@@ -176,21 +169,24 @@ const Footer = () => {
                 <span>Closed</span>
               </li>
             </ul>
+          </div>
 
-            <div className="mt-6 p-4 bg-violet-600/20 rounded-lg border border-violet-500/30">
-              <h3 className="text-white font-semibold mb-2">
-                Customer Support
-              </h3>
-              <p className="text-gray-300 text-sm">
-                Our team is available 24/7 for urgent auction support
-              </p>
-            </div>
+          {/* customer support */}
+          <div
+            className=" md:m-2 p-6 bg-violet-600/20 rounded-lg border border-violet-500/30"
+            data-aos="fade-up"
+            data-aos-delay="400"
+          >
+            <h3 className="text-white font-semibold mb-2">Customer Support</h3>
+            <p className="text-gray-300 text-base">
+              Our team is available 24/7 for urgent auction support
+            </p>
           </div>
         </div>
 
         {/* Footer Bottom */}
         <div className="mt-12 pt-6 border-t border-gray-700 flex flex-col md:flex-row justify-between items-center text-gray-400 text-sm">
-          <p>&copy; {currentYear} Rex Auction. All rights reserved.</p>
+          <p>&copy; {currentYear} Techno Rexers. All rights reserved.</p>
 
           <div className="mt-4 md:mt-0 flex flex-wrap justify-center gap-4">
             <a

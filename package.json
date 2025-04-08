@@ -29,7 +29,7 @@
     "docx": "^9.3.0",
     "file-saver": "^2.0.5",
     "firebase": "^11.4.0",
-    "framer-motion": "^12.6.2",
+    "framer-motion": "^12.6.3",
     "localforage": "^1.10.0",
     "lottie-react": "^2.4.1",
     "lucide-react": "^0.479.0",
@@ -53,6 +53,7 @@
     "react-router-dom": "^7.3.0",
     "react-slick": "^0.30.3",
     "react-toastify": "^11.0.5",
+    "react-tsparticles": "^2.12.2",
     "react-vertical-timeline-component": "^3.5.3",
     "slick-carousel": "^1.8.1",
     "socket.io-client": "^4.8.1",
@@ -62,6 +63,7 @@
     "swiper": "^11.2.5",
     "tailwind-merge": "^3.0.2",
     "tailwindcss-animate": "^1.0.7",
+    "tsparticles": "^3.8.1",
     "uuid": "^11.1.0"
   },
   "devDependencies": {
