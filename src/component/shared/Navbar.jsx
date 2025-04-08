@@ -8,6 +8,9 @@ import { toast } from "react-toastify";
 import { signOut } from "firebase/auth";
 import { MdOutlineLogout } from "react-icons/md";
 import { BiMoney } from "react-icons/bi";
+import Swal from "sweetalert2";
+import axios from "axios";
+import useAxiosPublic from "../../hooks/useAxiosPublic";
 
 const Navbar = () => {
   const {
@@ -16,6 +19,7 @@ const Navbar = () => {
     setLoading,
     setErrorMessage,
     dbUser,
+    setDbUser,
     walletBalance,
     setWalletBalance,
   } = useContext(AuthContexts);
@@ -30,6 +34,8 @@ const Navbar = () => {
   const [depositAmount, setDepositAmount] = useState(300);
   const [accountNumber, setAccountNumber] = useState("");
   const profileRef = useRef(null);
+  const axiosPublic = useAxiosPublic();
+  const [users, setUsers] = useState([]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -86,15 +92,51 @@ const Navbar = () => {
     }
   };
 
-  const handleDepositSubmit = () => {
+  const handleDepositSubmit = async () => {
+    console.log(dbUser._id);
+
     if (!accountNumber) {
       toast.error("Please enter your account number");
       return;
     }
 
-    // In a real app, you would make an API call here
-    setWalletBalance((prev) => prev + Number(depositAmount));
-    toast.success(`Successfully added  ${depositAmount} to your wallet!`);
+    const updatedBalance = dbUser.accountBalance + Number(depositAmount);
+    setWalletBalance(updatedBalance);
+
+    try {
+      const res = await axiosPublic.patch(`/accountBalance/${dbUser._id}`, {
+        accountBalance: updatedBalance,
+      });
+
+      if (res.data.success) {
+        Swal.fire(
+          "Updated!",
+          "User accountBalance has been upgraded.",
+          "success"
+        );
+        if (user?.email) {
+          setLoading(true);
+          axiosPublic
+            .get(`/user/${user.email}`)
+            .then((res) => {
+              setDbUser(res.data);
+              setLoading(false);
+            })
+            .catch((error) => {
+              console.error("Error fetching user data:", error);
+              setErrorMessage("Failed to load user data");
+              setLoading(false);
+            });
+        }
+      } else {
+        Swal.fire("Failed!", "Could not update user role.", "error");
+      }
+    } catch (error) {
+      console.error("Error updating role:", error);
+      Swal.fire("Error!", "Something went wrong!", "error");
+    }
+
+    toast.success(`Successfully added ${depositAmount} to your wallet!`);
     setShowWalletModal(false);
     setAccountNumber("");
   };
@@ -163,7 +205,9 @@ const Navbar = () => {
                     onClick={() => setShowWalletModal(true)}
                   >
                     <FaWallet className="text-yellow-400" />
-                    <span className="font-medium">$ {walletBalance}</span>
+                    <span className="font-medium">
+                      $ {dbUser.accountBalance}
+                    </span>
                     <FaPlus className="text-green-400 text-sm" />
                   </button>
                 </div>

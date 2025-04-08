@@ -32,7 +32,15 @@ import SettingsLayout from "../component/Settings/SettingsLayout";
 import Plan from "../component/Settings/Plan";
 import TermsAndConditionsBuyer from "../extra/terms/TermsConditionsBuyer";
 import EndedAuctionsHistory from "../component/dashboard/shared/EndedAuctionsHistory";
+<<<<<<< HEAD
 import Chat from "../component/Chats/Chat";
+=======
+import AccountBalance from "../extra/wallet/AccountBalance";
+
+// import TeamSettings from "../component/Settings/TeamSettings";
+// import PlanSettings from "../component/Settings/PlanSettings";
+// import EmailSettings from "../component/Settings/EmailSettings";
+>>>>>>> dc4578be0d4ecb3b7318605f62ce66c35604a40c
 
 export const router = createBrowserRouter([
   {
@@ -75,6 +83,10 @@ export const router = createBrowserRouter([
       {
         path: "terms",
         element: <TermsAndConditionsBuyer />,
+      },
+      {
+        path: "addBalance",
+        element: <AccountBalance />,
       },
     ],
   },
@@ -186,8 +198,13 @@ export const router = createBrowserRouter([
         element: <Feedback />,
       },
       {
+<<<<<<< HEAD
         path: "chat", 
         element: <Chat />,
+=======
+        path: "addBalance",
+        element: <AccountBalance />,
+>>>>>>> dc4578be0d4ecb3b7318605f62ce66c35604a40c
       },
     ],
   },
