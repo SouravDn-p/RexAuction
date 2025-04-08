@@ -1,0 +1,425 @@
+
+
+import { useState, useEffect, useRef } from "react"
+import ChatSidebar from "./ChatSidebar"
+import io from "socket.io-client"
+import axios from "axios"
+import auth from "../../firebase/firebase.init"
+import { useLocation } from "react-router-dom"
+
+// Create socket connection inside the component to ensure it's properly initialized
+export default function Chat({ isDarkMode }) {
+  // Create socket ref to maintain connection across renders
+  const socketRef = useRef(null)
+  const [socketConnected, setSocketConnected] = useState(false)
+  const [selectedUser, setSelectedUser] = useState(null)
+  const [messages, setMessages] = useState([])
+  const [newMessage, setNewMessage] = useState("")
+  const messagesEndRef = useRef(null)
+  const location = useLocation()
+  const [connectionError, setConnectionError] = useState(null)
+  const [unreadMessages, setUnreadMessages] = useState({})
+  const [isPageVisible, setIsPageVisible] = useState(true)
+
+  // Initialize socket connection
+  useEffect(() => {
+    // Initialize socket connection
+    if (!socketRef.current) {
+      socketRef.current = io("http://localhost:5000", {
+        withCredentials: true,
+        reconnection: true,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000,
+        timeout: 10000, // Increase timeout
+      })
+
+      console.log("Socket initialized")
+    }
+
+    const socket = socketRef.current
+
+    // Set up event listeners
+    socket.on("connect", () => {
+      console.log("Socket connected:", socket.id)
+      setSocketConnected(true)
+      setConnectionError(null)
+
+      // Re-join chat room after reconnection if a user is selected
+      const user = auth.currentUser
+      const storedUser = JSON.parse(localStorage.getItem("selectedUser"))
+
+      if (user && storedUser) {
+        const chatRoomId = [user.email, storedUser.email].sort().join("_")
+        socket.emit("joinChat", {
+          userId: user.email,
+          selectedUserId: storedUser.email,
+          roomId: chatRoomId,
+        })
+        console.log(`Rejoining chat room after reconnect: ${chatRoomId}`)
+      }
+    })
+
+    socket.on("connect_error", (error) => {
+      console.error("Socket connection error:", error.message)
+      setSocketConnected(false)
+      setConnectionError(`Connection error: ${error.message}`)
+    })
+
+    socket.on("disconnect", (reason) => {
+      console.log("Socket disconnected:", reason)
+      setSocketConnected(false)
+      if (reason === "io server disconnect") {
+        // The server has forcefully disconnected the socket
+        socket.connect() // Manually reconnect
+      }
+    })
+
+    // Page visibility API to handle background/foreground state
+    const handleVisibilityChange = () => {
+      const isVisible = document.visibilityState === "visible"
+      setIsPageVisible(isVisible)
+
+      // If becoming visible and we have a selected user, refresh messages
+      if (isVisible && selectedUser) {
+        refreshMessages(selectedUser)
+      }
+    }
+
+    document.addEventListener("visibilitychange", handleVisibilityChange)
+
+    // Clean up on component unmount
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange)
+
+      if (socketRef.current) {
+        console.log("Cleaning up socket listeners")
+        socket.off("connect")
+        socket.off("connect_error")
+        socket.off("disconnect")
+      }
+    }
+  }, []) // Empty dependency array ensures this runs once on mount
+
+  // Function to refresh messages
+  const refreshMessages = async (user) => {
+    const currentUser = auth.currentUser
+    if (!currentUser || !user) return
+
+    try {
+      const response = await axios.get(`http://localhost:5000/messages/email/${currentUser.email}/${user.email}`, {
+        withCredentials: true,
+      })
+
+      setMessages(
+        response.data.map((msg) => ({
+          ...msg,
+          sent: msg.senderId === currentUser.email,
+        })),
+      )
+    } catch (error) {
+      console.error("Error refreshing messages:", error)
+    }
+  }
+
+  // Restore selectedUser from localStorage or navigation state on mount
+  useEffect(() => {
+    const { selectedUser: preSelectedUser } = location.state || {}
+    const storedUser = JSON.parse(localStorage.getItem("selectedUser"))
+
+    if (preSelectedUser) {
+      // If coming from navigation (e.g., LiveBid), use that user
+      setSelectedUser(preSelectedUser)
+      localStorage.setItem("selectedUser", JSON.stringify(preSelectedUser))
+    } else if (storedUser && !selectedUser) {
+      // If no navigation state but there's a stored user, restore it
+      setSelectedUser(storedUser)
+    }
+  }, [location.state])
+
+  // Update localStorage whenever selectedUser changes
+  useEffect(() => {
+    if (selectedUser) {
+      localStorage.setItem("selectedUser", JSON.stringify(selectedUser))
+    }
+  }, [selectedUser])
+
+  // Set up global message listener for notifications
+  useEffect(() => {
+    const user = auth.currentUser
+    if (!user || !socketRef.current) return
+
+    const socket = socketRef.current
+
+    // Global message listener for all incoming messages
+    const handleGlobalMessage = (message) => {
+      console.log("Global message received:", message)
+
+      // If this message is for the current user
+      if (message.receiverId === user.email) {
+        // If the message is from the currently selected user, update messages
+        if (selectedUser && message.senderId === selectedUser.email) {
+          setMessages((prev) => [...prev, { ...message, sent: false }])
+        }
+        // Otherwise, update unread count for that sender
+        else {
+          setUnreadMessages((prev) => ({
+            ...prev,
+            [message.senderId]: (prev[message.senderId] || 0) + 1,
+          }))
+
+          // Show browser notification if page is not visible
+          if (!isPageVisible) {
+            showNotification(message)
+          }
+        }
+      }
+    }
+
+    socket.on("receiveMessage", handleGlobalMessage)
+
+    return () => {
+      socket.off("receiveMessage", handleGlobalMessage)
+    }
+  }, [selectedUser, isPageVisible])
+
+  // Show browser notification
+  const showNotification = (message) => {
+    if ("Notification" in window && Notification.permission === "granted") {
+      const sender = message.senderId.split("@")[0] // Extract name from email
+      new Notification("New Message", {
+        body: `${sender}: ${message.text.substring(0, 50)}${message.text.length > 50 ? "..." : ""}`,
+      })
+    }
+  }
+
+  // Request notification permission
+  useEffect(() => {
+    if ("Notification" in window && Notification.permission !== "denied") {
+      Notification.requestPermission()
+    }
+  }, [])
+
+  // Fetch messages and set up chat room when selected user changes
+  useEffect(() => {
+    const user = auth.currentUser
+    if (!user || !selectedUser || !socketRef.current) return
+
+    const socket = socketRef.current
+
+    const fetchMessages = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/messages/email/${user.email}/${selectedUser.email}`, {
+          withCredentials: true,
+        })
+        setMessages(
+          response.data.map((msg) => ({
+            ...msg,
+            sent: msg.senderId === user.email,
+          })),
+        )
+      } catch (error) {
+        console.error("Error fetching messages:", error)
+      }
+    }
+    fetchMessages()
+
+    // Leave any previous chat rooms
+    socket.emit("leaveAllRooms")
+
+    // Join chat room with emails - this creates a unique room for these two users
+    const chatRoomId = [user.email, selectedUser.email].sort().join("_")
+    socket.emit("joinChat", {
+      userId: user.email,
+      selectedUserId: selectedUser.email,
+      roomId: chatRoomId,
+    })
+
+    console.log(`Joining chat room: ${chatRoomId}`)
+
+    // Reset unread count for this user
+    setUnreadMessages((prev) => ({
+      ...prev,
+      [selectedUser.email]: 0,
+    }))
+
+    // Set up ping interval to keep connection alive
+    const pingInterval = setInterval(() => {
+      if (socket.connected) {
+        socket.emit("ping", (response) => {
+          console.log("Ping response:", response)
+        })
+      }
+    }, 30000) // Every 30 seconds
+
+    return () => {
+      clearInterval(pingInterval)
+    }
+  }, [selectedUser])
+
+  // Auto-scroll to the latest message
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [messages])
+
+  // Send a message
+  const handleSendMessage = () => {
+    const user = auth.currentUser
+    if (!newMessage.trim() || !selectedUser || !user) return
+
+    if (!socketRef.current || !socketConnected) {
+      console.error("Socket not connected. Cannot send message.")
+      // Try to reconnect
+      if (socketRef.current) {
+        socketRef.current.connect()
+      }
+      return
+    }
+
+    const messageData = {
+      senderId: user.email,
+      receiverId: selectedUser.email,
+      text: newMessage,
+      createdAt: new Date(),
+      roomId: [user.email, selectedUser.email].sort().join("_"),
+    }
+
+    // Add message to local state immediately for better UX
+    setMessages((prev) => [...prev, { ...messageData, sent: true }])
+
+    // Send message through socket
+    socketRef.current.emit("sendMessage", messageData, (acknowledgement) => {
+      if (!acknowledgement || !acknowledgement.success) {
+        console.error("Failed to send message:", acknowledgement?.error || "Unknown error")
+        // Optionally show an error to the user
+      }
+    })
+
+    setNewMessage("")
+  }
+
+  // Determine if the current user is the buyer or seller
+  const userRole = () => {
+    const user = auth.currentUser
+    if (!user || !selectedUser) return "User"
+    return user.email === selectedUser.email ? "Seller" : "Buyer"
+  }
+
+  // Handle user selection from sidebar
+  const handleSelectUser = (user) => {
+    setSelectedUser(user)
+    // Reset unread count for this user
+    setUnreadMessages((prev) => ({
+      ...prev,
+      [user.email]: 0,
+    }))
+  }
+
+  return (
+    <div className={`flex h-screen ${isDarkMode ? "bg-gray-900" : "bg-gray-100"}`}>
+      <ChatSidebar
+        isDarkMode={isDarkMode}
+        onSelectUser={handleSelectUser}
+        unreadMessages={unreadMessages}
+        selectedUserEmail={selectedUser?.email}
+      />
+
+      <div className="flex-1 flex flex-col">
+        {/* Connection status indicator */}
+        {!socketConnected && (
+          <div className="bg-red-500 text-white p-2 text-center text-sm">
+            {connectionError || "Disconnected from chat server. Trying to reconnect..."}
+          </div>
+        )}
+
+        {selectedUser ? (
+          <>
+            <div
+              className={`p-4 border-b ${
+                isDarkMode ? "bg-gray-800 border-gray-700 text-gray-200" : "bg-white border-gray-200 text-gray-800"
+              }`}
+            >
+              <h2 className="text-xl font-semibold">{selectedUser.name}</h2>
+              <p className="text-sm text-gray-500">
+                {selectedUser.email} {userRole() === "Buyer" ? "(Seller)" : "(Buyer)"}
+              </p>
+              <div className="flex items-center mt-1">
+                <span className={`w-2 h-2 rounded-full ${socketConnected ? "bg-green-500" : "bg-red-500"} mr-2`}></span>
+                <span className="text-xs text-gray-500">{socketConnected ? "Online" : "Offline"}</span>
+              </div>
+            </div>
+
+            <div className={`flex-1 overflow-y-auto p-4 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+              <div className="space-y-4">
+                {messages.length > 0 ? (
+                  messages.map((message, index) => (
+                    <div key={index} className={`flex ${message.sent ? "justify-end" : "justify-start"}`}>
+                      <div
+                        className={`max-w-xs md:max-w-md rounded-lg p-3 ${
+                          message.sent
+                            ? isDarkMode
+                              ? "bg-purple-600 text-white"
+                              : "bg-purple-500 text-white"
+                            : isDarkMode
+                              ? "bg-gray-700 text-gray-200"
+                              : "bg-gray-200 text-gray-800"
+                        }`}
+                      >
+                        <p>{message.text}</p>
+                        <p
+                          className={`text-xs mt-1 ${
+                            isDarkMode ? "text-gray-300" : message.sent ? "text-purple-100" : "text-gray-500"
+                          }`}
+                        >
+                          {new Date(message.createdAt).toLocaleTimeString()} -{" "}
+                          {message.sent ? "You" : selectedUser.name}
+                        </p>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p className={`text-center ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                    No messages yet. Start the conversation!
+                  </p>
+                )}
+                <div ref={messagesEndRef} />
+              </div>
+            </div>
+
+            <div className={`p-4 border-t ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}>
+              <div className="flex items-center">
+                <input
+                  type="text"
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  placeholder="Type something..."
+                  className={`flex-1 p-3 rounded-l-lg focus:outline-none ${
+                    isDarkMode
+                      ? "bg-gray-700 text-gray-200 border-gray-600"
+                      : "bg-gray-100 text-gray-800 border-gray-300"
+                  } border`}
+                  onKeyPress={(e) => {
+                    if (e.key === "Enter") handleSendMessage()
+                  }}
+                />
+                <button
+                  onClick={handleSendMessage}
+                  disabled={!socketConnected}
+                  className={`p-3 rounded-r-lg ${
+                    isDarkMode ? "bg-purple-600 hover:bg-purple-700" : "bg-purple-500 hover:bg-purple-600"
+                  } text-white ${!socketConnected ? "opacity-50 cursor-not-allowed" : ""}`}
+                >
+                  Send
+                </button>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className={`flex-1 flex items-center justify-center ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+            <p>Select a user to start chatting</p>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+

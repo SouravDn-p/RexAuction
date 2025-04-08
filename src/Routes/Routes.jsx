@@ -24,7 +24,6 @@ import AnnouncementDetails from "../component/dashboard/shared/AnnouncementDetai
 import Reports from "../component/dashboard/shared/Reports";
 import ManageAuctions from "../component/dashboard/shared/ManageAuctions";
 import Feedback from "../component/shared/FeedBack";
-// import SettingsLayout from "../component/Settings/SettingsLayout";
 import BillingSettings from "../component/Settings/BillingSettings";
 import ProfileSettings from "../component/Settings/ProfileSettings";
 import PasswordSettings from "../component/Settings/PasswordSettings";
@@ -32,12 +31,8 @@ import NotificationSettings from "../component/Settings/NotificationSettings";
 import SettingsLayout from "../component/Settings/SettingsLayout";
 import Plan from "../component/Settings/Plan";
 import TermsAndConditionsBuyer from "../extra/terms/TermsConditionsBuyer";
-import useAxiosPublic from "../hooks/useAxiosPublic";
 import EndedAuctionsHistory from "../component/dashboard/shared/EndedAuctionsHistory";
-
-// import TeamSettings from "../component/Settings/TeamSettings";
-// import PlanSettings from "../component/Settings/PlanSettings";
-// import EmailSettings from "../component/Settings/EmailSettings";
+import Chat from "../component/Chats/Chat";
 
 export const router = createBrowserRouter([
   {
@@ -111,7 +106,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "endedAuctions",
-        element: <EndedAuctionsHistory/>,
+        element: <EndedAuctionsHistory />,
       },
       {
         path: "sellerRequest",
@@ -122,8 +117,7 @@ export const router = createBrowserRouter([
         path: "createAuction",
         element: <CreateAuction />,
       },
-
-      // Buyer only
+      // Buyer Only
       {
         path: "termsConditionsBuyer",
         element: <TermsAndConditionsBuyer />,
@@ -161,21 +155,9 @@ export const router = createBrowserRouter([
             path: "password",
             element: <PasswordSettings />,
           },
-          // {
-          //   path: "team",
-          //   element: <TeamSettings />,
-          // },
           {
             path: "billings",
             element: <BillingSettings />,
-            // },
-            // {
-            //   path: "plan",
-            //   element: <PlanSettings />,
-            // },
-            // {
-            //   path: "email",
-            //   element: <EmailSettings />,
           },
           {
             path: "notifications",
@@ -199,10 +181,13 @@ export const router = createBrowserRouter([
         path: "announcement",
         element: <Announcement />,
       },
-
       {
         path: "feedback",
         element: <Feedback />,
+      },
+      {
+        path: "chat", 
+        element: <Chat />,
       },
     ],
   },

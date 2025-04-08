@@ -16,7 +16,7 @@ import { ImHammer2 } from "react-icons/im";
 import { BiCategory } from "react-icons/bi";
 import { TbMessageReport } from "react-icons/tb";
 import { useContext } from "react";
-import { IoSettingsOutline } from "react-icons/io5";
+import { IoChatbubbleEllipsesOutline, IoSettingsOutline } from "react-icons/io5";
 import { AuthContexts } from "../../../providers/AuthProvider";
 import ThemeContext from "../../Context/ThemeContext";
 
@@ -129,6 +129,35 @@ const Sidebar = () => {
                   }`}
                 >
                   Dashboard
+                </span>
+              </NavLink>
+              <NavLink
+                to="/dashboard/chat"
+                end
+                className={({ isActive }) =>
+                  `flex items-center gap-3 py-2.5 px-3 rounded-lg transition-all duration-200 ${
+                    isActive
+                      ? isDarkMode
+                        ? "bg-indigo-700/60 text-white font-bold shadow-md"
+                        : "bg-indigo-200 text-indigo-900 font-bold shadow-md"
+                      : isDarkMode
+                      ? "hover:bg-indigo-800/40 text-indigo-100"
+                      : "hover:bg-indigo-100 text-indigo-800"
+                  }`
+                }
+              >
+                <IoChatbubbleEllipsesOutline
+                  size={20}
+                  className={`${
+                    isDarkMode ? "text-indigo-300" : "text-indigo-700"
+                  }`}
+                />
+                <span
+                  className={`${
+                    isDarkMode ? "text-indigo-100" : "text-indigo-800"
+                  }`}
+                >
+                  Chats
                 </span>
               </NavLink>
               <NavLink
@@ -315,6 +344,35 @@ const Sidebar = () => {
                 </span>
               </NavLink>
               <NavLink
+                to="/dashboard/chat"
+                end
+                className={({ isActive }) =>
+                  `flex items-center gap-3 py-2.5 px-3 rounded-lg transition-all duration-200 ${
+                    isActive
+                      ? isDarkMode
+                        ? "bg-indigo-700/60 text-white font-bold shadow-md"
+                        : "bg-indigo-200 text-indigo-900 font-bold shadow-md"
+                      : isDarkMode
+                      ? "hover:bg-indigo-800/40 text-indigo-100"
+                      : "hover:bg-indigo-100 text-indigo-800"
+                  }`
+                }
+              >
+                 <IoChatbubbleEllipsesOutline
+                  size={20}
+                  className={`${
+                    isDarkMode ? "text-indigo-300" : "text-indigo-700"
+                  }`}
+                />
+                <span
+                  className={`${
+                    isDarkMode ? "text-indigo-100" : "text-indigo-800"
+                  }`}
+                >
+                  Chats
+                </span>
+              </NavLink>
+              <NavLink
                 to="/dashboard/announcement"
                 className={({ isActive }) =>
                   `flex items-center gap-3 py-2.5 px-3 rounded-lg transition-all duration-200 ${
@@ -466,6 +524,35 @@ const Sidebar = () => {
                   }`}
                 >
                   Dashboard
+                </span>
+              </NavLink>
+              <NavLink
+                to="/dashboard/chat"
+                end
+                className={({ isActive }) =>
+                  `flex items-center gap-3 py-2.5 px-3 rounded-lg transition-all duration-200 ${
+                    isActive
+                      ? isDarkMode
+                        ? "bg-indigo-700/60 text-white font-bold shadow-md"
+                        : "bg-indigo-200 text-indigo-900 font-bold shadow-md"
+                      : isDarkMode
+                      ? "hover:bg-indigo-800/40 text-indigo-100"
+                      : "hover:bg-indigo-100 text-indigo-800"
+                  }`
+                }
+              >
+                <IoChatbubbleEllipsesOutline
+                  size={20}
+                  className={`${
+                    isDarkMode ? "text-indigo-300" : "text-indigo-700"
+                  }`}
+                />
+                <span
+                  className={`${
+                    isDarkMode ? "text-indigo-100" : "text-indigo-800"
+                  }`}
+                >
+                  Chats
                 </span>
               </NavLink>
               <NavLink
