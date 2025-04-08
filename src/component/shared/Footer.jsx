@@ -8,10 +8,10 @@ import {
   FaEnvelope,
   FaPhone,
 } from "react-icons/fa";
-
+import { loadFull } from "tsparticles";
+import Particles from "react-tsparticles";
 import AOS from "aos";
 import "aos/dist/aos.css";
-
 import Newsletter from "./Newsletter";
 import ThemeContext from "../Context/ThemeContext";
 
@@ -24,17 +24,49 @@ const Footer = () => {
     AOS.init({ duration: 1000 });
   }, []);
 
+  const particlesInit = async (main) => {
+    await loadFull(main);
+  };
+
   return (
     <footer
-      // className="bg-no-repeat bg-cover bg-center py-12 relative"
-      className={` relative bg-no-repeat bg-cover bg-center opacity-90 py-10  ${
+      // className="bg-no-repeat bg-cover bg-center py-12 relative" bg-no-repeat bg-cover bg-center
+      className={` relative opacity-90 py-10  ${
         isDarkMode
           ? "bg-gray-900 bg-opacity-100 backdrop-blur-md"
           : "bg-gradient-to-r from-purple-600 to-purple-400 bg-opacity-90 backdrop-blur-md"
       }`}
     >
+      {/* particles */}
+      <Particles
+        id="tsparticles"
+        init={particlesInit}
+        options={{
+          fullScreen: { enable: false },
+          background: { color: { value: "transparent" } },
+          particles: {
+            style: {
+              "mix-blend-mode": "screen",
+            },
+            color: { value: isDarkMode ? "#ffffff" : "#2d2d2d" },
+            links: {
+              enable: true,
+              color: isDarkMode ? "#ffffff" : "#6b21a8",
+              distance: 100,
+            },
+            move: { enable: true, speed: 1 },
+            number: { value: 100 },
+            size: { value: 3 },
+            opacity: {
+              value: 0.5,
+            },
+          },
+        }}
+        className="absolute inset-0 z-0"
+      />
+
       {/* Overlay */}
-      <div className="absolute inset-0 bg-black/70"></div>
+      <div className="absolute inset-0 bg-black/60"></div>
 
       <div className="relative container mx-auto px-6 md:px-12 z-10">
         {/* Footer Content */}
@@ -45,7 +77,7 @@ const Footer = () => {
             data-aos="fade-up"
             data-aos-delay="100"
           >
-            <div className="flex gap-3 items-center">
+            <div className="flex gap-3 items-center ">
               <img
                 className="text-xl border-2 border-violet-500 ring-2 ring-violet-500/60 rounded-full text-white w-[60px] lg:w-[70px] animate-pulse"
                 src="https://i.ibb.co.com/TDRpg4tS/Screenshot-2025-03-20-174700-removebg-preview.png"
@@ -111,7 +143,7 @@ const Footer = () => {
 
           {/* Contact Info */}
           <div
-            className="flex flex-col"
+            className="flex flex-col mt-6"
             data-aos="fade-up"
             data-aos-delay="200"
           >
@@ -147,7 +179,7 @@ const Footer = () => {
 
           {/* Business Hours */}
           <div
-            className="flex flex-col"
+            className="flex flex-col mt-6"
             data-aos="fade-up"
             data-aos-delay="300"
           >
@@ -173,7 +205,7 @@ const Footer = () => {
 
           {/* customer support */}
           <div
-            className=" md:m-2 p-6 bg-violet-600/20 rounded-lg border border-violet-500/30"
+            className=" m-2 p-6 bg-violet-600/20 rounded-lg border border-violet-500/30"
             data-aos="fade-up"
             data-aos-delay="400"
           >
@@ -185,7 +217,7 @@ const Footer = () => {
         </div>
 
         {/* Footer Bottom */}
-        <div className="mt-12 pt-6 border-t border-gray-700 flex flex-col md:flex-row justify-between items-center text-gray-400 text-sm">
+        <div className="mt-10 pt-5 border-t border-gray-700 flex flex-col md:flex-row justify-between items-center text-gray-400 text-sm">
           <p>&copy; {currentYear} Techno Rexers. All rights reserved.</p>
 
           <div className="mt-4 md:mt-0 flex flex-wrap justify-center gap-4">
