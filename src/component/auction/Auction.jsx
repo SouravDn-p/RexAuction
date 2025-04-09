@@ -24,9 +24,28 @@ const Auction = () => {
   const [countdowns, setCountdowns] = useState({});
   const [currentPage, setCurrentPage] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
-  const itemsPerPage = 4; // Show exactly 4 cards per page
-
+  const itemsPerPage = 8; // Show exactly 4 cards per page
   const axiosSecure = useAxiosSecure();
+  const [activeCategory, setActiveCategory] = useState("All");
+
+  const categories = [
+    "All",
+    "Electronics",
+    "Antiques",
+    "Vehicles",
+    "Furniture",
+    "Jewelry",
+    "Others",
+  ];
+
+  // Toggle favorite status
+  const toggleFavorite = (index) => {
+    if (favorites.includes(index)) {
+      setFavorites(favorites.filter((i) => i !== index));
+    } else {
+      setFavorites([...favorites, index]);
+    }
+  };
 
   const {
     data: auctionData = [],
@@ -73,18 +92,24 @@ const Auction = () => {
 
   // Filter and search functionality
   const filteredAuctions = useMemo(() => {
-    const accepted = auctionData.filter((item) => item.status === "Accepted");
+    let filtered = auctionData.filter((item) => item.status === "Accepted");
 
-    if (!searchTerm.trim()) return accepted;
+    if (activeCategory !== "All") {
+      filtered = filtered.filter((item) => item.category === activeCategory);
+    }
 
-    const term = searchTerm.toLowerCase();
-    return accepted.filter(
-      (item) =>
-        item.name.toLowerCase().includes(term) ||
-        item.category.toLowerCase().includes(term) ||
-        (item.description && item.description.toLowerCase().includes(term))
-    );
-  }, [auctionData, searchTerm]);
+    if (searchTerm.trim()) {
+      const term = searchTerm.toLowerCase();
+      filtered = filtered.filter(
+        (item) =>
+          item.name.toLowerCase().includes(term) ||
+          item.category.toLowerCase().includes(term) ||
+          (item.description && item.description.toLowerCase().includes(term))
+      );
+    }
+
+    return filtered;
+  }, [auctionData, searchTerm, activeCategory]);
 
   const pageCount = Math.ceil(filteredAuctions.length / itemsPerPage);
   const displayedAuctions = filteredAuctions.slice(
@@ -180,6 +205,32 @@ const Auction = () => {
                 ALL Auctions
               </h2>
             </div>
+            <p
+              className={`${
+                isDarkMode ? "text-gray-200" : "text-gray-600"
+              } text-center max-w-2xl mb-8`}
+            >
+              Discover our most popular and trending auction items. Bid now
+              before they're gone!
+            </p>
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-2 mb-8">
+            {categories.map((category, index) => (
+              <button
+                key={index}
+                onClick={() => {
+                  setActiveCategory(category);
+                }}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+                  activeCategory === category
+                    ? "bg-violet-900 text-white"
+                    : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+              >
+                {category}
+              </button>
+            ))}
           </div>
 
           {/* Search Bar */}
@@ -253,8 +304,8 @@ const Auction = () => {
 
           {/* Auction Cards - 4 in a row, horizontally */}
           {filteredAuctions.length > 0 && (
-            <div className="relative">
-              <div className="flex justify-center gap-6 pb-10">
+            <div className="relative ">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pb-10">
                 {displayedAuctions.map((item) => (
                   <motion.div
                     key={item._id}
@@ -262,7 +313,7 @@ const Auction = () => {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.3 }}
                     whileHover={{ y: -5 }}
-                    className={`flex-shrink-0 w-72 rounded-xl overflow-hidden transition-all duration-300 snap-start ${
+                    className={`flex-shrink-0 sm:w-96 mx-auto md:w-72 rounded-xl overflow-hidden transition-all duration-300 snap-start ${
                       isDarkMode
                         ? "bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700"
                         : "bg-white border border-gray-200"
@@ -295,7 +346,7 @@ const Auction = () => {
                         alt={item.name}
                         className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                         onError={(e) => {
-                          e.target.src = image; 
+                          e.target.src = image;
                         }}
                       />
                       <div className="absolute bottom-3 left-3 bg-gradient-to-r from-purple-400 to-purple-800 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center">
