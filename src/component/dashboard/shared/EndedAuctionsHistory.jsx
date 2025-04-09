@@ -2,14 +2,22 @@ import { useContext, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import ThemeContext from "../../Context/ThemeContext";
+import useAuth from "../../../hooks/useAuth";
+import { FaEnvelope, FaBell, FaChevronDown } from "react-icons/fa";
+import { useParams, useNavigate } from "react-router-dom";
+import image from "../../../assets/LiveBidAuctionDetails.jpg";
 
 function EndedAuctionsHistory() {
   const axiosSecure = useAxiosSecure();
+  const [openDropdown, setOpenDropdown] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedAuction, setSelectedAuction] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const navigate = useNavigate();
   const itemsPerPage = 5;
   const { isDarkMode } = useContext(ThemeContext);
+  const { user } = useAuth();
+  const [auction, setAuction] = useState([]);
 
   const { data: auctions = [] } = useQuery({
     queryKey: ["endedAuctions"],
@@ -19,12 +27,49 @@ function EndedAuctionsHistory() {
     },
   });
 
+  const toggleDropdown = (bidderEmail) => {
+    setOpenDropdown(openDropdown === bidderEmail ? null : bidderEmail);
+  };
+
+  // Add this handler function
+  const handleSendNotification = (bidder) => {
+    // Implement your notification logic here
+    console.log(`Sending notification to ${bidder.name}`);
+  };
+
   const isAuctionEnded = (endTime) => {
     return new Date(endTime) < new Date();
   };
 
   // Filter only ended auctions
-  const endedAuctions = auctions.filter((auction) => isAuctionEnded(auction.endTime));
+  const endedAuctions = auctions.filter((auction) =>
+    isAuctionEnded(auction.endTime)
+  );
+
+  const handleMessageSeller = (bidder) => {
+    console.log("bidder", bidder);
+    console.log("handleMessageSeller");
+    if (!user) {
+      alert("Please log in to message this bidder");
+      return;
+    }
+
+    // Navigate to chat with bidder details
+    // navigate("/dashboard/chat", {
+    //   state: {
+    //     selectedUser: {
+    //       _id: bidder?.id || bidder?.email, // Use bidder's ID or email as fallback
+    //       email: bidder?.email,
+    //       name: bidder?.name || "Bidder",
+    //       photo: bidder?.photo || image, // Default image if no photo
+    //     },
+    //     // Optional: Include auction context if needed
+    //     auctionId: selectedAuction?._id,
+    //     auctionName: selectedAuction?.name,
+    //     auctionImage: selectedAuction?.images?.[0] || image,
+    //   },
+    // });
+  };
 
   const totalItems = endedAuctions.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -37,7 +82,30 @@ function EndedAuctionsHistory() {
   };
 
   const openDetailsModal = (auction) => {
-    setSelectedAuction(auction);
+    // Remove duplicates by keeping only the highest bid for each bidder
+    const uniqueTopBiddersMap = new Map();
+
+    auction.topBidders?.forEach((bidder) => {
+      const key = bidder.email || bidder._id;
+      if (
+        !uniqueTopBiddersMap.has(key) ||
+        bidder.amount > uniqueTopBiddersMap.get(key).amount
+      ) {
+        uniqueTopBiddersMap.set(key, bidder);
+      }
+    });
+
+    // Convert map back to array and sort descending by amount
+    const cleanedTopBidders = Array.from(uniqueTopBiddersMap.values()).sort(
+      (a, b) => b.amount - a.amount
+    );
+
+    // Set cleaned data in selected auction
+    setSelectedAuction({
+      ...auction,
+      topBidders: cleanedTopBidders,
+    });
+
     setIsModalOpen(true);
   };
 
@@ -261,10 +329,130 @@ function EndedAuctionsHistory() {
                   ))}
                 </div>
               </div>
-
+              {/* top bidders */}
+              <div
+                className={`p-4 col-span-1  rounded-xl shadow-md ${
+                  isDarkMode ? "bg-gray-800" : "bg-white"
+                }`}
+              >
+                <h3 className="text-xl font-bold mb-3">Top Bidders</h3>
+                <div className="space-y-3">
+                  {selectedAuction.topBidders.length > 0 ? (
+                    selectedAuction.topBidders
+                      .slice(0, 3)
+                      .map((bidder, index) => (
+                        <div
+                          key={index}
+                          className={`flex items-center h-24 gap-3 p-3 rounded-lg ${
+                            isDarkMode ? "bg-gray-700" : "bg-gray-100"
+                          } ${
+                            bidder.email === user?.email
+                              ? "border-2 border-purple-500"
+                              : ""
+                          }`}
+                        >
+                          {bidder.icon}
+                          <img
+                            src={bidder.photo || image}
+                            className="w-10 h-10 rounded-full object-cover"
+                            alt="Bidder"
+                          />
+                          <div className="flex-1">
+                            <h3 className="font-medium">
+                              {bidder.name}
+                              {bidder.email === user?.email && (
+                                <span className="ml-1 text-xs text-purple-500">
+                                  (You)
+                                </span>
+                              )}
+                            </h3>
+                            <p
+                              className={`text-sm ${
+                                isDarkMode ? "text-gray-400" : "text-gray-600"
+                              }`}
+                            >
+                              {bidder.amount
+                                ? `৳ ${bidder.amount}`
+                                : "No bid amount"}
+                            </p>
+                          </div>
+                          {/* Button container for larger screens */}
+                          <div className="hidden sm:flex items-center gap-2">
+                            <button
+                              onClick={() => handleMessageSeller(bidder)}
+                              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
+                                isDarkMode
+                                  ? "bg-gray-700 hover:bg-gray-600 text-gray-200"
+                                  : "bg-purple-100 hover:bg-purple-200 text-purple-600"
+                              }`}
+                            >
+                              <FaEnvelope /> Message Seller
+                            </button>
+                            <button
+                              onClick={() => handleSendNotification(bidder)}
+                              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
+                                isDarkMode
+                                  ? "bg-gray-700 hover:bg-gray-600 text-gray-200"
+                                  : "bg-purple-100 hover:bg-purple-200 text-purple-600"
+                              }`}
+                            >
+                              <FaBell /> Send Notification
+                            </button>
+                          </div>
+                          {/* Dropdown for smaller screens */}
+                          <div className="sm:hidden relative">
+                            <button
+                              onClick={() => toggleDropdown(bidder.email)}
+                              className={`p-2 rounded-full ${
+                                isDarkMode
+                                  ? "bg-gray-700 hover:bg-gray-600"
+                                  : "bg-gray-200 hover:bg-gray-300"
+                              }`}
+                            >
+                              <FaChevronDown />
+                            </button>
+                            {openDropdown === bidder.email && (
+                              <div
+                                className={`absolute right-0 mt-2 w-48 rounded-md shadow-lg ${
+                                  isDarkMode
+                                    ? "bg-gray-700 hover:bg-gray-600"
+                                    : "bg-gray-200 hover:bg-gray-300"
+                                }`}
+                              >
+                                <button
+                                  onClick={() => handleMessageSeller(bidder)}
+                                  className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-900 dark:hover:bg-gray-600"
+                                >
+                                  <FaEnvelope className="inline mr-2" /> Message
+                                  Seller
+                                </button>
+                                <button
+                                  onClick={() => handleSendNotification(bidder)}
+                                  className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-900 dark:hover:bg-gray-600"
+                                >
+                                  <FaBell className="inline mr-2" /> Send
+                                  Notification
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))
+                  ) : (
+                    <p
+                      className={`text-center py-4 ${
+                        isDarkMode ? "text-gray-400" : "text-gray-600"
+                      }`}
+                    >
+                      No bids yet! Be the first to place your bid!
+                    </p>
+                  )}
+                </div>
+              </div>
               {/* Details Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Left Column */}
+
                 <div className="space-y-6">
                   {/* Auction Details Card */}
                   <div

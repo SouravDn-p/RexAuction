@@ -65,24 +65,54 @@ const Auction = () => {
     const initialCountdowns = {};
     const now = new Date();
 
-    auctionData.forEach((item, index) => {
-      if (!item.endTime) return;
+    auctionData.forEach((item) => {
+      if (!item.startTime || !item.endTime || !item._id) return;
 
+      const startTime = new Date(item.startTime);
       const endTime = new Date(item.endTime);
-      const diffInSeconds = Math.max(0, Math.floor((endTime - now) / 1000));
-      initialCountdowns[index] = diffInSeconds;
+
+      if (now < startTime) {
+        const diffInSeconds = Math.max(0, Math.floor((startTime - now) / 1000));
+        initialCountdowns[item._id] = { time: diffInSeconds, isStarting: true };
+      } else if (now >= startTime && now < endTime) {
+        const diffInSeconds = Math.max(0, Math.floor((endTime - now) / 1000));
+        initialCountdowns[item._id] = {
+          time: diffInSeconds,
+          isStarting: false,
+        };
+      } else {
+        initialCountdowns[item._id] = { time: 0, isStarting: false };
+      }
     });
 
     setCountdowns(initialCountdowns);
 
     const interval = setInterval(() => {
       setCountdowns((prev) => {
-        const updated = { ...prev };
-        Object.keys(updated).forEach((key) => {
-          if (updated[key] > 0) {
-            updated[key] -= 1;
+        const updated = {};
+        const currentTime = new Date();
+
+        auctionData.forEach((item) => {
+          if (!item.startTime || !item.endTime || !item._id) return;
+
+          const startTime = new Date(item.startTime);
+          const endTime = new Date(item.endTime);
+
+          if (currentTime < startTime) {
+            updated[item._id] = {
+              time: Math.max(0, Math.floor((startTime - currentTime) / 1000)),
+              isStarting: true,
+            };
+          } else if (currentTime >= startTime && currentTime < endTime) {
+            updated[item._id] = {
+              time: Math.max(0, Math.floor((endTime - currentTime) / 1000)),
+              isStarting: false,
+            };
+          } else {
+            updated[item._id] = { time: 0, isStarting: false };
           }
         });
+
         return updated;
       });
     }, 1000);
@@ -130,20 +160,22 @@ const Auction = () => {
     setCurrentPage((prev) => (prev > 0 ? prev - 1 : prev));
   };
 
-  const formatTime = (seconds) => {
-    if (seconds <= 0) return "Ended";
-
+  const formatTime = (countdown) => {
+    const { time: seconds, isStarting } = countdown || {
+      time: 0,
+      isStarting: false,
+    };
     const days = Math.floor(seconds / (24 * 60 * 60));
     const hours = Math.floor((seconds % (24 * 60 * 60)) / (60 * 60));
     const minutes = Math.floor((seconds % (60 * 60)) / 60);
     const secs = seconds % 60;
 
     if (days > 0) {
-      return `${days}d ${hours}h`;
+      return `${days}d ${hours}h ${isStarting ? "to start" : "left"}`;
     } else if (hours > 0) {
-      return `${hours}h ${minutes}m`;
+      return `${hours}h ${minutes}m ${isStarting ? "to start" : "left"}`;
     } else {
-      return `${minutes}m ${secs}s`;
+      return `${minutes}m ${secs}s ${isStarting ? "to start" : "left"}`;
     }
   };
 
@@ -351,7 +383,9 @@ const Auction = () => {
                       />
                       <div className="absolute bottom-3 left-3 bg-gradient-to-r from-purple-400 to-purple-800 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center">
                         <FaClock className="mr-1" />
-                        {formatTime(countdowns[item._id])}
+                        {formatTime(countdowns[item._id]) === "0m 0s left"
+                          ? "Ended"
+                          : formatTime(countdowns[item._id])}
                       </div>
                     </div>
 
