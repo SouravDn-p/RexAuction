@@ -186,7 +186,7 @@ export default function Chat() {
     };
   }, [selectedUser, messages, messageStatuses]);
 
-  // Load message statuses from localStorage on initial render
+ 
   useEffect(() => {
     const storedStatuses = localStorage.getItem("messageStatuses");
     if (storedStatuses) {
