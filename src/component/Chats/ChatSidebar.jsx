@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useRef } from "react"
-import axios from "axios"
-import auth from "../../firebase/firebase.init"
-import io from "socket.io-client"
+import { useState, useEffect, useRef, useMemo } from "react";
+import axios from "axios";
+import auth from "../../firebase/firebase.init";
+import io from "socket.io-client";
 
 export default function ChatSidebar({
   isDarkMode,
@@ -12,10 +12,11 @@ export default function ChatSidebar({
   selectedUserEmail,
   recentMessages = {},
 }) {
-  const [users, setUsers] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [searchTerm, setSearchTerm] = useState("")
-  const socketRef = useRef(null)
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const socketRef = useRef(null);
+  const hasSelectedInitialUser = useRef(false);
 
   useEffect(() => {
     if (!socketRef.current) {
@@ -25,68 +26,101 @@ export default function ChatSidebar({
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
         timeout: 10000,
-      })
+      });
     }
 
     const fetchUsers = async () => {
       try {
-        const currentUser = auth.currentUser
-        if (!currentUser) return
+        const currentUser = await new Promise((resolve) => {
+          const unsubscribe = auth.onAuthStateChanged((user) => {
+            unsubscribe();
+            resolve(user);
+          });
+        });
 
-        setLoading(true)
+        if (!currentUser) {
+          console.warn("No authenticated user found");
+          setLoading(false);
+          return;
+        }
+
+        setLoading(true);
 
         const usersResponse = await axios.get("http://localhost:5000/users", {
           withCredentials: true,
-        })
+        });
 
-        const filteredUsers = usersResponse.data.filter((user) => user.email !== currentUser.email)
-
-        setUsers(filteredUsers)
-        setLoading(false)
+        const filteredUsers = usersResponse.data.filter((user) => user.email !== currentUser.email);
+        setUsers(filteredUsers);
+        setLoading(false);
       } catch (error) {
-        console.error("Error fetching users:", error)
-        setLoading(false)
+        console.error("Error fetching users:", error);
+        setLoading(false);
       }
-    }
+    };
 
-    fetchUsers()
+    fetchUsers();
 
     return () => {
       if (socketRef.current) {
-        socketRef.current.disconnect()
+        socketRef.current.disconnect();
       }
-    }
-  }, [])
+    };
+  }, []);
 
-  useEffect(() => {
-    if (!users.length) return
+  const sortedUsers = useMemo(() => {
+    if (!users.length) return [];
 
-    setUsers((prevUsers) => {
-      const sortedUsers = [...prevUsers].sort((a, b) => {
-        const lastMessageA = recentMessages[a.email]
-        const lastMessageB = recentMessages[b.email]
+    return [...users].sort((a, b) => {
+      const lastMessageA = recentMessages[a.email];
+      const lastMessageB = recentMessages[b.email];
 
-        const hasUnreadA = unreadMessages[a.email] > 0
-        const hasUnreadB = unreadMessages[b.email] > 0
+      const hasUnreadA = unreadMessages[a.email] > 0;
+      const hasUnreadB = unreadMessages[b.email] > 0;
 
-        if (hasUnreadA && !hasUnreadB) return -1
-        if (!hasUnreadA && hasUnreadB) return 1
+      if (hasUnreadA && !hasUnreadB) return -1;
+      if (!hasUnreadA && hasUnreadB) return 1;
 
-        const timestampA = lastMessageA ? new Date(lastMessageA.createdAt).getTime() : 0
-        const timestampB = lastMessageB ? new Date(lastMessageB.createdAt).getTime() : 0
+      const timestampA = lastMessageA ? new Date(lastMessageA.createdAt).getTime() : 0;
+      const timestampB = lastMessageB ? new Date(lastMessageB.createdAt).getTime() : 0;
 
-        return timestampB - timestampA
-      })
+      return timestampB - timestampA;
+    });
+  }, [users, recentMessages, unreadMessages]);
 
-      return sortedUsers
-    })
-  }, [recentMessages, unreadMessages, users])
-
-  const filteredUsers = users.filter(
+  const filteredUsers = sortedUsers.filter(
     (user) =>
       user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email?.toLowerCase().includes(searchTerm.toLowerCase()),
-  )
+  );
+
+  useEffect(() => {
+    if (!loading && filteredUsers.length > 0 && !hasSelectedInitialUser.current) {
+      const storedUser = JSON.parse(localStorage.getItem("selectedUser"));
+
+      if (!selectedUserEmail) {
+        const topUser = filteredUsers[0];
+        onSelectUser(topUser);
+        localStorage.setItem("selectedUser", JSON.stringify(topUser));
+      } else if (storedUser && !selectedUserEmail) {
+        const storedUserInList = filteredUsers.find((user) => user.email === storedUser.email);
+        if (storedUserInList) {
+          onSelectUser(storedUserInList);
+        } else {
+          const topUser = filteredUsers[0];
+          onSelectUser(topUser);
+          localStorage.setItem("selectedUser", JSON.stringify(topUser));
+        }
+      }
+
+      hasSelectedInitialUser.current = true;
+    }
+  }, [loading, filteredUsers, selectedUserEmail, onSelectUser]);
+
+  const handleSelectUser = (user) => {
+    onSelectUser(user);
+    localStorage.setItem("selectedUser", JSON.stringify(user));
+  };
 
   return (
     <div
@@ -112,31 +146,35 @@ export default function ChatSidebar({
           <div className="p-4 text-center">Loading users...</div>
         ) : filteredUsers.length > 0 ? (
           filteredUsers.map((user) => {
-            const lastMessage = recentMessages[user.email]
+            const lastMessage = recentMessages[user.email];
             const messageSnippet = lastMessage
               ? lastMessage.text.length > 20
                 ? `${lastMessage.text.substring(0, 20)}...`
                 : lastMessage.text
-              : "No messages yet"
+              : "No messages yet";
 
             return (
               <div
                 key={user._id || user.email}
-                onClick={() => onSelectUser(user)}
+                onClick={() => handleSelectUser(user)}
                 className={`p-4 cursor-pointer hover:bg-opacity-10 ${
-                  selectedUserEmail === user.email ? (isDarkMode ? "bg-purple-900 bg-opacity-30" : "bg-purple-100") : ""
+                  selectedUserEmail === user.email
+                    ? isDarkMode
+                      ? "bg-purple-900 bg-opacity-30"
+                      : "bg-purple-100"
+                    : ""
                 } ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"}`}
               >
                 <div className="flex items-center">
                   <div className="relative">
                     {user.photo ? (
                       <img
-                        src={user.photo || "/placeholder.svg"}
+                        src={user.photo}
                         alt={user.name || "User"}
                         className="w-10 h-10 rounded-full object-cover"
                         onError={(e) => {
-                          e.target.onerror = null
-                          e.target.src = "https://via.placeholder.com/40?text=User"
+                          e.target.onerror = null; // Prevent infinite loop
+                          e.target.src = "/placeholder-user.png"; // Local fallback image
                         }}
                       />
                     ) : (
@@ -173,8 +211,8 @@ export default function ChatSidebar({
                         unreadMessages[user.email] > 0
                           ? "font-semibold text-purple-500"
                           : isDarkMode
-                            ? "text-gray-400"
-                            : "text-gray-500"
+                          ? "text-gray-400"
+                          : "text-gray-500"
                       }`}
                     >
                       {messageSnippet}
@@ -182,12 +220,12 @@ export default function ChatSidebar({
                   </div>
                 </div>
               </div>
-            )
+            );
           })
         ) : (
           <div className="p-4 text-center">No users found</div>
         )}
       </div>
     </div>
-  )
+  );
 }
