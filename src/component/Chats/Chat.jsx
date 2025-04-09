@@ -908,37 +908,7 @@ export default function Chat() {
                     </div>
                   </div>
 
-                  {/* Action buttons */}
-                  <div className="flex items-center space-x-3">
-                    <button
-                      className={`p-2 rounded-full ${
-                        isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-200"
-                      }`}
-                    >
-                      <Search className="h-5 w-5" />
-                    </button>
-                    <button
-                      className={`p-2 rounded-full ${
-                        isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-200"
-                      }`}
-                    >
-                      <Phone className="h-5 w-5" />
-                    </button>
-                    <button
-                      className={`p-2 rounded-full ${
-                        isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-200"
-                      }`}
-                    >
-                      <Video className="h-5 w-5" />
-                    </button>
-                    <button
-                      className={`p-2 rounded-full ${
-                        isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-200"
-                      }`}
-                    >
-                      <MoreVertical className="h-5 w-5" />
-                    </button>
-                  </div>
+                
                 </div>
               </div>
 
