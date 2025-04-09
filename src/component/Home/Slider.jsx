@@ -6,8 +6,11 @@ import "swiper/css/pagination";
 import "swiper/css/autoplay";
 import Lottie from "lottie-react";
 import celebrationAnimation from "../../assets/Lotties/celebrate.json"; // You'll need to import your Lottie JSON file
+import useAuth from "../../hooks/useAuth";
+import { Link } from "react-router-dom";
 
 const Slider = () => {
+  const { dbUser } = useAuth();
   const banners = [
     {
       id: 1,
@@ -73,9 +76,18 @@ const Slider = () => {
 
                   {/* 50% offer with Lottie animation */}
                   <div className="relative inline-block">
-                    <div className="bg-red-600 text-white text-sm md:text-base lg:text-lg px-4 py-2 rounded-full animate-pulse relative z-20">
-                      🎉 50% DISCOUNT ON BECOMING A SELLER 🎉
-                    </div>
+                    {dbUser?.role == "buyer" ? (
+                      <Link
+                        className="bg-red-600 text-white text-sm md:text-base lg:text-lg px-4 py-2 rounded-full animate-pulse relative z-20"
+                        to={`/dashboard/becomeSeller`}
+                      >
+                        🎉 50% DISCOUNT ON BECOMING AN AUCTIONEER 🎉
+                      </Link>
+                    ) : (
+                      <div className="bg-red-600 text-white text-sm md:text-base lg:text-lg px-4 py-2 rounded-full animate-pulse relative z-20">
+                        🎉 50% DISCOUNT ON BECOMING AN AUCTIONEER 🎉
+                      </div>
+                    )}
                     <div className="absolute -top-20 -left-10 w-40 h-40 z-10 pointer-events-none">
                       <Lottie
                         animationData={celebrationAnimation}

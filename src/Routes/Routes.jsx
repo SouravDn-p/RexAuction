@@ -63,6 +63,10 @@ export const router = createBrowserRouter([
         element: <LiveBid />,
       },
       {
+        path: "/sdLiveBid/:id",
+        element: <LiveBid />,
+      },
+      {
         path: "/login",
         element: <LoginPage />,
       },

@@ -6,14 +6,21 @@ import {
   FaChevronRight,
   FaSearch,
   FaSadTear,
+  FaClock,
+  FaHeart,
+  FaRegHeart,
+  FaEye,
 } from "react-icons/fa";
 import ThemeContext from "../../component/Context/ThemeContext";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import image from "../../assets/Logos/register.jpg";
 
 const Auction = () => {
   const { isDarkMode } = useContext(ThemeContext);
+  const [favorites, setFavorites] = useState([]);
   const [countdowns, setCountdowns] = useState({});
   const [currentPage, setCurrentPage] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
@@ -248,100 +255,159 @@ const Auction = () => {
           {filteredAuctions.length > 0 && (
             <div className="relative">
               <div className="flex justify-center gap-6 pb-10">
-                {displayedAuctions.map((item, index) => (
-                  <div
-                    key={item._id || index}
-                    className={`w-72 rounded-lg overflow-hidden transition-transform duration-300 hover:scale-105 flex flex-col ${
+                {displayedAuctions.map((item) => (
+                  <motion.div
+                    key={item._id}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.3 }}
+                    whileHover={{ y: -5 }}
+                    className={`flex-shrink-0 w-72 rounded-xl overflow-hidden transition-all duration-300 snap-start ${
                       isDarkMode
-                        ? "bg-gradient-to-r from-gray-800 to-gray-900 border border-purple-500"
-                        : "bg-white shadow-lg"
-                    }`}
+                        ? "bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700"
+                        : "bg-white border border-gray-200"
+                    } shadow-lg hover:shadow-xl`}
                   >
-                    <div className="w-full h-48 overflow-hidden">
-                      <img
-                        src={item.images?.[0] || "/default-auction.jpg"}
-                        alt={item.name}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.target.src = "/default-auction.jpg";
-                        }}
-                      />
-                    </div>
-
-                    <div
-                      className={`p-4 flex-grow flex flex-col ${
+                    {/* Favorite Button */}
+                    <button
+                      onClick={() => toggleFavorite(item._id)}
+                      className={`absolute top-3 right-3 z-10 p-2 rounded-full transition-all shadow-md ${
                         isDarkMode
-                          ? "text-gray-200 bg-gray-950"
-                          : "text-gray-800 bg-gray-50"
+                          ? "bg-gray-800/80 hover:bg-gray-700"
+                          : "bg-white/80 hover:bg-white"
                       }`}
                     >
-                      <h3 className="text-lg font-semibold mb-2 line-clamp-2 min-h-[3rem]">
-                        {item.name}
-                      </h3>
+                      {favorites.includes(item._id) ? (
+                        <FaHeart className="text-red-500 text-xl" />
+                      ) : (
+                        <FaRegHeart
+                          className={`text-xl ${
+                            isDarkMode ? "text-gray-200" : "text-gray-800"
+                          }`}
+                        />
+                      )}
+                    </button>
 
-                      <div className="flex justify-between items-center mb-3">
-                        <p className="text-yellow-500 font-bold text-xl">
-                          ${item.startingPrice?.toLocaleString()}
-                        </p>
+                    {/* Image with Time Badge */}
+                    <div className="relative h-56 w-full overflow-hidden">
+                      <img
+                        src={item.images?.[0] || image}
+                        alt={item.name}
+                        className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
+                        onError={(e) => {
+                          e.target.src = image; 
+                        }}
+                      />
+                      <div className="absolute bottom-3 left-3 bg-gradient-to-r from-purple-400 to-purple-800 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center">
+                        <FaClock className="mr-1" />
+                        {formatTime(countdowns[item._id])}
+                      </div>
+                    </div>
+
+                    {/* Auction Details */}
+                    <div
+                      className={`p-5 ${
+                        isDarkMode ? "text-gray-100" : "text-gray-800"
+                      }`}
+                    >
+                      <div className="flex justify-between items-start mb-3">
+                        <h3 className="text-lg font-bold line-clamp-2">
+                          {item.name}
+                        </h3>
                         <span
-                          className={`text-sm ${
-                            countdowns[index] < 3600
-                              ? "text-red-500 font-semibold"
-                              : isDarkMode
-                              ? "text-gray-400"
-                              : "text-gray-500"
+                          className={`text-xs px-2 py-1 rounded-full ${
+                            isDarkMode
+                              ? "bg-purple-900/50 text-purple-300"
+                              : "bg-purple-100 text-purple-800"
                           }`}
                         >
-                          {formatTime(countdowns[index])}
+                          {item.category}
                         </span>
                       </div>
 
                       <p
-                        className={`text-sm mb-3 line-clamp-1 ${
+                        className={`text-sm mb-4 line-clamp-2 ${
                           isDarkMode ? "text-gray-400" : "text-gray-600"
                         }`}
                       >
-                        Category: {item.category}
+                        {item.description || "No description available"}
                       </p>
 
-                      <div
-                        className={`flex justify-between items-center text-sm mb-3 ${
-                          isDarkMode ? "text-gray-400" : "text-gray-500"
-                        }`}
-                      >
-                        <div className="flex items-center">
-                          <FaGavel className="mr-1 text-violet-600" />
-                          <span>{item.bids || 0} bids</span>
+                      <div className="flex justify-between items-center mb-4">
+                        <div>
+                          <p
+                            className={`text-xs ${
+                              isDarkMode ? "text-gray-400" : "text-gray-500"
+                            }`}
+                          >
+                            Starting Price :
+                          </p>
+                          <p className="text-xl font-bold text-purple-600">
+                            ${item.startingPrice?.toLocaleString()}
+                          </p>
                         </div>
-                        <div className="flex items-center">
-                          <span className="inline-block w-2 h-2 bg-green-500 rounded-full animate-pulse mr-1"></span>
-                          <span>Live</span>
+                        <div className="flex items-center space-x-2">
+                          <div className="flex items-center">
+                            <FaGavel
+                              className={`mr-1 ${
+                                isDarkMode
+                                  ? "text-purple-400"
+                                  : "text-purple-600"
+                              }`}
+                            />
+                            <span className="text-sm">
+                              {item.bids || 0} bids
+                            </span>
+                          </div>
                         </div>
                       </div>
 
-                      <div
-                        className={`w-full h-2 mb-4 rounded-full ${
-                          isDarkMode ? "bg-gray-700" : "bg-gray-200"
-                        }`}
-                      >
+                      {/* Progress Bar */}
+                      <div className="mb-4">
+                        <div className="flex justify-between text-xs mb-1">
+                          <span
+                            className={
+                              isDarkMode ? "text-gray-400" : "text-gray-600"
+                            }
+                          >
+                            Bidding Progress
+                          </span>
+                          <span className="font-medium">
+                            {Math.min(100, (item.bids || 0) * 10)}%
+                          </span>
+                        </div>
                         <div
-                          className="bg-violet-600 h-2 rounded-full"
-                          style={{
-                            width: `${Math.min(100, (item.bids || 0) * 10)}%`,
-                          }}
-                        ></div>
+                          className={`w-full h-2 rounded-full ${
+                            isDarkMode ? "bg-gray-700" : "bg-gray-200"
+                          }`}
+                        >
+                          <div
+                            className="h-2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500"
+                            style={{
+                              width: `${Math.min(100, (item.bids || 0) * 10)}%`,
+                            }}
+                          ></div>
+                        </div>
                       </div>
 
-                      <div className="mt-auto">
+                      {/* Action Buttons */}
+                      <div className="flex space-x-2">
                         <Link
                           to={`/liveBid/${item._id}`}
-                          className="block w-full text-center bg-gradient-to-r from-purple-600 via-violet-700 to-purple-800 text-white py-2 rounded-lg hover:from-purple-500 hover:via-violet-600 hover:to-indigo-700 transition"
+                          className="flex-1 text-center bg-gradient-to-r from-purple-600 to-pink-400 text-white py-2 px-4 rounded-lg hover:from-purple-700 hover:to-pink-400 transition shadow-md"
                         >
                           Bid Now
                         </Link>
+                        <button className="p-2 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                          <FaEye
+                            className={
+                              isDarkMode ? "text-gray-600" : "text-gray-600"
+                            }
+                          />
+                        </button>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
 

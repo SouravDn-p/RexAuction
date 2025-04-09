@@ -16,6 +16,7 @@ import ThemeContext from "../../component/Context/ThemeContext";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
+import image from "../../assets/bg/banner-bg-image.jpg";
 
 const HotAuction = () => {
   const { isDarkMode } = useContext(ThemeContext);
@@ -311,13 +312,12 @@ const HotAuction = () => {
                     <img
                       src={
                         item.images?.[0] ||
-                        "https://via.placeholder.com/400x300?text=No+Image"
+                        image
                       }
                       alt={item.name}
                       className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                       onError={(e) => {
-                        e.target.src =
-                          "https://via.placeholder.com/400x300?text=No+Image";
+                        e.target.src = image;
                       }}
                     />
                     <div className="absolute bottom-3 left-3 bg-gradient-to-r from-purple-400 to-purple-800 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center">
@@ -362,7 +362,7 @@ const HotAuction = () => {
                             isDarkMode ? "text-gray-400" : "text-gray-500"
                           }`}
                         >
-                          Current Bid
+                          Starting Price :
                         </p>
                         <p className="text-xl font-bold text-purple-600">
                           ${item.startingPrice?.toLocaleString()}
