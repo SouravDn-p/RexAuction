@@ -1,4 +1,3 @@
-
 import { useContext } from "react";
 import Slider from "./Slider";
 import LiveAuction from "./LiveAuction";

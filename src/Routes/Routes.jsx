@@ -35,6 +35,7 @@ import EndedAuctionsHistory from "../component/dashboard/shared/EndedAuctionsHis
 import AccountBalance from "../extra/wallet/AccountBalance";
 import Chat from "../component/Chats/Chat";
 import WalletHistory from "../extra/wallet/WalletHistory";
+import SdBot from "../extra/sdChatBot/SdBot";
 
 // import TeamSettings from "../component/Settings/TeamSettings";
 // import PlanSettings from "../component/Settings/PlanSettings";
@@ -194,6 +195,10 @@ export const router = createBrowserRouter([
       {
         path: "announcement",
         element: <Announcement />,
+      },
+      {
+        path: "rexBot",
+        element: <SdBot />,
       },
       {
         path: "feedback",

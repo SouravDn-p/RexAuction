@@ -2,6 +2,7 @@ import React from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import Navbar from "../component/shared/Navbar";
 import Footer from "../component/shared/Footer";
+import SdBot from "../extra/sdChatBot/SdBot";
 
 const Main = () => {
   const location = useLocation();
@@ -15,6 +16,7 @@ const Main = () => {
       {head || <Navbar />}
       <Outlet />
       {head || <Footer />}
+      <SdBot />
     </div>
   );
 };
