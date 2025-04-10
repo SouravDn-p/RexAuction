@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -7,12 +7,25 @@ import { createUser } from "../redux/features/user/userSlice";
 import { useAddUserMutation } from "../redux/features/api/userApi";
 import logo from "../assets/Logos/register.jpg";
 import SocialLogin from "../component/SocialLogin";
+import { loadFull } from "tsparticles";
+import Particles from "react-tsparticles";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 const Register = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
   const isRegister = location.pathname.includes("register");
+
+  // particles effect
+  useEffect(() => {
+    AOS.init({ duration: 1000 });
+  }, []);
+
+  const particlesInit = async (main) => {
+    await loadFull(main);
+  };
 
   const [formData, setFormData] = useState({
     name: "",
@@ -117,20 +130,19 @@ const Register = () => {
   };
 
   const passwordError =
-    formData.confirmPassword &&
-    formData.password !== formData.confirmPassword;
+    formData.confirmPassword && formData.password !== formData.confirmPassword;
 
   return (
     <div className="min-h-screen flex items-center justify-center px-6 sm:px-12 bg-gradient-to-br from-purple-100 via-orange-100 to-pink-100">
-      <div className="w-full max-w-5xl bg-white rounded-2xl shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-2">
+      <div className="relative w-full max-w-5xl bg-white rounded-2xl shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-2">
         {/* Left image section */}
         <div
-          className="h-60 md:h-auto bg-cover bg-center"
+          className="h-60 md:h-auto bg-cover bg-center relative z-20"
           style={{ backgroundImage: `url(${logo})` }}
         ></div>
 
         {/* Right form section */}
-        <div className="p-6 md:p-10 bg-white">
+        <div className="p-6 md:p-10 bg-gradient-to-r from-purple-100 via-orange-100 to-pink-100">
           <div className="flex mb-6 gap-2">
             <NavLink
               to="/login"
@@ -149,7 +161,35 @@ const Register = () => {
           </div>
 
           <form onSubmit={handleRegister}>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+            <div className=" grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+              {/* particles */}
+              <Particles
+                id="tsparticles"
+                init={particlesInit}
+                options={{
+                  fullScreen: { enable: false },
+                  background: { color: { value: "transparent" } },
+                  particles: {
+                    style: {
+                      "mix-blend-mode": "luminosity",
+                    },
+                    color: { value: "#2d2d2d" },
+                    links: {
+                      enable: true,
+                      color: "#6b21a8",
+                      distance: 100,
+                    },
+                    move: { enable: true, speed: 1 },
+                    number: { value: 50 },
+                    size: { value: 2 },
+                    opacity: {
+                      value: 0.5,
+                    },
+                  },
+                }}
+                className="absolute inset-0 z-0 pointer-events-none"
+              />
+
               <div>
                 <label className="text-sm font-medium text-black">
                   Full Name <span className="text-red-600">*</span>
@@ -218,9 +258,7 @@ const Register = () => {
                   onChange={handleChange}
                   placeholder="Confirm password"
                   className={`mt-1 w-full px-4 py-3 rounded-lg border ${
-                    passwordError
-                      ? "border-red-400"
-                      : "border-gray-300"
+                    passwordError ? "border-red-400" : "border-gray-300"
                   } bg-white text-black font-semibold focus:ring-2 focus:ring-purple-400 outline-none`}
                   required
                 />
@@ -250,9 +288,7 @@ const Register = () => {
               </div>
             )}
 
-            {isError && (
-              <p className="text-red-500 text-sm mb-2">{error}</p>
-            )}
+            {isError && <p className="text-red-500 text-sm mb-2">{error}</p>}
 
             <button
               type="submit"
