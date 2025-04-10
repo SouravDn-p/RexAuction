@@ -1,10 +1,14 @@
+
+
+"use client";
+
 import { useContext, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import ThemeContext from "../../Context/ThemeContext";
 import useAuth from "../../../hooks/useAuth";
 import { FaEnvelope, FaBell, FaChevronDown } from "react-icons/fa";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import image from "../../../assets/LiveBidAuctionDetails.jpg";
 
 function EndedAuctionsHistory() {
@@ -33,7 +37,7 @@ function EndedAuctionsHistory() {
 
   // Add this handler function
   const handleSendNotification = (bidder) => {
-    // Implement your notification logic here
+  
     console.log(`Sending notification to ${bidder.name}`);
   };
 
@@ -46,9 +50,9 @@ function EndedAuctionsHistory() {
     isAuctionEnded(auction.endTime)
   );
 
+
   const handleMessageBidder = (bidder) => {
-    console.log("bidder", bidder);
-    console.log("handleMessageBidder");
+    console.log("Messaging bidder:", bidder);
     if (!user) {
       alert("Please log in to message this bidder");
       return;
@@ -58,12 +62,42 @@ function EndedAuctionsHistory() {
     navigate("/dashboard/chat", {
       state: {
         selectedUser: {
-          _id: bidder?.id || bidder?.email, // Use bidder's ID or email as fallback
+          _id: bidder?.id || bidder?._id || bidder?.email, 
           email: bidder?.email,
           name: bidder?.name || "Bidder",
-          photo: bidder?.photo || image, // Default image if no photo
+          photo: bidder?.photo || image, 
+          role: bidder?.role || "buyer",
         },
-        // Optional: Include auction context if needed
+        // Include auction context if needed
+        auctionId: selectedAuction?._id,
+        auctionName: selectedAuction?.name,
+        auctionImage: selectedAuction?.images?.[0] || image,
+      },
+    });
+  };
+
+
+  const handleMessageSeller = () => {
+    if (!user) {
+      alert("Please log in to message the seller");
+      return;
+    }
+
+    const seller = {
+      _id: selectedAuction?.sellerId || selectedAuction?.sellerEmail,
+      email: selectedAuction?.sellerEmail,
+      name: selectedAuction?.sellerDisplayName || "Seller",
+      photo: selectedAuction?.sellerPhoto || image,
+      role: "seller",
+    };
+
+    console.log("Messaging seller:", seller);
+
+
+    navigate("/dashboard/chat", {
+      state: {
+        selectedUser: seller,
+        // Include auction context
         auctionId: selectedAuction?._id,
         auctionName: selectedAuction?.name,
         auctionImage: selectedAuction?.images?.[0] || image,
@@ -126,6 +160,22 @@ function EndedAuctionsHistory() {
     modalBorder: isDarkMode ? "border-gray-700" : "border-gray-300",
     secondaryText: isDarkMode ? "text-gray-300" : "text-gray-600",
     shadow: isDarkMode ? "shadow-lg" : "shadow-md",
+  };
+
+  const updateAuctionStatus = async (auctionId, status) => {
+    try {
+      const response = await axiosSecure.patch(`/auctions/${auctionId}`, {
+        status,
+      });
+      if (response.data.modifiedCount > 0) {
+     
+        console.log("Auction status updated successfully");
+      } else {
+        console.log("Auction status update failed");
+      }
+    } catch (error) {
+      console.error("Error updating auction status:", error);
+    }
   };
 
   return (
@@ -316,7 +366,7 @@ function EndedAuctionsHistory() {
                       className="relative group aspect-square overflow-hidden rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
                     >
                       <img
-                        src={image}
+                        src={image || "/placeholder.svg"}
                         alt={`${selectedAuction.name} - Image ${index + 1}`}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       />
@@ -420,11 +470,11 @@ function EndedAuctionsHistory() {
                                 }`}
                               >
                                 <button
-                                  onClick={() => handleMessageSeller(bidder)}
+                                  onClick={() => handleMessageBidder(bidder)}
                                   className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-900 dark:hover:bg-gray-600"
                                 >
                                   <FaEnvelope className="inline mr-2" /> Message
-                                  Seller
+                                  Bidder
                                 </button>
                               </div>
                             )}
@@ -552,17 +602,45 @@ function EndedAuctionsHistory() {
                     </p>
                   </div>
                 </div>
+              </div>
 
-                {/* Right Column */}
-                <div className="space-y-6">
-                  {/* Seller Info Card */}
-                  <div
-                    className={`p-4 sm:p-5 rounded-lg border ${themeStyles.modalBorder} shadow-sm hover:shadow-md transition-shadow`}
-                  >
-                    <div className="flex items-center mb-3">
+              {/* Right Column */}
+              <div className="space-y-6">
+                {/* Seller Info Card */}
+                <div
+                  className={`p-4 sm:p-5 rounded-lg border ${themeStyles.modalBorder} shadow-sm hover:shadow-md transition-shadow`}
+                >
+                  <div className="flex items-center mb-3">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5 mr-2 text-blue-500"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <h3 className="font-bold text-lg">Seller Information</h3>
+                  </div>
+                  <div className="space-y-3">
+                    {/* User Photo */}
+                    <div className="flex items-center py-2">
+                      <img
+                        src={selectedAuction?.sellerPhotoUrl}
+                        alt="Seller Photo"
+                        className="h-10 w-10 rounded-full mr-2 object-cover"
+                      />
+                      <span className="font-medium">Photo:</span>
+                    </div>
+
+                    {/* Name */}
+                    <div className="flex items-center py-2">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5 mr-2 text-blue-500"
+                        className="h-4 w-4 mr-2 text-gray-500"
                         viewBox="0 0 20 20"
                         fill="currentColor"
                       >
@@ -572,77 +650,107 @@ function EndedAuctionsHistory() {
                           clipRule="evenodd"
                         />
                       </svg>
-                      <h3 className="font-bold text-lg">Seller Information</h3>
+                      <span className="font-medium">Name:</span>
+                      <span className="ml-2">
+                        {selectedAuction?.sellerDisplayName || "N/A"}
+                      </span>
                     </div>
-                    <div className="space-y-3">
-                      <div className="flex items-center py-2">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4 mr-2 text-gray-500"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                        <span className="font-medium">Name:</span>
-                        <span className="ml-2">
-                          {selectedAuction?.sellerDisplayName || "N/A"}
-                        </span>
-                      </div>
-                      <div className="flex items-center py-2">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-4 w-4 mr-2 text-gray-500"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                          <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                        </svg>
-                        <span className="font-medium">Email:</span>
-                        <span className="ml-2 truncate">
-                          {selectedAuction?.sellerEmail}
-                        </span>
-                      </div>
 
-                      {/* Button container for larger screens */}
-                      <div className="hidden sm:flex items-center gap-2">
-                        <button
-                          onClick={() => handleMessageSeller(bidder)}
-                          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
-                            isDarkMode
-                              ? "bg-gray-700 hover:bg-gray-600 text-gray-200"
-                              : "bg-purple-100 hover:bg-purple-200 text-purple-600"
-                          }`}
-                        >
-                          <FaEnvelope /> Message Seller
-                        </button>
-                        <button
-                          onClick={() => handleSendNotification(bidder)}
-                          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
-                            isDarkMode
-                              ? "bg-gray-700 hover:bg-gray-600 text-gray-200"
-                              : "bg-purple-100 hover:bg-purple-200 text-purple-600"
-                          }`}
-                        >
-                          <FaBell /> Send Notification
-                        </button>
-                      </div>
+                    {/* Email */}
+                    <div className="flex items-center py-2">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-4 w-4 mr-2 text-gray-500"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                        <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                      </svg>
+                      <span className="font-medium">Email:</span>
+                      <span className="ml-2 truncate">
+                        {selectedAuction?.sellerEmail}
+                      </span>
+                    </div>
+
+                    {/* Button container for larger screens */}
+                    <div className="hidden sm:flex items-center gap-2">
+                      <button
+                        onClick={() => handleMessageSeller()}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
+                          isDarkMode
+                            ? "bg-gray-700 hover:bg-gray-600 text-gray-200"
+                            : "bg-purple-100 hover:bg-purple-200 text-purple-600"
+                        }`}
+                      >
+                        <FaEnvelope /> Message Seller
+                      </button>
+                      <button
+                        onClick={() => handleSendNotification()}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
+                          isDarkMode
+                            ? "bg-gray-700 hover:bg-gray-600 text-gray-200"
+                            : "bg-purple-100 hover:bg-purple-200 text-purple-600"
+                        }`}
+                      >
+                        <FaBell /> Send Notification
+                      </button>
                     </div>
                   </div>
+                </div>
 
-                  {/* Timing Card */}
+                {/* Timing Card */}
+                <div
+                  className={`p-4 sm:p-5 rounded-lg border ${themeStyles.modalBorder} shadow-sm hover:shadow-md transition-shadow`}
+                >
+                  <div className="flex items-center mb-3">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5 mr-2 text-orange-500"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <h3 className="font-bold text-lg">Auction Timing</h3>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
+                      <span className="font-medium">Start Time</span>
+                      <span className="text-right">
+                        {new Date(
+                          selectedAuction.startTime
+                        ).toLocaleDateString()}
+                        <br />
+                        {new Date(
+                          selectedAuction.startTime
+                        ).toLocaleTimeString()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between py-2">
+                      <span className="font-medium">End Time</span>
+                      <span className="text-right">
+                        {new Date(selectedAuction.endTime).toLocaleDateString()}
+                        <br />
+                        {new Date(selectedAuction.endTime).toLocaleTimeString()}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* History Card */}
+                {selectedAuction.history && (
                   <div
                     className={`p-4 sm:p-5 rounded-lg border ${themeStyles.modalBorder} shadow-sm hover:shadow-md transition-shadow`}
                   >
                     <div className="flex items-center mb-3">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        className="h-5 w-5 mr-2 text-orange-500"
+                        className="h-5 w-5 mr-2 text-amber-500"
                         viewBox="0 0 20 20"
                         fill="currentColor"
                       >
@@ -652,145 +760,96 @@ function EndedAuctionsHistory() {
                           clipRule="evenodd"
                         />
                       </svg>
-                      <h3 className="font-bold text-lg">Auction Timing</h3>
+                      <h3 className="font-bold text-lg">History</h3>
                     </div>
-                    <div className="space-y-3">
-                      <div className="flex justify-between py-2 border-b border-gray-200 dark:border-gray-700">
-                        <span className="font-medium">Start Time</span>
-                        <span className="text-right">
-                          {new Date(
-                            selectedAuction.startTime
-                          ).toLocaleDateString()}
-                          <br />
-                          {new Date(
-                            selectedAuction.startTime
-                          ).toLocaleTimeString()}
-                        </span>
-                      </div>
-                      <div className="flex justify-between py-2">
-                        <span className="font-medium">End Time</span>
-                        <span className="text-right">
-                          {new Date(
-                            selectedAuction.endTime
-                          ).toLocaleDateString()}
-                          <br />
-                          {new Date(
-                            selectedAuction.endTime
-                          ).toLocaleTimeString()}
-                        </span>
-                      </div>
+                    <div className="max-h-40 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800">
+                      <p
+                        className={`${themeStyles.secondaryText} text-sm sm:text-base leading-relaxed`}
+                      >
+                        {selectedAuction.history}
+                      </p>
                     </div>
                   </div>
-
-                  {/* History Card */}
-                  {selectedAuction.history && (
-                    <div
-                      className={`p-4 sm:p-5 rounded-lg border ${themeStyles.modalBorder} shadow-sm hover:shadow-md transition-shadow`}
-                    >
-                      <div className="flex items-center mb-3">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-5 w-5 mr-2 text-amber-500"
-                          viewBox="0 0 20 20"
-                          fill="currentColor"
-                        >
-                          <path
-                            fillRule="evenodd"
-                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                        <h3 className="font-bold text-lg">History</h3>
-                      </div>
-                      <div className="max-h-40 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800">
-                        <p
-                          className={`${themeStyles.secondaryText} text-sm sm:text-base leading-relaxed`}
-                        >
-                          {selectedAuction.history}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                )}
               </div>
-              <div
-                className={`p-4 sm:p-5 rounded-lg border col-span-2 ${themeStyles.modalBorder} shadow-sm`}
-              >
-                <div className="flex items-center mb-4">
+            </div>
+            <div
+              className={`p-4 sm:p-5 rounded-lg border col-span-2 ${themeStyles.modalBorder} shadow-sm`}
+            >
+              <div className="flex items-center mb-4">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5 mr-2 text-red-500"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+                <h3 className="font-bold text-lg">Auction Actions</h3>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <button
+                  onClick={() =>
+                    updateAuctionStatus(selectedAuction._id, "Accepted")
+                  }
+                  className={`flex-1 min-w-[120px] px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-all ${
+                    selectedAuction.status === "Accepted" ||
+                    isAuctionEnded(selectedAuction.endTime)
+                      ? "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                      : "bg-green-500 hover:bg-green-600 text-white shadow-md hover:shadow-lg"
+                  }`}
+                  disabled={
+                    selectedAuction.status === "Accepted" ||
+                    isAuctionEnded(selectedAuction.endTime)
+                  }
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 mr-2 text-red-500"
+                    className="h-5 w-5"
                     viewBox="0 0 20 20"
                     fill="currentColor"
                   >
                     <path
                       fillRule="evenodd"
-                      d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                       clipRule="evenodd"
                     />
                   </svg>
-                  <h3 className="font-bold text-lg">Auction Actions</h3>
-                </div>
-                <div className="flex flex-wrap gap-3">
-                  <button
-                    onClick={() =>
-                      updateAuctionStatus(selectedAuction._id, "Accepted")
-                    }
-                    className={`flex-1 min-w-[120px] px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-all ${
-                      selectedAuction.status === "Accepted" ||
-                      isAuctionEnded(selectedAuction.endTime)
-                        ? "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
-                        : "bg-green-500 hover:bg-green-600 text-white shadow-md hover:shadow-lg"
-                    }`}
-                    disabled={
-                      selectedAuction.status === "Accepted" ||
-                      isAuctionEnded(selectedAuction.endTime)
-                    }
+                  Accept
+                </button>
+                <button
+                  onClick={() =>
+                    updateAuctionStatus(selectedAuction._id, "Rejected")
+                  }
+                  className={`flex-1 min-w-[120px] px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-all ${
+                    selectedAuction.status === "Rejected" ||
+                    isAuctionEnded(selectedAuction.endTime)
+                      ? "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                      : "bg-red-500 hover:bg-red-600 text-white shadow-md hover:shadow-lg"
+                  }`}
+                  disabled={
+                    selectedAuction.status === "Rejected" ||
+                    isAuctionEnded(selectedAuction.endTime)
+                  }
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    Accept
-                  </button>
-                  <button
-                    onClick={() =>
-                      updateAuctionStatus(selectedAuction._id, "Rejected")
-                    }
-                    className={`flex-1 min-w-[120px] px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-all ${
-                      selectedAuction.status === "Rejected" ||
-                      isAuctionEnded(selectedAuction.endTime)
-                        ? "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
-                        : "bg-red-500 hover:bg-red-600 text-white shadow-md hover:shadow-lg"
-                    }`}
-                    disabled={
-                      selectedAuction.status === "Rejected" ||
-                      isAuctionEnded(selectedAuction.endTime)
-                    }
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    Reject
-                  </button>
-                </div>
+                    <path
+                      fillRule="evenodd"
+                      d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  Reject
+                </button>
               </div>
             </div>
           </div>

@@ -1,4 +1,4 @@
-"use client"
+
 
 import { useState, useEffect, useRef, useMemo } from "react"
 import axios from "axios"
@@ -18,8 +18,9 @@ export default function ChatSidebar({
   const socketRef = useRef(null)
   const hasSelectedInitialUser = useRef(false)
   const [localRecentMessages, setLocalRecentMessages] = useState({})
+  const [preloadedImages, setPreloadedImages] = useState({})
 
-  // Initialize localRecentMessages with the prop value
+
   useEffect(() => {
     if (Object.keys(recentMessages).length > 0) {
       // Merge with existing messages rather than replacing
@@ -42,6 +43,24 @@ export default function ChatSidebar({
       }
     }
   }, [])
+
+  // Preload user images function
+  const preloadUserImages = (users) => {
+    if (!users || users.length === 0) return
+
+    users.forEach((user) => {
+      if (user.photo) {
+        const img = new Image()
+        img.src = user.photo
+        img.onload = () => {
+          setPreloadedImages((prev) => ({
+            ...prev,
+            [user.email]: true,
+          }))
+        }
+      }
+    })
+  }
 
   useEffect(() => {
     if (!socketRef.current) {
@@ -78,6 +97,9 @@ export default function ChatSidebar({
 
         const filteredUsers = usersResponse.data.filter((user) => user.email !== currentUser.email)
         setUsers(filteredUsers)
+
+        // Preload user images immediately
+        preloadUserImages(filteredUsers)
 
         // Fetch recent messages if they're not already available
         if (Object.keys(localRecentMessages).length === 0) {
@@ -172,28 +194,39 @@ export default function ChatSidebar({
       user.email?.toLowerCase().includes(searchTerm.toLowerCase()),
   )
 
+  // Update the useEffect that handles initial user selection to respect navigation
   useEffect(() => {
     if (!loading && filteredUsers.length > 0 && !hasSelectedInitialUser.current) {
-      const storedUser = JSON.parse(localStorage.getItem("selectedUser"))
-
-      if (!selectedUserEmail) {
-        const topUser = filteredUsers[0]
-        onSelectUser(topUser)
-        localStorage.setItem("selectedUser", JSON.stringify(topUser))
-      } else if (storedUser && !selectedUserEmail) {
-        const storedUserInList = filteredUsers.find((user) => user.email === storedUser.email)
-        if (storedUserInList) {
-          onSelectUser(storedUserInList)
-        } else {
-          const topUser = filteredUsers[0]
-          onSelectUser(topUser)
-          localStorage.setItem("selectedUser", JSON.stringify(topUser))
-        }
+      const storedUser = JSON.parse(localStorage.getItem("selectedUser"));
+      
+      // If a user is already selected (from navigation), don't override it
+      if (selectedUserEmail) {
+        console.log("User already selected from navigation:", selectedUserEmail);
+        hasSelectedInitialUser.current = true;
+        return;
       }
 
-      hasSelectedInitialUser.current = true
+      if (storedUser) {
+        const storedUserInList = filteredUsers.find((user) => user.email === storedUser.email);
+        if (storedUserInList) {
+          console.log("Selecting stored user:", storedUserInList.name || storedUserInList.email);
+          onSelectUser(storedUserInList);
+        } else {
+          const topUser = filteredUsers[0];
+          console.log("Selecting top user:", topUser.name || topUser.email);
+          onSelectUser(topUser);
+          localStorage.setItem("selectedUser", JSON.stringify(topUser));
+        }
+      } else {
+        const topUser = filteredUsers[0];
+        console.log("No stored user, selecting top user:", topUser.name || topUser.email);
+        onSelectUser(topUser);
+        localStorage.setItem("selectedUser", JSON.stringify(topUser));
+      }
+
+      hasSelectedInitialUser.current = true;
     }
-  }, [loading, filteredUsers, selectedUserEmail, onSelectUser])
+  }, [loading, filteredUsers, selectedUserEmail, onSelectUser]);
 
   const handleSelectUser = (user) => {
     onSelectUser(user)
@@ -234,9 +267,8 @@ export default function ChatSidebar({
 
             const isUnread = unreadMessages[user.email] > 0
             const isSentByCurrentUser = lastMessage && lastMessage.senderId === auth.currentUser?.email
+            const isRecent = lastMessage && new Date().getTime() - new Date(lastMessage.createdAt).getTime() < 3600000
 
-            // Update the return JSX to enhance the styling of recent and unread messages
-            // Replace the user item rendering section with this improved version:
             return (
               <div
                 key={user._id || user.email}
@@ -257,7 +289,9 @@ export default function ChatSidebar({
                         className={`w-10 h-10 rounded-full object-cover ${
                           // Add a subtle border for users with recent messages
                           localRecentMessages[user.email] ? "border-2 border-purple-400" : "border border-gray-300"
-                        }`}
+                        } ${isRecent ? "animate-pulse-once" : ""}`}
+                        loading="eager"
+                        fetchpriority="high"
                         onError={(e) => {
                           e.target.onerror = null // Prevent infinite loop
                           e.target.src = "/placeholder.svg?height=40&width=40&text=User" // Local fallback image
