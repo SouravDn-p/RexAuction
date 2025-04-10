@@ -62,7 +62,7 @@ const MainContent = () => {
     }
   }, [user])
 
-r
+
   useEffect(() => {
     if (user) {
      
