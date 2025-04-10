@@ -1,4 +1,3 @@
-"use client";
 
 import { useState, useEffect, useRef, useContext } from "react";
 import ChatSidebar from "./ChatSidebar";
