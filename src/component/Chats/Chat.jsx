@@ -1,68 +1,85 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useRef, useContext } from "react"
-import ChatSidebar from "./ChatSidebar"
-import io from "socket.io-client"
-import axios from "axios"
-import auth from "../../firebase/firebase.init"
-import { useLocation } from "react-router-dom"
-import ThemeContext from "../Context/ThemeContext"
-import { ArrowLeft, Send, Smile, Paperclip, Mic, ImageIcon, MoreVertical, Search, Phone, Video } from "lucide-react"
+import { useState, useEffect, useRef, useContext } from "react";
+import ChatSidebar from "./ChatSidebar";
+import io from "socket.io-client";
+import axios from "axios";
+import auth from "../../firebase/firebase.init";
+import { useLocation } from "react-router-dom";
+import ThemeContext from "../Context/ThemeContext";
+import {
+  ArrowLeft,
+  Send,
+  Smile,
+  Paperclip,
+  Mic,
+  ImageIcon,
+  MoreVertical,
+  Search,
+  Phone,
+  Video,
+  Check,
+} from "lucide-react";
 
 export default function Chat() {
-  const socketRef = useRef(null)
-  const [socketConnected, setSocketConnected] = useState(false)
-  const [selectedUser, setSelectedUser] = useState(null)
-  const [messages, setMessages] = useState([])
-  const [newMessage, setNewMessage] = useState("")
-  const messagesEndRef = useRef(null)
-  const location = useLocation()
-  const [connectionError, setConnectionError] = useState(null)
-  const [unreadMessages, setUnreadMessages] = useState({})
-  const [isPageVisible, setIsPageVisible] = useState(true)
-  const { isDarkMode } = useContext(ThemeContext)
-  const [recentMessages, setRecentMessages] = useState({})
-  const [lastMessageTimestamp, setLastMessageTimestamp] = useState(null)
-  const [users, setUsers] = useState([])
-  const [currentUser, setCurrentUser] = useState(null)
-  const [currentUserRole, setCurrentUserRole] = useState("buyer")
-  const [isMobile, setIsMobile] = useState(false)
-  const [showEmojiPicker, setShowEmojiPicker] = useState(false)
-  const [showAttachMenu, setShowAttachMenu] = useState(false)
+  const socketRef = useRef(null);
+  const [socketConnected, setSocketConnected] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState("");
+  const messagesEndRef = useRef(null);
+  const location = useLocation();
+  const [connectionError, setConnectionError] = useState(null);
+  const [unreadMessages, setUnreadMessages] = useState({});
+  const [isPageVisible, setIsPageVisible] = useState(true);
+  const { isDarkMode } = useContext(ThemeContext);
+  const [recentMessages, setRecentMessages] = useState({});
+  const [lastMessageTimestamp, setLastMessageTimestamp] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [currentUserRole, setCurrentUserRole] = useState("buyer");
+  const [isMobile, setIsMobile] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showAttachMenu, setShowAttachMenu] = useState(false);
+  const [messageStatuses, setMessageStatuses] = useState({}); // Track message delivery/read statuses
+  const [seenMessages, setSeenMessages] = useState({});
 
   useEffect(() => {
     const checkIfMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
+      setIsMobile(window.innerWidth < 768);
+    };
 
-    checkIfMobile()
-    window.addEventListener("resize", checkIfMobile)
-    return () => window.removeEventListener("resize", checkIfMobile)
-  }, [])
+    checkIfMobile();
+    window.addEventListener("resize", checkIfMobile);
+    return () => window.removeEventListener("resize", checkIfMobile);
+  }, []);
 
   useEffect(() => {
     const fetchUserData = async () => {
-      const user = auth.currentUser
+      const user = auth.currentUser;
       if (user) {
-        setCurrentUser(user)
+        setCurrentUser(user);
         try {
-          const userResponse = await axios.get(`http://localhost:5000/user/${user.email}`, {
-            withCredentials: true,
-          })
-          setCurrentUserRole(userResponse.data.role || "buyer")
+          const userResponse = await axios.get(
+            `http://localhost:5000/user/${user.email}`,
+            {
+              withCredentials: true,
+            }
+          );
+          setCurrentUserRole(userResponse.data.role || "buyer");
 
           const usersResponse = await axios.get("http://localhost:5000/users", {
             withCredentials: true,
-          })
-          setUsers(usersResponse.data.filter((u) => u.email !== user.email))
+          });
+          setUsers(usersResponse.data.filter((u) => u.email !== user.email));
         } catch (error) {
-          console.error("Error fetching user data:", error)
+          console.error("Error fetching user data:", error);
         }
       }
-    }
+    };
 
-    fetchUserData()
-  }, [])
+    fetchUserData();
+  }, []);
 
   useEffect(() => {
     if (!socketRef.current) {
@@ -72,277 +89,486 @@ export default function Chat() {
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
         timeout: 10000,
-      })
+      });
     }
 
-    const socket = socketRef.current
+    const socket = socketRef.current;
 
     socket.on("connect", () => {
-      setSocketConnected(true)
-      setConnectionError(null)
+      setSocketConnected(true);
+      setConnectionError(null);
 
-      const user = auth.currentUser
-      const storedUser = JSON.parse(localStorage.getItem("selectedUser"))
+      const user = auth.currentUser;
+      const storedUser = JSON.parse(localStorage.getItem("selectedUser"));
 
       if (user && storedUser) {
-        const chatRoomId = [user.email, storedUser.email].sort().join("_")
+        const chatRoomId = [user.email, storedUser.email].sort().join("_");
         socket.emit("joinChat", {
           userId: user.email,
           selectedUserId: storedUser.email,
           roomId: chatRoomId,
-        })
+        });
       }
-    })
+    });
 
     socket.on("connect_error", (error) => {
-      setSocketConnected(false)
-      setConnectionError(`Connection error: ${error.message}`)
-    })
+      setSocketConnected(false);
+      setConnectionError(`Connection error: ${error.message}`);
+    });
 
     socket.on("disconnect", (reason) => {
-      setSocketConnected(false)
+      setSocketConnected(false);
       if (reason === "io server disconnect") {
-        socket.connect()
+        socket.connect();
       }
-    })
+    });
+
+    // Listen for message status updates
+    socket.on("messageStatus", ({ messageId, status }) => {
+      setMessageStatuses((prev) => ({
+        ...prev,
+        [messageId]: status,
+      }));
+
+      // Also update the status in localStorage
+      const storedStatuses = JSON.parse(
+        localStorage.getItem("messageStatuses") || "{}"
+      );
+      localStorage.setItem(
+        "messageStatuses",
+        JSON.stringify({
+          ...storedStatuses,
+          [messageId]: status,
+        })
+      );
+    });
 
     const handleVisibilityChange = () => {
-      const isVisible = document.visibilityState === "visible"
-      setIsPageVisible(isVisible)
+      const isVisible = document.visibilityState === "visible";
+      setIsPageVisible(isVisible);
 
       if (isVisible && selectedUser) {
-        refreshMessages(selectedUser)
-      }
-    }
+        refreshMessages(selectedUser);
 
-    document.addEventListener("visibilitychange", handleVisibilityChange)
+        // Mark messages as read when the chat becomes visible
+        if (selectedUser && messages.length > 0) {
+          const unreadMessageIds = messages
+            .filter(
+              (msg) =>
+                !msg.sent &&
+                (!messageStatuses[msg.messageId] ||
+                  messageStatuses[msg.messageId] !== "read")
+            )
+            .map((msg) => msg.messageId);
+
+          if (unreadMessageIds.length > 0) {
+            socket.emit("markAsRead", {
+              messageIds: unreadMessageIds,
+              reader: auth.currentUser?.email,
+              sender: selectedUser.email,
+            });
+          }
+        }
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange)
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
 
       if (socketRef.current) {
-        socket.off("connect")
-        socket.off("connect_error")
-        socket.off("disconnect")
+        socket.off("connect");
+        socket.off("connect_error");
+        socket.off("disconnect");
+        socket.off("messageStatus");
+      }
+    };
+  }, [selectedUser, messages, messageStatuses]);
+
+ 
+  useEffect(() => {
+    const storedStatuses = localStorage.getItem("messageStatuses");
+    if (storedStatuses) {
+      try {
+        setMessageStatuses(JSON.parse(storedStatuses));
+      } catch (error) {
+        console.error("Error parsing stored message statuses:", error);
       }
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
     const fetchRecentMessages = async () => {
-      const user = auth.currentUser
-      if (!user) return
+      const user = auth.currentUser;
+      if (!user) return;
 
       try {
-        const response = await axios.get(`http://localhost:5000/recent-messages/${user.email}`, {
-          withCredentials: true,
-        })
+        const response = await axios.get(
+          `http://localhost:5000/recent-messages/${user.email}`,
+          {
+            withCredentials: true,
+          }
+        );
 
-        const recentMessagesMap = response.data.reduce((acc, { userEmail, lastMessage }) => {
-          acc[userEmail] = lastMessage
-          return acc
-        }, {})
+        const recentMessagesMap = response.data.reduce(
+          (acc, { userEmail, lastMessage }) => {
+            acc[userEmail] = lastMessage;
+            return acc;
+          },
+          {}
+        );
 
-        setRecentMessages(recentMessagesMap)
+        setRecentMessages(recentMessagesMap);
       } catch (error) {
-        console.error("Error fetching recent messages:", error)
+        console.error("Error fetching recent messages:", error);
+      }
+    };
+
+    fetchRecentMessages();
+  }, []);
+
+  // Load unread messages from localStorage on initial render
+  useEffect(() => {
+    const storedUnreadMessages = localStorage.getItem("unreadMessages");
+    if (storedUnreadMessages) {
+      try {
+        setUnreadMessages(JSON.parse(storedUnreadMessages));
+      } catch (error) {
+        console.error("Error parsing stored unread messages:", error);
       }
     }
-
-    fetchRecentMessages()
-  }, [])
+  }, []);
 
   const refreshMessages = async (user) => {
-    const currentUser = auth.currentUser
-    if (!currentUser || !user) return
+    const currentUser = auth.currentUser;
+    if (!currentUser || !user) return;
 
     try {
-      const since = lastMessageTimestamp ? new Date(lastMessageTimestamp).toISOString() : null
-      const url = `http://localhost:5000/messages/email/${currentUser.email}/${user.email}${
-        since ? `?since=${since}` : ""
-      }`
+      const since = lastMessageTimestamp
+        ? new Date(lastMessageTimestamp).toISOString()
+        : null;
+      const url = `http://localhost:5000/messages/email/${currentUser.email}/${
+        user.email
+      }${since ? `?since=${since}` : ""}`;
 
       const response = await axios.get(url, {
         withCredentials: true,
-      })
+      });
 
       if (response.data.length > 0) {
         const fetchedMessages = response.data.map((msg) => ({
           ...msg,
           sent: msg.senderId === currentUser.email,
-        }))
+        }));
 
         setMessages((prevMessages) => {
-          const messageIds = new Set(prevMessages.map((msg) => msg.messageId))
-          const newMessages = fetchedMessages.filter((msg) => !messageIds.has(msg.messageId))
-          return [...prevMessages, ...newMessages]
-        })
+          const messageIds = new Set(prevMessages.map((msg) => msg.messageId));
+          const newMessages = fetchedMessages.filter(
+            (msg) => !messageIds.has(msg.messageId)
+          );
+          return [...prevMessages, ...newMessages];
+        });
 
         const latestMessage = response.data.reduce((latest, msg) => {
-          const msgTime = new Date(msg.createdAt).getTime()
-          return msgTime > latest ? msgTime : latest
-        }, lastMessageTimestamp || 0)
-        setLastMessageTimestamp(latestMessage)
-      }
-    } catch (error) {
-      console.error("Error refreshing messages:", error)
-    }
-  }
+          const msgTime = new Date(msg.createdAt).getTime();
+          return msgTime > latest ? msgTime : latest;
+        }, lastMessageTimestamp || 0);
+        setLastMessageTimestamp(latestMessage);
 
-  useEffect(() => {
-    const { selectedUser: preSelectedUser } = location.state || {}
-    const storedUser = JSON.parse(localStorage.getItem("selectedUser"))
+        // Mark messages as delivered if they're from the other user
+        const messagesToMarkAsDelivered = fetchedMessages
+          .filter(
+            (msg) =>
+              !msg.sent &&
+              (!messageStatuses[msg.messageId] ||
+                messageStatuses[msg.messageId] === "sent")
+          )
+          .map((msg) => msg.messageId);
 
-    if (preSelectedUser) {
-      setSelectedUser(preSelectedUser)
-      localStorage.setItem("selectedUser", JSON.stringify(preSelectedUser))
-    } else if (storedUser && !selectedUser) {
-      setSelectedUser(storedUser)
-    }
-  }, [location.state])
+        if (messagesToMarkAsDelivered.length > 0 && socketRef.current) {
+          socketRef.current.emit("markAsDelivered", {
+            messageIds: messagesToMarkAsDelivered,
+            recipient: currentUser.email,
+            sender: user.email,
+          });
+        }
 
-  useEffect(() => {
-    if (selectedUser) {
-      localStorage.setItem("selectedUser", JSON.stringify(selectedUser))
-    }
-  }, [selectedUser])
+        // If the chat is visible, also mark as read
+        if (isPageVisible) {
+          const messagesToMarkAsRead = fetchedMessages
+            .filter(
+              (msg) =>
+                !msg.sent &&
+                (!messageStatuses[msg.messageId] ||
+                  messageStatuses[msg.messageId] !== "read")
+            )
+            .map((msg) => msg.messageId);
 
-  useEffect(() => {
-    const user = auth.currentUser
-    if (!user || !socketRef.current) return
-
-    const socket = socketRef.current
-
-    const handleGlobalMessage = (message) => {
-      const otherUserId = message.senderId === user.email ? message.receiverId : message.senderId
-
-      setRecentMessages((prev) => ({
-        ...prev,
-        [otherUserId]: message,
-      }))
-
-      if (message.receiverId === user.email) {
-        if (selectedUser && message.senderId === selectedUser.email) {
-          setMessages((prev) => {
-            const messageExists = prev.some((msg) => msg.messageId === message.messageId)
-            if (messageExists) return prev
-            return [...prev, { ...message, sent: false }]
-          })
-
-          const msgTime = new Date(message.createdAt).getTime()
-          if (!lastMessageTimestamp || msgTime > lastMessageTimestamp) {
-            setLastMessageTimestamp(msgTime)
-          }
-        } else {
-          setUnreadMessages((prev) => ({
-            ...prev,
-            [message.senderId]: (prev[message.senderId] || 0) + 1,
-          }))
-
-          if (!isPageVisible) {
-            showNotification(message)
+          if (messagesToMarkAsRead.length > 0 && socketRef.current) {
+            socketRef.current.emit("markAsRead", {
+              messageIds: messagesToMarkAsRead,
+              reader: currentUser.email,
+              sender: user.email,
+            });
           }
         }
       }
+    } catch (error) {
+      console.error("Error refreshing messages:", error);
     }
+  };
 
-    socket.on("receiveMessage", handleGlobalMessage)
+  useEffect(() => {
+    const { selectedUser: preSelectedUser } = location.state || {};
+    const storedUser = JSON.parse(localStorage.getItem("selectedUser"));
+
+    if (preSelectedUser) {
+      setSelectedUser(preSelectedUser);
+      localStorage.setItem("selectedUser", JSON.stringify(preSelectedUser));
+    } else if (storedUser && !selectedUser) {
+      setSelectedUser(storedUser);
+    }
+  }, [location.state]);
+
+  useEffect(() => {
+    if (selectedUser) {
+      localStorage.setItem("selectedUser", JSON.stringify(selectedUser));
+    }
+  }, [selectedUser]);
+
+  useEffect(() => {
+    const user = auth.currentUser;
+    if (!user || !socketRef.current) return;
+
+    const socket = socketRef.current;
+
+    const handleGlobalMessage = (message) => {
+      const otherUserId =
+        message.senderId === user.email ? message.receiverId : message.senderId;
+
+      // Update recent messages state
+      setRecentMessages((prev) => {
+        const updated = {
+          ...prev,
+          [otherUserId]: message,
+        };
+        // Store in localStorage for persistence
+        localStorage.setItem("recentMessages", JSON.stringify(updated));
+        return updated;
+      });
+
+      // If we receive a message, mark it as delivered
+      if (message.receiverId === user.email) {
+        // Update message status to delivered
+        setMessageStatuses((prev) => ({
+          ...prev,
+          [message.messageId]: "delivered",
+        }));
+
+        // Store in localStorage
+        const storedStatuses = JSON.parse(
+          localStorage.getItem("messageStatuses") || "{}"
+        );
+        localStorage.setItem(
+          "messageStatuses",
+          JSON.stringify({
+            ...storedStatuses,
+            [message.messageId]: "delivered",
+          })
+        );
+
+        // Emit delivered status to sender
+        socket.emit("markAsDelivered", {
+          messageIds: [message.messageId],
+          recipient: user.email,
+          sender: message.senderId,
+        });
+
+        // If this message is for the currently selected user, add it to the messages list
+        if (selectedUser && message.senderId === selectedUser.email) {
+          setMessages((prev) => {
+            const messageExists = prev.some(
+              (msg) => msg.messageId === message.messageId
+            );
+            if (messageExists) return prev;
+            return [...prev, { ...message, sent: false }];
+          });
+
+          const msgTime = new Date(message.createdAt).getTime();
+          if (!lastMessageTimestamp || msgTime > lastMessageTimestamp) {
+            setLastMessageTimestamp(msgTime);
+          }
+
+          // If the chat is visible, also mark as read
+          if (isPageVisible) {
+            socket.emit("markAsRead", {
+              messageIds: [message.messageId],
+              reader: user.email,
+              sender: message.senderId,
+            });
+          }
+        } else {
+          // Otherwise, increment the unread count for this sender
+          setUnreadMessages((prev) => {
+            const updated = {
+              ...prev,
+              [message.senderId]: (prev[message.senderId] || 0) + 1,
+            };
+            // Store unread counts in localStorage
+            localStorage.setItem("unreadMessages", JSON.stringify(updated));
+            return updated;
+          });
+
+          if (!isPageVisible) {
+            showNotification(message);
+          }
+        }
+      }
+    };
+
+    socket.on("receiveMessage", handleGlobalMessage);
 
     return () => {
-      socket.off("receiveMessage", handleGlobalMessage)
-    }
-  }, [selectedUser, isPageVisible, lastMessageTimestamp])
+      socket.off("receiveMessage", handleGlobalMessage);
+    };
+  }, [selectedUser, isPageVisible, lastMessageTimestamp]);
 
   const showNotification = (message) => {
     if ("Notification" in window && Notification.permission === "granted") {
-      const sender = message.senderId.split("@")[0]
+      const sender = message.senderId.split("@")[0];
       new Notification("New Message", {
-        body: `${sender}: ${message.text.substring(0, 50)}${message.text.length > 50 ? "..." : ""}`,
-      })
+        body: `${sender}: ${message.text.substring(0, 50)}${
+          message.text.length > 50 ? "..." : ""
+        }`,
+      });
     }
-  }
+  };
 
   useEffect(() => {
     if ("Notification" in window && Notification.permission !== "denied") {
-      Notification.requestPermission()
+      Notification.requestPermission();
     }
-  }, [])
+  }, []);
 
   useEffect(() => {
-    const user = auth.currentUser
-    if (!user || !selectedUser || !socketRef.current) return
+    const user = auth.currentUser;
+    if (!user || !selectedUser || !socketRef.current) return;
 
-    const socket = socketRef.current
+    const socket = socketRef.current;
 
     const fetchMessages = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/messages/email/${user.email}/${selectedUser.email}`, {
-          withCredentials: true,
-        })
+        const response = await axios.get(
+          `http://localhost:5000/messages/email/${user.email}/${selectedUser.email}`,
+          {
+            withCredentials: true,
+          }
+        );
 
         const fetchedMessages = response.data.map((msg) => ({
           ...msg,
           sent: msg.senderId === user.email,
-        }))
+        }));
 
-        setMessages(fetchedMessages)
+        setMessages(fetchedMessages);
 
         if (fetchedMessages.length > 0) {
           const latestMessage = fetchedMessages.reduce((latest, msg) => {
-            const msgTime = new Date(msg.createdAt).getTime()
-            return msgTime > latest ? msgTime : latest
-          }, 0)
-          setLastMessageTimestamp(latestMessage)
+            const msgTime = new Date(msg.createdAt).getTime();
+            return msgTime > latest ? msgTime : latest;
+          }, 0);
+          setLastMessageTimestamp(latestMessage);
+
+          // Mark received messages as delivered
+          const messagesToMarkAsDelivered = fetchedMessages
+            .filter(
+              (msg) =>
+                !msg.sent &&
+                (!messageStatuses[msg.messageId] ||
+                  messageStatuses[msg.messageId] === "sent")
+            )
+            .map((msg) => msg.messageId);
+
+          if (messagesToMarkAsDelivered.length > 0) {
+            socket.emit("markAsDelivered", {
+              messageIds: messagesToMarkAsDelivered,
+              recipient: user.email,
+              sender: selectedUser.email,
+            });
+          }
+
+          // If the chat is visible, also mark as read
+          if (isPageVisible) {
+            const messagesToMarkAsRead = fetchedMessages
+              .filter(
+                (msg) =>
+                  !msg.sent &&
+                  (!messageStatuses[msg.messageId] ||
+                    messageStatuses[msg.messageId] !== "read")
+              )
+              .map((msg) => msg.messageId);
+
+            if (messagesToMarkAsRead.length > 0) {
+              socket.emit("markAsRead", {
+                messageIds: messagesToMarkAsRead,
+                reader: user.email,
+                sender: selectedUser.email,
+              });
+            }
+          }
         }
       } catch (error) {
-        console.error("Error fetching messages:", error)
+        console.error("Error fetching messages:", error);
       }
-    }
+    };
 
-    fetchMessages()
+    fetchMessages();
 
-    socket.emit("leaveAllRooms")
+    socket.emit("leaveAllRooms");
 
-    const chatRoomId = [user.email, selectedUser.email].sort().join("_")
+    const chatRoomId = [user.email, selectedUser.email].sort().join("_");
     socket.emit("joinChat", {
       userId: user.email,
       selectedUserId: selectedUser.email,
       roomId: chatRoomId,
-    })
+    });
 
     setUnreadMessages((prev) => ({
       ...prev,
       [selectedUser.email]: 0,
-    }))
+    }));
 
     const pingInterval = setInterval(() => {
       if (socket.connected) {
-        socket.emit("ping")
+        socket.emit("ping");
       }
-    }, 30000)
+    }, 30000);
 
     return () => {
-      clearInterval(pingInterval)
-    }
-  }, [selectedUser])
+      clearInterval(pingInterval);
+    };
+  }, [selectedUser]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [messages])
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const handleSendMessage = () => {
-    const user = auth.currentUser
-    if (!newMessage.trim() || !selectedUser || !user) return
+    const user = auth.currentUser;
+    if (!newMessage.trim() || !selectedUser || !user) return;
 
     if (!socketRef.current || !socketConnected) {
-      console.error("Socket not connected. Cannot send message.")
+      console.error("Socket not connected. Cannot send message.");
       if (socketRef.current) {
-        socketRef.current.connect()
+        socketRef.current.connect();
       }
-      return
+      return;
     }
 
-    const tempMessageId = `temp-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
+    const tempMessageId = `temp-${Date.now()}-${Math.random()
+      .toString(36)
+      .substring(2, 9)}`;
 
     const messageData = {
       messageId: tempMessageId,
@@ -351,118 +577,257 @@ export default function Chat() {
       text: newMessage,
       createdAt: new Date(),
       roomId: [user.email, selectedUser.email].sort().join("_"),
-    }
+      status: "sent", // Initial status is 'sent'
+    };
 
-    setMessages((prev) => [...prev, { ...messageData, sent: true }])
+    // Add message to the messages state
+    setMessages((prev) => [...prev, { ...messageData, sent: true }]);
 
-    setRecentMessages((prev) => ({
+    // Update recentMessages state with the new message
+    setRecentMessages((prev) => {
+      const updated = {
+        ...prev,
+        [selectedUser.email]: messageData,
+      };
+      // Store in localStorage for persistence
+      localStorage.setItem("recentMessages", JSON.stringify(updated));
+      return updated;
+    });
+
+    // Set initial message status
+    setMessageStatuses((prev) => ({
       ...prev,
-      [selectedUser.email]: messageData,
-    }))
+      [tempMessageId]: "sent",
+    }));
 
-    const msgTime = new Date(messageData.createdAt).getTime()
+    // Store in localStorage
+    const storedStatuses = JSON.parse(
+      localStorage.getItem("messageStatuses") || "{}"
+    );
+    localStorage.setItem(
+      "messageStatuses",
+      JSON.stringify({
+        ...storedStatuses,
+        [tempMessageId]: "sent",
+      })
+    );
+
+    const msgTime = new Date(messageData.createdAt).getTime();
     if (!lastMessageTimestamp || msgTime > lastMessageTimestamp) {
-      setLastMessageTimestamp(msgTime)
+      setLastMessageTimestamp(msgTime);
     }
 
     socketRef.current.emit("sendMessage", messageData, (acknowledgement) => {
       if (!acknowledgement || !acknowledgement.success) {
-        console.error("Failed to send message:", acknowledgement?.error || "Unknown error")
+        console.error(
+          "Failed to send message:",
+          acknowledgement?.error || "Unknown error"
+        );
       } else {
+        // Update message ID in messages state
         setMessages((prev) =>
-          prev.map((msg) => (msg.messageId === tempMessageId ? { ...msg, messageId: acknowledgement.messageId } : msg)),
-        )
+          prev.map((msg) =>
+            msg.messageId === tempMessageId
+              ? { ...msg, messageId: acknowledgement.messageId }
+              : msg
+          )
+        );
 
+        // Update message ID in recentMessages state
         setRecentMessages((prev) => {
           if (prev[selectedUser.email]?.messageId === tempMessageId) {
-            return {
+            const updated = {
               ...prev,
               [selectedUser.email]: {
                 ...prev[selectedUser.email],
                 messageId: acknowledgement.messageId,
               },
-            }
+            };
+            // Update localStorage with the new message ID
+            localStorage.setItem("recentMessages", JSON.stringify(updated));
+            return updated;
           }
-          return prev
-        })
-      }
-    })
+          return prev;
+        });
 
-    setNewMessage("")
-    setShowEmojiPicker(false)
-    setShowAttachMenu(false)
-  }
+        // Update message status ID
+        setMessageStatuses((prev) => {
+          const status = prev[tempMessageId] || "sent";
+          const updated = { ...prev };
+          delete updated[tempMessageId];
+          updated[acknowledgement.messageId] = status;
+
+          // Update localStorage
+          const storedStatuses = JSON.parse(
+            localStorage.getItem("messageStatuses") || "{}"
+          );
+          delete storedStatuses[tempMessageId];
+          storedStatuses[acknowledgement.messageId] = status;
+          localStorage.setItem(
+            "messageStatuses",
+            JSON.stringify(storedStatuses)
+          );
+
+          return updated;
+        });
+      }
+    });
+
+    setNewMessage("");
+    setShowEmojiPicker(false);
+    setShowAttachMenu(false);
+  };
 
   const getUserRole = (user) => {
-    if (!user) return "User"
+    if (!user) return "User";
 
     if (user.role) {
-      return user.role.charAt(0).toUpperCase() + user.role.slice(1)
+      return user.role.charAt(0).toUpperCase() + user.role.slice(1);
     }
 
-    const userEmail = user.email
-    const foundUser = users.find((u) => u.email === userEmail)
+    const userEmail = user.email;
+    const foundUser = users.find((u) => u.email === userEmail);
     if (foundUser && foundUser.role) {
-      return foundUser.role.charAt(0).toUpperCase() + foundUser.role.slice(1)
+      return foundUser.role.charAt(0).toUpperCase() + foundUser.role.slice(1);
     }
 
-    return "User"
-  }
+    return "User";
+  };
 
   const getRoleBadgeColor = (role) => {
     switch (role.toLowerCase()) {
       case "admin":
-        return "bg-gradient-to-r from-red-500 to-pink-500 text-white"
+        return "bg-gradient-to-r from-red-500 to-pink-500 text-white";
       case "seller":
-        return "bg-gradient-to-r from-blue-500 to-cyan-500 text-white"
+        return "bg-gradient-to-r from-blue-500 to-cyan-500 text-white";
       case "buyer":
-        return "bg-gradient-to-r from-amber-400 to-yellow-500 text-black"
+        return "bg-gradient-to-r from-amber-400 to-yellow-500 text-black";
       default:
-        return isDarkMode ? "bg-gray-700 text-white" : "bg-gray-500 text-white"
+        return isDarkMode ? "bg-gray-700 text-white" : "bg-gray-500 text-white";
     }
-  }
+  };
 
   const handleSelectUser = (user) => {
-    setSelectedUser(user)
+    setSelectedUser(user);
     setUnreadMessages((prev) => ({
       ...prev,
       [user.email]: 0,
-    }))
-  }
+    }));
+  };
 
   const handleBackToSidebar = () => {
-    setSelectedUser(null)
-  }
+    setSelectedUser(null);
+  };
+
+  // Render message status indicators
+  const renderMessageStatus = (messageId) => {
+    const status = messageStatuses[messageId] || "sent";
+
+    switch (status) {
+      case "sent":
+        return <Check className="h-3 w-3 text-gray-400" />;
+      case "delivered":
+        return (
+          <div className="flex">
+            <Check className="h-3 w-3 text-gray-400" />
+            <Check className="h-3 w-3 -ml-1 text-gray-400" />
+          </div>
+        );
+      case "read":
+        return (
+          <div className="flex">
+            <Check className="h-3 w-3 text-blue-500" />
+            <Check className="h-3 w-3 -ml-1 text-blue-500" />
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
 
   // Mock emoji picker functionality
   const addEmoji = (emoji) => {
-    setNewMessage((prev) => prev + emoji)
-    setShowEmojiPicker(false)
-  }
+    setNewMessage((prev) => prev + emoji);
+    setShowEmojiPicker(false);
+  };
 
   // Sample emojis for the picker
-  const emojis = ["😊", "😂", "❤️", "👍", "🎉", "🔥", "✨", "🙏", "👏", "🤔", "😍", "🥰", "😎", "🤩", "😇"]
+  const emojis = [
+    "😊",
+    "😂",
+    "❤️",
+    "👍",
+    "🎉",
+    "🔥",
+    "✨",
+    "🙏",
+    "👏",
+    "🤔",
+    "😍",
+    "🥰",
+    "😎",
+    "🤩",
+    "😇",
+  ];
+
+  // Load seen messages from localStorage
+  useEffect(() => {
+    const storedSeenMessages = localStorage.getItem("seenMessages");
+    if (storedSeenMessages) {
+      try {
+        setSeenMessages(JSON.parse(storedSeenMessages));
+      } catch (error) {
+        console.error("Error parsing stored seen messages:", error);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    // Update the seen status in localStorage when messages are read
+    if (selectedUser && messages.length > 0) {
+      setSeenMessages((prev) => {
+        const updated = { ...prev, [selectedUser.email]: true };
+        localStorage.setItem("seenMessages", JSON.stringify(updated));
+        return updated;
+      });
+    }
+  }, [selectedUser, messages, messageStatuses]);
 
   return (
-    <div className={`flex flex-col h-screen ${isDarkMode ? "bg-gray-900" : "bg-gray-100"}`}>
+    <div
+      className={`flex flex-col h-screen ${
+        isDarkMode ? "bg-gray-900" : "bg-gray-100"
+      }`}
+    >
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar - hidden on mobile when a chat is selected */}
-        <div className={`${isMobile && selectedUser ? "hidden" : "block"} ${isMobile ? "w-full" : "w-80"} shadow-lg`}>
+        <div
+          className={`${isMobile && selectedUser ? "hidden" : "block"} ${
+            isMobile ? "w-full" : "w-80"
+          } shadow-lg`}
+        >
           <ChatSidebar
             isDarkMode={isDarkMode}
             onSelectUser={handleSelectUser}
             unreadMessages={unreadMessages}
             selectedUserEmail={selectedUser?.email}
             recentMessages={recentMessages}
+            messageStatuses={messageStatuses}
+            seenMessages={seenMessages}
           />
         </div>
 
         {/* Chat area - full width on mobile when a chat is selected */}
-        <div className={`flex-1 flex flex-col ${isMobile && !selectedUser ? "hidden" : "block"}`}>
+        <div
+          className={`flex-1 flex flex-col ${
+            isMobile && !selectedUser ? "hidden" : "block"
+          }`}
+        >
           {/* Connection status indicator */}
           {!socketConnected && (
             <div className="bg-gradient-to-r from-red-500 to-pink-500 text-white p-2 text-center text-sm font-medium animate-pulse">
-              {connectionError || "Disconnected from chat server. Trying to reconnect..."}
+              {connectionError ||
+                "Disconnected from chat server. Trying to reconnect..."}
             </div>
           )}
 
@@ -495,8 +860,9 @@ export default function Chat() {
                           alt={selectedUser.name || "User"}
                           className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-md"
                           onError={(e) => {
-                            e.target.onerror = null
-                            e.target.src = "/placeholder.svg?height=40&width=40&text=User"
+                            e.target.onerror = null;
+                            e.target.src =
+                              "/placeholder.svg?height=40&width=40&text=User";
                           }}
                         />
                       ) : (
@@ -507,7 +873,9 @@ export default function Chat() {
                               : "bg-gradient-to-br from-gray-100 to-gray-200"
                           }`}
                         >
-                          {selectedUser.name?.charAt(0) || selectedUser.email?.charAt(0) || "?"}
+                          {selectedUser.name?.charAt(0) ||
+                            selectedUser.email?.charAt(0) ||
+                            "?"}
                         </div>
                       )}
                       <span
@@ -518,14 +886,20 @@ export default function Chat() {
                     </div>
 
                     <div>
-                      <h2 className="text-xl font-semibold">{selectedUser.name}</h2>
+                      <h2 className="text-xl font-semibold">
+                        {selectedUser.name}
+                      </h2>
                       <div className="flex items-center">
-                        <span className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                        <span
+                          className={`text-xs ${
+                            isDarkMode ? "text-gray-400" : "text-gray-500"
+                          }`}
+                        >
                           {selectedUser.email}
                         </span>
                         <span
                           className={`ml-2 px-2 py-0.5 rounded-full text-xs font-medium ${getRoleBadgeColor(
-                            getUserRole(selectedUser),
+                            getUserRole(selectedUser)
                           )}`}
                         >
                           {getUserRole(selectedUser)}
@@ -534,27 +908,15 @@ export default function Chat() {
                     </div>
                   </div>
 
-                  {/* Action buttons */}
-                  <div className="flex items-center space-x-3">
-                    <button className={`p-2 rounded-full ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-200"}`}>
-                      <Search className="h-5 w-5" />
-                    </button>
-                    <button className={`p-2 rounded-full ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-200"}`}>
-                      <Phone className="h-5 w-5" />
-                    </button>
-                    <button className={`p-2 rounded-full ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-200"}`}>
-                      <Video className="h-5 w-5" />
-                    </button>
-                    <button className={`p-2 rounded-full ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-200"}`}>
-                      <MoreVertical className="h-5 w-5" />
-                    </button>
-                  </div>
+                
                 </div>
               </div>
 
               <div
                 className={`flex-1 overflow-y-auto p-4 ${
-                  isDarkMode ? "bg-gradient-to-b from-gray-900 to-gray-800" : "bg-gradient-to-b from-gray-50 to-white"
+                  isDarkMode
+                    ? "bg-gradient-to-b from-gray-900 to-gray-800"
+                    : "bg-gradient-to-b from-gray-50 to-white"
                 }`}
                 style={{
                   backgroundImage: isDarkMode
@@ -569,7 +931,9 @@ export default function Chat() {
                       const showDateSeparator =
                         index === 0 ||
                         new Date(message.createdAt).toDateString() !==
-                          new Date(messages[index - 1].createdAt).toDateString()
+                          new Date(
+                            messages[index - 1].createdAt
+                          ).toDateString();
 
                       return (
                         <div key={message.messageId || `msg-${index}`}>
@@ -577,30 +941,42 @@ export default function Chat() {
                             <div className="flex justify-center my-6">
                               <div
                                 className={`px-4 py-1 rounded-full text-xs font-medium ${
-                                  isDarkMode ? "bg-gray-700 text-gray-300" : "bg-gray-200 text-gray-700"
+                                  isDarkMode
+                                    ? "bg-gray-700 text-gray-300"
+                                    : "bg-gray-200 text-gray-700"
                                 }`}
                               >
-                                {new Date(message.createdAt).toLocaleDateString(undefined, {
-                                  weekday: "long",
-                                  month: "short",
-                                  day: "numeric",
-                                })}
+                                {new Date(message.createdAt).toLocaleDateString(
+                                  undefined,
+                                  {
+                                    weekday: "long",
+                                    month: "short",
+                                    day: "numeric",
+                                  }
+                                )}
                               </div>
                             </div>
                           )}
 
-                          <div className={`flex ${message.sent ? "justify-end" : "justify-start"}`}>
+                          <div
+                            className={`flex ${
+                              message.sent ? "justify-end" : "justify-start"
+                            }`}
+                          >
                             {/* Show user avatar for received messages */}
                             {!message.sent && (
                               <div className="flex-shrink-0 mr-2 self-end">
                                 {selectedUser.photo ? (
                                   <img
-                                    src={selectedUser.photo || "/placeholder.svg"}
+                                    src={
+                                      selectedUser.photo || "/placeholder.svg"
+                                    }
                                     alt={selectedUser.name || "User"}
                                     className="w-8 h-8 rounded-full object-cover border border-white shadow-sm"
                                     onError={(e) => {
-                                      e.target.onerror = null
-                                      e.target.src = "/placeholder.svg?height=32&width=32&text=User"
+                                      e.target.onerror = null;
+                                      e.target.src =
+                                        "/placeholder.svg?height=32&width=32&text=User";
                                     }}
                                   />
                                 ) : (
@@ -611,7 +987,9 @@ export default function Chat() {
                                         : "bg-gradient-to-br from-gray-100 to-gray-200"
                                     }`}
                                   >
-                                    {selectedUser.name?.charAt(0) || selectedUser.email?.charAt(0) || "?"}
+                                    {selectedUser.name?.charAt(0) ||
+                                      selectedUser.email?.charAt(0) ||
+                                      "?"}
                                   </div>
                                 )}
                               </div>
@@ -624,21 +1002,36 @@ export default function Chat() {
                                     ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white"
                                     : "bg-gradient-to-r from-purple-500 to-indigo-500 text-white"
                                   : isDarkMode
-                                    ? "bg-gray-700 text-gray-200"
-                                    : "bg-white text-gray-800 border border-gray-200"
+                                  ? "bg-gray-700 text-gray-200"
+                                  : "bg-white text-gray-800 border border-gray-200"
                               }`}
                             >
                               <p className="leading-relaxed">{message.text}</p>
-                              <p
-                                className={`text-xs mt-1 ${
-                                  isDarkMode ? "text-gray-300" : message.sent ? "text-purple-100" : "text-gray-500"
-                                }`}
-                              >
-                                {new Date(message.createdAt).toLocaleTimeString([], {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })}
-                              </p>
+                              <div className="flex items-center justify-end mt-1 space-x-1">
+                                <p
+                                  className={`text-xs ${
+                                    isDarkMode
+                                      ? "text-gray-300"
+                                      : message.sent
+                                      ? "text-purple-100"
+                                      : "text-gray-500"
+                                  }`}
+                                >
+                                  {new Date(
+                                    message.createdAt
+                                  ).toLocaleTimeString([], {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })}
+                                </p>
+
+                                {/* Message status indicators (only for sent messages) */}
+                                {message.sent && (
+                                  <span className="ml-1">
+                                    {renderMessageStatus(message.messageId)}
+                                  </span>
+                                )}
+                              </div>
                             </div>
 
                             {/* Show current user avatar for sent messages */}
@@ -646,12 +1039,15 @@ export default function Chat() {
                               <div className="flex-shrink-0 ml-2 self-end">
                                 {currentUser.photoURL ? (
                                   <img
-                                    src={currentUser.photoURL || "/placeholder.svg"}
+                                    src={
+                                      currentUser.photoURL || "/placeholder.svg"
+                                    }
                                     alt="You"
                                     className="w-8 h-8 rounded-full object-cover border border-white shadow-sm"
                                     onError={(e) => {
-                                      e.target.onerror = null
-                                      e.target.src = "/placeholder.svg?height=32&width=32&text=You"
+                                      e.target.onerror = null;
+                                      e.target.src =
+                                        "/placeholder.svg?height=32&width=32&text=You";
                                     }}
                                   />
                                 ) : (
@@ -662,14 +1058,16 @@ export default function Chat() {
                                         : "bg-gradient-to-br from-indigo-100 to-purple-200"
                                     }`}
                                   >
-                                    {currentUser.displayName?.charAt(0) || currentUser.email?.charAt(0) || "Y"}
+                                    {currentUser.displayName?.charAt(0) ||
+                                      currentUser.email?.charAt(0) ||
+                                      "Y"}
                                   </div>
                                 )}
                               </div>
                             )}
                           </div>
                         </div>
-                      )
+                      );
                     })
                   ) : (
                     <div className="flex flex-col items-center justify-center h-full py-20">
@@ -678,14 +1076,24 @@ export default function Chat() {
                           isDarkMode ? "bg-gray-800" : "bg-gray-100"
                         }`}
                       >
-                        <Send className={`h-10 w-10 ${isDarkMode ? "text-gray-600" : "text-gray-400"}`} />
+                        <Send
+                          className={`h-10 w-10 ${
+                            isDarkMode ? "text-gray-600" : "text-gray-400"
+                          }`}
+                        />
                       </div>
                       <p
-                        className={`text-center text-lg font-medium ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                        className={`text-center text-lg font-medium ${
+                          isDarkMode ? "text-gray-400" : "text-gray-500"
+                        }`}
                       >
                         No messages yet
                       </p>
-                      <p className={`text-center ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
+                      <p
+                        className={`text-center ${
+                          isDarkMode ? "text-gray-500" : "text-gray-400"
+                        }`}
+                      >
                         Start the conversation with {selectedUser.name}!
                       </p>
                     </div>
@@ -695,7 +1103,11 @@ export default function Chat() {
               </div>
 
               <div
-                className={`p-4 border-t ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"}`}
+                className={`p-4 border-t ${
+                  isDarkMode
+                    ? "bg-gray-800 border-gray-700"
+                    : "bg-white border-gray-200"
+                }`}
               >
                 {/* Emoji picker */}
                 {showEmojiPicker && (
@@ -718,7 +1130,11 @@ export default function Chat() {
 
                 {/* Attachment menu */}
                 {showAttachMenu && (
-                  <div className={`p-2 mb-2 rounded-lg flex space-x-2 ${isDarkMode ? "bg-gray-700" : "bg-gray-100"}`}>
+                  <div
+                    className={`p-2 mb-2 rounded-lg flex space-x-2 ${
+                      isDarkMode ? "bg-gray-700" : "bg-gray-100"
+                    }`}
+                  >
                     <button className="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600">
                       <ImageIcon className="h-6 w-6 text-blue-500" />
                     </button>
@@ -760,7 +1176,11 @@ export default function Chat() {
                       onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                       className="absolute right-3 top-1/2 transform -translate-y-1/2"
                     >
-                      <Smile className={`h-5 w-5 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`} />
+                      <Smile
+                        className={`h-5 w-5 ${
+                          isDarkMode ? "text-gray-400" : "text-gray-500"
+                        }`}
+                      />
                     </button>
                   </div>
 
@@ -768,7 +1188,9 @@ export default function Chat() {
                     onClick={handleSendMessage}
                     disabled={!socketConnected || !newMessage.trim()}
                     className={`p-3 rounded-full ${
-                      !socketConnected || !newMessage.trim() ? "opacity-50 cursor-not-allowed" : ""
+                      !socketConnected || !newMessage.trim()
+                        ? "opacity-50 cursor-not-allowed"
+                        : ""
                     } ${
                       isDarkMode
                         ? "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
@@ -796,28 +1218,38 @@ export default function Chat() {
                         style={{ animationDelay: "300ms" }}
                       ></div>
                     </div>
-                    <span className="ml-2 text-xs text-gray-500">User is typing...</span>
+                    <span className="ml-2 text-xs text-gray-500">
+                      User is typing...
+                    </span>
                   </div>
                 )}
               </div>
             </>
           ) : (
             <div
-              className={`flex-1 flex flex-col items-center justify-center ${isDarkMode ? "text-gray-400" : "text-gray-500"} ${isMobile ? "hidden" : "flex"}`}
+              className={`flex-1 flex flex-col items-center justify-center ${
+                isDarkMode ? "text-gray-400" : "text-gray-500"
+              } ${isMobile ? "hidden" : "flex"}`}
             >
               <div
                 className={`w-24 h-24 rounded-full flex items-center justify-center mb-4 ${
                   isDarkMode ? "bg-gray-800" : "bg-gray-100"
                 }`}
               >
-                <Send className={`h-10 w-10 ${isDarkMode ? "text-gray-600" : "text-gray-400"}`} />
+                <Send
+                  className={`h-10 w-10 ${
+                    isDarkMode ? "text-gray-600" : "text-gray-400"
+                  }`}
+                />
               </div>
               <h3 className="text-xl font-semibold mb-2">Your Messages</h3>
-              <p className="text-center max-w-md">Select a conversation from the sidebar to start chatting</p>
+              <p className="text-center max-w-md">
+                Select a conversation from the sidebar to start chatting
+              </p>
             </div>
           )}
         </div>
       </div>
     </div>
-  )
+  );
 }

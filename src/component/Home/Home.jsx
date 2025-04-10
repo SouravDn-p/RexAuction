@@ -1,3 +1,4 @@
+
 import { useContext } from "react";
 import Slider from "./Slider";
 import LiveAuction from "./LiveAuction";
@@ -6,8 +7,6 @@ import BrowsCategory from "./BrowsCategory";
 import TrendingAuction from "./TrendingAuction";
 import SdDemo from "./SdDemo";
 import ThemeContext from "../../component/Context/ThemeContext";
-import SdAuction from "./SdAuction";
-import Chatbot from "../../extra/chatbot/Chatbot";
 
 export default function Home() {
   const { isDarkMode } = useContext(ThemeContext);
@@ -23,12 +22,10 @@ export default function Home() {
       >
         <Slider darkMode={isDarkMode} />
         <HotAuction darkMode={isDarkMode} />
-        {/* <SdAuction darkMode={isDarkMode} /> */}
         <BrowsCategory darkMode={isDarkMode} />
         <LiveAuction darkMode={isDarkMode} />
         <SdDemo darkMode={isDarkMode} />
-          {/* <TrendingAuction darkMode={isDarkMode} /> */}
-          <Chatbot/>
+        {/* <TrendingAuction darkMode={isDarkMode} /> */}
       </div>
     </div>
   );

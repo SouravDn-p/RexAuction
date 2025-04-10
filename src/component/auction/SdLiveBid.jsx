@@ -28,7 +28,9 @@ export default function SdLiveBid() {
   const [countdown, setCountdown] = useState(0);
   const { isDarkMode } = useContext(ThemeContext);
   const [bidAmount, setBidAmount] = useState("");
+  const [extraMoney, setExtraMoney] = useState(0);
   const [addBid, { isLoading: isBidLoading }] = useAddBidsMutation();
+  const [myBid, setMyBid] = useState([]);
 
   const {
     data: topBiddersData,
@@ -46,6 +48,7 @@ export default function SdLiveBid() {
       name: bidder.name,
       bid: `$${bidder.amount.toLocaleString()}`,
       photo: bidder.photo,
+      email: bidder.email,
       icon: (
         <AiFillCrown
           className={`text-2xl ${
@@ -112,6 +115,17 @@ export default function SdLiveBid() {
     else if (hours > 0) return `${hours}h ${minutes}m`;
     else return `${minutes}m ${secs}s`;
   };
+  useEffect(() => {
+    if (topBidders && dbUser?.email) {
+      // console.log("bidder.email", bidder.email);
+      const matchedBid = topBidders.find(
+        (bidder) => bidder.email == dbUser?.email
+      );
+      if (matchedBid) {
+        setMyBid(matchedBid);
+      }
+    }
+  }, [topBidders]);
 
   const formatRelativeTime = (timestamp) => {
     const now = new Date();
@@ -133,6 +147,9 @@ export default function SdLiveBid() {
   };
 
   const handlePlaceBid = async () => {
+    const startingPrice = liveBid?.startingPrice || 0;
+    const minRequiredBid = Math.round(0.1 * startingPrice);
+
     if (!user) {
       alert("Please log in to place a bid");
       return;
@@ -146,10 +163,10 @@ export default function SdLiveBid() {
       return;
     }
 
-    if (dbUser?.accountBalance < bidAmount) {
+    if (!bidAmount || parseFloat(bidAmount) < minRequiredBid) {
       return Swal.fire({
         title: "Not enough balance!",
-        text: "You don't have enough balance to place this bid.",
+        text: `Your bid must be at least $${minRequiredBid}, which is 10% of the starting price.`,
         icon: "error",
         showCancelButton: true,
         confirmButtonText: "Add Balance",
@@ -161,12 +178,6 @@ export default function SdLiveBid() {
         }
       });
     }
-    const currentBalance =
-      dbUser?.accountBalance - (bidAmount - liveBid?.currentBid);
-
-    // console.log(dbUser?.accountBalance);
-    // console.log(bidAmount);
-    // console.log(liveBid?.currentBid);
     const bidData = {
       email: user.email,
       name: user.displayName || "Anonymous",
@@ -184,38 +195,40 @@ export default function SdLiveBid() {
           ...prev,
           currentBid: parseFloat(bidAmount),
         }));
-        try {
-          const res = await axiosPublic.patch(`/accountBalance/${dbUser._id}`, {
-            accountBalance: currentBalance,
-          });
 
-          if (res.data.success) {
-            Swal.fire(
-              "Updated!",
-              "User accountBalance has been upgraded.",
-              "success"
-            );
-            if (user?.email) {
-              setLoading(true);
-              axiosPublic
-                .get(`/user/${user.email}`)
-                .then((res) => {
-                  setDbUser(res.data);
-                  setLoading(false);
-                })
-                .catch((error) => {
-                  console.error("Error fetching user data:", error);
-                  setErrorMessage("Failed to load user data");
-                  setLoading(false);
-                });
-            }
-          } else {
-            Swal.fire("Failed!", "Could not update user role.", "error");
-          }
-        } catch (error) {
-          console.error("Error updating role:", error);
-          Swal.fire("Error!", "Something went wrong!", "error");
-        }
+        //hudai wallet implement korlam
+        // try {
+        //   const res = await axiosPublic.patch(`/accountBalance/${dbUser._id}`, {
+        //     accountBalance: currentBalance,
+        //   });
+
+        //   if (res.data.success) {
+        //     Swal.fire(
+        //       "Updated!",
+        //       "User accountBalance has been upgraded.",
+        //       "success"
+        //     );
+        //     if (user?.email) {
+        //       setLoading(true);
+        //       axiosPublic
+        //         .get(`/user/${user.email}`)
+        //         .then((res) => {
+        //           setDbUser(res.data);
+        //           setLoading(false);
+        //         })
+        //         .catch((error) => {
+        //           console.error("Error fetching user data:", error);
+        //           setErrorMessage("Failed to load user data");
+        //           setLoading(false);
+        //         });
+        //     }
+        //   } else {
+        //     Swal.fire("Failed!", "Could not update user role.", "error");
+        //   }
+        // } catch (error) {
+        //   console.error("Error updating role:", error);
+        //   Swal.fire("Error!", "Something went wrong!", "error");
+        // }
         setBidAmount("");
         await Promise.all([refetchTopBidders(), refetchRecentActivity()]);
       } else {
@@ -265,7 +278,7 @@ export default function SdLiveBid() {
             <div className="w-full rounded-xl overflow-hidden shadow-lg">
               <img
                 src={liveBid?.images?.[0] || image}
-                className="w-full h-96 object-cover transition-transform hover:scale-105 duration-300"
+                className="w-full h-96 object-center object-cover transition-transform hover:scale-105 duration-300"
                 alt="Auction Item"
                 onError={(e) => {
                   e.target.src = image;
@@ -471,7 +484,7 @@ export default function SdLiveBid() {
                     : "bg-white border border-purple-300"
                 }`}
               >
-                <p className="text-lg font-semibold">Current Bid</p>
+                <p className="text-lg font-semibold">Highest Bid</p>
                 <h3
                   className={`font-bold text-2xl ${
                     isDarkMode ? "text-purple-400" : "text-purple-600"
@@ -481,6 +494,38 @@ export default function SdLiveBid() {
                   {liveBid?.currentBid?.toLocaleString() ||
                     liveBid?.startingPrice?.toLocaleString() ||
                     "0"}
+                </h3>
+              </div>
+              <div
+                className={`p-4 rounded-xl col-span-2  shadow-lg text-center transition hover:scale-[1.02] flex flex-col justify-center items-center h-full ${
+                  isDarkMode
+                    ? "bg-gray-800 border border-purple-500"
+                    : "bg-white border border-purple-300"
+                }`}
+              >
+                <p className="text-lg font-semibold">Your Highest Bid</p>
+                <h3
+                  className={`font-bold text-2xl ${
+                    isDarkMode ? "text-purple-400" : "text-purple-600"
+                  }`}
+                >
+                  {myBid?.bid || "0"}
+                </h3>
+              </div>
+              <div
+                className={`p-4 rounded-xl col-span-2  shadow-lg text-center transition hover:scale-[1.02] flex flex-col justify-center items-center h-full ${
+                  isDarkMode
+                    ? "bg-gray-800 border border-purple-500"
+                    : "bg-white border border-purple-300"
+                }`}
+              >
+                <p className="text-lg font-semibold">Place Your Auto Bid</p>
+                <h3
+                  className={`font-bold text-2xl ${
+                    isDarkMode ? "text-purple-400" : "text-purple-600"
+                  }`}
+                >
+                  {myBid?.bid || "0"}
                 </h3>
               </div>
             </div>
@@ -501,7 +546,7 @@ export default function SdLiveBid() {
                     Loading bidders...
                   </p>
                 ) : topBidders.length > 0 ? (
-                  topBidders.map((bidder, index) => (
+                  topBidders.slice(0, 3).map((bidder, index) => (
                     <div
                       key={index}
                       className={`flex items-center gap-3 p-3 rounded-lg ${
@@ -547,35 +592,57 @@ export default function SdLiveBid() {
                 Place Your Bid
               </h3>
               <div className="flex gap-3 mb-4">
-                {[100, 200, 300].map((amount) => (
-                  <button
-                    key={amount}
-                    onClick={() => handleBidIncrement(amount)}
-                    className={`flex-1 py-2 rounded-lg transition ${
-                      isDarkMode
-                        ? "bg-gray-700 hover:bg-gray-600 border border-gray-600"
-                        : "bg-purple-100 hover:bg-purple-200 border border-purple-200"
-                    } text-purple-600 font-medium`}
-                  >
-                    +{amount}
-                  </button>
-                ))}
+                {[100, 200, Math.round(liveBid?.currentBid * 0.1)].map(
+                  (amount) => (
+                    <button
+                      key={amount}
+                      onClick={() => handleBidIncrement(amount)}
+                      className={`flex-1 py-2 rounded-lg transition ${
+                        isDarkMode
+                          ? "bg-gray-700 hover:bg-gray-600 border border-gray-600"
+                          : "bg-purple-100 hover:bg-purple-200 border border-purple-200"
+                      } text-purple-600 font-medium`}
+                    >
+                      +{amount}
+                    </button>
+                  )
+                )}
               </div>
               <div className="mb-4">
+                <label htmlFor="totalMoney">New Total Money:</label>
                 <input
                   type="number"
                   value={bidAmount}
-                  onChange={(e) => setBidAmount(e.target.value)}
+                  onChange={(e) => {
+                    setBidAmount(e.target.value);
+                    setExtraMoney(e.target.value - liveBid?.currentBid);
+                  }}
                   placeholder={`Enter bid (min $${
                     (liveBid?.currentBid || liveBid?.startingPrice || 0) + 100
                   })`}
-                  className={`w-full p-3 rounded-lg focus:outline-none focus:ring-2 ${
+                  className={`w-full p-3 pb-3 rounded-lg focus:outline-none focus:ring-2 ${
                     isDarkMode
                       ? "bg-gray-700 border-gray-600 focus:ring-purple-500"
                       : "bg-white border-gray-300 focus:ring-purple-400"
                   } border`}
                 />
               </div>
+              <div className="mb-4">
+                <label htmlFor="extraMoney">Extra Money:</label>
+                <input
+                  id="extraMoney"
+                  type="number"
+                  readOnly
+                  value={Math.max(0, bidAmount - (liveBid?.currentBid || 0))}
+                  placeholder={`Extra $${extraMoney || 0}`}
+                  className={`w-full p-3 pb-3 rounded-lg focus:outline-none focus:ring-2 ${
+                    isDarkMode
+                      ? "bg-gray-700 border-gray-600 focus:ring-purple-500"
+                      : "bg-white border-gray-300 focus:ring-purple-400"
+                  } border`}
+                />
+              </div>
+
               <button
                 onClick={handlePlaceBid}
                 disabled={formatTime(countdown) === "Ended" || isBidLoading}

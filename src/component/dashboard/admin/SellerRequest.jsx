@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { GiCancel } from "react-icons/gi";
 import { FcCheckmark } from "react-icons/fc";
-import { FaSortAmountUp, FaSortAmountDown, FaEdit } from "react-icons/fa";
+import { FaSortAmountUp, FaSortAmountDown } from "react-icons/fa";
 import ThemeContext from "../../Context/ThemeContext";
 import Swal from "sweetalert2";
 import axios from "axios";
@@ -16,47 +16,35 @@ const SellerRequest = () => {
   const { isDarkMode } = useContext(ThemeContext);
   const { dbUser } = useContext(AuthContexts);
   const [selectedRole, setSelectedRole] = useState("pending");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [rejectionReason, setRejectionReason] = useState("");
+
   const handleRoleFilter = (role) => {
     setSelectedRole(role);
     setCurrentPage(1);
-
     fetch("http://localhost:5000/sellerRequest")
       .then((res) => res.json())
       .then((data) => {
-        if (role === "pending") {
-          const filtered = data.filter(
-            (user) => user.becomeSellerStatus === "pending"
-          );
-          setUsers(filtered);
-        } else if (role === "accepted") {
-          const filtered = data.filter(
-            (user) => user.becomeSellerStatus === "accepted"
-          );
-          setUsers(filtered);
-        } else if (role === "rejected") {
-          const filtered = data.filter(
-            (user) => user.becomeSellerStatus === "rejected"
-          );
-          setUsers(filtered);
-        } else {
-          setUsers(data); // fallback
-        }
+        const filtered = data.filter(
+          (user) => user.becomeSellerStatus === role
+        );
+        setUsers(filtered);
       })
-      .catch((error) => {
-        console.error("Error fetching seller requests:", error);
-      });
+      .catch((error) =>
+        console.error("Error fetching seller requests:", error)
+      );
   };
 
-  // Fetch users
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const response = await fetch("http://localhost:5000/sellerRequest");
         const data = await response.json();
-        const acceptedUsers = data.filter(
+        const pendingUsers = data.filter(
           (user) => user.becomeSellerStatus === "pending"
         );
-        setUsers(acceptedUsers);
+        setUsers(pendingUsers);
       } catch (error) {
         console.error("Error fetching users:", error);
       }
@@ -64,106 +52,87 @@ const SellerRequest = () => {
     fetchUsers();
   }, []);
 
-  // Handle role change
-  const handleRoleChange = async (userId, dbUserId, role) => {
+  const handleApprove = async (userId, dbUserId) => {
     Swal.fire({
       title: "Are you sure?",
-      text: `Do you want to change the role to ${role}?`,
+      text: `Do you want to approve this seller request?`,
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, change it!",
+      confirmButtonText: "Yes, approve it!",
     }).then(async (result) => {
       if (!result.isConfirmed) return;
-
+  
       try {
-        // First patch request: update seller request status
         const sellerReqRes = await axios.patch(
           `http://localhost:5000/sellerRequest/${userId}`,
-          { becomeSellerStatus: role }
+          { becomeSellerStatus: "accepted" }
         );
-
+  
         if (sellerReqRes.data.success) {
-          // Second patch request: update user's role
-          const userRoleRes = await axios.patch(
-            `http://localhost:5000/users/${dbUserId}`,
-            { role: "seller" }
+          Swal.fire(
+            "Approved!",
+            "Seller request has been approved.",
+            "success"
           );
-
-          Swal.fire("Updated!", "User role has been changed.", "success");
-
-          // Refresh user list after update
-          const response = await fetch(
-            "http://localhost:5000/sellerRequest/pending"
-          );
+          setIsModalOpen(false);
+          const response = await fetch("http://localhost:5000/sellerRequest");
           const data = await response.json();
-          setUsers(data);
+          const pendingUsers = data.filter(
+            (user) => user.becomeSellerStatus === "pending"
+          );
+          setUsers(pendingUsers);
         } else {
-          Swal.fire("Failed!", "Could not update user role.", "error");
+          Swal.fire("Error!", "Failed to approve seller request.", "error");
         }
       } catch (error) {
-        console.error("Error updating role:", error);
         Swal.fire("Error!", "Something went wrong!", "error");
       }
     });
   };
-
-  // Handle delete user
-  const handleDelete = async (userId, role) => {
-    const result = await Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
+  const handleReject = async (userId, dbUserId) => {
+    const { value: reason } = await Swal.fire({
+      title: "Rejection Reason",
+      input: "textarea",
+      inputLabel: "Why are you rejecting this seller request?",
+      inputPlaceholder: "Enter rejection reason...",
       showCancelButton: true,
       confirmButtonColor: "#d33",
       cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, Rejected it!",
-      background: isDarkMode ? "#1f2937" : "#fff",
-      color: isDarkMode ? "#fff" : "#000",
+      confirmButtonText: "Reject",
+      inputValidator: (value) => {
+        if (!value) {
+          return "You must provide a rejection reason!";
+        }
+      },
     });
-
-    if (result.isConfirmed) {
+  
+    if (reason) {
       try {
-        const res = await axios.patch(
+        const sellerReqRes = await axios.patch(
           `http://localhost:5000/sellerRequest/${userId}`,
-          { becomeSellerStatus: role }
+          { becomeSellerStatus: "rejected", rejectionReason: reason }
         );
-
-        if (res.data.success) {
-          Swal.fire({
-            title: "Rejected!",
-            text: "User has been Rejected.",
-            icon: "success",
-            background: isDarkMode ? "#1f2937" : "#fff",
-            color: isDarkMode ? "#fff" : "#000",
-          });
-
-          // Remove user from the UI
+  
+        if (sellerReqRes.data.success) {
+          Swal.fire(
+            "Rejected!",
+            "Seller request has been rejected.",
+            "success"
+          );
           setUsers((prevUsers) =>
             prevUsers.filter((user) => user._id !== userId)
           );
+          setIsModalOpen(false);
+          setRejectionReason("");
         } else {
-          Swal.fire({
-            title: "Error!",
-            text: res.data.message || "Failed to delete user.",
-            icon: "error",
-            background: isDarkMode ? "#1f2937" : "#fff",
-            color: isDarkMode ? "#fff" : "#000",
-          });
+          Swal.fire("Error!", "Failed to reject seller request.", "error");
         }
       } catch (error) {
-        Swal.fire({
-          title: "Failed!",
-          text: "Something went wrong.",
-          icon: "error",
-          background: isDarkMode ? "#1f2937" : "#fff",
-          color: isDarkMode ? "#fff" : "#000",
-        });
+        Swal.fire("Failed!", "Something went wrong.", "error");
       }
     }
   };
-
-  // Sort users
   const handleSort = (field) => {
     if (sortField === field) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
@@ -173,10 +142,9 @@ const SellerRequest = () => {
     }
   };
 
-  // Sort logic
   const sortedUsers = [...users].sort((a, b) => {
     if (!sortField) return 0;
-    if (sortField === "date") {
+    if (sortField === "requestDate") {
       return sortDirection === "asc"
         ? new Date(a[sortField]) - new Date(b[sortField])
         : new Date(b[sortField]) - new Date(a[sortField]);
@@ -186,17 +154,24 @@ const SellerRequest = () => {
       : b[sortField]?.localeCompare(a[sortField]);
   });
 
-  // Pagination logic
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
   const currentUsers = sortedUsers.slice(indexOfFirstUser, indexOfLastUser);
   const totalPages = Math.ceil(sortedUsers.length / usersPerPage);
 
-  // Format date
-  const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
-    const options = { year: "numeric", month: "short", day: "numeric" };
-    return new Date(dateString).toLocaleDateString(undefined, options);
+  const formatDate = (dateString) =>
+    dateString
+      ? new Date(dateString).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        })
+      : "N/A";
+
+  const openDetailsModal = (user) => {
+    setSelectedUser(user);
+    setRejectionReason(user.rejectionReason || "");
+    setIsModalOpen(true);
   };
 
   return (
@@ -218,7 +193,6 @@ const SellerRequest = () => {
           Seller Request Management
         </h1>
 
-        {/* Filters */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
           <div className="flex flex-wrap gap-2">
             {["pending", "accepted", "rejected"].map((role) => (
@@ -243,12 +217,11 @@ const SellerRequest = () => {
           </div>
         </div>
 
-        {/* Table */}
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead className={isDarkMode ? "bg-gray-700" : "bg-gray-50"}>
               <tr>
-                {["name", "email", "date"].map((field) => (
+                {["name", "email", "requestDate"].map((field) => (
                   <th
                     key={field}
                     scope="col"
@@ -275,16 +248,14 @@ const SellerRequest = () => {
                     </div>
                   </th>
                 ))}
-                {selectedRole === "pending" && (
-                  <th
-                    scope="col"
-                    className={`px-4 py-3 text-right text-xs font-medium ${
-                      isDarkMode ? "text-gray-300" : "text-gray-500"
-                    } uppercase tracking-wider`}
-                  >
-                    Actions
-                  </th>
-                )}
+                <th
+                  scope="col"
+                  className={`px-4 py-3 text-right text-xs font-medium ${
+                    isDarkMode ? "text-gray-300" : "text-gray-500"
+                  } uppercase tracking-wider`}
+                >
+                  Actions
+                </th>
               </tr>
             </thead>
             <tbody
@@ -300,7 +271,6 @@ const SellerRequest = () => {
                       isDarkMode ? "bg-gray-700" : "bg-gray-50"
                     } transition-colors`}
                   >
-                    {/* Name */}
                     <td className="px-4 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div
@@ -327,8 +297,6 @@ const SellerRequest = () => {
                         </div>
                       </div>
                     </td>
-
-                    {/* Email */}
                     <td
                       className={`px-4 py-4 whitespace-nowrap text-sm ${
                         isDarkMode ? "text-gray-300" : "text-gray-500"
@@ -336,8 +304,6 @@ const SellerRequest = () => {
                     >
                       {user.email}
                     </td>
-
-                    {/* Date */}
                     <td
                       className={`px-4 py-4 whitespace-nowrap text-sm ${
                         isDarkMode ? "text-gray-300" : "text-gray-500"
@@ -345,66 +311,28 @@ const SellerRequest = () => {
                     >
                       {formatDate(user.requestDate)}
                     </td>
-
-                    {/* Actions */}
-                    {selectedRole === "pending" && (
-                      <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex justify-end space-x-2">
-                          <div className=" flex items-center justify-center gap-2">
-                            <ul
-                              tabIndex={0}
-                              className={` rounded-box  ${
-                                isDarkMode ? "bg-gray-700" : "bg-white"
-                              }`}
-                            >
-                              <li>
-                                <button
-                                  onClick={() =>
-                                    handleRoleChange(
-                                      user?._id,
-                                      user?.dbUserId,
-                                      "accepted"
-                                    )
-                                  }
-                                  className={`${
-                                    isDarkMode
-                                      ? "hover:bg-gray-600"
-                                      : "hover:bg-white"
-                                  }`}
-                                >
-                                  <FcCheckmark size={16} />
-                                </button>
-                              </li>
-                            </ul>
-                            <button
-                              onClick={() => handleDelete(user._id, "rejected")}
-                              className={`p-2 rounded-full ${
-                                isDarkMode
-                                  ? "hover:bg-gray-600 text-red-400"
-                                  : "hover:bg-red-100 text-red-600"
-                              }`}
-                              title="Reject User"
-                            >
-                              <GiCancel size={16} />
-                            </button>
-                          </div>
-                        </div>
-                      </td>
-                    )}
+                    <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
+                      <div className="flex justify-end space-x-2">
+                        <button
+                          onClick={() => openDetailsModal(user)}
+                          className="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded transition-colors"
+                        >
+                          Details
+                        </button>
+                 
+                      </div>
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td
-                    colSpan={selectedRole === "pending" ? 4 : 3}
-                    className="px-4 py-6 text-center"
-                  >
+                  <td colSpan={4} className="px-4 py-6 text-center">
                     <p
                       className={`text-sm ${
                         isDarkMode ? "text-gray-400" : "text-gray-500"
                       }`}
                     >
-                      No seller requests found there
+                      No seller requests found
                     </p>
                   </td>
                 </tr>
@@ -413,7 +341,6 @@ const SellerRequest = () => {
           </table>
         </div>
 
-        {/* Pagination */}
         {totalPages > 1 && (
           <div
             className={`flex items-center justify-between px-4 py-3 sm:px-6 ${
@@ -454,8 +381,7 @@ const SellerRequest = () => {
                       currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""
                     }`}
                   >
-                    <span className="sr-only">Previous</span>
-                    &larr; Previous
+                    ← Previous
                   </button>
                   {Array.from({ length: totalPages }, (_, i) => i + 1).map(
                     (page) => (
@@ -491,8 +417,7 @@ const SellerRequest = () => {
                         : ""
                     }`}
                   >
-                    <span className="sr-only">Next</span>
-                    Next &rarr;
+                    Next →
                   </button>
                 </nav>
               </div>
@@ -500,6 +425,173 @@ const SellerRequest = () => {
           </div>
         )}
       </div>
+
+      {/* Modal for User Details */}
+      {isModalOpen && selectedUser && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="bg-white dark:bg-gray-900 w-full max-w-3xl rounded-2xl shadow-lg p-6 mx-4 overflow-y-auto max-h-[90vh]">
+      {/* Header */}
+      <div className="flex items-center gap-4 mb-6">
+        <div
+          className={`w-16 h-16 flex items-center justify-center rounded-full ${
+            isDarkMode ? "bg-purple-900" : "bg-purple-100"
+          }`}
+        >
+          <span
+            className={`text-2xl font-bold ${
+              isDarkMode ? "text-purple-300" : "text-purple-700"
+            }`}
+          >
+            {selectedUser.name?.charAt(0).toUpperCase() || "?"}
+          </span>
+        </div>
+        <div>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+            {selectedUser.name}
+          </h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            {selectedUser.email}
+          </p>
+        </div>
+      </div>
+
+      {/* User Info */}
+      <div className="space-y-3 text-sm text-gray-800 dark:text-gray-200 mb-6">
+        <p>
+          <strong>Name:</strong> {selectedUser.name}
+        </p>
+        <p>
+          <strong>Email:</strong> {selectedUser.email}
+        </p>
+        <p>
+          <strong>Phone Number:</strong> {selectedUser.phoneNumber || "N/A"}
+        </p>
+        <p>
+          <strong>Address:</strong> {selectedUser.address || "N/A"}
+        </p>
+        <p>
+          <strong>Request Date:</strong> {formatDate(selectedUser.requestDate)}
+        </p>
+        <p>
+          <strong>Document Type:</strong> {selectedUser.documentType || "N/A"}
+        </p>
+        <p>
+          <strong>Status:</strong>{" "}
+          <span
+            className={`ml-1 px-2 py-1 rounded text-xs font-medium ${
+              selectedUser.becomeSellerStatus === "accepted"
+                ? "bg-green-100 text-green-800"
+                : selectedUser.becomeSellerStatus === "rejected"
+                ? "bg-red-100 text-red-700"
+                : "bg-yellow-100 text-yellow-800"
+            }`}
+          >
+            {selectedUser.becomeSellerStatus}
+          </span>
+        </p>
+        {selectedUser.sellerRequestMessage && (
+          <p>
+            <strong>Request Message:</strong>{" "}
+            <span className="block mt-1 p-2 bg-gray-100 dark:bg-gray-800 rounded-md text-gray-700 dark:text-gray-300">
+              {selectedUser.sellerRequestMessage}
+            </span>
+          </p>
+        )}
+      </div>
+
+      {/* Document Previews */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        {selectedUser.frontDocument && (
+          <div className="border p-3 rounded-lg dark:border-gray-700">
+            <p className="font-medium text-gray-800 dark:text-gray-100 mb-2">
+              Front Document
+            </p>
+            <img
+              src={selectedUser.frontDocument}
+              alt="Front Document"
+              className="w-full h-48 object-cover rounded-md border border-gray-300 dark:border-gray-600"
+            />
+            <a
+              href={selectedUser.frontDocument}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:underline mt-2 inline-block text-sm"
+            >
+              View Full Image
+            </a>
+          </div>
+        )}
+
+        {selectedUser.backDocument && (
+          <div className="border p-3 rounded-lg dark:border-gray-700">
+            <p className="font-medium text-gray-800 dark:text-gray-100 mb-2">
+              Back Document
+            </p>
+            <img
+              src={selectedUser.backDocument}
+              alt="Back Document"
+              className="w-full h-48 object-cover rounded-md border border-gray-300 dark:border-gray-600"
+            />
+            <a
+              href={selectedUser.backDocument}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:underline mt-2 inline-block text-sm"
+            >
+              View Full Image
+            </a>
+          </div>
+        )}
+      </div>
+
+      {/* Rejection Reason */}
+      {selectedUser.becomeSellerStatus === "rejected" && (
+        <div className="mb-5">
+          <label className="block text-sm font-medium text-red-600 dark:text-red-400 mb-1">
+            Rejection Reason
+          </label>
+          <div className="p-3 bg-red-50 dark:bg-gray-800 border border-red-300 dark:border-red-600 text-sm text-red-800 dark:text-red-300 rounded-md">
+            {selectedUser.rejectionReason || "No reason provided."}
+          </div>
+        </div>
+      )}
+
+      {/* Action Buttons at Bottom */}
+      {selectedRole === "pending" && (
+        <div className="flex justify-end gap-3 pt-4 border-t dark:border-gray-700">
+          <button
+            onClick={() => setIsModalOpen(false)}
+            className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white transition"
+          >
+            Close
+          </button>
+          <button
+            onClick={() => handleApprove(selectedUser._id, selectedUser.dbUserId)}
+            className="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white transition"
+          >
+            Accept
+          </button>
+          <button
+            onClick={() => handleReject(selectedUser._id, selectedUser.dbUserId)}
+            className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white transition"
+          >
+            Reject
+          </button>
+        </div>
+      )}
+      {selectedRole !== "pending" && (
+        <div className="flex justify-end pt-4 border-t dark:border-gray-700">
+          <button
+            onClick={() => setIsModalOpen(false)}
+            className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white transition"
+          >
+            Close
+          </button>
+        </div>
+      )}
+    </div>
+  </div>
+)}
     </div>
   );
 };

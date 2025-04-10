@@ -16,14 +16,16 @@ import { ImHammer2 } from "react-icons/im";
 import { BiCategory } from "react-icons/bi";
 import { TbMessageReport } from "react-icons/tb";
 import { useContext } from "react";
-import { IoChatbubbleEllipsesOutline, IoSettingsOutline } from "react-icons/io5";
+import {
+  IoChatbubbleEllipsesOutline,
+  IoSettingsOutline,
+} from "react-icons/io5";
 import { AuthContexts } from "../../../providers/AuthProvider";
 import ThemeContext from "../../Context/ThemeContext";
 
 const Sidebar = () => {
   const { user, dbUser } = useContext(AuthContexts);
   const { isDarkMode } = useContext(ThemeContext);
-  console.log(user);
   const isAdmin = dbUser?.role === "admin";
   const isSeller = dbUser?.role === "seller";
   const isBuyer = dbUser?.role === "buyer";
@@ -269,10 +271,10 @@ const Sidebar = () => {
                     isDarkMode ? "text-indigo-100" : "text-indigo-800"
                   }`}
                 >
-                 Ended Auctions History
+                  Ended Auctions History
                 </span>
               </NavLink>
-             
+
               <NavLink
                 to="/dashboard/createAnnouncement"
                 className={({ isActive }) =>
@@ -358,7 +360,7 @@ const Sidebar = () => {
                   }`
                 }
               >
-                 <IoChatbubbleEllipsesOutline
+                <IoChatbubbleEllipsesOutline
                   size={20}
                   className={`${
                     isDarkMode ? "text-indigo-300" : "text-indigo-700"

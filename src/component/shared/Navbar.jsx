@@ -1,10 +1,6 @@
 import { useContext, useEffect, useState, useRef } from "react";
 import { FaSun, FaMoon, FaWallet, FaPlus, FaUserCircle } from "react-icons/fa";
-import {
-  MdHistory,
-  MdManageAccounts,
-  MdOutlineDashboard,
-} from "react-icons/md";
+import { MdOutlineDashboard } from "react-icons/md";
 import { Link, useLocation } from "react-router-dom";
 import { AuthContexts } from "../../providers/AuthProvider";
 import ThemeContext from "../../component/Context/ThemeContext";
@@ -199,7 +195,7 @@ const Navbar = () => {
                 </Link>
 
                 {/* Wallet Button */}
-                <div className="relative">
+                <div className="relative min-w-20">
                   <button
                     className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${
                       isDarkMode
@@ -210,7 +206,7 @@ const Navbar = () => {
                   >
                     <FaWallet className="text-yellow-400" />
                     <span className="font-medium">
-                      $ {dbUser?.accountBalance}
+                      <h1>$ {dbUser?.accountBalance}</h1>
                     </span>
                     <FaPlus className="text-green-400 text-sm" />
                   </button>
@@ -336,7 +332,7 @@ const Navbar = () => {
                 onClick={() => setShowWalletModal(true)}
               >
                 <FaWallet className="text-yellow-400" />
-                <span>${walletBalance}</span>
+                <span className="text-white">$ {dbUser?.accountBalance}</span>
                 <FaPlus className="text-green-400 text-xs" />
               </button>
             )}

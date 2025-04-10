@@ -17,11 +17,9 @@ const LoginPage = () => {
   const location = useLocation();
   const isLogin = location.pathname.includes("login");
 
-  // Redux dispatch and state
   const dispatch = useDispatch();
   const { loading, errorMessage } = useSelector((state) => state.userSlice);
 
-  // Local state for email and password
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -38,7 +36,6 @@ const LoginPage = () => {
       );
       const user = userCredential.user;
 
-      // Dispatch the user data to Redux store
       dispatch(
         setUser({
           uid: user.uid,
@@ -79,7 +76,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex justify-center items-center p-12 sm:p-8 md:p-12 bg-gray-100 min-h-screen">
+    <div className="flex justify-center items-center p-12 sm:p-8 md:p-12 bg-gradient-to-r from-purple-100 via-orange-100 to-pink-100 min-h-screen">
       <div className="flex flex-col md:flex-row bg-white rounded-lg shadow-lg w-full max-w-4xl overflow-hidden">
         <div
           className="w-full md:w-1/2 min-h-[200px] sm:min-h-[300px] md:h-auto bg-cover bg-center"
@@ -90,8 +87,11 @@ const LoginPage = () => {
           <div className="flex mb-4 gap-2">
             <NavLink
               to="/login"
-              className={`w-1/2 py-2 border border-purple-600 text-purple-600 font-semibold text-center rounded-md hover:bg-purple-600 hover:text-white transition-all  ${
-                isLogin ? "bg-purple-600 text-white" : ""
+              className={`w-1/2 py-2 font-semibold text-center rounded-md transition-all border 
+              ${
+                isLogin
+                  ? "bg-gradient-to-r from-purple-500 to-orange-500 text-white border-none"
+                  : "border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white"
               }`}
             >
               Log In
@@ -147,7 +147,7 @@ const LoginPage = () => {
 
             <button
               type="submit"
-              className="w-full py-3 bg-purple-600 text-white font-semibold rounded-lg shadow-md hover:bg-purple-700 transition-all"
+              className="w-full py-3 bg-gradient-to-r from-purple-500 to-orange-500 text-white font-semibold rounded-lg shadow-md hover:opacity-90 transition-all"
               disabled={loading}
             >
               {loading ? "Loading..." : "Sign In"}

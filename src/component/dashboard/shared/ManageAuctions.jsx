@@ -1,6 +1,5 @@
 import useAuth from "../../../hooks/useAuth";
 import ManageCard from "./ManageCard";
-import ManageTable from "./manageTable";
 import SdManageTable from "./SdManageTable";
 
 function ManageAuctions() {
