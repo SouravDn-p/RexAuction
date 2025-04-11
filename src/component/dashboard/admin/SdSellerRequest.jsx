@@ -7,7 +7,7 @@ import Swal from "sweetalert2";
 import axios from "axios";
 import { AuthContexts } from "../../../providers/AuthProvider";
 
-const SellerRequest = () => {
+const SdSellerRequest = () => {
   const [users, setUsers] = useState([]);
   const [sortField, setSortField] = useState(null);
   const [sortDirection, setSortDirection] = useState("asc");
@@ -619,4 +619,4 @@ const SellerRequest = () => {
   );
 };
 
-export default SellerRequest;
+export default SdSellerRequest;

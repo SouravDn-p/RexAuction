@@ -16,7 +16,7 @@ const Main = () => {
       {head || <Navbar />}
       <Outlet />
       {head || <Footer />}
-      <SdBot />
+      {head || <SdBot />}
     </div>
   );
 };
