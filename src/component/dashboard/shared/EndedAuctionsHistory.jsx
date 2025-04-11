@@ -102,12 +102,7 @@ function EndedAuctionsHistory() {
     }
   }
 
-  // Add a new function to send announcement to all users
-  const sendAnnouncementToAll = () => {
-    // Create a dummy bidder object with "all" as the email to send to everyone
-    const allUsers = { name: "all users", email: "all" }
-    handleSendNotification(allUsers, true)
-  }
+ 
 
   // Also update the handleSendNotification function without bidder parameter (for seller notifications)
   const handleSendNotificationToSeller = () => {
@@ -175,7 +170,7 @@ const notificationData = {
   // Filter only ended auctions
   const endedAuctions = auctions.filter((auction) => isAuctionEnded(auction.endTime))
 
-  // Update the handleMessageBidder function to ensure proper navigation to specific user chat
+
   const handleMessageBidder = (bidder) => {
     console.log("Messaging bidder:", bidder)
     if (!user) {
@@ -201,7 +196,7 @@ const notificationData = {
     })
   }
 
-  // Update the handleMessageSeller function to ensure proper navigation to seller chat
+  
   const handleMessageSeller = () => {
     if (!user) {
       alert("Please log in to message the seller")
@@ -214,7 +209,7 @@ const notificationData = {
       email: selectedAuction?.sellerEmail,
       name: selectedAuction?.sellerDisplayName || "Seller",
       photo: selectedAuction?.sellerPhoto || image,
-      role: "seller", // Explicitly set role as seller
+      role: "seller", 
     }
 
     console.log("Messaging seller:", seller)
@@ -783,7 +778,7 @@ const notificationData = {
                       {/* Button container for larger screens */}
                       <div className="hidden sm:flex items-center gap-2">
                         <button
-                          onClick={handleSendNotificationToSeller}
+                          onClick={handleMessageSeller}
                           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
                             isDarkMode
                               ? "bg-gray-700 hover:bg-gray-600 text-gray-200"
@@ -963,12 +958,7 @@ const notificationData = {
                   </button>
                 </div>
               </div>
-              <button
-                onClick={sendAnnouncementToAll}
-                className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded`}
-              >
-                Send Announcement to All
-              </button>
+            
             </div>
           </div>
       

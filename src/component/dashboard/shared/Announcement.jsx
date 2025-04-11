@@ -304,7 +304,7 @@ const Announcement = () => {
 
   // Navigate to payment page for auction win
   const navigateToPayment = (auctionData) => {
-    navigate(`/dashboard/payment/${auctionData._id}`, {
+    navigate(`/dashboard/payment`, {
       state: { auctionData },
     })
     setIsNotificationModalOpen(false)
@@ -312,10 +312,10 @@ const Announcement = () => {
 
   const markAllNotificationsAsRead = async () => {
     try {
-      // Mark all as read in the UI
+   
       setAllNotifications((prev) => prev.map((notif) => ({ ...notif, read: true })))
 
-      // Reset notification count
+    
       setNotificationCount(0)
 
       // Send request to mark all as read in the database
