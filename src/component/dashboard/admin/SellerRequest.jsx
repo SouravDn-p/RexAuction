@@ -52,23 +52,27 @@ const SellerRequest = () => {
     fetchUsers();
   }, []);
   const handleApprove = async (userId, dbUserId) => {
+    console.log("userId", userId);
+    console.log("dbUserId", dbUserId);
     Swal.fire({
       title: "Are you sure?",
-      text: `Do you want to approve this seller request?`,
+      text: "Do you want to approve this seller request?",
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "Yes, approve it!",
     }).then(async (result) => {
       if (!result.isConfirmed) return;
-  
+
       try {
+        // Step 1: Update seller request status
         const sellerReqRes = await axios.patch(
           `http://localhost:5000/sellerRequest/${userId}`,
           { becomeSellerStatus: "accepted" }
         );
-  
+
         if (sellerReqRes.data.success) {
+
           await axios.patch(`http://localhost:5000/users/${dbUserId}`, {
             role: "seller"
           });
@@ -77,22 +81,42 @@ const SellerRequest = () => {
             "Approved!",
             "Seller request has been approved and user role updated to seller.",
             "success"
+
+          // Step 2: Update user role to "seller"
+          const roleUpdateRes = await axios.patch(
+            `http://localhost:5000/users/${dbUserId}`,
+            { role: "seller" }
+
           );
-          setIsModalOpen(false);
-          const response = await fetch("http://localhost:5000/sellerRequest");
-          const data = await response.json();
-          const pendingUsers = data.filter(
-            (user) => user.becomeSellerStatus === "pending"
-          );
-          setUsers(pendingUsers);
+
+          if (roleUpdateRes.data.success) {
+            Swal.fire(
+              "Approved!",
+              "Seller request has been approved and role updated.",
+              "success"
+            );
+
+            // Step 3: Refresh UI
+            setIsModalOpen(false);
+            const response = await fetch("http://localhost:5000/sellerRequest");
+            const data = await response.json();
+            const pendingUsers = data.filter(
+              (user) => user.becomeSellerStatus === "pending"
+            );
+            setUsers(pendingUsers);
+          } else {
+            Swal.fire("Error!", "Failed to update user role.", "error");
+          }
         } else {
           Swal.fire("Error!", "Failed to approve seller request.", "error");
         }
       } catch (error) {
+        console.error("Approval error:", error);
         Swal.fire("Error!", "Something went wrong!", "error");
       }
     });
   };
+
 const handleReject = async (userId, dbUserId) => {
   const { value: reason } = await Swal.fire({
     title: "Rejection Reason",
@@ -121,6 +145,32 @@ const handleReject = async (userId, dbUserId) => {
         try {
           await axios.delete(`http://localhost:5000/users/${dbUserId}`);
         } catch (deleteError) {
+
+  const handleReject = async (userId, dbUserId) => {
+    const { value: reason } = await Swal.fire({
+      title: "Rejection Reason",
+      input: "textarea",
+      inputLabel: "Why are you rejecting this seller request?",
+      inputPlaceholder: "Enter rejection reason...",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Reject",
+      inputValidator: (value) => {
+        if (!value) {
+          return "You must provide a rejection reason!";
+        }
+      },
+    });
+
+    if (reason) {
+      try {
+        const sellerReqRes = await axios.patch(
+          `http://localhost:5000/sellerRequest/${userId}`,
+          { becomeSellerStatus: "rejected", rejectionReason: reason }
+        );
+
+        if (sellerReqRes.data.success) {
           Swal.fire(
             "Warning!",
             "Seller request rejected, but user deletion failed.",
@@ -333,7 +383,6 @@ const handleReject = async (userId, dbUserId) => {
                         >
                           Details
                         </button>
-                 
                       </div>
                     </td>
                   </tr>
@@ -442,170 +491,177 @@ const handleReject = async (userId, dbUserId) => {
 
       {/* Modal for User Details */}
       {isModalOpen && selectedUser && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-    <div className="bg-white dark:bg-gray-900 w-full max-w-3xl rounded-2xl shadow-lg p-6 mx-4 overflow-y-auto max-h-[90vh]">
-      {/* Header */}
-      <div className="flex items-center gap-4 mb-6">
-        <div
-          className={`w-16 h-16 flex items-center justify-center rounded-full ${
-            isDarkMode ? "bg-purple-900" : "bg-purple-100"
-          }`}
-        >
-          <span
-            className={`text-2xl font-bold ${
-              isDarkMode ? "text-purple-300" : "text-purple-700"
-            }`}
-          >
-            {selectedUser.name?.charAt(0).toUpperCase() || "?"}
-          </span>
-        </div>
-        <div>
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-            {selectedUser.name}
-          </h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            {selectedUser.email}
-          </p>
-        </div>
-      </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white dark:bg-gray-900 w-full max-w-3xl rounded-2xl shadow-lg p-6 mx-4 overflow-y-auto max-h-[90vh]">
+            {/* Header */}
+            <div className="flex items-center gap-4 mb-6">
+              <div
+                className={`w-16 h-16 flex items-center justify-center rounded-full ${
+                  isDarkMode ? "bg-purple-900" : "bg-purple-100"
+                }`}
+              >
+                <span
+                  className={`text-2xl font-bold ${
+                    isDarkMode ? "text-purple-300" : "text-purple-700"
+                  }`}
+                >
+                  {selectedUser.name?.charAt(0).toUpperCase() || "?"}
+                </span>
+              </div>
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                  {selectedUser.name}
+                </h2>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  {selectedUser.email}
+                </p>
+              </div>
+            </div>
 
-      {/* User Info */}
-      <div className="space-y-3 text-sm text-gray-800 dark:text-gray-200 mb-6">
-        <p>
-          <strong>Name:</strong> {selectedUser.name}
-        </p>
-        <p>
-          <strong>Email:</strong> {selectedUser.email}
-        </p>
-        <p>
-          <strong>Phone Number:</strong> {selectedUser.phoneNumber || "N/A"}
-        </p>
-        <p>
-          <strong>Address:</strong> {selectedUser.address || "N/A"}
-        </p>
-        <p>
-          <strong>Request Date:</strong> {formatDate(selectedUser.requestDate)}
-        </p>
-        <p>
-          <strong>Document Type:</strong> {selectedUser.documentType || "N/A"}
-        </p>
-        <p>
-          <strong>Status:</strong>{" "}
-          <span
-            className={`ml-1 px-2 py-1 rounded text-xs font-medium ${
-              selectedUser.becomeSellerStatus === "accepted"
-                ? "bg-green-100 text-green-800"
-                : selectedUser.becomeSellerStatus === "rejected"
-                ? "bg-red-100 text-red-700"
-                : "bg-yellow-100 text-yellow-800"
-            }`}
-          >
-            {selectedUser.becomeSellerStatus}
-          </span>
-        </p>
-        {selectedUser.sellerRequestMessage && (
-          <p>
-            <strong>Request Message:</strong>{" "}
-            <span className="block mt-1 p-2 bg-gray-100 dark:bg-gray-800 rounded-md text-gray-700 dark:text-gray-300">
-              {selectedUser.sellerRequestMessage}
-            </span>
-          </p>
-        )}
-      </div>
+            {/* User Info */}
+            <div className="space-y-3 text-sm text-gray-800 dark:text-gray-200 mb-6">
+              <p>
+                <strong>Name:</strong> {selectedUser.name}
+              </p>
+              <p>
+                <strong>Email:</strong> {selectedUser.email}
+              </p>
+              <p>
+                <strong>Phone Number:</strong>{" "}
+                {selectedUser.phoneNumber || "N/A"}
+              </p>
+              <p>
+                <strong>Address:</strong> {selectedUser.address || "N/A"}
+              </p>
+              <p>
+                <strong>Request Date:</strong>{" "}
+                {formatDate(selectedUser.requestDate)}
+              </p>
+              <p>
+                <strong>Document Type:</strong>{" "}
+                {selectedUser.documentType || "N/A"}
+              </p>
+              <p>
+                <strong>Status:</strong>{" "}
+                <span
+                  className={`ml-1 px-2 py-1 rounded text-xs font-medium ${
+                    selectedUser.becomeSellerStatus === "accepted"
+                      ? "bg-green-100 text-green-800"
+                      : selectedUser.becomeSellerStatus === "rejected"
+                      ? "bg-red-100 text-red-700"
+                      : "bg-yellow-100 text-yellow-800"
+                  }`}
+                >
+                  {selectedUser.becomeSellerStatus}
+                </span>
+              </p>
+              {selectedUser.sellerRequestMessage && (
+                <p>
+                  <strong>Request Message:</strong>{" "}
+                  <span className="block mt-1 p-2 bg-gray-100 dark:bg-gray-800 rounded-md text-gray-700 dark:text-gray-300">
+                    {selectedUser.sellerRequestMessage}
+                  </span>
+                </p>
+              )}
+            </div>
 
-      {/* Document Previews */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-        {selectedUser.frontDocument && (
-          <div className="border p-3 rounded-lg dark:border-gray-700">
-            <p className="font-medium text-gray-800 dark:text-gray-100 mb-2">
-              Front Document
-            </p>
-            <img
-              src={selectedUser.frontDocument}
-              alt="Front Document"
-              className="w-full h-48 object-cover rounded-md border border-gray-300 dark:border-gray-600"
-            />
-            <a
-              href={selectedUser.frontDocument}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 hover:underline mt-2 inline-block text-sm"
-            >
-              View Full Image
-            </a>
-          </div>
-        )}
+            {/* Document Previews */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              {selectedUser.frontDocument && (
+                <div className="border p-3 rounded-lg dark:border-gray-700">
+                  <p className="font-medium text-gray-800 dark:text-gray-100 mb-2">
+                    Front Document
+                  </p>
+                  <img
+                    src={selectedUser.frontDocument}
+                    alt="Front Document"
+                    className="w-full h-48 object-cover rounded-md border border-gray-300 dark:border-gray-600"
+                  />
+                  <a
+                    href={selectedUser.frontDocument}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline mt-2 inline-block text-sm"
+                  >
+                    View Full Image
+                  </a>
+                </div>
+              )}
 
-        {selectedUser.backDocument && (
-          <div className="border p-3 rounded-lg dark:border-gray-700">
-            <p className="font-medium text-gray-800 dark:text-gray-100 mb-2">
-              Back Document
-            </p>
-            <img
-              src={selectedUser.backDocument}
-              alt="Back Document"
-              className="w-full h-48 object-cover rounded-md border border-gray-300 dark:border-gray-600"
-            />
-            <a
-              href={selectedUser.backDocument}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 hover:underline mt-2 inline-block text-sm"
-            >
-              View Full Image
-            </a>
-          </div>
-        )}
-      </div>
+              {selectedUser.backDocument && (
+                <div className="border p-3 rounded-lg dark:border-gray-700">
+                  <p className="font-medium text-gray-800 dark:text-gray-100 mb-2">
+                    Back Document
+                  </p>
+                  <img
+                    src={selectedUser.backDocument}
+                    alt="Back Document"
+                    className="w-full h-48 object-cover rounded-md border border-gray-300 dark:border-gray-600"
+                  />
+                  <a
+                    href={selectedUser.backDocument}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline mt-2 inline-block text-sm"
+                  >
+                    View Full Image
+                  </a>
+                </div>
+              )}
+            </div>
 
-      {/* Rejection Reason */}
-      {selectedUser.becomeSellerStatus === "rejected" && (
-        <div className="mb-5">
-          <label className="block text-sm font-medium text-red-600 dark:text-red-400 mb-1">
-            Rejection Reason
-          </label>
-          <div className="p-3 bg-red-50 dark:bg-gray-800 border border-red-300 dark:border-red-600 text-sm text-red-800 dark:text-red-300 rounded-md">
-            {selectedUser.rejectionReason || "No reason provided."}
+            {/* Rejection Reason */}
+            {selectedUser.becomeSellerStatus === "rejected" && (
+              <div className="mb-5">
+                <label className="block text-sm font-medium text-red-600 dark:text-red-400 mb-1">
+                  Rejection Reason
+                </label>
+                <div className="p-3 bg-red-50 dark:bg-gray-800 border border-red-300 dark:border-red-600 text-sm text-red-800 dark:text-red-300 rounded-md">
+                  {selectedUser.rejectionReason || "No reason provided."}
+                </div>
+              </div>
+            )}
+
+            {/* Action Buttons at Bottom */}
+            {selectedRole === "pending" && (
+              <div className="flex justify-end gap-3 pt-4 border-t dark:border-gray-700">
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white transition"
+                >
+                  Close
+                </button>
+                <button
+                  onClick={() =>
+                    handleApprove(selectedUser._id, selectedUser.dbUserId)
+                  }
+                  className="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white transition"
+                >
+                  Accept
+                </button>
+                <button
+                  onClick={() =>
+                    handleReject(selectedUser._id, selectedUser.dbUserId)
+                  }
+                  className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white transition"
+                >
+                  Reject
+                </button>
+              </div>
+            )}
+            {selectedRole !== "pending" && (
+              <div className="flex justify-end pt-4 border-t dark:border-gray-700">
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white transition"
+                >
+                  Close
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}
-
-      {/* Action Buttons at Bottom */}
-      {selectedRole === "pending" && (
-        <div className="flex justify-end gap-3 pt-4 border-t dark:border-gray-700">
-          <button
-            onClick={() => setIsModalOpen(false)}
-            className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white transition"
-          >
-            Close
-          </button>
-          <button
-            onClick={() => handleApprove(selectedUser._id, selectedUser.dbUserId)}
-            className="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white transition"
-          >
-            Accept
-          </button>
-          <button
-            onClick={() => handleReject(selectedUser._id, selectedUser.dbUserId)}
-            className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white transition"
-          >
-            Reject
-          </button>
-        </div>
-      )}
-      {selectedRole !== "pending" && (
-        <div className="flex justify-end pt-4 border-t dark:border-gray-700">
-          <button
-            onClick={() => setIsModalOpen(false)}
-            className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white transition"
-          >
-            Close
-          </button>
-        </div>
-      )}
-    </div>
-  </div>
-)}
     </div>
   );
 };

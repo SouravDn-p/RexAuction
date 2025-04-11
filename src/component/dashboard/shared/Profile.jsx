@@ -4,14 +4,14 @@ import ThemeContext from "../../Context/ThemeContext";
 import CountUp from "react-countup";
 import { useInView } from "react-intersection-observer";
 import useAuth from "../../../hooks/useAuth";
+import coverPhoto from "../../../assets/bg/hammer.webp";
 
 // Hardcoded profile data for the UI elements
 const profileData = {
   user: {
     location: "Dhaka, BD",
     memberSince: "2024",
-    coverImage:
-      "https://i.ibb.co/HDLKt1VF/Green-and-Purple-Line-Tech-Action-Adventure-Facebook-Cover-1.jpg",
+    coverImage: { coverPhoto },
   },
   paymentMethods: [
     { id: 1, cardNumber: "•••• 4385", provider: "Visa" },
@@ -160,7 +160,10 @@ const Profile = () => {
       <div
         className="relative h-[200px] bg-cover bg-center"
         style={{
-          backgroundImage: `url('${profileData.user.coverImage}')`,
+          backgroundImage: `url(${coverPhoto})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          height: "300px",
         }}
       >
         <div className="absolute inset-0 bg-black opacity-50"></div>
