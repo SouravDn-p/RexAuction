@@ -48,12 +48,14 @@ const Slider = () => {
         {banners.map((banner) => (
           <SwiperSlide key={banner.id}>
             <div className="relative h-full w-full overflow-hidden">
-              <img
-                src={banner.img}
-                alt={banner.alt}
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
+              <div className="kenburns absolute inset-0">
+                <img
+                  src={banner.img}
+                  alt={banner.alt}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </div>
 
               {/* Glowing yellow circles */}
               <div className="absolute inset-0">
