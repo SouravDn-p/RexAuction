@@ -210,3 +210,20 @@ body{
 .lottie-container svg {
   background: transparent !important;
 }
+
+/* kenburn effect in carousel (home) */
+@keyframes kenburns {
+  0% {
+    transform: scale(1) translate(0, 0);
+   
+}
+  100% {
+    transform: scale(1.5) translate(-20px, -10px);
+  }
+}
+
+.kenburns {
+  animation: kenburns 10s ease-in-out infinite alternate;
+  transform-origin: center;
+  -webkit-animation: kenburns 10s ease-in-out infinite alternate;
+}

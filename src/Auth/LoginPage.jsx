@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import biddingImg from "../assets/Logos/login.jpg";
 import SocialLogin from "../component/SocialLogin";
@@ -11,6 +11,10 @@ import {
 } from "../redux/features/user/userSlice";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import auth from "../firebase/firebase.init";
+import { loadFull } from "tsparticles";
+import Particles from "react-tsparticles";
+import AOS from "aos";
+import "aos/dist/aos.css";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -22,6 +26,15 @@ const LoginPage = () => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  // particles effect
+  useEffect(() => {
+    AOS.init({ duration: 1000 });
+  }, []);
+
+  const particlesInit = async (main) => {
+    await loadFull(main);
+  };
 
   const handleEmailPasswordLogin = async (e) => {
     e.preventDefault();
@@ -76,10 +89,10 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex justify-center items-center p-12 sm:p-8 md:p-12 bg-gradient-to-r from-purple-100 via-orange-100 to-pink-100 min-h-screen">
-      <div className="flex flex-col md:flex-row bg-white rounded-lg shadow-lg w-full max-w-4xl overflow-hidden">
+    <div className=" flex justify-center items-center p-12 sm:p-8 md:p-12 bg-gradient-to-r from-purple-100 via-orange-100 to-pink-100 min-h-screen">
+      <div className=" relative flex flex-col md:flex-row bg-white rounded-lg shadow-lg w-full max-w-4xl overflow-hidden">
         <div
-          className="w-full md:w-1/2 min-h-[200px] sm:min-h-[300px] md:h-auto bg-cover bg-center"
+          className="relative z-10 w-full md:w-1/2 min-h-[200px] sm:min-h-[300px] md:h-auto bg-cover bg-center"
           style={{ backgroundImage: `url(${biddingImg})` }}
         ></div>
 
@@ -105,6 +118,33 @@ const LoginPage = () => {
           </div>
 
           <form onSubmit={handleEmailPasswordLogin} className="space-y-4">
+            {/* particles */}
+            <Particles
+              id="tsparticles"
+              init={particlesInit}
+              options={{
+                fullScreen: { enable: false },
+                background: { color: { value: "transparent" } },
+                particles: {
+                  style: {
+                    "mix-blend-mode": "luminosity",
+                  },
+                  color: { value: "#2d2d2d" },
+                  links: {
+                    enable: true,
+                    color: "#6b21a8",
+                    distance: 100,
+                  },
+                  move: { enable: true, speed: 1 },
+                  number: { value: 50 },
+                  size: { value: 2 },
+                  opacity: {
+                    value: 0.5,
+                  },
+                },
+              }}
+              className="absolute inset-0 z-0 pointer-events-none"
+            />
             <div>
               <label className="block text-sm font-semibold text-gray-700">
                 Email Address
