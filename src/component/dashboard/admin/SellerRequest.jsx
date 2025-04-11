@@ -51,7 +51,6 @@ const SellerRequest = () => {
     };
     fetchUsers();
   }, []);
-
   const handleApprove = async (userId, dbUserId) => {
     Swal.fire({
       title: "Are you sure?",
@@ -70,9 +69,13 @@ const SellerRequest = () => {
         );
   
         if (sellerReqRes.data.success) {
+          await axios.patch(`http://localhost:5000/users/${dbUserId}`, {
+            role: "seller"
+          });
+  
           Swal.fire(
             "Approved!",
-            "Seller request has been approved.",
+            "Seller request has been approved and user role updated to seller.",
             "success"
           );
           setIsModalOpen(false);
@@ -90,49 +93,60 @@ const SellerRequest = () => {
       }
     });
   };
-  const handleReject = async (userId, dbUserId) => {
-    const { value: reason } = await Swal.fire({
-      title: "Rejection Reason",
-      input: "textarea",
-      inputLabel: "Why are you rejecting this seller request?",
-      inputPlaceholder: "Enter rejection reason...",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Reject",
-      inputValidator: (value) => {
-        if (!value) {
-          return "You must provide a rejection reason!";
-        }
-      },
-    });
-  
-    if (reason) {
-      try {
-        const sellerReqRes = await axios.patch(
-          `http://localhost:5000/sellerRequest/${userId}`,
-          { becomeSellerStatus: "rejected", rejectionReason: reason }
-        );
-  
-        if (sellerReqRes.data.success) {
-          Swal.fire(
-            "Rejected!",
-            "Seller request has been rejected.",
-            "success"
-          );
-          setUsers((prevUsers) =>
-            prevUsers.filter((user) => user._id !== userId)
-          );
-          setIsModalOpen(false);
-          setRejectionReason("");
-        } else {
-          Swal.fire("Error!", "Failed to reject seller request.", "error");
-        }
-      } catch (error) {
-        Swal.fire("Failed!", "Something went wrong.", "error");
+const handleReject = async (userId, dbUserId) => {
+  const { value: reason } = await Swal.fire({
+    title: "Rejection Reason",
+    input: "textarea",
+    inputLabel: "Why are you rejecting this seller request?",
+    inputPlaceholder: "Enter rejection reason...",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: "Reject",
+    inputValidator: (value) => {
+      if (!value) {
+        return "You must provide a rejection reason!";
       }
+    },
+  });
+
+  if (reason) {
+    try {
+      const sellerReqRes = await axios.patch(
+        `http://localhost:5000/sellerRequest/${userId}`,
+        { becomeSellerStatus: "rejected", rejectionReason: reason }
+      );
+
+      if (sellerReqRes.data.success) {
+        try {
+          await axios.delete(`http://localhost:5000/users/${dbUserId}`);
+        } catch (deleteError) {
+          Swal.fire(
+            "Warning!",
+            "Seller request rejected, but user deletion failed.",
+            "warning"
+          );
+          return;
+        }
+
+        Swal.fire(
+          "Rejected!",
+          "Seller request has been rejected and user deleted.",
+          "success"
+        );
+        setUsers((prevUsers) =>
+          prevUsers.filter((user) => user._id !== userId)
+        );
+        setIsModalOpen(false);
+        setRejectionReason("");
+      } else {
+        Swal.fire("Error!", "Failed to reject seller request.", "error");
+      }
+    } catch (error) {
+      Swal.fire("Failed!", "Something went wrong.", "error");
     }
-  };
+  }
+};
   const handleSort = (field) => {
     if (sortField === field) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
