@@ -134,7 +134,7 @@ const Register = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-6 sm:px-12 bg-gradient-to-br from-purple-100 via-orange-100 to-pink-100">
-      <div className="relative w-full max-w-5xl bg-white rounded-2xl shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-2">
+      <div className="relative w-full max-w-4xl bg-white rounded-2xl shadow-2xl overflow-hidden grid grid-cols-1 md:grid-cols-2">
         {/* Left image section */}
         <div
           className="h-60 md:h-auto bg-cover bg-center relative z-20"
