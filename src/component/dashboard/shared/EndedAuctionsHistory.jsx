@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useContext, useState, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -16,7 +16,8 @@ function EndedAuctionsHistory() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedAuction, setSelectedAuction] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isNotificationPreviewOpen, setIsNotificationPreviewOpen] = useState(false);
+  const [isNotificationPreviewOpen, setIsNotificationPreviewOpen] =
+    useState(false);
   const [notificationPreview, setNotificationPreview] = useState(null);
   const navigate = useNavigate();
   const itemsPerPage = 5;
@@ -48,7 +49,9 @@ function EndedAuctionsHistory() {
     // Create notification data with auction and recipient information
     const notificationData = {
       type: isAnnouncement ? "announcement" : "auction",
-      title: isAnnouncement ? `New Announcement: ${selectedAuction.name}` : `Auction Update: ${selectedAuction.name}`,
+      title: isAnnouncement
+        ? `New Announcement: ${selectedAuction.name}`
+        : `Auction Update: ${selectedAuction.name}`,
       message: isAnnouncement
         ? `A new announcement about "${selectedAuction.name}" has been published.`
         : `Information about auction "${selectedAuction.name}" has been shared with you.`,
@@ -77,105 +80,149 @@ function EndedAuctionsHistory() {
     };
     // Send notification via socket.io
     if (socketRef.current && socketRef.current.connected) {
-      socketRef.current.emit("sendNotification", notificationData, (response) => {
-        if (response && response.success) {
-          toast.success(`${isAnnouncement ? "Announcement" : "Notification"} sent to ${bidder?.name || "user"}`)
-        } else {
-          toast.error(`Failed to send ${isAnnouncement ? "announcement" : "notification"}`)
+      socketRef.current.emit(
+        "sendNotification",
+        notificationData,
+        (response) => {
+          if (response && response.success) {
+            toast.success(
+              `${isAnnouncement ? "Announcement" : "Notification"} sent to ${
+                bidder?.name || "user"
+              }`
+            );
+          } else {
+            toast.error(
+              `Failed to send ${
+                isAnnouncement ? "announcement" : "notification"
+              }`
+            );
+          }
         }
-      })
+      );
     } else {
       // Fallback to API call if socket is not connected
       axiosSecure
         .post("/notifications", notificationData)
         .then((response) => {
           if (response.data.success) {
-            toast.success(`${isAnnouncement ? "Announcement" : "Notification"} sent to ${bidder?.name || "user"}`)
+            toast.success(
+              `${isAnnouncement ? "Announcement" : "Notification"} sent to ${
+                bidder?.name || "user"
+              }`
+            );
           } else {
-            toast.error(`Failed to send ${isAnnouncement ? "announcement" : "notification"}`)
+            toast.error(
+              `Failed to send ${
+                isAnnouncement ? "announcement" : "notification"
+              }`
+            );
           }
         })
         .catch((error) => {
-          console.error(`Error sending ${isAnnouncement ? "announcement" : "notification"}:`, error)
-          toast.error(`Failed to send ${isAnnouncement ? "announcement" : "notification"}`)
-        })
+          console.error(
+            `Error sending ${
+              isAnnouncement ? "announcement" : "notification"
+            }:`,
+            error
+          );
+          toast.error(
+            `Failed to send ${isAnnouncement ? "announcement" : "notification"}`
+          );
+        });
     }
-  }
+  };
 
- 
+  // Add a new function to send announcement to all users
+  const sendAnnouncementToAll = () => {
+    // Create a dummy bidder object with "all" as the email to send to everyone
+    const allUsers = { name: "all users", email: "all" };
+    handleSendNotification(allUsers, true);
+  };
 
   // Also update the handleSendNotification function without bidder parameter (for seller notifications)
   const handleSendNotificationToSeller = () => {
-    console.log(`Sending notification to seller: ${selectedAuction.sellerDisplayName}`)
+    console.log(
+      `Sending notification to seller: ${selectedAuction.sellerDisplayName}`
+    );
 
-  // Create notification data with auction and recipient information
-const notificationData = {
-  type: "auction",
-  title: `Auction Update: ${selectedAuction.name}`,
-  message: `Information about your auction "${selectedAuction.name}" has been requested.`,
-  auctionData: {
-    _id: selectedAuction._id,
-    name: selectedAuction.name,
-    category: selectedAuction.category,
-    startingPrice: selectedAuction.startingPrice,
-    startTime: selectedAuction.startTime,
-    endTime: selectedAuction.endTime,
-    description: selectedAuction.description,
-    condition: selectedAuction.condition,
-    itemYear: selectedAuction.itemYear,
-    status: selectedAuction.status,
-    sellerDisplayName: selectedAuction.sellerDisplayName,
-    sellerEmail: selectedAuction.sellerEmail,
-    sellerPhotoUrl: selectedAuction.sellerPhotoUrl,
-    images: selectedAuction.images,
-    currentBid: selectedAuction.currentBid,
-  },
-  sender: user?.email,
-  recipient: selectedAuction.sellerEmail,
-  timestamp: new Date(),
-  read: false,
-  isDarkMode: isDarkMode,
-};
+    // Create notification data with auction and recipient information
+    const notificationData = {
+      type: "auction",
+      title: `Auction Update: ${selectedAuction.name}`,
+      message: `Information about your auction "${selectedAuction.name}" has been requested.`,
+      auctionData: {
+        _id: selectedAuction._id,
+        name: selectedAuction.name,
+        category: selectedAuction.category,
+        startingPrice: selectedAuction.startingPrice,
+        startTime: selectedAuction.startTime,
+        endTime: selectedAuction.endTime,
+        description: selectedAuction.description,
+        condition: selectedAuction.condition,
+        itemYear: selectedAuction.itemYear,
+        status: selectedAuction.status,
+        sellerDisplayName: selectedAuction.sellerDisplayName,
+        sellerEmail: selectedAuction.sellerEmail,
+        sellerPhotoUrl: selectedAuction.sellerPhotoUrl,
+        images: selectedAuction.images,
+        currentBid: selectedAuction.currentBid,
+      },
+      sender: user?.email,
+      recipient: selectedAuction.sellerEmail,
+      timestamp: new Date(),
+      read: false,
+      isDarkMode: isDarkMode,
+    };
     // Send notification via socket.io
     if (socketRef.current && socketRef.current.connected) {
-      socketRef.current.emit("sendNotification", notificationData, (response) => {
-        if (response && response.success) {
-          toast.success(`Notification sent to ${selectedAuction.sellerDisplayName}`)
-        } else {
-          toast.error("Failed to send notification")
+      socketRef.current.emit(
+        "sendNotification",
+        notificationData,
+        (response) => {
+          if (response && response.success) {
+            toast.success(
+              `Notification sent to ${selectedAuction.sellerDisplayName}`
+            );
+          } else {
+            toast.error("Failed to send notification");
+          }
         }
-      })
+      );
     } else {
       // Fallback to API call if socket is not connected
       axiosSecure
         .post("/notifications", notificationData)
         .then((response) => {
           if (response.data.success) {
-            toast.success(`Notification sent to ${selectedAuction.sellerDisplayName}`)
+            toast.success(
+              `Notification sent to ${selectedAuction.sellerDisplayName}`
+            );
           } else {
-            toast.error("Failed to send notification")
+            toast.error("Failed to send notification");
           }
         })
         .catch((error) => {
-          console.error("Error sending notification:", error)
-          toast.error("Failed to send notification")
-        })
+          console.error("Error sending notification:", error);
+          toast.error("Failed to send notification");
+        });
     }
-  }
+  };
 
   const isAuctionEnded = (endTime) => {
-    return new Date(endTime) < new Date()
-  }
+    return new Date(endTime) < new Date();
+  };
 
   // Filter only ended auctions
-  const endedAuctions = auctions.filter((auction) => isAuctionEnded(auction.endTime))
+  const endedAuctions = auctions.filter((auction) =>
+    isAuctionEnded(auction.endTime)
+  );
 
-
+  // Update the handleMessageBidder function to ensure proper navigation to specific user chat
   const handleMessageBidder = (bidder) => {
-    console.log("Messaging bidder:", bidder)
+    console.log("Messaging bidder:", bidder);
     if (!user) {
-      alert("Please log in to message this bidder")
-      return
+      alert("Please log in to message this bidder");
+      return;
     }
 
     // Navigate to chat with bidder details
@@ -193,14 +240,14 @@ const notificationData = {
         auctionName: selectedAuction?.name,
         auctionImage: selectedAuction?.images?.[0] || image,
       },
-    })
-  }
+    });
+  };
 
-  
+  // Update the handleMessageSeller function to ensure proper navigation to seller chat
   const handleMessageSeller = () => {
     if (!user) {
-      alert("Please log in to message the seller")
-      return
+      alert("Please log in to message the seller");
+      return;
     }
 
     // Create a proper seller object with all necessary details
@@ -209,10 +256,10 @@ const notificationData = {
       email: selectedAuction?.sellerEmail,
       name: selectedAuction?.sellerDisplayName || "Seller",
       photo: selectedAuction?.sellerPhoto || image,
-      role: "seller", 
-    }
+      role: "seller", // Explicitly set role as seller
+    };
 
-    console.log("Messaging seller:", seller)
+    console.log("Messaging seller:", seller);
 
     // Navigate to chat with seller details
     navigate("/dashboard/chat", {
@@ -223,41 +270,46 @@ const notificationData = {
         auctionName: selectedAuction?.name,
         auctionImage: selectedAuction?.images?.[0] || image,
       },
-    })
-  }
+    });
+  };
 
-  const totalItems = endedAuctions.length
-  const totalPages = Math.ceil(totalItems / itemsPerPage)
-  const startIndex = (currentPage - 1) * itemsPerPage
-  const endIndex = startIndex + itemsPerPage
-  const paginatedAuctions = endedAuctions.slice(startIndex, endIndex)
+  const totalItems = endedAuctions.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedAuctions = endedAuctions.slice(startIndex, endIndex);
 
   const handlePageChange = (page) => {
-    setCurrentPage(page)
-  }
+    setCurrentPage(page);
+  };
 
   const openDetailsModal = (auction) => {
     // Remove duplicates by keeping only the highest bid for each bidder
-    const uniqueTopBiddersMap = new Map()
+    const uniqueTopBiddersMap = new Map();
 
     auction.topBidders?.forEach((bidder) => {
-      const key = bidder.email || bidder._id
-      if (!uniqueTopBiddersMap.has(key) || bidder.amount > uniqueTopBiddersMap.get(key).amount) {
-        uniqueTopBiddersMap.set(key, bidder)
+      const key = bidder.email || bidder._id;
+      if (
+        !uniqueTopBiddersMap.has(key) ||
+        bidder.amount > uniqueTopBiddersMap.get(key).amount
+      ) {
+        uniqueTopBiddersMap.set(key, bidder);
       }
-    })
+    });
 
     // Convert map back to array and sort descending by amount
-    const cleanedTopBidders = Array.from(uniqueTopBiddersMap.values()).sort((a, b) => b.amount - a.amount)
+    const cleanedTopBidders = Array.from(uniqueTopBiddersMap.values()).sort(
+      (a, b) => b.amount - a.amount
+    );
 
     // Set cleaned data in selected auction
     setSelectedAuction({
       ...auction,
       topBidders: cleanedTopBidders,
-    })
+    });
 
-    setIsModalOpen(true)
-  }
+    setIsModalOpen(true);
+  };
 
   const themeStyles = {
     background: isDarkMode ? "bg-gray-900" : "bg-gray-100",
@@ -276,22 +328,24 @@ const notificationData = {
     modalBorder: isDarkMode ? "border-gray-700" : "border-gray-300",
     secondaryText: isDarkMode ? "text-gray-300" : "text-gray-600",
     shadow: isDarkMode ? "shadow-lg" : "shadow-md",
-  }
+  };
 
   const updateAuctionStatus = async (auctionId, status) => {
     try {
-      const response = await axiosSecure.patch(`/auctions/${auctionId}`, { status })
+      const response = await axiosSecure.patch(`/auctions/${auctionId}`, {
+        status,
+      });
       if (response.data.modifiedCount > 0) {
         // Refresh the auctions data to reflect the updated status
         // You might need to refetch the data using react-query's refetch function
-        console.log("Auction status updated successfully")
+        console.log("Auction status updated successfully");
       } else {
-        console.log("Auction status update failed")
+        console.log("Auction status update failed");
       }
     } catch (error) {
-      console.error("Error updating auction status:", error)
+      console.error("Error updating auction status:", error);
     }
-  }
+  };
 
   return (
     <div
@@ -577,21 +631,32 @@ const notificationData = {
                               <FaChevronDown />
                             </button>
                             {openDropdown === bidder.email && (
-                              <div
-                                className={`absolute right-0 mt-2 w-48 rounded-md shadow-lg ${
-                                  isDarkMode
-                                    ? "bg-gray-700 hover:bg-gray-600"
-                                    : "bg-gray-200 hover:bg-gray-300"
-                                }`}
-                              >
-                                <button
-                                  onClick={() => handleMessageBidder(bidder)}
-                                  className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-900 dark:hover:bg-gray-600"
+                              <>
+                                <div
+                                  className={`absolute right-0 mt-2 w-48 rounded-md shadow-lg ${
+                                    isDarkMode
+                                      ? "bg-gray-700 hover:bg-gray-600"
+                                      : "bg-gray-200 hover:bg-gray-300"
+                                  }`}
                                 >
-                                  <FaEnvelope className="inline mr-2" /> Message
-                                  Bidder
-                                </button>
-                              </div>
+                                  <button
+                                    onClick={() => handleMessageBidder(bidder)}
+                                    className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-900 dark:hover:bg-gray-600"
+                                  >
+                                    <FaEnvelope className="inline mr-2" />{" "}
+                                    Message Bidder
+                                  </button>
+                                  <button
+                                    onClick={() =>
+                                      handleSendNotification(bidder)
+                                    }
+                                    className="block w-full text-left px-4 py-2 text-sm hover:bg-gray-900 dark:hover:bg-gray-600"
+                                  >
+                                    <FaBell className="inline mr-2" /> Send
+                                    Notification
+                                  </button>
+                                </div>
+                              </>
                             )}
                           </div>
                         </div>
@@ -664,7 +729,6 @@ const notificationData = {
                       </div>
                     </div>
                   </div>
-
                   {/* Description Card */}
                   {selectedAuction.description && (
                     <div
@@ -705,20 +769,19 @@ const notificationData = {
                         <path
                           fillRule="evenodd"
                           d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1V9z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                        <h3 className="font-bold text-lg">Payment</h3>
-                      </div>
-                      <p
-                        className={`${themeStyles.secondaryText} text-sm sm:text-base leading-relaxed transition-all duration-300 line-clamp-3 hover:line-clamp-none cursor-pointer`}
-                      >
-                        {selectedAuction.description}
-                      </p>
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      <h3 className="font-bold text-lg">Payment</h3>
                     </div>
+                    <p
+                      className={`${themeStyles.secondaryText} text-sm sm:text-base leading-relaxed transition-all duration-300 line-clamp-3 hover:line-clamp-none cursor-pointer`}
+                    >
+                      pending
+                      {/* {selectedAuction.payment || "pending"} */}
+                    </p>
                   </div>
                 </div>
-
                 {/* Right Column */}
                 <div className="space-y-6">
                   {/* Seller Info Card */}
@@ -738,7 +801,9 @@ const notificationData = {
                           clipRule="evenodd"
                         />
                       </svg>
-                      <h3 className="font-bold text-lg">Seller Information</h3>
+                      <h3 className="font-bold text-lg">
+                        Auctioneer Information
+                      </h3>
                     </div>
                     <div className="space-y-3">
                       <div className="flex items-center py-2">
@@ -778,7 +843,7 @@ const notificationData = {
                       {/* Button container for larger screens */}
                       <div className="hidden sm:flex items-center gap-2">
                         <button
-                          onClick={handleMessageSeller}
+                          onClick={handleSendNotificationToSeller}
                           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
                             isDarkMode
                               ? "bg-gray-700 hover:bg-gray-600 text-gray-200"
@@ -878,94 +943,63 @@ const notificationData = {
                     </div>
                   )}
                 </div>
-              </div>
-              <div
-                className={`p-4 sm:p-5 rounded-lg border col-span-2 ${themeStyles.modalBorder} shadow-sm`}
-              >
-                <div className="flex items-center mb-4">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-5 w-5 mr-2 text-red-500"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <h3 className="font-bold text-lg">Auction Actions</h3>
-                </div>
-                <div className="flex flex-wrap gap-3">
-                  <button
-                    onClick={() =>
-                      updateAuctionStatus(selectedAuction._id, "Accepted")
-                    }
-                    className={`flex-1 min-w-[120px] px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-all ${
-                      selectedAuction.status === "Accepted" ||
-                      isAuctionEnded(selectedAuction.endTime)
-                        ? "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
-                        : "bg-green-500 hover:bg-green-600 text-white shadow-md hover:shadow-lg"
-                    }`}
-                    disabled={
-                      selectedAuction.status === "Accepted" ||
-                      isAuctionEnded(selectedAuction.endTime)
-                    }
-                  >
+                <div
+                  className={`p-4 sm:p-5 rounded-lg border col-span-2 ${themeStyles.modalBorder} shadow-sm`}
+                >
+                  <div className="flex items-center mb-4">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
+                      className="h-5 w-5 mr-2 text-red-500"
                       viewBox="0 0 20 20"
                       fill="currentColor"
                     >
                       <path
                         fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                        d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
                         clipRule="evenodd"
                       />
                     </svg>
-                    Accept
-                  </button>
-                  <button
-                    onClick={() =>
-                      updateAuctionStatus(selectedAuction._id, "Rejected")
-                    }
-                    className={`flex-1 min-w-[120px] px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-all ${
-                      selectedAuction.status === "Rejected" ||
-                      isAuctionEnded(selectedAuction.endTime)
-                        ? "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
-                        : "bg-red-500 hover:bg-red-600 text-white shadow-md hover:shadow-lg"
-                    }`}
-                    disabled={
-                      selectedAuction.status === "Rejected" ||
-                      isAuctionEnded(selectedAuction.endTime)
-                    }
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
+                    <h3 className="font-bold text-lg">Place Delivery</h3>
+                  </div>
+                  <div className="flex flex-wrap gap-3">
+                    <button
+                      onClick={() =>
+                        updateAuctionStatus(selectedAuction._id, "Place Order")
+                      }
+                      className={`flex-1 min-w-[120px] px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-all ${
+                        selectedAuction.status === "Place Order" ||
+                        isAuctionEnded(selectedAuction.endTime)
+                          ? "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                          : "bg-green-500 hover:bg-green-600 text-white shadow-md hover:shadow-lg"
+                      }`}
+                      disabled={
+                        selectedAuction.status === "Place Order" ||
+                        isAuctionEnded(selectedAuction.endTime)
+                      }
                     >
-                      <path
-                        fillRule="evenodd"
-                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    Reject
-                  </button>
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      Accept
+                    </button>
+                  </div>
                 </div>
               </div>
-            
             </div>
           </div>
-      
-      )
-}
-</div>
-  )
+        </div>
+      )}
+    </div>
+  );
 }
 
-export default EndedAuctionsHistory
+export default EndedAuctionsHistory;

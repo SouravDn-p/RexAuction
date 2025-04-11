@@ -233,7 +233,7 @@ const SdBot = () => {
           ))}
 
           {/* Loading Indicator */}
-          {isLoading && (
+          {/* {isLoading && (
             <div className="chat chat-start mb-4">
               <div className="chat-image avatar">
                 <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
@@ -251,7 +251,7 @@ const SdBot = () => {
                 </div>
               </div>
             </div>
-          )}
+          )} */}
         </div>
 
         {/* Chatbot Footer */}
