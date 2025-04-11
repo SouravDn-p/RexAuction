@@ -118,7 +118,7 @@ const MainContent = () => {
                 <button
                   onClick={() => setIsSearchOpen(!isSearchOpen)}
                   className={`p-2 rounded-full ${
-                    isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                    isDarkMode ? "hover:bg-gray-500" : "hover:bg-gray-100"
                   } transition-colors duration-200`}
                 >
                   <Search className="h-5 w-5" />
@@ -156,7 +156,7 @@ const MainContent = () => {
               {/* Notifications */}
               <button
                 className={`relative p-2 rounded-full ${
-                  isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                  isDarkMode ? "hover:bg-gray-500" : "hover:bg-gray-100"
                 } transition-colors duration-200`}
                 onClick={handleNotificationClick}
               >
