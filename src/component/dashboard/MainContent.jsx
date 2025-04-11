@@ -1,31 +1,31 @@
-
-import { FaBars } from "react-icons/fa"
-import { Link, Outlet, useLocation, useNavigate } from "react-router-dom"
-import { useEffect, useRef, useState, useContext } from "react"
-import { Bell, LogOut, Settings, User, Search, ChevronDown } from "lucide-react"
-import { FaSun, FaMoon } from "react-icons/fa"
-import ThemeContext from "../Context/ThemeContext"
-import { AuthContexts } from "../../providers/AuthProvider"
-import auth from "../../firebase/firebase.init"
-import { toast } from "react-toastify"
-import { signOut } from "firebase/auth"
-import LoadingSpinner from "../LoadingSpinner"
-import io from "socket.io-client"
-import axios from "axios"
+import { FaBars } from "react-icons/fa";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState, useContext } from "react";
+import { Bell, LogOut, Settings, User, Search, ChevronDown } from "lucide-react";
+import { FaSun, FaMoon } from "react-icons/fa";
+import ThemeContext from "../Context/ThemeContext";
+import { AuthContexts } from "../../providers/AuthProvider";
+import auth from "../../firebase/firebase.init";
+import { toast } from "react-toastify";
+import { signOut } from "firebase/auth";
+import LoadingSpinner from "../LoadingSpinner";
+import io from "socket.io-client";
+import axios from "axios";
 
 const MainContent = () => {
-  const { user, setUser, setLoading, errorMessage, setErrorMessage, dbUser } = useContext(AuthContexts)
-  const { isDarkMode, toggleTheme } = useContext(ThemeContext)
-  const [notifications, setNotifications] = useState([])
-  const [notificationCount, setNotificationCount] = useState(0)
-  const [isProfileOpen, setIsProfileOpen] = useState(false)
-  const [isSearchOpen, setIsSearchOpen] = useState(false)
-  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false)
-  const profileRef = useRef(null)
-  const notificationsRef = useRef(null)
-  const socketRef = useRef(null)
-  const location = useLocation()
-  const navigate = useNavigate()
+  const { user, setUser, setLoading, errorMessage, setErrorMessage, dbUser } =
+    useContext(AuthContexts);
+  const { isDarkMode, toggleTheme } = useContext(ThemeContext);
+  const [notifications, setNotifications] = useState([]);
+  const [notificationCount, setNotificationCount] = useState(0);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const profileRef = useRef(null);
+  const notificationsRef = useRef(null);
+  const socketRef = useRef(null);
+  const location = useLocation();
+  const navigate = useNavigate();
 
   // Initialize socket connection
   useEffect(() => {
@@ -36,83 +36,82 @@ const MainContent = () => {
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
         timeout: 10000,
-      })
-
+      });
 
       socketRef.current.on("receiveNotification", (notification) => {
-   
-        setNotifications((prev) => [notification, ...prev])
+        setNotifications((prev) => [notification, ...prev]);
+        setNotificationCount((prev) => prev + 1);
 
-
-        setNotificationCount((prev) => prev + 1)
-
-   
         toast.info(notification.message, {
           position: "top-right",
           autoClose: 5000,
-        })
-      })
+        });
+      });
 
       return () => {
         if (socketRef.current) {
-          socketRef.current.disconnect()
-          socketRef.current = null
+          socketRef.current.disconnect();
+          socketRef.current = null;
         }
-      }
+      };
     }
-  }, [user])
+  }, [user]);
 
-
+  // Fetch notifications
   useEffect(() => {
     if (user) {
-     
       const fetchNotifications = async () => {
         try {
-          const response = await axios.get(`http://localhost:5000/notifications/${user.email}`, {
-            withCredentials: true,
-          })
+          const response = await axios.get(
+            `http://localhost:5000/notifications/${user.email}`,
+            {
+              withCredentials: true,
+            }
+          );
 
           if (response.data) {
-            setNotifications(response.data)
-            // Count unread notifications
-            const unreadCount = response.data.filter((notif) => !notif.read).length
-            setNotificationCount(unreadCount)
+            setNotifications(response.data);
+            const unreadCount = response.data.filter((notif) => !notif.read).length;
+            setNotificationCount(unreadCount);
           }
         } catch (error) {
-          console.error("Error fetching notifications:", error)
+          console.error("Error fetching notifications:", error);
         }
-      }
+      };
 
-      fetchNotifications()
+      fetchNotifications();
     }
-  }, [user])
+  }, [user]);
 
   // Close notifications dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (notificationsRef.current && !notificationsRef.current.contains(event.target)) {
-        setIsNotificationsOpen(false)
+      if (
+        notificationsRef.current &&
+        !notificationsRef.current.contains(event.target)
+      ) {
+        setIsNotificationsOpen(false);
       }
-    }
+    };
 
-    document.addEventListener("mousedown", handleClickOutside)
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
-  }, [])
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleNotificationClick = () => {
-    setIsNotificationsOpen(!isNotificationsOpen)
-  }
+    setIsNotificationsOpen(!isNotificationsOpen);
+  };
 
   const markNotificationsAsRead = async () => {
-    if (notifications.length === 0) return
+    if (notifications.length === 0) return;
 
     try {
-
-      setNotifications((prev) => prev.map((notif) => ({ ...notif, read: true })))
-      setNotificationCount(0)
-
+      setNotifications((prev) =>
+        prev.map((notif) => ({ ...notif, read: true }))
+      );
+      setNotificationCount(0);
 
       if (user) {
         await axios.put(
@@ -120,22 +119,23 @@ const MainContent = () => {
           {},
           {
             withCredentials: true,
-          },
-        )
+          }
+        );
       }
     } catch (error) {
-      console.error("Error marking notifications as read:", error)
+      console.error("Error marking notifications as read:", error);
     }
-  }
-
+  };
 
   const viewNotificationDetails = (notification) => {
+    // Mark the notification as read locally
+    setNotifications((prev) =>
+      prev.map((n) => (n._id === notification._id ? { ...n, read: true } : n))
+    );
 
-    setNotifications((prev) => prev.map((n) => (n._id === notification._id ? { ...n, read: true } : n)))
-
-   it
+    // Decrease notification count if applicable
     if (notificationCount > 0) {
-      setNotificationCount((prev) => prev - 1)
+      setNotificationCount((prev) => prev - 1);
     }
 
     // Update the notification as read in the database
@@ -144,84 +144,72 @@ const MainContent = () => {
         .put(
           `http://localhost:5000/notifications/mark-read/${user.email}`,
           { notificationId: notification._id },
-          { withCredentials: true },
+          { withCredentials: true }
         )
         .catch((error) => {
-          console.error("Error marking notification as read:", error)
-        })
+          console.error("Error marking notification as read:", error);
+        });
     }
 
     // Close notifications panel
-    setIsNotificationsOpen(false)
+    setIsNotificationsOpen(false);
 
-    if (notification.type === "announcement" && notification.announcementData?._id) {
-
-      navigate(`/announcementDetails/${notification.announcementData._id}`, {
-        state: { notificationDetails: notification },
-      })
-    } else if (notification.type === "auction" && notification.auctionData?._id) {
-      navigate("/dashboard/announcement", {
-        state: { notificationDetails: notification },
-      })
-    } else {
-  
-      navigate("/dashboard/announcement", {
-        state: { notificationDetails: notification },
-      })
-    }
-  }
+    // Navigate to the announcement page
+    navigate("/dashboard/announcement", {
+      state: { notificationDetails: notification },
+    });
+  };
 
   if (!user) {
-    return <LoadingSpinner />
+    return <LoadingSpinner />;
   }
 
   const handleLogout = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      await signOut(auth)
-      setUser(null)
-      setErrorMessage(null)
+      await signOut(auth);
+      setUser(null);
+      setErrorMessage(null);
       toast.success("Successfully signed out", {
         position: "top-right",
         autoClose: 3000,
-      })
-      navigate("/")
+      });
+      navigate("/");
     } catch (err) {
-      console.error("Sign-Out error:", err.message)
-      setErrorMessage(err.message)
-      toast.error(err.message)
+      console.error("Sign-Out error:", err.message);
+      setErrorMessage(err.message);
+      toast.error(err.message);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
-
+  };
 
   const getPageName = () => {
-    const path = location.pathname
+    const path = location.pathname;
     switch (path) {
       case "/dashboard":
-        return "Dashboard"
+        return "Dashboard";
       case "/dashboard/announcement":
-        return "Announcements"
+        return "Announcements";
       case "/dashboard/profile":
-        return "Profile"
-      
+        return "Profile";
       default:
-        return "Dashboard" 
+        return "Dashboard";
     }
-  }
+  };
 
   return (
     <div
-      className={`drawer-content flex flex-col md:flex-row justify-between items-stretch 
-       `}
+      className={`drawer-content flex flex-col md:flex-row justify-between items-stretch`}
     >
-      <div className="mx-auto w-full ">
+      <div className="mx-auto w-full">
         {/* Top Navigation Bar */}
         <header
           className={`sticky top-0 z-10 mx-auto ${
             isDarkMode ? "bg-gray-800/90" : "bg-white"
-          } backdrop-blur-md shadow-sm border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+          } backdrop-blur-md shadow-sm border-b ${
+            isDarkMode ? "border-gray-700" : "border-gray-200"
+          }`}
         >
           <div className="container mx-auto px-4 py-3">
             <div className="flex items-center justify-between">
@@ -239,10 +227,18 @@ const MainContent = () => {
                 </label>
 
                 <div className="hidden md:block">
-                  <h1 className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-black"}`}>
+                  <h1
+                    className={`text-xl font-semibold ${
+                      isDarkMode ? "text-white" : "text-black"
+                    }`}
+                  >
                     {getPageName()}
                   </h1>
-                  <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                  <p
+                    className={`text-sm ${
+                      isDarkMode ? "text-gray-400" : "text-gray-500"
+                    }`}
+                  >
                     Welcome back to your dashboard
                   </p>
                 </div>
@@ -255,7 +251,9 @@ const MainContent = () => {
                   <button
                     onClick={() => setIsSearchOpen(!isSearchOpen)}
                     className={`p-2 rounded-full ${
-                      isDarkMode ? "hover:bg-gray-700 " : "hover:bg-gray-100 text-black"
+                      isDarkMode
+                        ? "hover:bg-gray-700 "
+                        : "hover:bg-gray-100 text-black"
                     } transition-colors duration-200`}
                   >
                     <Search className="h-5 w-5" />
@@ -264,7 +262,9 @@ const MainContent = () => {
                   {isSearchOpen && (
                     <div
                       className={`absolute right-0 mt-2 w-72 p-2 rounded-lg shadow-lg ${
-                        isDarkMode ? "bg-gray-800 border border-gray-700" : "bg-white border border-gray-200"
+                        isDarkMode
+                          ? "bg-gray-800 border border-gray-700"
+                          : "bg-white border border-gray-200"
                       }`}
                     >
                       <div className="relative">
@@ -292,7 +292,9 @@ const MainContent = () => {
                 <div className="relative" ref={notificationsRef}>
                   <button
                     className={`relative p-2 rounded-full ${
-                      isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100 text-black"
+                      isDarkMode
+                        ? "hover:bg-gray-700"
+                        : "hover:bg-gray-100 text-black"
                     } transition-colors duration-200`}
                     onClick={handleNotificationClick}
                   >
@@ -307,7 +309,9 @@ const MainContent = () => {
                   {isNotificationsOpen && (
                     <div
                       className={`absolute right-0 mt-2 w-80 max-h-96 overflow-y-auto rounded-md shadow-lg ${
-                        isDarkMode ? "bg-gray-800 border border-gray-700" : "bg-white border border-gray-200"
+                        isDarkMode
+                          ? "bg-gray-800 border border-gray-700"
+                          : "bg-white border border-gray-200"
                       }`}
                     >
                       <div
@@ -337,11 +341,23 @@ const MainContent = () => {
                               key={notification._id || index}
                               onClick={() => viewNotificationDetails(notification)}
                               className={`px-4 py-3 border-b last:border-b-0 cursor-pointer ${
-                                isDarkMode ? "border-gray-700 hover:bg-gray-700" : "border-gray-100 hover:bg-gray-50"
-                              } ${!notification.read ? (isDarkMode ? "bg-gray-700/50" : "bg-blue-50") : ""}`}
+                                isDarkMode
+                                  ? "border-gray-700 hover:bg-gray-700"
+                                  : "border-gray-100 hover:bg-gray-50"
+                              } ${
+                                !notification.read
+                                  ? isDarkMode
+                                    ? "bg-gray-700/50"
+                                    : "bg-blue-50"
+                                  : ""
+                              }`}
                             >
                               <div className="flex items-start">
-                                <div className={`p-2 rounded-full mr-3 ${isDarkMode ? "bg-gray-700" : "bg-blue-100"}}`}>
+                                <div
+                                  className={`p-2 rounded-full mr-3 ${
+                                    isDarkMode ? "bg-gray-700" : "bg-blue-100"
+                                  }`}
+                                >
                                   {notification.type === "auction" ? (
                                     <svg
                                       xmlns="http://www.w3.org/2000/svg"
@@ -360,22 +376,46 @@ const MainContent = () => {
                                   )}
                                 </div>
                                 <div className="flex-1">
-                                  <p className={`font-medium text-sm ${!notification.read ? "font-bold" : ""}`}>
+                                  <p
+                                    className={`font-medium text-sm ${
+                                      !notification.read ? "font-bold" : ""
+                                    }`}
+                                  >
                                     {notification.title}
                                   </p>
-                                  <p className={`text-xs mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                                  <p
+                                    className={`text-xs mt-1 ${
+                                      isDarkMode
+                                        ? "text-gray-400"
+                                        : "text-gray-500"
+                                    }`}
+                                  >
                                     {notification.message}
                                   </p>
-                                  <p className={`text-xs mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
-                                    {new Date(notification.timestamp).toLocaleString()}
+                                  <p
+                                    className={`text-xs mt-1 ${
+                                      isDarkMode
+                                        ? "text-gray-500"
+                                        : "text-gray-400"
+                                    }`}
+                                  >
+                                    {new Date(
+                                      notification.timestamp
+                                    ).toLocaleString()}
                                   </p>
                                 </div>
-                                {!notification.read && <div className="h-2 w-2 rounded-full bg-blue-500 mt-1"></div>}
+                                {!notification.read && (
+                                  <div className="h-2 w-2 rounded-full bg-blue-500 mt-1"></div>
+                                )}
                               </div>
                             </div>
                           ))
                         ) : (
-                          <div className={`px-4 py-6 text-center ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                          <div
+                            className={`px-4 py-6 text-center ${
+                              isDarkMode ? "text-gray-400" : "text-gray-500"
+                            }`}
+                          >
                             <p>No notifications yet</p>
                           </div>
                         )}
@@ -387,10 +427,14 @@ const MainContent = () => {
                 {/* Dark Mode Toggle */}
                 <button
                   className={`p-2 rounded-full ${
-                    isDarkMode ? "hover:bg-gray-700 text-yellow-400" : "hover:bg-gray-100 text-gray-700"
+                    isDarkMode
+                      ? "hover:bg-gray-700 text-yellow-400"
+                      : "hover:bg-gray-100 text-gray-700"
                   } transition-colors duration-200`}
                   onClick={toggleTheme}
-                  aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+                  aria-label={
+                    isDarkMode ? "Switch to light mode" : "Switch to dark mode"
+                  }
                 >
                   {isDarkMode ? <FaSun size={18} /> : <FaMoon size={18} />}
                 </button>
@@ -403,7 +447,9 @@ const MainContent = () => {
                   >
                     <div
                       className={`h-10 w-10 rounded-full border-2 overflow-hidden ${
-                        isDarkMode ? "border-purple-600" : "border-purple-400 text-black"
+                        isDarkMode
+                          ? "border-purple-600"
+                          : "border-purple-400 text-black"
                       }`}
                     >
                       {user?.photoURL ? (
@@ -424,7 +470,13 @@ const MainContent = () => {
                     </div>
                     <div className="hidden md:block text-left">
                       <p className="font-medium text-sm">{user?.name}</p>
-                      <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{dbUser?.role}</p>
+                      <p
+                        className={`text-xs ${
+                          isDarkMode ? "text-gray-400" : "text-gray-500"
+                        }`}
+                      >
+                        {dbUser?.role}
+                      </p>
                     </div>
                     <ChevronDown
                       className={`h-4 w-4 transition-transform duration-200 ${
@@ -436,18 +488,32 @@ const MainContent = () => {
                   {isProfileOpen && (
                     <div
                       className={`absolute right-0 mt-2 w-56 rounded-md shadow-lg overflow-hidden ${
-                        isDarkMode ? "bg-gray-800 border border-gray-700" : "bg-white border border-gray-200"
+                        isDarkMode
+                          ? "bg-gray-800 border border-gray-700"
+                          : "bg-white border border-gray-200"
                       }`}
                     >
-                      <div className={`p-3 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200 "}`}>
+                      <div
+                        className={`p-3 border-b ${
+                          isDarkMode ? "border-gray-700" : "border-gray-200 "
+                        }`}
+                      >
                         <p className="text-sm font-medium">{user?.name}</p>
-                        <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{user?.email}</p>
+                        <p
+                          className={`text-xs ${
+                            isDarkMode ? "text-gray-400" : "text-gray-500"
+                          }`}
+                        >
+                          {user?.email}
+                        </p>
                       </div>
                       <div className="py-1">
                         <Link
                           to={`/dashboard/profile`}
                           className={`w-full flex items-center px-4 py-2 text-sm ${
-                            isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100 text-black"
+                            isDarkMode
+                              ? "hover:bg-gray-700"
+                              : "hover:bg-gray-100 text-black"
                           }`}
                         >
                           <User className="h-4 w-4 mr-2" />
@@ -455,7 +521,9 @@ const MainContent = () => {
                         </Link>
                         <button
                           className={`w-full flex items-center px-4 py-2 text-sm ${
-                            isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100 text-black"
+                            isDarkMode
+                              ? "hover:bg-gray-700"
+                              : "hover:bg-gray-100 text-black"
                           }`}
                         >
                           <Settings className="h-4 w-4 mr-2" />
@@ -463,7 +531,9 @@ const MainContent = () => {
                         </button>
                         <button
                           className={`w-full flex items-center px-4 py-2 text-sm ${
-                            isDarkMode ? "text-red-400 hover:bg-gray-700" : "text-red-600 hover:bg-gray-100"
+                            isDarkMode
+                              ? "text-red-400 hover:bg-gray-700"
+                              : "text-red-600 hover:bg-gray-100"
                           }`}
                           onClick={handleLogout}
                         >
@@ -478,13 +548,12 @@ const MainContent = () => {
             </div>
           </div>
         </header>
-        {/* <DashboardNavbar /> */}
         <div className="bg-white rounded-lg flex-grow">
           <Outlet />
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default MainContent
+export default MainContent;
