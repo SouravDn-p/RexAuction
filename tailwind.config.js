@@ -4,6 +4,17 @@ export default {
   darkMode: ["class", "class"],
   theme: {
     extend: {
+      keyframes: {
+        floating: {
+          "0%": { transform: "translateY(0px)" },
+          "50%": { transform: "translateY(-12px)" },
+          "100%": { transform: "translateY(0px)" },
+        },
+      },
+      animation: {
+        floating: "floating 6s ease-in-out infinite",
+      },
+
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",

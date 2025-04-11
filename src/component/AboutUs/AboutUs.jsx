@@ -21,6 +21,13 @@ import ThemeContext from "../Context/ThemeContext";
 import { AuthContexts } from "../../providers/AuthProvider";
 import { Link } from "react-router-dom";
 
+import SouravImg from "../../assets/souravdebnath.jpg";
+import SudiptaImg from "../../assets/sudiptaroy.jpg";
+import JasminImg from "../../assets/jasminaramim.jpg";
+import JoyetaImg from "../../assets/joyetamondal.jpg";
+import RohitImg from "../../assets/rohit.jpg";
+import AbirImg from "../../assets/abir.jpg";
+
 const AboutUs = () => {
   const carouselSettings = {
     dots: true,
@@ -52,6 +59,67 @@ const AboutUs = () => {
     triggerOnce: true, // Trigger animation only once
     threshold: 0.5, // Trigger when 50% of the section is visible
   });
+
+  const teamMembers = [
+    {
+      image: SouravImg,
+      name: "Sourav Debnath",
+      project_role: "Team Leader",
+      email: "souravdebnath@gmail.com",
+      expertise:
+        "Full stack Development, React.js, Socket, Wireframe, UI/UX Design",
+      offer:
+        "I ensured the full UI of RexAuction to be responsive, Project Management, Agile, SCRUM meetings, seamless and user friendly for the users.",
+    },
+    {
+      image: SudiptaImg,
+      name: "Sudipta Roy",
+      project_role: "Documentation & Requirements recorder, backend developer",
+      email: "sudiptaroy@gmail.com",
+      expertise: "Backend Development, Node.js,Socket, Express, MongoDB",
+      offer:
+        "I recorded each detailing of requirements that are needed for a dynamic auction website.",
+    },
+    {
+      image: JasminImg,
+      name: "Jasmin Ara Mim",
+      project_role: "UI designer and developer",
+      email: "jasminaramim@gmail.com",
+      expertise:
+        "Full stack development, Wireframe, Socket, MERN stack, Next.Js",
+      offer:
+        "I ensure smooth deployment pipelines and server reliability with an eye-catching UI design for our website.",
+    },
+    {
+      image: JoyetaImg,
+      name: "Joyeta Mondal Kotha",
+      project_role: "UI & detailing designer",
+      email: "dipannitakotha2019@gmail.com",
+      expertise:
+        "Frontend Development, Wireframe, React Native, Firebase, MERN stack.",
+      offer:
+        "I craft highly responsive UI and animated features across our website and worked on seamless data flow from the backend.",
+    },
+    {
+      image: RohitImg,
+      name: "Rafid Islam Rohit",
+      project_role: "Redux designer",
+      email: "rafidislamrohit@gmail.com",
+      expertise: "Full stack development, Wireframe, Socket, Redux.",
+      offer:
+        "I made the website dynamic and robust using redux on the backend and functionalities to get updated with data.",
+    },
+    {
+      image: AbirImg,
+      name: "Nazmul Hasan Abir",
+      project_role:
+        "Worked on backend and frontend to coordinate between the two ends for all the functionalities to work seamlessly.",
+      email: "nazmulhasanabir@gmail.com",
+      expertise: "Full stack development, Socket, MERN stack.",
+      offer:
+        "I ensured seamless data flow from frontend to backend for a smooth working of RexAuction",
+    },
+  ];
 
   useEffect(() => {
     if (inView) {
@@ -359,6 +427,114 @@ const AboutUs = () => {
                 </div>
               ))}
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* our team */}
+      <div
+        className={`${
+          isDarkMode ? "bg-gray-800" : "bg-purple-100"
+        } py-8 px-4 text-center `}
+      >
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2
+              className={`text-3xl md:text-4xl font-bold bg-clip-text text-transparent ${
+                isDarkMode
+                  ? "bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400"
+                  : "bg-gradient-to-r  from-cyan-400 via-purple-400 to-pink-400"
+              }`}
+            >
+              Meet our talented team
+            </h2>
+
+            <p
+              className={`mt-4 max-w-2xl mx-auto ${
+                isDarkMode ? "text-gray-300" : "text-gray-600"
+              }`}
+            >
+              We have a hard-working and dynamically talented team that is
+              working continuously for giving you the best experience of
+              bidding.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-12">
+            {teamMembers.map((member, index) => (
+              <div
+                key={index}
+                style={{ animationDelay: `${index * 0.4}s` }}
+                className={`relative group rounded-xl p-6 transition-transform duration-500  ease-in-out
+                   animate-floating hover:scale-105 scale-100
+                    ${
+                      isDarkMode
+                        ? "bg-gray-900 shadow-[0_0_15px_rgba(139,92,246,0.95)]"
+                        : "bg-slate-200 shadow-[0_0_30px_rgba(139,92,246,1)]"
+                    }`}
+              >
+                {/* Hover overlay */}
+                <div
+                  className={`absolute inset-0 rounded-xl transition-opacity duration-300 opacity-0 group-hover:opacity-100 ${
+                    isDarkMode
+                      ? "bg-gradient-to-r from-slate-800 to-gray-800"
+                      : "bg-gradient-to-r from-violet-100 to-indigo-100"
+                  }`}
+                />
+
+                <div className="relative z-10 flex flex-col items-center text-center">
+                  <img
+                    src={member.image}
+                    alt={member.name}
+                    className="w-32 h-32 rounded-full object-cover shadow-lg border-4 border-violet-400 mb-4"
+                  />
+
+                  <h3
+                    className={`font-bold text-xl mb-3 ${
+                      isDarkMode ? "text-white" : "text-gray-800"
+                    }`}
+                  >
+                    {member.name}
+                  </h3>
+
+                  <p
+                    className={`${
+                      isDarkMode ? "text-violet-300" : "text-indigo-600"
+                    }`}
+                  >
+                    {member.project_role}
+                  </p>
+                  <p
+                    className={`text-sm mb-2 ${
+                      isDarkMode ? "text-gray-400" : "text-gray-600"
+                    }`}
+                  >
+                    📧 {member.email}
+                  </p>
+
+                  <p
+                    className={`text-xs mb-2 ${
+                      isDarkMode ? "text-gray-300" : "text-gray-600"
+                    }`}
+                  >
+                    <span className="font-semibold text-violet-500">
+                      Expertise:
+                    </span>{" "}
+                    {member.expertise}
+                  </p>
+
+                  <p
+                    className={`text-xs italic ${
+                      isDarkMode ? "text-gray-400" : "text-gray-700"
+                    }`}
+                  >
+                    “{member.offer}”
+                  </p>
+
+                  <div className="w-12 h-1 rounded-full bg-gradient-to-r from-violet-400 to-indigo-400 mt-5 group-hover:w-20 transition-all duration-300" />
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
