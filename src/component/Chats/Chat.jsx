@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useRef, useContext } from "react";
 import ChatSidebar from "./ChatSidebar";
 import io from "socket.io-client";
@@ -19,6 +18,7 @@ import {
   Video,
   Check,
 } from "lucide-react";
+import useAuth from "../../hooks/useAuth";
 
 export default function Chat() {
   const socketRef = useRef(null);
@@ -37,11 +37,11 @@ export default function Chat() {
   const [users, setUsers] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [currentUserRole, setCurrentUserRole] = useState("buyer");
-  const [isMobile, setIsMobile] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showAttachMenu, setShowAttachMenu] = useState(false);
   const [messageStatuses, setMessageStatuses] = useState({}); // Track message delivery/read statuses
   const [seenMessages, setSeenMessages] = useState({});
+  const { isMobile, setIsMobile } = useAuth();
 
   useEffect(() => {
     const checkIfMobile = () => {
@@ -60,16 +60,19 @@ export default function Chat() {
         setCurrentUser(user);
         try {
           const userResponse = await axios.get(
-            `http://localhost:5000/user/${user.email}`,
+            `https://un-aux.onrender.com/user/${user.email}`,
             {
               withCredentials: true,
             }
           );
           setCurrentUserRole(userResponse.data.role || "buyer");
 
-          const usersResponse = await axios.get("http://localhost:5000/users", {
-            withCredentials: true,
-          });
+          const usersResponse = await axios.get(
+            "https://un-aux.onrender.com/users",
+            {
+              withCredentials: true,
+            }
+          );
           setUsers(usersResponse.data.filter((u) => u.email !== user.email));
         } catch (error) {
           console.error("Error fetching user data:", error);
@@ -82,7 +85,7 @@ export default function Chat() {
 
   useEffect(() => {
     if (!socketRef.current) {
-      socketRef.current = io("http://localhost:5000", {
+      socketRef.current = io("https://un-aux.onrender.com", {
         withCredentials: true,
         reconnection: true,
         reconnectionAttempts: 5,
@@ -185,7 +188,6 @@ export default function Chat() {
     };
   }, [selectedUser, messages, messageStatuses]);
 
- 
   useEffect(() => {
     const storedStatuses = localStorage.getItem("messageStatuses");
     if (storedStatuses) {
@@ -204,7 +206,7 @@ export default function Chat() {
 
       try {
         const response = await axios.get(
-          `http://localhost:5000/recent-messages/${user.email}`,
+          `https://un-aux.onrender.com/recent-messages/${user.email}`,
           {
             withCredentials: true,
           }
@@ -247,9 +249,9 @@ export default function Chat() {
       const since = lastMessageTimestamp
         ? new Date(lastMessageTimestamp).toISOString()
         : null;
-      const url = `http://localhost:5000/messages/email/${currentUser.email}/${
-        user.email
-      }${since ? `?since=${since}` : ""}`;
+      const url = `https://un-aux.onrender.com/messages/email/${
+        currentUser.email
+      }/${user.email}${since ? `?since=${since}` : ""}`;
 
       const response = await axios.get(url, {
         withCredentials: true,
@@ -459,7 +461,7 @@ export default function Chat() {
     const fetchMessages = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5000/messages/email/${user.email}/${selectedUser.email}`,
+          `https://un-aux.onrender.com/messages/email/${user.email}/${selectedUser.email}`,
           {
             withCredentials: true,
           }
@@ -794,7 +796,7 @@ export default function Chat() {
 
   return (
     <div
-      className={`flex flex-col h-screen ${
+      className={`flex flex-col max-h-screen ${
         isDarkMode ? "bg-gray-900" : "bg-gray-100"
       }`}
     >
@@ -803,7 +805,7 @@ export default function Chat() {
         <div
           className={`${isMobile && selectedUser ? "hidden" : "block"} ${
             isMobile ? "w-full" : "w-80"
-          } shadow-lg`}
+          } shadow-lg `}
         >
           <ChatSidebar
             isDarkMode={isDarkMode}
@@ -906,8 +908,6 @@ export default function Chat() {
                       </div>
                     </div>
                   </div>
-
-                
                 </div>
               </div>
 

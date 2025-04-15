@@ -163,7 +163,7 @@ export default function LiveBid() {
   // Socket.IO connection setup with reconnection logic
   useEffect(() => {
     // Connect to Socket.IO server
-    const SOCKET_SERVER_URL = "http://localhost:5000";
+    const SOCKET_SERVER_URL = "https://un-aux.onrender.com";
 
     const connectSocket = () => {
       console.log("Attempting to connect to socket server...");

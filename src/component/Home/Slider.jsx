@@ -76,21 +76,22 @@ const Slider = () => {
                     premium items at unbeatable prices.
                   </p>
 
-                  {/* 50% offer with Lottie animation */}
                   <div className="relative inline-block">
                     {dbUser?.role == "buyer" ? (
                       <Link
-                        className="bg-red-600 text-white text-sm md:text-base lg:text-lg px-4 py-2 rounded-full animate-pulse relative z-20"
+                        className="bg-gradient-to-r from-red-600 to-red-500 text-white text-xs sm:text-sm md:text-base px-3 py-1 sm:px-4 sm:py-2 rounded-full hover:shadow-lg hover:shadow-red-500/30 transition-all duration-300 relative z-20 inline-flex items-center whitespace-nowrap"
                         to={`/dashboard/becomeSeller`}
                       >
-                        🎉 50% DISCOUNT ON BECOMING AN AUCTIONEER 🎉
+                        <span className="animate-pulse">
+                          🎉 50% OFF AUCTIONEER FEE 🎉
+                        </span>
                       </Link>
                     ) : (
-                      <div className="bg-red-600 text-white text-sm md:text-base lg:text-lg px-4 py-2 rounded-full animate-pulse relative z-20">
-                        🎉 50% DISCOUNT ON BECOMING AN AUCTIONEER 🎉
+                      <div className="bg-gradient-to-r from-red-600 to-red-500 text-white text-xs sm:text-sm md:text-base px-3 py-1 sm:px-4 sm:py-2 rounded-full animate-pulse relative z-20 inline-flex items-center whitespace-nowrap">
+                        🎉 50% OFF AUCTIONEER FEE 🎉
                       </div>
                     )}
-                    <div className="absolute -top-20 -left-10 w-40 h-40 z-10 pointer-events-none">
+                    <div className="absolute -top-12 sm:-top-16 -left-6 sm:-left-8 w-24 h-24 sm:w-32 sm:h-32 z-10 pointer-events-none">
                       <Lottie
                         animationData={celebrationAnimation}
                         loop={true}

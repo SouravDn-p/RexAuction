@@ -5,6 +5,7 @@ import CountUp from "react-countup";
 import { useInView } from "react-intersection-observer";
 import useAuth from "../../../hooks/useAuth";
 import coverPhoto from "../../../assets/bg/hammer.webp";
+import LoadingSpinner from "../../LoadingSpinner";
 
 // Hardcoded profile data for the UI elements
 const profileData = {
@@ -147,8 +148,7 @@ const Profile = () => {
   const { ref, inView } = useInView({ triggerOnce: true });
   const labelStyle = `text-sm ${isDarkMode ? "text-gray-300" : "text-black"}`;
 
-  if (authLoading)
-    return <div className="flex justify-center py-8">Loading profile...</div>;
+  if (authLoading) return <LoadingSpinner />;
 
   return (
     <div

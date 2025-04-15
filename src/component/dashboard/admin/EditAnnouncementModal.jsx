@@ -53,7 +53,7 @@ const EditAnnouncementModal = ({
     e.preventDefault();
     try {
       const response = await axios.put(
-        `http://localhost:5000/announcement/${announcementData._id}`,
+        `https://un-aux.onrender.com/announcement/${announcementData._id}`,
         {
           title,
           content,

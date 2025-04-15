@@ -21,6 +21,7 @@ const googleProvider = new GoogleAuthProvider();
 const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [liveBid, setLiveBid] = useState(null);
+  const [isMobile, setIsMobile] = useState(false);
   const [dbUser, setDbUser] = useState("");
   const [response, setResponse] = useState(null);
   const axiosPublic = useAxiosPublic();
@@ -29,6 +30,7 @@ const AuthProvider = ({ children }) => {
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
   const [loading, setLoading] = useState(true);
   const [walletBalance, setWalletBalance] = useState(0);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   // get specific user data
   useEffect(() => {
@@ -154,6 +156,12 @@ const AuthProvider = ({ children }) => {
     setLiveBid,
     walletBalance,
     setWalletBalance,
+
+    //for dashboard navbar hide while chatting
+    isMobile,
+    setIsMobile,
+    selectedUser,
+    setSelectedUser,
   };
 
   return (

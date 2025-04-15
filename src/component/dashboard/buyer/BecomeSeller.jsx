@@ -42,9 +42,12 @@ const BecomeSeller = () => {
     if (user?.email) {
       const fetchSellerStatus = async () => {
         try {
-          const res = await axiosPublic.get("http://localhost:5000/sellerRequest", {
-            params: { email: user.email },
-          });
+          const res = await axiosPublic.get(
+            "https://un-aux.onrender.com/sellerRequest",
+            {
+              params: { email: user.email },
+            }
+          );
           if (res.data && res.data.email) {
             setSellerStatus(res.data); // Set status if data exists
           } else {
@@ -111,25 +114,39 @@ const BecomeSeller = () => {
       }
       const frontFormData = new FormData();
       frontFormData.append("image", frontFile);
-      const frontResponse = await axiosPublic.post(image_hosting_api, frontFormData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      const frontResponse = await axiosPublic.post(
+        image_hosting_api,
+        frontFormData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
       if (frontResponse.data.success) {
-        frontUrl = frontResponse.data.data.display_url || frontResponse.data.data.url;
+        frontUrl =
+          frontResponse.data.data.display_url || frontResponse.data.data.url;
       } else {
-        throw new Error(frontResponse.data.message || "Front image upload failed");
+        throw new Error(
+          frontResponse.data.message || "Front image upload failed"
+        );
       }
 
       if (backFile) {
         const backFormData = new FormData();
         backFormData.append("image", backFile);
-        const backResponse = await axiosPublic.post(image_hosting_api, backFormData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+        const backResponse = await axiosPublic.post(
+          image_hosting_api,
+          backFormData,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+          }
+        );
         if (backResponse.data.success) {
-          backUrl = backResponse.data.data.display_url || backResponse.data.data.url;
+          backUrl =
+            backResponse.data.data.display_url || backResponse.data.data.url;
         } else {
-          throw new Error(backResponse.data.message || "Back image upload failed");
+          throw new Error(
+            backResponse.data.message || "Back image upload failed"
+          );
         }
       }
 
@@ -153,9 +170,12 @@ const BecomeSeller = () => {
       if (res.data.success) {
         toast.success("Seller request submitted successfully!");
         // Refetch seller status instead of setting it locally
-        const updatedStatus = await axiosPublic.get("http://localhost:5000/sellerRequest", {
-          params: { email: user.email },
-        });
+        const updatedStatus = await axiosPublic.get(
+          "https://un-aux.onrender.com/sellerRequest",
+          {
+            params: { email: user.email },
+          }
+        );
         if (updatedStatus.data && updatedStatus.data.email) {
           setSellerStatus(updatedStatus.data);
         } else {
@@ -218,7 +238,8 @@ const BecomeSeller = () => {
               Your request is pending.
             </p>
             <p className="text-sm text-gray-500 mt-2">
-              Please wait while your request is being reviewed. You cannot submit another request at this time.
+              Please wait while your request is being reviewed. You cannot
+              submit another request at this time.
             </p>
           </div>
         ) : (
@@ -308,7 +329,9 @@ const BecomeSeller = () => {
                   <input
                     type="text"
                     placeholder="Enter your address"
-                    {...register("address", { required: "Address is required" })}
+                    {...register("address", {
+                      required: "Address is required",
+                    })}
                     className="w-full border border-purple-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-400 bg-transparent"
                   />
                   {errors.address && (
@@ -578,7 +601,9 @@ const BecomeSeller = () => {
               className="pt-4 text-center"
             >
               <motion.button
-                whileHover={{ scale: termsAccepted && !isSubmitting ? 1.05 : 1 }}
+                whileHover={{
+                  scale: termsAccepted && !isSubmitting ? 1.05 : 1,
+                }}
                 whileTap={{ scale: termsAccepted && !isSubmitting ? 0.95 : 1 }}
                 type="submit"
                 disabled={!termsAccepted || isSubmitting}

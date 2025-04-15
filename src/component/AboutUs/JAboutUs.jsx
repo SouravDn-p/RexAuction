@@ -10,11 +10,17 @@ import auction1 from "../../assets/aboutUs/businessman-with-tablet-after-closing
 import auction2 from "../../assets/auctions/auction2.jpg";
 import auction3 from "../../assets/aboutUs/business-people-shaking-hands-together.jpg";
 import auction4 from "../../assets/aboutUs/auctionj.jpg";
-import { MdHeadsetMic, MdOutlineSecurity } from "react-icons/md";
+import {
+  MdHeadsetMic,
+  MdOutlineSecurity,
+  MdOutlineSecurityUpdate,
+} from "react-icons/md";
 import { FaGavel, FaGlobe, FaShieldAlt, FaUserCheck } from "react-icons/fa";
 import { FiBell, FiFileText, FiGrid } from "react-icons/fi";
 import ThemeContext from "../Context/ThemeContext";
+import { AuthContexts } from "../../providers/AuthProvider";
 import { Link } from "react-router-dom";
+
 
 import SouravImg from "../../assets/OurTeam/souravdebnath.jpg";
 import SudiptaImg from "../../assets/OurTeam/sudiptaroy.jpg";
@@ -22,7 +28,6 @@ import JasminImg from "../../assets/OurTeam/jasminaramim.jpg";
 import JoyetaImg from "../../assets/OurTeam/joyetamondal.jpg";
 import RohitImg from "../../assets/OurTeam/rohit.jpg";
 import AbirImg from "../../assets/OurTeam/abir.jpg";
-import { AuthContexts } from "../../providers/AuthProvider";
 
 const AboutUs = () => {
   const carouselSettings = {
@@ -37,7 +42,7 @@ const AboutUs = () => {
   };
 
   const { isDarkMode } = useContext(ThemeContext);
-  const { user } = useContext(AuthContexts); // Corrected to AuthContext
+  const { user } = useContext(AuthContexts);
 
   const darkModeStyles = {
     backgroundColor: isDarkMode ? "#1a1a1a" : "",
@@ -45,6 +50,7 @@ const AboutUs = () => {
   };
 
   const cardStyles = {
+    // backgroundColor: isDarkMode ? "#1a1a1a" : "#ffffff",
     color: isDarkMode ? "#ffffff" : "",
   };
 
@@ -266,7 +272,7 @@ const AboutUs = () => {
         </div>
       </div>
 
-      {/* Buyer and Seller Section */}
+      {/* Buyer and seller Section */}
       <div
         className={` ${
           isDarkMode ? "bg-gray-950" : "bg-white"
@@ -333,8 +339,8 @@ const AboutUs = () => {
                 ].map((item, index) => (
                   <div
                     key={index}
-                    style={cardStyles}
-                    className={`relative rounded-lg shadow-lg p-6 md:p-8 w-full md:w-80 lg:w-96 hover:shadow-xl transition-all duration-300 transform hover:scale-105 overflow-hidden group ${
+                    // style={cardStyles}
+                    className={`relative rounded-lg  shadow-lg p-6 md:p-8 w-full md:w-80 lg:w-96 hover:shadow-xl transition-all duration-300 transform hover:scale-105 overflow-hidden group ${
                       isDarkMode ? "bg-gray-900" : "bg-white"
                     }  group-hover:[animation-play-state:paused]`}
                   >
@@ -373,7 +379,7 @@ const AboutUs = () => {
         </div>
       </div>
 
-      {/* Our Team */}
+      {/* our team */}
       <div
         className={`${
           isDarkMode ? "bg-gray-800" : "bg-purple-100"
@@ -406,7 +412,7 @@ const AboutUs = () => {
             {teamMembers.map((member, index) => (
               <div
                 key={index}
-                style={{ animationDelay: `${index * 0.4}s` }} // Fixed animation delay
+                style={{ animationDelay: ${index * 0.4}s }}
                 className={`relative group rounded-xl p-6 transition-transform duration-500  ease-in-out
                    animate-floating hover:scale-105 scale-100
                     ${
@@ -510,19 +516,19 @@ const AboutUs = () => {
                       : item.label === "Support"
                       ? "/7"
                       : "+"
-                  }
+                  } // Add suffix if needed
                 />
               ) : (
                 "0"
               )}
             </p>
-            <p
+            <span
               className={`block text-sm font-medium ${
                 isDarkMode ? "text-gray-300" : "text-gray-600"
               }`}
             >
               {item.label}
-            </p>
+            </span>
           </div>
         ))}
       </div>

@@ -10,90 +10,206 @@ import {
 import { MdCollections } from "react-icons/md";
 import { useContext } from "react";
 import ThemeContext from "../Context/ThemeContext";
-import bg from "../../assets/bg/banner-bg-image.jpg";
-
-const categories = [
-  { id: 1, name: "Art", items: "2,451 items", icon: <FaPaintBrush /> },
-  {
-    id: 2,
-    name: "Collectibles",
-    items: "1,234 items",
-    icon: <MdCollections />,
-  },
-  { id: 3, name: "Electronics", items: "3,456 items", icon: <FaLaptop /> },
-  { id: 4, name: "Vehicles", items: "867 items", icon: <FaCar /> },
-  { id: 5, name: "Jewelry", items: "1,589 items", icon: <FaGem /> },
-  { id: 6, name: "Fashion", items: "2,789 items", icon: <FaTshirt /> },
-  { id: 7, name: "Real Estate", items: "456 items", icon: <FaBuilding /> },
-  { id: 8, name: "Antiques", items: "1,897 items", icon: <FaGavel /> },
-];
+import { Link, useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 const BrowsCategory = () => {
   const { isDarkMode } = useContext(ThemeContext);
+  const navigate = useNavigate();
+  const axiosSecure = useAxiosSecure();
+
+  // Fetch auction data to get category counts
+  const { data: auctionData = [] } = useQuery({
+    queryKey: ["auctionDataCategories"],
+    queryFn: async () => {
+      const res = await axiosSecure.get(`/auctions`);
+      return res.data || [];
+    },
+  });
+
+  // Calculate the number of items per category
+  const getCategoryCount = (categoryName) => {
+    if (!auctionData || auctionData.length === 0) return "0 items";
+
+    // Filter accepted auctions by category
+    const count = auctionData.filter(
+      (item) =>
+        item.status === "Accepted" &&
+        (categoryName === "Antiques"
+          ? item.category === "Antiques"
+          : categoryName === "Electronics"
+          ? item.category === "Electronics"
+          : categoryName === "Vehicles"
+          ? item.category === "Vehicles"
+          : categoryName === "Jewelry"
+          ? item.category === "Jewelry"
+          : categoryName === "Fashion"
+          ? item.category === "Fashion"
+          : categoryName === "Real Estate"
+          ? item.category === "Real Estate"
+          : categoryName === "Art"
+          ? item.category === "Art"
+          : categoryName === "Collectibles"
+          ? item.category === "Collectibles"
+          : false)
+    ).length;
+
+    return `${count.toLocaleString()} items`;
+  };
+
+  // Define categories with dynamic item counts
+  const categories = [
+    {
+      id: 1,
+      name: "Art",
+      items: getCategoryCount("Art"),
+      icon: <FaPaintBrush />,
+      color: "from-pink-500 to-rose-500",
+    },
+    {
+      id: 2,
+      name: "Collectibles",
+      items: getCategoryCount("Collectibles"),
+      icon: <MdCollections />,
+      color: "from-amber-500 to-orange-500",
+    },
+    {
+      id: 3,
+      name: "Electronics",
+      items: getCategoryCount("Electronics"),
+      icon: <FaLaptop />,
+      color: "from-blue-500 to-indigo-600",
+    },
+    {
+      id: 4,
+      name: "Vehicles",
+      items: getCategoryCount("Vehicles"),
+      icon: <FaCar />,
+      color: "from-emerald-500 to-teal-600",
+    },
+    {
+      id: 5,
+      name: "Jewelry",
+      items: getCategoryCount("Jewelry"),
+      icon: <FaGem />,
+      color: "from-purple-500 to-fuchsia-600",
+    },
+    {
+      id: 6,
+      name: "Fashion",
+      items: getCategoryCount("Fashion"),
+      icon: <FaTshirt />,
+      color: "from-red-500 to-pink-600",
+    },
+    {
+      id: 7,
+      name: "Real Estate",
+      items: getCategoryCount("Real Estate"),
+      icon: <FaBuilding />,
+      color: "from-cyan-500 to-blue-600",
+    },
+    {
+      id: 8,
+      name: "Antiques",
+      items: getCategoryCount("Antiques"),
+      icon: <FaGavel />,
+      color: "from-yellow-500 to-amber-600",
+    },
+  ];
+
+  // Handle category click
+  const handleCategoryClick = (categoryName) => {
+    navigate(`/auction?category=${categoryName}`);
+  };
 
   return (
     <section
-      className={`transition-colors duration-300  ${
+      className={`relative overflow-hidden py-16 transition-colors duration-300 ${
         isDarkMode
-          ? "bg-gray-950 text-white"
-          : "bg-gradient-to-b from-violet-50 to-violet-100 text-gray-800"
+          ? "bg-gray-900"
+          : "bg-gradient-to-b from-violet-50 to-indigo-50"
       }`}
     >
-      <div
-        className={`container ${
-          isDarkMode ? "text-white" : "text-black"
-        } mx-auto px-14 lg:px-48 p-2 lg:p-6`}
-      >
-        <div className="text-center mb-10">
+      {/* Decorative elements */}
+      {!isDarkMode && (
+        <>
+          <div className="absolute top-0 left-0 w-32 h-32 rounded-full bg-purple-400/10 blur-3xl"></div>
+          <div className="absolute bottom-0 right-0 w-40 h-40 rounded-full bg-indigo-400/10 blur-3xl"></div>
+        </>
+      )}
+
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="text-center mb-12 lg:mb-16">
           <h2
-            className={`text-3xl font-bold ${
+            className={`text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mb-4 ${
               isDarkMode
-                ? "text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-violet-700 to-indigo-800"
-                : "text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-500 to-indigo-600"
+                ? "text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500"
+                : "text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600"
             }`}
           >
-            Browse Categories
+            Explore Categories
           </h2>
-          <div className="w-1/5 h-[2px] bg-purple-500 rounded-lg mx-auto mt-2"></div>
+          <div
+            className={`w-24 h-1 mx-auto mb-4 rounded-full ${
+              isDarkMode
+                ? "bg-gradient-to-r from-purple-500 to-pink-500"
+                : "bg-gradient-to-r from-indigo-400 to-purple-400"
+            }`}
+          ></div>
           <p
-            className={`mt-4 ${
-              isDarkMode ? "text-gray-200" : "text-gray-600"
-            } max-w-2xl mx-auto`}
+            className={`text-lg max-w-2xl mx-auto ${
+              isDarkMode ? "text-gray-300" : "text-gray-600"
+            }`}
           >
-            Discover Auction By Categories
+            Discover amazing items across our diverse auction categories
           </p>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 place-items-center">
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
           {categories.map((category) => (
-            <button
+            <div
               key={category.id}
-              className={`group flex flex-col items-center justify-center 
-        w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-36 lg:h-36
-        rounded-lg border shadow-md transition-all duration-300
-        ${
-          isDarkMode
-            ? "bg-[#1f2a38] text-white border-gray-700 hover:border-purple-600 hover:bg-[#2e3d57]"
-            : "bg-white text-black border-gray-200 hover:border-purple-400 hover:bg-purple-100"
-        }`}
+              onClick={() => handleCategoryClick(category.name)}
+              className={`group relative overflow-hidden rounded-xl shadow-lg transition-all duration-500 hover:shadow-xl hover:-translate-y-1 cursor-pointer ${
+                isDarkMode
+                  ? "bg-gray-800/50 backdrop-blur-sm border border-gray-700/50"
+                  : "bg-white"
+              }`}
             >
               <div
-                className={`text-2xl mb-1 transition-colors duration-300 ${
-                  isDarkMode ? "text-purple-300" : "text-purple-700"
-                } group-hover:text-purple-500`}
-              >
-                {category.icon}
+                className={`absolute inset-0 bg-gradient-to-br ${category.color} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}
+              ></div>
+
+              {/* Animated border bottom */}
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 overflow-hidden">
+                <div
+                  className={`absolute bottom-0 left-0 h-full w-0 bg-gradient-to-r ${category.color} group-hover:w-full transition-all duration-500 ease-[cubic-bezier(0.65,0,0.35,1)]`}
+                ></div>
               </div>
-              <h3 className="text-xs sm:text-sm font-semibold">
-                {category.name}
-              </h3>
-              <p
-                className={`text-[10px] sm:text-xs ${
-                  isDarkMode ? "text-gray-400" : "text-gray-600"
-                }`}
-              >
-                {category.items}
-              </p>
-            </button>
+
+              <div className="p-4 sm:p-5 flex flex-col items-center text-center h-full">
+                <div
+                  className={`mb-3 p-4 rounded-full bg-gradient-to-br ${category.color} text-white shadow-md group-hover:scale-110 transition-transform duration-300`}
+                >
+                  <div className="text-xl sm:text-2xl">{category.icon}</div>
+                </div>
+                <h3
+                  className={`text-sm sm:text-base font-bold mb-1 ${
+                    isDarkMode ? "text-white" : "text-gray-800"
+                  }`}
+                >
+                  {category.name}
+                </h3>
+                <p
+                  className={`text-xs sm:text-sm ${
+                    isDarkMode ? "text-gray-400" : "text-gray-500"
+                  }`}
+                >
+                  {category.items}
+                </p>
+              </div>
+            </div>
           ))}
         </div>
       </div>

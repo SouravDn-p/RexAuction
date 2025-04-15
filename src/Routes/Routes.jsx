@@ -4,7 +4,7 @@ import AboutUs from "../component/AboutUs/AboutUs";
 import LoginPage from "../Auth/LoginPage";
 import ErrorPage from "../component/shared/ErrorPage";
 import Register from "../Auth/Register";
-import ForgotPass from "../Auth/ForgotPass";
+import ForgotPass from "../Auth/ForgotPasswordModal";
 import Auction from "../component/auction/Auction";
 import Home from "../component/Home/Home";
 import Announcement from "../component/dashboard/shared/Announcement";
@@ -76,7 +76,7 @@ export const router = createBrowserRouter([
         element: <Register />,
       },
       {
-        path: "/forgotPassword",
+        path: "/ForgotPasswordModal",
         element: <ForgotPass />,
       },
       {

@@ -1,7 +1,14 @@
 import { FaBars } from "react-icons/fa";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState, useContext } from "react";
-import { Bell, LogOut, Settings, User, Search, ChevronDown } from "lucide-react";
+import {
+  Bell,
+  LogOut,
+  Settings,
+  User,
+  Search,
+  ChevronDown,
+} from "lucide-react";
 import { FaSun, FaMoon } from "react-icons/fa";
 import ThemeContext from "../Context/ThemeContext";
 import { AuthContexts } from "../../providers/AuthProvider";
@@ -15,7 +22,14 @@ import axios from "axios";
 const MainContent = () => {
   const { user, setUser, setLoading, errorMessage, setErrorMessage, dbUser } =
     useContext(AuthContexts);
-  const { isDarkMode, toggleTheme } = useContext(ThemeContext);
+  const {
+    isDarkMode,
+    toggleTheme,
+    isMobile,
+    setIsMobile,
+    selectedUser,
+    setSelectedUser,
+  } = useContext(ThemeContext);
   const [notifications, setNotifications] = useState([]);
   const [notificationCount, setNotificationCount] = useState(0);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -30,7 +44,7 @@ const MainContent = () => {
   // Initialize socket connection
   useEffect(() => {
     if (user && !socketRef.current) {
-      socketRef.current = io("http://localhost:5000", {
+      socketRef.current = io("https://un-aux.onrender.com", {
         withCredentials: true,
         reconnection: true,
         reconnectionAttempts: 5,
@@ -63,7 +77,7 @@ const MainContent = () => {
       const fetchNotifications = async () => {
         try {
           const response = await axios.get(
-            `http://localhost:5000/notifications/${user.email}`,
+            `https://un-aux.onrender.com/notifications/${user.email}`,
             {
               withCredentials: true,
             }
@@ -71,7 +85,9 @@ const MainContent = () => {
 
           if (response.data) {
             setNotifications(response.data);
-            const unreadCount = response.data.filter((notif) => !notif.read).length;
+            const unreadCount = response.data.filter(
+              (notif) => !notif.read
+            ).length;
             setNotificationCount(unreadCount);
           }
         } catch (error) {
@@ -115,7 +131,7 @@ const MainContent = () => {
 
       if (user) {
         await axios.put(
-          `http://localhost:5000/notifications/mark-read/${user.email}`,
+          `https://un-aux.onrender.com/notifications/mark-read/${user.email}`,
           {},
           {
             withCredentials: true,
@@ -142,7 +158,7 @@ const MainContent = () => {
     if (user) {
       axios
         .put(
-          `http://localhost:5000/notifications/mark-read/${user.email}`,
+          `https://un-aux.onrender.com/notifications/mark-read/${user.email}`,
           { notificationId: notification._id },
           { withCredentials: true }
         )
@@ -206,6 +222,8 @@ const MainContent = () => {
         {/* Top Navigation Bar */}
         <header
           className={`sticky top-0 z-10 mx-auto ${
+            isMobile && selectedUser ? "hidden" : "block"
+          } ${
             isDarkMode ? "bg-gray-800/90" : "bg-white"
           } backdrop-blur-md shadow-sm border-b ${
             isDarkMode ? "border-gray-700" : "border-gray-200"
@@ -248,17 +266,6 @@ const MainContent = () => {
               <div className="flex items-center space-x-1 md:space-x-4">
                 {/* Search */}
                 <div className="relative">
-                  <button
-                    onClick={() => setIsSearchOpen(!isSearchOpen)}
-                    className={`p-2 rounded-full ${
-                      isDarkMode
-                        ? "hover:bg-gray-700 "
-                        : "hover:bg-gray-100 text-black"
-                    } transition-colors duration-200`}
-                  >
-                    <Search className="h-5 w-5" />
-                  </button>
-
                   {isSearchOpen && (
                     <div
                       className={`absolute right-0 mt-2 w-72 p-2 rounded-lg shadow-lg ${
@@ -293,7 +300,7 @@ const MainContent = () => {
                   <button
                     className={`relative p-2 rounded-full ${
                       isDarkMode
-                        ? "hover:bg-gray-700"
+                        ? "hover:bg-gray-700 text-white"
                         : "hover:bg-gray-100 text-black"
                     } transition-colors duration-200`}
                     onClick={handleNotificationClick}
@@ -339,7 +346,9 @@ const MainContent = () => {
                           notifications.map((notification, index) => (
                             <div
                               key={notification._id || index}
-                              onClick={() => viewNotificationDetails(notification)}
+                              onClick={() =>
+                                viewNotificationDetails(notification)
+                              }
                               className={`px-4 py-3 border-b last:border-b-0 cursor-pointer ${
                                 isDarkMode
                                   ? "border-gray-700 hover:bg-gray-700"

@@ -9,6 +9,7 @@ import {
   useUpdateAuctionMutation,
   useDeleteAuctionMutation,
 } from "../../../redux/features/api/auctionApi";
+import LoadingSpinner from "../../LoadingSpinner";
 
 const MySwal = withReactContent(Swal);
 
@@ -163,7 +164,7 @@ export default function ManageCard() {
 
       <div className={`overflow-x-auto rounded-lg ${themeStyles.shadow}`}>
         {isLoading ? (
-          <div className="p-4 text-center">Loading...</div>
+          <LoadingSpinner />
         ) : (
           <table
             className={`min-w-full ${themeStyles.tableBg} rounded-lg overflow-hidden`}

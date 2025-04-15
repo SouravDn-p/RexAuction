@@ -19,11 +19,11 @@ const Payment2 = () => {
 
   const handleCreatePayment = async () => {
     console.log("handleCreatePayment function triggered");
-  
+
     const Payment = {
-      email: "user@example.com", 
+      email: "user@example.com",
       paymentPrice: 24745,
-      transactionId: `TXN-${Date.now()}`, 
+      transactionId: `TXN-${Date.now()}`,
       date: new Date(),
       status: "pending",
       // paymentMethod: paymentMethod,
@@ -36,13 +36,14 @@ const Payment2 = () => {
       //   mobileBankingOption: mobileBankingOption,
       // }),
     };
-    
-    const response = await axios.post("http://localhost:5000/paymentsWithSSL", Payment);
-     if(response.data?.gatewayURL){
+
+    const response = await axios.post(
+      "https://un-aux.onrender.com/paymentsWithSSL",
+      Payment
+    );
+    if (response.data?.gatewayURL) {
       window.location.replace(response.data.gatewayURL);
-     }
-
-
+    }
 
     console.log("API Response:", response);
   };
@@ -68,7 +69,9 @@ const Payment2 = () => {
         {/* Order Summary */}
         <div
           className={`p-6 rounded-lg my-6 ${
-            isDarkMode ? "bg-gray-700 text-gray-300" : "bg-gray-100 text-gray-900"
+            isDarkMode
+              ? "bg-gray-700 text-gray-300"
+              : "bg-gray-100 text-gray-900"
           }`}
         >
           <h3 className="font-semibold mb-3">Order Summary</h3>
@@ -85,13 +88,17 @@ const Payment2 = () => {
         </div>
 
         {/* Payment Method */}
-        <h3 className="font-semibold text-blue-400 mb-4">Choose a Payment Method</h3>
+        <h3 className="font-semibold text-blue-400 mb-4">
+          Choose a Payment Method
+        </h3>
 
         <div className="space-y-5">
           {/* Card Payment */}
           <div
             className={`p-4 border rounded-lg cursor-pointer flex items-center space-x-3 transition ${
-              paymentMethod === "card" ? "border-blue-500 bg-blue-300/20" : "border-gray-500"
+              paymentMethod === "card"
+                ? "border-blue-500 bg-blue-300/20"
+                : "border-gray-500"
             }`}
             onClick={() => setPaymentMethod("card")}
           >
@@ -101,7 +108,9 @@ const Payment2 = () => {
 
           {paymentMethod === "card" && (
             <div
-              className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-100"}`}
+              className={`p-4 rounded-lg ${
+                isDarkMode ? "bg-gray-700" : "bg-gray-100"
+              }`}
             >
               <label className="block text-sm font-medium">Card Number</label>
               <div className="relative">
@@ -119,7 +128,9 @@ const Payment2 = () => {
               </div>
               <div className="flex space-x-3 mt-3">
                 <div className="w-1/2">
-                  <label className="block text-sm font-medium">Expiry Date</label>
+                  <label className="block text-sm font-medium">
+                    Expiry Date
+                  </label>
                   <input
                     type="text"
                     placeholder="MM/YY"
@@ -145,7 +156,9 @@ const Payment2 = () => {
           {/* Mobile Banking */}
           <div
             className={`p-4 border rounded-lg cursor-pointer flex items-center space-x-3 transition ${
-              paymentMethod === "mobile" ? "border-blue-500 bg-blue-300/20" : "border-gray-500"
+              paymentMethod === "mobile"
+                ? "border-blue-500 bg-blue-300/20"
+                : "border-gray-500"
             }`}
             onClick={() => setPaymentMethod("mobile")}
           >
@@ -155,7 +168,9 @@ const Payment2 = () => {
 
           {paymentMethod === "mobile" && (
             <div
-              className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-100"}`}
+              className={`p-4 rounded-lg ${
+                isDarkMode ? "bg-gray-700" : "bg-gray-100"
+              }`}
             >
               <div
                 className="flex justify-between p-3 border rounded-lg cursor-pointer"

@@ -9,7 +9,7 @@ const useAnnouncement = () => {
   } = useQuery({
     queryKey: ["announcements"],
     queryFn: async () => {
-      const res = await axios.get(`http://localhost:5000/announcement`);
+      const res = await axios.get(`https://un-aux.onrender.com/announcement`);
 
       return res.data;
     },

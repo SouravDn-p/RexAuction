@@ -310,10 +310,7 @@ const HotAuction = () => {
                   {/* Image with Time Badge */}
                   <div className="relative h-56 w-full overflow-hidden">
                     <img
-                      src={
-                        item.images?.[0] ||
-                        image
-                      }
+                      src={item.images?.[0] || image}
                       alt={item.name}
                       className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
                       onError={(e) => {
@@ -333,7 +330,7 @@ const HotAuction = () => {
                     }`}
                   >
                     <div className="flex justify-between items-start mb-3">
-                      <h3 className="text-lg font-bold line-clamp-2">
+                      <h3 className="text-lg h-16 font-bold line-clamp-2">
                         {item.name}
                       </h3>
                       <span

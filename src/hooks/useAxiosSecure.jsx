@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Create a secure Axios instance with credentials enabled
 export const axiosSecure = axios.create({
-  baseURL: "http://localhost:5000",
+  baseURL: "https://un-aux.onrender.com",
   withCredentials: true, // Ensure cookies are sent with requests
 });
 

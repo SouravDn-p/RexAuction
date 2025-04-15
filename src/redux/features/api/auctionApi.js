@@ -2,7 +2,9 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 const auctionApi = createApi({
   reducerPath: "auctionApi",
-  baseQuery: fetchBaseQuery({ baseUrl: `http://localhost:5000` }),
+  baseQuery: fetchBaseQuery({
+    baseUrl: `https://un-aux.onrender.com`,
+  }),
   tagTypes: ["Auction"],
   endpoints: (builder) => ({
     getAuctions: builder.query({

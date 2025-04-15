@@ -23,6 +23,9 @@ export default function CreateAuction() {
     "Vehicles",
     "Furniture",
     "Jewelry",
+    "Art",
+    "Fashion",
+    "Real State",
     "Others",
   ];
   const conditions = ["New", "Like New", "Good", "Fair", "Poor"];
