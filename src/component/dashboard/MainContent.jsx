@@ -43,6 +43,7 @@ const MainContent = () => {
   const socketRef = useRef(null);
   const location = useLocation();
   const navigate = useNavigate();
+  const chatPath = location.pathname.includes("chat");
 
   // Initialize socket connection
   useEffect(() => {
@@ -225,7 +226,7 @@ const MainContent = () => {
         {/* Top Navigation Bar */}
         <header
           className={`sticky top-0 z-10 mx-auto  ${
-             selectedUser ? "hidden" : "block"
+           chatPath && selectedUser ? "hidden" : "block"
           } ${
             isDarkMode ? "bg-gray-800/90" : "bg-white"
           } backdrop-blur-md shadow-sm border-b ${
