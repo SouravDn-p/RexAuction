@@ -10,10 +10,15 @@ import auction1 from "../../assets/aboutUs/businessman-with-tablet-after-closing
 import auction2 from "../../assets/auctions/auction2.jpg";
 import auction3 from "../../assets/aboutUs/business-people-shaking-hands-together.jpg";
 import auction4 from "../../assets/aboutUs/auctionj.jpg";
-import { MdHeadsetMic, MdOutlineSecurity } from "react-icons/md";
+import {
+  MdHeadsetMic,
+  MdOutlineSecurity,
+  MdOutlineSecurityUpdate,
+} from "react-icons/md";
 import { FaGavel, FaGlobe, FaShieldAlt, FaUserCheck } from "react-icons/fa";
 import { FiBell, FiFileText, FiGrid } from "react-icons/fi";
 import ThemeContext from "../Context/ThemeContext";
+import { AuthContexts } from "../../providers/AuthProvider";
 import { Link } from "react-router-dom";
 
 import SouravImg from "../../assets/OurTeam/souravdebnath.jpg";
@@ -22,7 +27,6 @@ import JasminImg from "../../assets/OurTeam/jasminaramim.jpg";
 import JoyetaImg from "../../assets/OurTeam/joyetamondal.jpg";
 import RohitImg from "../../assets/OurTeam/rohit.jpg";
 import AbirImg from "../../assets/OurTeam/abir.jpg";
-import { AuthContexts } from "../../providers/AuthProvider";
 
 const AboutUs = () => {
   const carouselSettings = {
@@ -37,7 +41,7 @@ const AboutUs = () => {
   };
 
   const { isDarkMode } = useContext(ThemeContext);
-  const { user } = useContext(AuthContexts); // Corrected to AuthContext
+  const { user } = useContext(AuthContexts);
 
   const darkModeStyles = {
     backgroundColor: isDarkMode ? "#1a1a1a" : "",
@@ -45,6 +49,7 @@ const AboutUs = () => {
   };
 
   const cardStyles = {
+    // backgroundColor: isDarkMode ? "#1a1a1a" : "#ffffff",
     color: isDarkMode ? "#ffffff" : "",
   };
 
@@ -54,6 +59,18 @@ const AboutUs = () => {
     triggerOnce: true, // Trigger animation only once
     threshold: 0.5, // Trigger when 50% of the section is visible
   });
+
+  // rate us
+  const [rating, setRating] = useState(0);
+  const [feedback, setFeedback] = useState("");
+
+  const handleSubmit = () => {
+    if (!rating) return alert("Please select a rating.");
+    // 👉 You can replace this with a POST request to your backend
+    alert(`Thank you! You rated us ${rating} stars.`);
+    setRating(0);
+    setFeedback("");
+  };
 
   const teamMembers = [
     {
@@ -266,7 +283,7 @@ const AboutUs = () => {
         </div>
       </div>
 
-      {/* Buyer and Seller Section */}
+      {/* Buyer and seller Section */}
       <div
         className={` ${
           isDarkMode ? "bg-gray-950" : "bg-white"
@@ -333,8 +350,8 @@ const AboutUs = () => {
                 ].map((item, index) => (
                   <div
                     key={index}
-                    style={cardStyles}
-                    className={`relative rounded-lg shadow-lg p-6 md:p-8 w-full md:w-80 lg:w-96 hover:shadow-xl transition-all duration-300 transform hover:scale-105 overflow-hidden group ${
+                    // style={cardStyles}
+                    className={`relative rounded-lg  shadow-lg p-6 md:p-8 w-full md:w-80 lg:w-96 hover:shadow-xl transition-all duration-200 transform hover:scale-105 overflow-hidden group ${
                       isDarkMode ? "bg-gray-900" : "bg-white"
                     }  group-hover:[animation-play-state:paused]`}
                   >
@@ -373,7 +390,7 @@ const AboutUs = () => {
         </div>
       </div>
 
-      {/* Our Team */}
+      {/* our team */}
       <div
         className={`${
           isDarkMode ? "bg-gray-800" : "bg-purple-100"
@@ -406,7 +423,7 @@ const AboutUs = () => {
             {teamMembers.map((member, index) => (
               <div
                 key={index}
-                style={{ animationDelay: `${index * 0.4}s` }} // Fixed animation delay
+                style={{ animationDelay: `${index * 0.4}s` }}
                 className={`relative group rounded-xl p-6 transition-transform duration-500  ease-in-out
                    animate-floating hover:scale-105 scale-100
                     ${
@@ -510,21 +527,76 @@ const AboutUs = () => {
                       : item.label === "Support"
                       ? "/7"
                       : "+"
-                  }
+                  } // Add suffix if needed
                 />
               ) : (
                 "0"
               )}
             </p>
-            <p
+            <span
               className={`block text-sm font-medium ${
                 isDarkMode ? "text-gray-300" : "text-gray-600"
               }`}
             >
               {item.label}
-            </p>
+            </span>
           </div>
         ))}
+      </div>
+
+      {/* 🔹 Rate Us Section */}
+      <div
+        className={`py-6 px-6 ${
+          isDarkMode ? "bg-gray-800 text-white" : "bg-purple-100 text-gray-800"
+        }`}
+      >
+        <div className="max-w-3xl mx-auto text-center">
+          <h2 className="text-3xl font-bold mb-2">Rate Us</h2>
+          <p className="mb-4 text-sm md:text-base text-gray-400 dark:text-gray-300">
+            We’d love your feedback to improve RexAuction.
+          </p>
+
+          {/* Star Rating */}
+          <div className="flex justify-center mb-4 space-x-2 text-3xl">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <span
+                key={star}
+                onClick={() => setRating(star)}
+                className={`cursor-pointer transition-transform duration-200 ${
+                  star <= rating ? "text-yellow-400 scale-110" : "text-gray-400"
+                }`}
+              >
+                ★
+              </span>
+            ))}
+          </div>
+
+          <div
+            // className="flex justify-around items-center"
+            className="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-6"
+          >
+            {/* Feedback Textarea */}
+            <textarea
+              rows="4"
+              placeholder="Your feedback (optional)..."
+              className={`w-full md:w-3/4 p-3 rounded-md border ${
+                isDarkMode
+                  ? "bg-gray-800 border-gray-600 text-white"
+                  : "bg-gray-100 border-gray-300"
+              } focus:outline-none focus:ring-2 focus:ring-purple-400 mb-4`}
+              value={feedback}
+              onChange={(e) => setFeedback(e.target.value)}
+            ></textarea>
+
+            {/* Submit Button */}
+            <button
+              onClick={handleSubmit}
+              className="px-6 py-2 h-10 bg-purple-600 text-white font-semibold rounded-md hover:bg-purple-700 transition duration-200"
+            >
+              Submit
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* CTA Section */}

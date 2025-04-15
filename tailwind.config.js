@@ -10,9 +10,14 @@ export default {
           "50%": { transform: "translateY(-12px)" },
           "100%": { transform: "translateY(0px)" },
         },
+        marquee: {
+          "0%": { transform: "translateX(0%)" },
+          "100%": { transform: "translateX(-100%)" },
+        },
       },
       animation: {
         floating: "floating 6s ease-in-out infinite",
+        marquee: "marquee 20s linear infinite",
       },
 
       borderRadius: {
