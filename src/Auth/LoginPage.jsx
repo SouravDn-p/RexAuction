@@ -1,56 +1,51 @@
-import React, { useEffect, useState } from "react";
-import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
-import biddingImg from "../assets/Logos/login.jpg";
-import SocialLogin from "../component/SocialLogin";
-import { toast } from "react-hot-toast";
-import { useDispatch, useSelector } from "react-redux";
-import {
-  setUser,
-  toggleLoading,
-  setErrorMessage,
-} from "../redux/features/user/userSlice";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import auth from "../firebase/firebase.init";
-import { loadFull } from "tsparticles";
-import Particles from "react-tsparticles";
-import AOS from "aos";
-import "aos/dist/aos.css";
-import ForgotPasswordModal from "./ForgotPasswordModal";
-import { FaLock, FaEnvelope } from "react-icons/fa";
+"use client"
+
+import { useEffect, useState } from "react"
+import { NavLink, useLocation, useNavigate } from "react-router-dom"
+import { toast, Toaster } from "react-hot-toast"
+import { useDispatch, useSelector } from "react-redux"
+import { setUser, toggleLoading, setErrorMessage } from "../redux/features/user/userSlice"
+import { signInWithEmailAndPassword } from "firebase/auth"
+import auth from "../firebase/firebase.init"
+import ForgotPasswordModal from "./ForgotPasswordModal"
+import SocialLogin from "../component/SocialLogin"
+import { FaEnvelope, FaLock } from "react-icons/fa"
+import { motion } from "framer-motion"
 
 const LoginPage = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const isLogin = location.pathname.includes("login");
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const navigate = useNavigate()
+  const location = useLocation()
+  const dispatch = useDispatch()
+  const { loading, errorMessage } = useSelector((state) => state.userSlice)
+  const [showForgotPassword, setShowForgotPassword] = useState(false)
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [rememberMe, setRememberMe] = useState(false)
 
-  const dispatch = useDispatch();
-  const { loading, errorMessage } = useSelector((state) => state.userSlice);
-
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  // particles effect,
+  // Load saved email if available
   useEffect(() => {
-    AOS.init({ duration: 1000 });
-  }, []);
-
-  const particlesInit = async (main) => {
-    await loadFull(main);
-  };
+    const savedEmail = localStorage.getItem("rememberedEmail")
+    if (savedEmail) {
+      setEmail(savedEmail)
+      setRememberMe(true)
+    }
+  }, [])
 
   const handleEmailPasswordLogin = async (e) => {
-    e.preventDefault();
-    dispatch(toggleLoading(true));
-    dispatch(setErrorMessage(null));
+    e.preventDefault()
+    dispatch(toggleLoading(true))
+    dispatch(setErrorMessage(null))
+
+    // Save email if remember me is checked
+    if (rememberMe) {
+      localStorage.setItem("rememberedEmail", email)
+    } else {
+      localStorage.removeItem("rememberedEmail")
+    }
 
     try {
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      const user = userCredential.user;
+      const userCredential = await signInWithEmailAndPassword(auth, email, password)
+      const user = userCredential.user
 
       dispatch(
         setUser({
@@ -70,122 +65,71 @@ const LoginPage = () => {
             month: "long",
             year: "numeric",
           }),
-        })
-      );
+        }),
+      )
 
-      navigate("/");
-      toast.success("Login successful");
+      navigate("/")
+      toast.success("Login successful")
     } catch (err) {
-      console.error("Login error:", err.message);
+      console.error("Login error:", err.message)
       if (err.message.includes("auth/invalid-credential")) {
-        dispatch(setErrorMessage("Password is incorrect"));
-        toast.error("Password is incorrect");
+        dispatch(setErrorMessage("Password is incorrect"))
+        toast.error("Password is incorrect")
       } else {
-        dispatch(
-          setErrorMessage("Login failed. Please check your credentials.")
-        );
-        toast.error("Login failed");
+        dispatch(setErrorMessage("Login failed. Please check your credentials."))
+        toast.error("Login failed")
       }
     } finally {
-      dispatch(toggleLoading(false));
+      dispatch(toggleLoading(false))
     }
-  };
+  }
 
   return (
-    <div className="flex justify-center items-center p-12 sm:p-8 md:p-12 bg-gradient-to-r from-purple-100 via-orange-100 to-pink-100 min-h-screen">
-      {/* Forgot Password Modal */}
-      <ForgotPasswordModal
-        showModal={showForgotPassword}
-        setShowModal={setShowForgotPassword}
-      />
+    <div className="min-h-screen flex items-center justify-center bg-white relative overflow-hidden">
+      <Toaster position="top-center" />
+      <ForgotPasswordModal showModal={showForgotPassword} setShowModal={setShowForgotPassword} />
 
-      <div className="relative flex flex-col md:flex-row bg-white rounded-lg shadow-lg w-full max-w-4xl overflow-hidden">
-        <div
-          className="relative z-10 w-full md:w-1/2 min-h-[200px] sm:min-h-[300px] md:h-auto bg-cover bg-center"
-          style={{ backgroundImage: `url(${biddingImg})` }}
-        ></div>
+      {/* Background shapes */}
+      <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-to-r from-blue-800 to-purple-900  rounded-bl-full opacity-80"></div>
+      <div className="absolute bottom-0 left-0 w-2/3 h-1/3 bg-gradient-to-r from-blue-400 to-purple-900 rounded-tr-full opacity-80"></div>
+      <div className="absolute bottom-0 right-0 w-1/4 h-1/4 bg-gradient-to-r from-gray-800 to-purple-900 rounded-tl-full opacity-70"></div>
 
-        <div className="w-full md:w-1/2 p-6 sm:p-8 bg-gradient-to-b from-violet-50 to-violet-100">
-          <div className="flex mb-4 gap-2">
-            <NavLink
-              to="/login"
-              className={`w-1/2 py-2 font-semibold text-center rounded-md transition-all border 
-              ${
-                isLogin
-                  ? "bg-gradient-to-r from-purple-500 to-orange-500 text-white border-none"
-                  : "border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white"
-              }`}
-            >
-              Log In
-            </NavLink>
-            <NavLink
-              to="/register"
-              className="w-1/2 py-2 border border-orange-500 text-orange-500 font-semibold text-center rounded-md hover:bg-orange-500 hover:text-white transition-all"
-            >
-              Register
-            </NavLink>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="relative z-10 w-full max-w-md px-6 py-10 sm:px-10"
+      >
+        <div className="bg-white rounded-3xl shadow-xl overflow-hidden p-8">
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">Welcome Back</h1>
+            <p className="text-gray-600">Hey! Good to see you again</p>
           </div>
 
-          <form onSubmit={handleEmailPasswordLogin} className="space-y-4">
-            {/* particles */}
-            <Particles
-              id="tsparticles"
-              init={particlesInit}
-              options={{
-                fullScreen: { enable: false },
-                background: { color: { value: "transparent" } },
-                particles: {
-                  style: {
-                    "mix-blend-mode": "luminosity",
-                  },
-                  color: { value: "#2d2d2d" },
-                  links: {
-                    enable: true,
-                    color: "#6b21a8",
-                    distance: 100,
-                  },
-                  move: { enable: true, speed: 1 },
-                  number: { value: 50 },
-                  size: { value: 2 },
-                  opacity: {
-                    value: 0.5,
-                  },
-                },
-              }}
-              className="absolute inset-0 z-0 pointer-events-none"
-            />
-
-            <div className="relative">
-              <label className="block text-sm font-semibold text-gray-700 mb-1">
-                Email Address
-              </label>
+          <form onSubmit={handleEmailPasswordLogin} className="space-y-6">
+            <div className="space-y-4">
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FaEnvelope className="h-4 w-4 text-gray-400" />
+                  <FaEnvelope className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
                   type="email"
-                  className="bg-white text-black w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  placeholder="Enter your email"
+                  className="pl-10 w-full px-4 py-3 rounded-full border border-gray-300 bg-white text-gray-800 focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none transition"
+                  placeholder="Email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </div>
-            </div>
 
-            <div className="relative">
-              <label className="block text-sm font-semibold text-gray-700 mb-1">
-                Password
-              </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FaLock className="h-4 w-4 text-gray-400" />
+                  <FaLock className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
                   type="password"
-                  className="bg-white text-black w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  placeholder="Enter your password"
+                  className="pl-10 w-full px-4 py-3 rounded-full border border-gray-300 bg-white text-gray-800 focus:ring-2 focus:ring-purple-400 focus:border-transparent outline-none transition"
+                  placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -193,20 +137,39 @@ const LoginPage = () => {
               </div>
             </div>
 
-            <div className="flex justify-end">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <input
+                  id="remember-me"
+                  name="remember-me"
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                />
+                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
+                  Remember me
+                </label>
+              </div>
               <button
                 type="button"
                 onClick={() => setShowForgotPassword(true)}
-                className="text-sm text-purple-600 hover:text-purple-800 hover:underline transition-colors"
+                className="text-sm text-purple-800 hover:text-purple-800 hover:underline transition-colors font-medium"
               >
-                Forgot Password?
+                Forgot password?
               </button>
             </div>
 
-            <button
+            {errorMessage && (
+              <div className="bg-red-50 p-3 rounded-lg border border-red-200 text-red-700 text-sm">{errorMessage}</div>
+            )}
+
+            <motion.button
               type="submit"
-              className="w-full py-3 bg-gradient-to-r from-purple-500 to-orange-500 text-white font-semibold rounded-lg shadow-md hover:opacity-90 transition-all flex items-center justify-center"
+              className="w-full py-3 px-4 flex justify-center items-center rounded-full text-white font-semibold text-lg transition duration-300 bg-gradient-to-r from-gray-900 to-purple-500  hover:bg-purple-600 disabled:opacity-70 disabled:cursor-not-allowed"
               disabled={loading}
+              whileHover={{ scale: loading ? 1 : 1.02 }}
+              whileTap={{ scale: loading ? 1 : 0.98 }}
             >
               {loading ? (
                 <>
@@ -233,35 +196,34 @@ const LoginPage = () => {
                   Signing In...
                 </>
               ) : (
-                "Sign In"
+                "SIGN IN"
               )}
-            </button>
-          </form>
+            </motion.button>
 
-          {errorMessage && (
-            <p className="text-red-600 text-sm text-center mt-3">
-              {errorMessage}
-            </p>
-          )}
+            <div className="text-center mt-6">
+              <p className="text-sm text-gray-600">
+                Don't have an account?{" "}
+                <NavLink to="/register" className="text-purple-600 hover:text-purple-800 font-medium">
+                  Sign up
+                </NavLink>
+              </p>
+            </div>
 
-          <div className="mt-6">
-            <div className="relative">
+            <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-300"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-gradient-to-b from-violet-50 to-violet-100 text-gray-500">
-                  Or continue with
-                </span>
+                <span className="px-2 bg-white text-gray-500">Or continue with</span>
               </div>
             </div>
 
             <SocialLogin />
-          </div>
+          </form>
         </div>
-      </div>
+      </motion.div>
     </div>
-  );
-};
+  )
+}
 
-export default LoginPage;
+export default LoginPage
