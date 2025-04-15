@@ -23,7 +23,6 @@ import useAuth from "../../hooks/useAuth";
 export default function Chat() {
   const socketRef = useRef(null);
   const [socketConnected, setSocketConnected] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef(null);
@@ -41,7 +40,7 @@ export default function Chat() {
   const [showAttachMenu, setShowAttachMenu] = useState(false);
   const [messageStatuses, setMessageStatuses] = useState({}); // Track message delivery/read statuses
   const [seenMessages, setSeenMessages] = useState({});
-  const { isMobile, setIsMobile } = useAuth();
+  const { isMobile, setIsMobile, selectedUser, setSelectedUser } = useAuth();
 
   useEffect(() => {
     const checkIfMobile = () => {

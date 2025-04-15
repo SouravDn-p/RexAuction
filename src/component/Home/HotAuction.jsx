@@ -330,7 +330,7 @@ const HotAuction = () => {
                     }`}
                   >
                     <div className="flex justify-between items-start mb-3">
-                      <h3 className="text-lg h-16 font-bold line-clamp-2">
+                      <h3 className="text-lg h-12 font-bold line-clamp-2">
                         {item.name}
                       </h3>
                       <span

@@ -20,16 +20,19 @@ import io from "socket.io-client";
 import axios from "axios";
 
 const MainContent = () => {
-  const { user, setUser, setLoading, errorMessage, setErrorMessage, dbUser } =
-    useContext(AuthContexts);
   const {
-    isDarkMode,
-    toggleTheme,
+    user,
+    setUser,
+    setLoading,
+    errorMessage,
+    setErrorMessage,
+    dbUser,
     isMobile,
     setIsMobile,
     selectedUser,
     setSelectedUser,
-  } = useContext(ThemeContext);
+  } = useContext(AuthContexts);
+  const { isDarkMode, toggleTheme } = useContext(ThemeContext);
   const [notifications, setNotifications] = useState([]);
   const [notificationCount, setNotificationCount] = useState(0);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -221,8 +224,8 @@ const MainContent = () => {
       <div className="mx-auto w-full">
         {/* Top Navigation Bar */}
         <header
-          className={`sticky top-0 z-10 mx-auto ${
-            isMobile && selectedUser ? "hidden" : "block"
+          className={`sticky top-0 z-10 mx-auto  ${
+             selectedUser ? "hidden" : "block"
           } ${
             isDarkMode ? "bg-gray-800/90" : "bg-white"
           } backdrop-blur-md shadow-sm border-b ${

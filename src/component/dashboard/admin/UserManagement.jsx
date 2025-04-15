@@ -14,6 +14,7 @@ import {
 import Swal from "sweetalert2";
 import ThemeContext from "../../Context/ThemeContext";
 import useAxiosPublic from "../../../hooks/useAxiosPublic";
+import LoadingSpinner from "../../LoadingSpinner";
 
 const UserManagement = () => {
   const axiosPublic = useAxiosPublic();
@@ -187,15 +188,7 @@ const UserManagement = () => {
   }, {});
 
   if (loading) {
-    return (
-      <div
-        className={`flex justify-center items-center h-96 ${
-          isDarkMode ? "text-white" : "text-gray-800"
-        }`}
-      >
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   if (error) {
