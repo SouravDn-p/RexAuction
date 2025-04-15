@@ -86,7 +86,7 @@ const SocialLogin = () => {
     <div className="mt-4">
       <button
         onClick={handleGoogleLogin}
-        className="w-full py-3 flex items-center justify-center border-2 border-orange-500 text-orange-500 font-semibold rounded-lg shadow-md hover:bg-orange-500 hover:text-white transition-all"
+        className="w-full py-3 flex items-center justify-center border-2 border-gray-500 text-purple-500 font-semibold rounded-lg shadow-md hover:bg-gradient-to-r from-blue-800 to-purple-900 hover:text-white transition-all"
       >
         <img src={google} alt="Google logo" className="w-8 h-8 mr-2" />
         Continue with Google
