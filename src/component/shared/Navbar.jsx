@@ -252,7 +252,7 @@ const Navbar = () => {
               <>
                 {/* Wallet Button with enhanced hover effect */}
                 <button
-                  className={`flex items-center gap-2 py-2 px-4 rounded-lg transition-all duration-300 relative overflow-hidden ${
+                  className={`flex items-center  gap-2 py-2 px-4 rounded-lg transition-all duration-300 relative overflow-hidden ${
                     isDarkMode
                       ? "bg-indigo-700/50 text-white hover:bg-indigo-600/70"
                       : "bg-indigo-200/50 text-indigo-900 hover:bg-indigo-300/70"
@@ -262,7 +262,7 @@ const Navbar = () => {
                   <FaWallet
                     className={`${
                       isDarkMode ? "text-yellow-400" : "text-indigo-700"
-                    } transition-transform duration-300 group-hover:scale-110`}
+                    } transition-transform  duration-300 group-hover:scale-110`}
                   />
                   <span
                     className={`${
@@ -459,7 +459,7 @@ const Navbar = () => {
           <div className="lg:hidden flex items-center space-x-3">
             {user?.email && (
               <button
-                className={`flex items-center gap-1 py-1 px-2 sm:py-1.5 sm:px-3 rounded-lg text-sm transition-all duration-300 relative overflow-hidden ${
+                className={` hidden items-center gap-1 py-1 px-2 sm:py-1.5 sm:px-3 rounded-lg text-sm transition-all duration-300 relative overflow-hidden ${
                   isDarkMode
                     ? "bg-indigo-700/50 text-white hover:bg-indigo-600/70"
                     : "bg-indigo-200/50 text-indigo-900 hover:bg-indigo-300/70"
@@ -681,158 +681,180 @@ const Navbar = () => {
                 </div>
               )}
 
-              {/* Navigation Links */}
-              <div className="space-y-2">
-                <p
-                  className={`text-xs font-semibold uppercase tracking-wider mb-3 pl-3 ${
-                    isDarkMode ? "text-indigo-300" : "text-indigo-700"
-                  }`}
-                >
-                  Navigation
-                </p>
-                <Link
-                  to="/"
-                  className={`flex items-center gap-3 py-2.5 px-3 rounded-lg transition-all duration-200 ${
-                    location.pathname === "/"
-                      ? isDarkMode
-                        ? "bg-indigo-700/70 text-white font-semibold shadow-md"
-                        : "bg-indigo-200 text-indigo-900 font-semibold shadow-md"
-                      : isDarkMode
-                      ? "text-indigo-100 hover:bg-indigo-800/50"
-                      : "text-indigo-800 hover:bg-indigo-100"
-                  }`}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <svg
-                    className={`w-5 h-5 ${
-                      isDarkMode ? "text-indigo-300" : "text-indigo-700"
-                    }`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1-1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                    />
-                  </svg>
-                  <span>Home</span>
-                </Link>
-                <Link
-                  to="/aboutUs"
-                  className={`flex items-center gap-3 py-2.5 px-3 rounded-lg transition-all duration-200 ${
-                    location.pathname === "/aboutUs"
-                      ? isDarkMode
-                        ? "bg-indigo-700/70 text-white font-semibold shadow-md"
-                        : "bg-indigo-200 text-indigo-900 font-semibold shadow-md"
-                      : isDarkMode
-                      ? "text-indigo-100 hover:bg-indigo-800/50"
-                      : "text-indigo-800 hover:bg-indigo-100"
-                  }`}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <svg
-                    className={`w-5 h-5 ${
-                      isDarkMode ? "text-indigo-300" : "text-indigo-700"
-                    }`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
-                  <span>About Us</span>
-                </Link>
-                <Link
-                  to="/auction"
-                  className={`flex items-center gap-3 py-2.5 px-3 rounded-lg transition-all duration-200 ${
-                    location.pathname === "/auction"
-                      ? isDarkMode
-                        ? "bg-indigo-700/70 text-white font-semibold shadow-md"
-                        : "bg-indigo-200 text-indigo-900 font-semibold shadow-md"
-                      : isDarkMode
-                      ? "text-indigo-100 hover:bg-indigo-800/50"
-                      : "text-indigo-800 hover:bg-indigo-100"
-                  }`}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <svg
-                    className={`w-5 h-5 ${
-                      isDarkMode ? "text-indigo-300" : "text-indigo-700"
-                    }`}
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-                    />
-                  </svg>
-                  <span>Auction</span>
-                </Link>
+           {/* Navigation Links */}
+<div className="space-y-2">
+  <p
+    className={`text-xs font-semibold uppercase tracking-wider mb-3 pl-3 ${
+      isDarkMode ? "text-indigo-300" : "text-indigo-700"
+    }`}
+  >
+    Navigation
+  </p>
+  <Link
+    to="/"
+    className={`flex items-center gap-3 py-2.5 px-3 rounded-lg transition-all duration-200 ${
+      location.pathname === "/"
+        ? isDarkMode
+          ? "bg-indigo-700/70 text-white font-semibold shadow-md"
+          : "bg-indigo-200 text-indigo-900 font-semibold shadow-md"
+        : isDarkMode
+        ? "text-indigo-100 hover:bg-indigo-800/50"
+        : "text-indigo-800 hover:bg-indigo-100"
+    }`}
+    onClick={() => setMobileMenuOpen(false)}
+  >
+    <svg
+      className={`w-5 h-5 ${
+        isDarkMode ? "text-indigo-300" : "text-indigo-700"
+      }`}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1-1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+      />
+    </svg>
+    <span>Home</span>
+  </Link>
 
-                {user?.email && (
-                  <>
-                    <p
-                      className={`text-xs font-semibold uppercase tracking-wider mt-6 mb-3 pl-3 ${
-                        isDarkMode ? "text-indigo-300" : "text-indigo-700"
-                      }`}
-                    >
-                      User
-                    </p>
-                    <Link
-                      to="/dashboard"
-                      className={`flex items-center gap-3 py-2.5 px-3 rounded-lg transition-all duration-200 ${
-                        location.pathname === "/dashboard"
-                          ? isDarkMode
-                            ? "bg-indigo-700/70 text-white font-semibold shadow-md"
-                            : "bg-indigo-200 text-indigo-900 font-semibold shadow-md"
-                          : isDarkMode
-                          ? "text-indigo-100 hover:bg-indigo-800/50"
-                          : "text-indigo-800 hover:bg-indigo-100"
-                      }`}
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      <MdOutlineDashboard
-                        className={`w-5 h-5 ${
-                          isDarkMode ? "text-indigo-300" : "text-indigo-700"
-                        }`}
-                      />
-                      <span>Dashboard</span>
-                    </Link>
-                    <Link
-                      to="/dashboard/profile"
-                      className={`flex items-center gap-3 py-2.5 px-3 rounded-lg transition-all duration-200 ${
-                        location.pathname === "/dashboard/profile"
-                          ? isDarkMode
-                            ? "bg-indigo-700/70 text-white font-semibold shadow-md"
-                            : "bg-indigo-200 text-indigo-900 font-semibold shadow-md"
-                          : isDarkMode
-                          ? "text-indigo-100 hover:bg-indigo-800/50"
-                          : "text-indigo-800 hover:bg-indigo-100"
-                      }`}
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      <FaUserCircle
-                        className={`w-5 h-5 ${
-                          isDarkMode ? "text-indigo-300" : "text-indigo-700"
-                        }`}
-                      />
-                      <span>Your Profile</span>
-                    </Link>
-                  </>
-                )}
-              </div>
+  <Link
+    to="/aboutUs"
+    className={`flex items-center gap-3 py-2.5 px-3 rounded-lg transition-all duration-200 ${
+      location.pathname === "/aboutUs"
+        ? isDarkMode
+          ? "bg-indigo-700/70 text-white font-semibold shadow-md"
+          : "bg-indigo-200 text-indigo-900 font-semibold shadow-md"
+        : isDarkMode
+        ? "text-indigo-100 hover:bg-indigo-800/50"
+        : "text-indigo-800 hover:bg-indigo-100"
+    }`}
+    onClick={() => setMobileMenuOpen(false)}
+  >
+    <svg
+      className={`w-5 h-5 ${
+        isDarkMode ? "text-indigo-300" : "text-indigo-700"
+      }`}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+      />
+    </svg>
+    <span>About Us</span>
+  </Link>
+  <Link
+    to="/auction"
+    className={`flex items-center gap-3 py-2.5 px-3 rounded-lg transition-all duration-200 ${
+      location.pathname === "/auction"
+        ? isDarkMode
+          ? "bg-indigo-700/70 text-white font-semibold shadow-md"
+          : "bg-indigo-200 text-indigo-900 font-semibold shadow-md"
+        : isDarkMode
+        ? "text-indigo-100 hover:bg-indigo-800/50"
+        : "text-indigo-800 hover:bg-indigo-100"
+    }`}
+    onClick={() => setMobileMenuOpen(false)}
+  >
+    <svg
+      className={`w-5 h-5 ${
+        isDarkMode ? "text-indigo-300" : "text-indigo-700"
+      }`}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="2"
+        d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+      />
+    </svg>
+    <span>Auction</span>
+  </Link>
+
+  {user?.email && (
+    <>
+      <p
+        className={`text-xs font-semibold uppercase tracking-wider mt-6 mb-3 pl-3 ${
+          isDarkMode ? "text-indigo-300" : "text-indigo-700"
+        }`}
+      >
+        User
+      </p>
+      <Link
+        to="/dashboard"
+        className={`flex items-center gap-3 py-2.5 px-3 rounded-lg transition-all duration-200 ${
+          location.pathname === "/dashboard"
+            ? isDarkMode
+              ? "bg-indigo-700/70 text-white font-semibold shadow-md"
+              : "bg-indigo-200 text-indigo-900 font-semibold shadow-md"
+            : isDarkMode
+            ? "text-indigo-100 hover:bg-indigo-800/50"
+            : "text-indigo-800 hover:bg-indigo-100"
+        }`}
+        onClick={() => setMobileMenuOpen(false)}
+      >
+        <MdOutlineDashboard
+          className={`w-5 h-5 ${
+            isDarkMode ? "text-indigo-300" : "text-indigo-700"
+          }`}
+        />
+        <span>Dashboard</span>
+      </Link>
+      <Link
+        to="/dashboard/profile"
+        className={`flex items-center gap-3 py-2.5 px-3 rounded-lg transition-all duration-200 ${
+          location.pathname === "/dashboard/profile"
+            ? isDarkMode
+              ? "bg-indigo-700/70 text-white font-semibold shadow-md"
+              : "bg-indigo-200 text-indigo-900 font-semibold shadow-md"
+            : isDarkMode
+            ? "text-indigo-100 hover:bg-indigo-800/50"
+            : "text-indigo-800 hover:bg-indigo-100"
+        }`}
+        onClick={() => setMobileMenuOpen(false)}
+      >
+        <FaUserCircle
+          className={`w-5 h-5 ${
+            isDarkMode ? "text-indigo-300" : "text-indigo-700"
+          }`}
+        />
+        <span>Your Profile</span>
+      </Link>
+      
+      {/* Wallet Button */}
+      <button
+        className={`flex items-center gap-3 w-full py-2.5 px-3 rounded-lg transition-all duration-200 ${
+          isDarkMode
+            ? "bg-indigo-700/50 text-white hover:bg-indigo-600/70"
+            : "bg-indigo-200/50 text-indigo-900 hover:bg-indigo-300/70"
+        }`}
+        onClick={() => {
+          setShowWalletModal(true);
+          setMobileMenuOpen(false);
+        }}
+      >
+        <FaWallet
+          className={`w-5 h-5 ${
+            isDarkMode ? "text-yellow-400" : "text-indigo-700"
+          }`}
+        />
+        <span>${dbUser?.accountBalance}</span>
+        <FaPlus className="text-green-400 text-xs animate-pulse ml-auto" />
+      </button>
+    </>
+  )}
+</div>
 
               {/* Bottom Section */}
               <div

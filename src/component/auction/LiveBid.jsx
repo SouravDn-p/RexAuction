@@ -1,49 +1,58 @@
-"use client";
+"use client"
 
-import { useContext, useEffect, useState, useRef } from "react";
-import image from "../../assets/LiveBidAuctionDetails.jpg";
-import { GiSelfLove } from "react-icons/gi";
-import { FaShare } from "react-icons/fa6";
-import { IoFlagOutline } from "react-icons/io5";
-import { MdVerifiedUser } from "react-icons/md";
-import { AiFillCrown } from "react-icons/ai";
-import { FaEnvelope } from "react-icons/fa";
-import { useParams, useNavigate } from "react-router-dom";
-import useAxiosPublic from "../../hooks/useAxiosPublic";
-import { AuthContexts } from "../../providers/AuthProvider";
-import LoadingSpinner from "../LoadingSpinner";
-import ThemeContext from "../Context/ThemeContext";
+import { useContext, useEffect, useState, useRef } from "react"
+import image from "../../assets/LiveBidAuctionDetails.jpg"
+import { GiSelfLove } from "react-icons/gi"
+import { FaShare } from "react-icons/fa6"
+import { IoFlagOutline } from "react-icons/io5"
+import { MdVerifiedUser } from "react-icons/md"
+import { AiFillCrown } from "react-icons/ai"
+import { FaEnvelope } from "react-icons/fa"
+import { useParams, useNavigate } from "react-router-dom"
+import useAxiosPublic from "../../hooks/useAxiosPublic"
+import { AuthContexts } from "../../providers/AuthProvider"
+import LoadingSpinner from "../LoadingSpinner"
+import ThemeContext from "../Context/ThemeContext"
 import {
   useAddBidsMutation,
   useGetTopBiddersQuery,
   useGetRecentActivityQuery,
-} from "../../redux/features/api/LiveBidApi";
-import Swal from "sweetalert2";
-import io from "socket.io-client";
+} from "../../redux/features/api/LiveBidApi"
+import Swal from "sweetalert2"
+import io from "socket.io-client"
+// Add these imports at the top with the other imports
+import { FaFacebook, FaTwitter, FaWhatsapp, FaLink } from "react-icons/fa"
+import { FaHeart, FaThumbsUp, FaFaceSmile, FaFaceSurprise } from "react-icons/fa6"
 
 export default function LiveBid() {
-  const { user, loading, setLoading, liveBid, setLiveBid, dbUser } =
-    useContext(AuthContexts);
-  const axiosPublic = useAxiosPublic();
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [countdown, setCountdown] = useState(0);
-  const { isDarkMode } = useContext(ThemeContext);
-  const [bidAmount, setBidAmount] = useState("");
-  const [extraMoney, setExtraMoney] = useState(0);
-  const [addBid, { isLoading: isBidLoading }] = useAddBidsMutation();
-  const [myBid, setMyBid] = useState(null);
-  const [bidAnimation, setBidAnimation] = useState(false);
+  const { user, loading, setLoading, liveBid, setLiveBid, dbUser } = useContext(AuthContexts)
+  const axiosPublic = useAxiosPublic()
+  const { id } = useParams()
+  const navigate = useNavigate()
+  const [countdown, setCountdown] = useState(0)
+  const { isDarkMode } = useContext(ThemeContext)
+  const [bidAmount, setBidAmount] = useState("")
+  const [extraMoney, setExtraMoney] = useState(0)
+  const [addBid, { isLoading: isBidLoading }] = useAddBidsMutation()
+  const [myBid, setMyBid] = useState(null)
+  const [bidAnimation, setBidAnimation] = useState(false)
+  // Add these state variables inside the LiveBid component, near the other state declarations
+  const [showShareOptions, setShowShareOptions] = useState(false)
+  const [reactions, setReactions] = useState({ likes: 0, loves: 0, smiles: 0, wows: 0 })
+  const [userReaction, setUserReaction] = useState(null)
+  const [showReactions, setShowReactions] = useState(false)
+  const shareRef = useRef(null)
+  const reactionRef = useRef(null)
 
   // Socket.IO connection
-  const socketRef = useRef(null);
-  const [isConnected, setIsConnected] = useState(false);
-  const [connectionAttempts, setConnectionAttempts] = useState(0);
+  const socketRef = useRef(null)
+  const [isConnected, setIsConnected] = useState(false)
+  const [connectionAttempts, setConnectionAttempts] = useState(0)
 
   // Local state for real-time data
-  const [localTopBidders, setLocalTopBidders] = useState([]);
-  const [localRecentActivity, setLocalRecentActivity] = useState([]);
-  const [currentHighestBid, setCurrentHighestBid] = useState(0);
+  const [localTopBidders, setLocalTopBidders] = useState([])
+  const [localRecentActivity, setLocalRecentActivity] = useState([])
+  const [currentHighestBid, setCurrentHighestBid] = useState(0)
 
   const {
     data: topBiddersData,
@@ -51,7 +60,7 @@ export default function LiveBid() {
     isFetching: isTopBiddersFetching,
   } = useGetTopBiddersQuery(id, {
     pollingInterval: 30000, // Fallback polling every 30 seconds if socket fails
-  });
+  })
 
   const {
     data: recentActivityData,
@@ -59,23 +68,21 @@ export default function LiveBid() {
     isFetching: isRecentActivityFetching,
   } = useGetRecentActivityQuery(id, {
     pollingInterval: 30000, // Fallback polling every 30 seconds if socket fails
-  });
+  })
 
   // Initialize local state with fetched data
   useEffect(() => {
     if (topBiddersData && topBiddersData.length > 0) {
-      setLocalTopBidders(topBiddersData);
+      setLocalTopBidders(topBiddersData)
 
       // Find user's highest bid
       if (user) {
-        const userBid = topBiddersData.find(
-          (bidder) => bidder.email === user.email
-        );
+        const userBid = topBiddersData.find((bidder) => bidder.email === user.email)
         if (userBid) {
           setMyBid({
             amount: userBid.amount,
             bid: `$${userBid.amount.toLocaleString()}`,
-          });
+          })
 
           // Save user's highest bid to localStorage for persistence
           localStorage.setItem(
@@ -83,209 +90,193 @@ export default function LiveBid() {
             JSON.stringify({
               amount: userBid.amount,
               bid: `$${userBid.amount.toLocaleString()}`,
-            })
-          );
+            }),
+          )
         }
       }
 
       // Update current highest bid
-      const highestBid = topBiddersData[0]?.amount || 0;
+      const highestBid = topBiddersData[0]?.amount || 0
       if (highestBid > currentHighestBid) {
-        setCurrentHighestBid(highestBid);
+        setCurrentHighestBid(highestBid)
       }
     }
-  }, [topBiddersData, user, currentHighestBid, id]);
+  }, [topBiddersData, user, currentHighestBid, id])
 
   useEffect(() => {
     if (recentActivityData && recentActivityData.length > 0) {
-      setLocalRecentActivity(recentActivityData);
+      setLocalRecentActivity(recentActivityData)
     }
-  }, [recentActivityData]);
+  }, [recentActivityData])
 
   // Save bid data to localStorage for persistence
   useEffect(() => {
     // Save top bidders to localStorage
     if (localTopBidders.length > 0) {
-      localStorage.setItem(
-        `auction_${id}_top_bidders`,
-        JSON.stringify(localTopBidders)
-      );
+      localStorage.setItem(`auction_${id}_top_bidders`, JSON.stringify(localTopBidders))
     }
 
     // Save recent activity to localStorage
     if (localRecentActivity.length > 0) {
-      localStorage.setItem(
-        `auction_${id}_recent_activity`,
-        JSON.stringify(localRecentActivity)
-      );
+      localStorage.setItem(`auction_${id}_recent_activity`, JSON.stringify(localRecentActivity))
     }
 
     // Save current highest bid
     if (currentHighestBid > 0) {
-      localStorage.setItem(
-        `auction_${id}_highest_bid`,
-        currentHighestBid.toString()
-      );
+      localStorage.setItem(`auction_${id}_highest_bid`, currentHighestBid.toString())
     }
-  }, [localTopBidders, localRecentActivity, currentHighestBid, id]);
+  }, [localTopBidders, localRecentActivity, currentHighestBid, id])
 
   // Load data from localStorage on initial load
   useEffect(() => {
-    const storedTopBidders = localStorage.getItem(`auction_${id}_top_bidders`);
-    const storedRecentActivity = localStorage.getItem(
-      `auction_${id}_recent_activity`
-    );
-    const storedHighestBid = localStorage.getItem(`auction_${id}_highest_bid`);
+    const storedTopBidders = localStorage.getItem(`auction_${id}_top_bidders`)
+    const storedRecentActivity = localStorage.getItem(`auction_${id}_recent_activity`)
+    const storedHighestBid = localStorage.getItem(`auction_${id}_highest_bid`)
 
     if (storedTopBidders) {
-      setLocalTopBidders(JSON.parse(storedTopBidders));
+      setLocalTopBidders(JSON.parse(storedTopBidders))
     }
 
     if (storedRecentActivity) {
-      setLocalRecentActivity(JSON.parse(storedRecentActivity));
+      setLocalRecentActivity(JSON.parse(storedRecentActivity))
     }
 
     if (storedHighestBid) {
-      setCurrentHighestBid(Number.parseFloat(storedHighestBid));
+      setCurrentHighestBid(Number.parseFloat(storedHighestBid))
     }
-  }, [id]);
+  }, [id])
 
   // Load user's bid from localStorage on initial load
   useEffect(() => {
     if (user) {
-      const storedUserBid = localStorage.getItem(`auction_${id}_user_bid`);
+      const storedUserBid = localStorage.getItem(`auction_${id}_user_bid`)
       if (storedUserBid) {
-        setMyBid(JSON.parse(storedUserBid));
+        setMyBid(JSON.parse(storedUserBid))
       }
     }
-  }, [id, user]);
+  }, [id, user])
 
   // Socket.IO connection setup with reconnection logic
   useEffect(() => {
     // Connect to Socket.IO server
-    const SOCKET_SERVER_URL = "https://un-aux.onrender.com";
+    const SOCKET_SERVER_URL = "https://un-aux.onrender.com"
 
     const connectSocket = () => {
-      console.log("Attempting to connect to socket server...");
+      console.log("Attempting to connect to socket server...")
       socketRef.current = io(SOCKET_SERVER_URL, {
         withCredentials: true,
         reconnection: true,
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
         timeout: 10000,
-      });
+      })
 
       // Connection events
       socketRef.current.on("connect", () => {
-        console.log("Socket connected:", socketRef.current.id);
-        setIsConnected(true);
-        setConnectionAttempts(0);
+        console.log("Socket connected:", socketRef.current.id)
+        setIsConnected(true)
+        setConnectionAttempts(0)
 
         // Join auction room
-        socketRef.current.emit("joinAuction", { auctionId: id });
+        socketRef.current.emit("joinAuction", { auctionId: id })
 
         // Request latest data
-        socketRef.current.emit("getLatestBids", { auctionId: id });
-      });
+        socketRef.current.emit("getLatestBids", { auctionId: id })
+      })
 
       socketRef.current.on("connection_ack", (data) => {
-        console.log("Connection acknowledged:", data);
-      });
+        console.log("Connection acknowledged:", data)
+      })
 
       // Listen for new bids
       socketRef.current.on("newBid", (bidData) => {
-        console.log("New bid received:", bidData);
+        console.log("New bid received:", bidData)
 
         if (bidData.auctionId === id) {
           setLiveBid((prev) => ({
             ...prev,
             currentBid: bidData.amount,
-          }));
+          }))
 
           // Set current highest bid
           if (bidData.amount > currentHighestBid) {
-            setCurrentHighestBid(bidData.amount);
-            setBidAnimation(true);
-            setTimeout(() => setBidAnimation(false), 1500);
+            setCurrentHighestBid(bidData.amount)
+            setBidAnimation(true)
+            setTimeout(() => setBidAnimation(false), 1500)
           }
 
           // Update top bidders
-          updateTopBidders(bidData);
+          updateTopBidders(bidData)
 
           // Update recent activity
-          updateRecentActivity(bidData);
+          updateRecentActivity(bidData)
 
           // Update user's bid if it's their own
           if (user && bidData.email === user.email) {
             const newUserBid = {
               amount: bidData.amount,
               bid: `$${bidData.amount.toLocaleString()}`,
-            };
-            setMyBid(newUserBid);
+            }
+            setMyBid(newUserBid)
 
             // Save to localStorage
-            localStorage.setItem(
-              `auction_${id}_user_bid`,
-              JSON.stringify(newUserBid)
-            );
+            localStorage.setItem(`auction_${id}_user_bid`, JSON.stringify(newUserBid))
           }
         }
-      });
+      })
 
       // Listen for latest bid data
       socketRef.current.on("latestBidData", (data) => {
-        console.log("Received latest bid data:", data);
+        console.log("Received latest bid data:", data)
         if (data.topBidders) {
-          setLocalTopBidders(data.topBidders);
+          setLocalTopBidders(data.topBidders)
         }
         if (data.recentActivity) {
-          setLocalRecentActivity(data.recentActivity);
+          setLocalRecentActivity(data.recentActivity)
         }
         if (data.currentBid) {
-          setCurrentHighestBid(data.currentBid);
+          setCurrentHighestBid(data.currentBid)
           setLiveBid((prev) => ({
             ...prev,
             currentBid: data.currentBid,
-          }));
+          }))
         }
-      });
+      })
 
       socketRef.current.on("reconnect_attempt", (attemptNumber) => {
-        console.log(`Socket reconnection attempt ${attemptNumber}`);
-        setConnectionAttempts(attemptNumber);
-      });
+        console.log(`Socket reconnection attempt ${attemptNumber}`)
+        setConnectionAttempts(attemptNumber)
+      })
 
       socketRef.current.on("disconnect", () => {
-        console.log("Socket disconnected");
-        setIsConnected(false);
-      });
+        console.log("Socket disconnected")
+        setIsConnected(false)
+      })
 
       socketRef.current.on("error", (error) => {
-        console.error("Socket error:", error);
-      });
-    };
+        console.error("Socket error:", error)
+      })
+    }
 
-    connectSocket();
+    connectSocket()
 
     // Cleanup on component unmount
     return () => {
       if (socketRef.current) {
-        socketRef.current.emit("leaveAuction", { auctionId: id });
-        socketRef.current.disconnect();
+        socketRef.current.emit("leaveAuction", { auctionId: id })
+        socketRef.current.disconnect()
       }
-    };
-  }, [id, setLiveBid, currentHighestBid, user]);
+    }
+  }, [id, setLiveBid, currentHighestBid, user])
 
   // Function to update top bidders locally
   const updateTopBidders = (newBid) => {
     setLocalTopBidders((prevBidders) => {
       // Create a copy of the current bidders
-      const updatedBidders = [...prevBidders];
+      const updatedBidders = [...prevBidders]
 
       // Find if this bidder already exists
-      const existingBidderIndex = updatedBidders.findIndex(
-        (bidder) => bidder.email === newBid.email
-      );
+      const existingBidderIndex = updatedBidders.findIndex((bidder) => bidder.email === newBid.email)
 
       if (existingBidderIndex !== -1) {
         // Update existing bidder if new bid is higher
@@ -293,7 +284,7 @@ export default function LiveBid() {
           updatedBidders[existingBidderIndex] = {
             ...updatedBidders[existingBidderIndex],
             amount: newBid.amount,
-          };
+          }
         }
       } else {
         // Add new bidder
@@ -303,19 +294,19 @@ export default function LiveBid() {
           photo: newBid.photo,
           amount: newBid.amount,
           auctionId: newBid.auctionId,
-        });
+        })
       }
 
-      console.log("updatedBidders", updatedBidders);
+      console.log("updatedBidders", updatedBidders)
 
       axiosPublic.patch("/auctionList/topBidders", {
         topBidders: updatedBidders,
-      });
+      })
 
       // Sort by bid amount (highest first) and limit to top 3
-      return updatedBidders.sort((a, b) => b.amount - a.amount).slice(0, 3);
-    });
-  };
+      return updatedBidders.sort((a, b) => b.amount - a.amount).slice(0, 3)
+    })
+  }
 
   // Function to update recent activity locally
   const updateRecentActivity = (newBid) => {
@@ -329,12 +320,12 @@ export default function LiveBid() {
           createdAt: new Date().toISOString(),
         },
         ...prevActivity,
-      ];
+      ]
 
       // Limit to most recent 3 activities
-      return updatedActivity.slice(0, 3);
-    });
-  };
+      return updatedActivity.slice(0, 3)
+    })
+  }
 
   // Transform top bidders data for display
   const topBidders =
@@ -345,16 +336,10 @@ export default function LiveBid() {
       email: bidder.email,
       icon: (
         <AiFillCrown
-          className={`text-2xl ${
-            index === 0
-              ? "text-yellow-500"
-              : index === 1
-              ? "text-gray-500"
-              : "text-orange-500"
-          }`}
+          className={`text-2xl ${index === 0 ? "text-yellow-500" : index === 1 ? "text-gray-500" : "text-orange-500"}`}
         />
       ),
-    })) || [];
+    })) || []
 
   // Transform recent activity data for display
   const recentActivity =
@@ -363,94 +348,89 @@ export default function LiveBid() {
       bid: `$${bidder.amount.toLocaleString()}`,
       photo: bidder.photo,
       createdAt: bidder.createdAt,
-    })) || [];
+    })) || []
 
   useEffect(() => {
-    setLoading(true);
+    setLoading(true)
     axiosPublic
       .get(`/auction/${id}`)
       .then((res) => {
-        setLiveBid(res.data);
+        setLiveBid(res.data)
 
         // Initialize current highest bid if not already set
         if (currentHighestBid === 0 && res.data.currentBid) {
-          setCurrentHighestBid(res.data.currentBid);
+          setCurrentHighestBid(res.data.currentBid)
         }
 
-        setLoading(false);
+        setLoading(false)
       })
       .catch((error) => {
-        console.error("Failed to fetch auction:", error);
-        setLoading(false);
-      });
-  }, [id, axiosPublic, setLiveBid, setLoading, currentHighestBid]);
+        console.error("Failed to fetch auction:", error)
+        setLoading(false)
+      })
+  }, [id, axiosPublic, setLiveBid, setLoading, currentHighestBid])
 
   useEffect(() => {
-    if (!liveBid || !liveBid.endTime) return;
+    if (!liveBid || !liveBid.endTime) return
 
-    const endTime = new Date(liveBid.endTime).getTime();
-    if (isNaN(endTime)) return;
+    const endTime = new Date(liveBid.endTime).getTime()
+    if (isNaN(endTime)) return
 
     const calculateCountdown = () => {
-      const currentTime = new Date().getTime();
-      const remainingSeconds = Math.max(
-        0,
-        Math.floor((endTime - currentTime) / 1000)
-      );
-      setCountdown(remainingSeconds);
-    };
+      const currentTime = new Date().getTime()
+      const remainingSeconds = Math.max(0, Math.floor((endTime - currentTime) / 1000))
+      setCountdown(remainingSeconds)
+    }
 
-    calculateCountdown();
-    const interval = setInterval(calculateCountdown, 1000);
-    return () => clearInterval(interval);
-  }, [liveBid]);
+    calculateCountdown()
+    const interval = setInterval(calculateCountdown, 1000)
+    return () => clearInterval(interval)
+  }, [liveBid])
 
   const formatTime = (seconds) => {
-    if (seconds <= 0) return "Ended";
-    const days = Math.floor(seconds / (24 * 60 * 60));
-    const hours = Math.floor((seconds % (24 * 60 * 60)) / (60 * 60));
-    const minutes = Math.floor((seconds % (60 * 60)) / 60);
-    const secs = seconds % 60;
+    if (seconds <= 0) return "Ended"
+    const days = Math.floor(seconds / (24 * 60 * 60))
+    const hours = Math.floor((seconds % (24 * 60 * 60)) / (60 * 60))
+    const minutes = Math.floor((seconds % (60 * 60)) / 60)
+    const secs = seconds % 60
 
-    if (days > 0) return `${days}d ${hours}h`;
-    else if (hours > 0) return `${hours}h ${minutes}m`;
-    else return `${minutes}m ${secs}s`;
-  };
+    if (days > 0) return `${days}d ${hours}h`
+    else if (hours > 0) return `${hours}h ${minutes}m`
+    else return `${minutes}m ${secs}s`
+  }
 
   const formatRelativeTime = (timestamp) => {
-    const now = new Date();
-    const time = new Date(timestamp);
-    const diffInSeconds = Math.floor((now - time) / 1000);
+    const now = new Date()
+    const time = new Date(timestamp)
+    const diffInSeconds = Math.floor((now - time) / 1000)
 
-    if (diffInSeconds < 60) return "Just now";
-    const minutes = Math.floor(diffInSeconds / 60);
-    if (minutes < 60) return `${minutes} minute${minutes === 1 ? "" : "s"} ago`;
-    const hours = Math.floor(minutes / 60);
-    if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} ago`;
-    const days = Math.floor(hours / 24);
-    return `${days} day${days === 1 ? "" : "s"} ago`;
-  };
+    if (diffInSeconds < 60) return "Just now"
+    const minutes = Math.floor(diffInSeconds / 60)
+    if (minutes < 60) return `${minutes} minute${minutes === 1 ? "" : "s"} ago`
+    const hours = Math.floor(minutes / 60)
+    if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} ago`
+    const days = Math.floor(hours / 24)
+    return `${days} day${days === 1 ? "" : "s"} ago`
+  }
 
   const handleBidIncrement = (amount) => {
-    const current =
-      currentHighestBid || liveBid?.currentBid || liveBid?.startingPrice || 0;
-    setBidAmount((Number.parseFloat(current) + amount).toFixed(2));
-  };
+    const current = currentHighestBid || liveBid?.currentBid || liveBid?.startingPrice || 0
+    setBidAmount((Number.parseFloat(current) + amount).toFixed(2))
+  }
 
   const handlePlaceBid = async () => {
-    const startingPrice = liveBid?.startingPrice || 0;
-    const minRequiredBid = Math.round(0.1 * startingPrice);
-    const currentBid =
-      currentHighestBid || liveBid?.currentBid || liveBid?.startingPrice || 0;
+    const startingPrice = liveBid?.startingPrice || 0
+    const minRequiredBid = Math.round(0.1 * startingPrice)
+    const currentBid = currentHighestBid || liveBid?.currentBid || liveBid?.startingPrice || 0
 
     if (!user) {
-      alert("Please log in to place a bid");
-      return;
+      alert("Please log in to place a bid")
+      return
     }
 
     if (!bidAmount || Number.parseFloat(bidAmount) <= currentBid) {
-      alert("Bid must be higher than current bid");
-      return;
+      alert("Bid must be higher than current bid")
+      return
     }
 
     if (!bidAmount || Number.parseFloat(bidAmount) < minRequiredBid) {
@@ -464,9 +444,9 @@ export default function LiveBid() {
         draggable: true,
       }).then((result) => {
         if (result.isConfirmed) {
-          window.location.href = "/addBalance";
+          window.location.href = "/addBalance"
         }
-      });
+      })
     }
 
     const bidData = {
@@ -476,77 +456,72 @@ export default function LiveBid() {
       amount: Number.parseFloat(bidAmount),
       auctionId: id,
       bidderUserId: dbUser?._id,
-    };
+    }
 
     try {
       // Send bid data to backend
-      const response = await axiosPublic.post("/live-bid", bidData);
+      const response = await axiosPublic.post("/live-bid", bidData)
 
       if (response.status === 200 || response.status === 201) {
         // Emit the bid through socket for real-time updates
         if (socketRef.current && isConnected) {
-          socketRef.current.emit("placeBid", bidData);
+          socketRef.current.emit("placeBid", bidData)
         }
 
         // Update local state immediately for the current user
         setLiveBid((prev) => ({
           ...prev,
           currentBid: Number.parseFloat(bidAmount),
-        }));
+        }))
 
         // Update current highest bid
-        setCurrentHighestBid(Number.parseFloat(bidAmount));
+        setCurrentHighestBid(Number.parseFloat(bidAmount))
 
         // Update user's own bid
         const newUserBid = {
           amount: Number.parseFloat(bidAmount),
           bid: `$${Number.parseFloat(bidAmount).toLocaleString()}`,
-        };
-        setMyBid(newUserBid);
+        }
+        setMyBid(newUserBid)
 
         // Save to localStorage
-        localStorage.setItem(
-          `auction_${id}_user_bid`,
-          JSON.stringify(newUserBid)
-        );
+        localStorage.setItem(`auction_${id}_user_bid`, JSON.stringify(newUserBid))
 
         // Update local top bidders and recent activity
-        updateTopBidders(bidData);
-        updateRecentActivity(bidData);
+        updateTopBidders(bidData)
+        updateRecentActivity(bidData)
 
         // Trigger animation
-        setBidAnimation(true);
-        setTimeout(() => setBidAnimation(false), 1500);
+        setBidAnimation(true)
+        setTimeout(() => setBidAnimation(false), 1500)
 
-        setBidAmount("");
+        setBidAmount("")
 
         // Show success notification
         Swal.fire({
           title: "Bid Placed!",
-          text: `Your bid of $${Number.parseFloat(
-            bidAmount
-          ).toLocaleString()} has been placed successfully.`,
+          text: `Your bid of $${Number.parseFloat(bidAmount).toLocaleString()} has been placed successfully.`,
           icon: "success",
           timer: 2000,
           showConfirmButton: false,
-        });
+        })
       } else {
-        throw new Error("Bid not successful");
+        throw new Error("Bid not successful")
       }
     } catch (error) {
-      console.error("Failed to place bid:", error);
+      console.error("Failed to place bid:", error)
       Swal.fire({
         title: "Error!",
         text: "Failed to place bid. Please try again.",
         icon: "error",
-      });
+      })
     }
-  };
+  }
 
   const handleMessageSeller = () => {
     if (!user) {
-      alert("Please log in to message the seller");
-      return;
+      alert("Please log in to message the seller")
+      return
     }
     navigate("/dashboard/chat", {
       state: {
@@ -560,40 +535,186 @@ export default function LiveBid() {
         auctionName: liveBid?.name,
         auctionImage: liveBid?.images?.[0] || image,
       },
-    });
-  };
+    })
+  }
 
-  if (loading) return <LoadingSpinner />;
+  // Add these functions inside the LiveBid component, before the return statement
+  const handleShare = (platform) => {
+    const url = window.location.href
+    const title = liveBid?.name || "Check out this auction!"
+    const description = liveBid?.description || "An amazing item up for auction!"
+
+    let shareUrl
+
+    switch (platform) {
+      case "facebook":
+        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`
+        break
+      case "twitter":
+        shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`
+        break
+      case "whatsapp":
+        shareUrl = `https://wa.me/?text=${encodeURIComponent(title + " " + url)}`
+        break
+      case "copy":
+        navigator.clipboard.writeText(url)
+        Swal.fire({
+          title: "Link Copied!",
+          text: "Auction link has been copied to clipboard",
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false,
+        })
+        setShowShareOptions(false)
+        return
+      default:
+        return
+    }
+
+    window.open(shareUrl, "_blank", "width=600,height=400")
+    setShowShareOptions(false)
+  }
+
+  const handleReaction = (type) => {
+    if (!user) {
+      alert("Please log in to react to this auction")
+      return
+    }
+
+    // If user already reacted with this type, remove it
+    if (userReaction === type) {
+      setReactions((prev) => ({
+        ...prev,
+        [type]: Math.max(0, prev[type] - 1),
+      }))
+      setUserReaction(null)
+
+      // Save to database (you would implement this)
+      saveReactionToDatabase(null)
+    } else {
+      // If user had a different reaction, decrement that one
+      if (userReaction) {
+        setReactions((prev) => ({
+          ...prev,
+          [userReaction]: Math.max(0, prev[userReaction] - 1),
+        }))
+      }
+
+      // Add the new reaction
+      setReactions((prev) => ({
+        ...prev,
+        [type]: prev[type] + 1,
+      }))
+      setUserReaction(type)
+
+      // Save to database (you would implement this)
+      saveReactionToDatabase(type)
+    }
+
+    setShowReactions(false)
+  }
+
+  // Replace the existing saveReactionToDatabase function with this improved version
+  const saveReactionToDatabase = async (reactionType) => {
+    try {
+      if (!user) return
+
+      const response = await axiosPublic.post("/auction-reaction", {
+        auctionId: id,
+        userId: user.uid,
+        reactionType,
+      })
+
+      if (response.data.success) {
+        console.log("Reaction saved successfully:", response.data)
+      } else {
+        console.error("Failed to save reaction:", response.data.message)
+      }
+    } catch (error) {
+      console.error("Failed to save reaction:", error)
+    }
+  }
+
+  // Add this useEffect to load reactions from database
+  // Update the useEffect that loads reactions to use the new endpoint
+  useEffect(() => {
+    const fetchReactions = async () => {
+      try {
+        // First check if the endpoint exists by making a simple request
+        const response = await axiosPublic.get(`/auction-reactions/${id}`, {
+          params: { userId: user?.uid },
+          // Add a timeout to prevent long waiting times
+          timeout: 3000
+        }).catch(error => {
+          // If endpoint doesn't exist (404) or times out, return a default response
+          if (error.response?.status === 404 || error.code === 'ECONNABORTED') {
+            console.log("Reaction endpoint not available, using default values");
+            return { 
+              data: {
+                success: true,
+                reactionCounts: { likes: 0, loves: 0, smiles: 0, wows: 0 },
+                userReactions: []
+              }
+            };
+          }
+          throw error; // Re-throw other errors
+        });
+  
+        if (response.data.success) {
+          setReactions(response.data.reactionCounts || { likes: 0, loves: 0, smiles: 0, wows: 0 });
+  
+          // If user is logged in, check if they have reacted
+          if (user && response.data.userReactions?.length > 0) {
+            setUserReaction(response.data.userReactions[0].reactionType);
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch reactions:", error);
+        // Set default values if fetch fails
+        setReactions({ likes: 0, loves: 0, smiles: 0, wows: 0 });
+      }
+    };
+  
+    fetchReactions();
+  
+    // Set up a polling interval to refresh reactions periodically
+    const interval = setInterval(fetchReactions, 30000); // Every 30 seconds
+  
+    return () => clearInterval(interval);
+  }, [id, user, axiosPublic]);
+
+  // Add this useEffect to handle clicking outside of share/reaction menus
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (shareRef.current && !shareRef.current.contains(event.target)) {
+        setShowShareOptions(false)
+      }
+      if (reactionRef.current && !reactionRef.current.contains(event.target)) {
+        setShowReactions(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [])
+
+  if (loading) return <LoadingSpinner />
 
   return (
-    <div
-      className={`min-h-screen mt-20 ${
-        isDarkMode ? "bg-gray-900" : "bg-purple-200/80"
-      }`}
-    >
+    <div className={`min-h-screen mt-20 ${isDarkMode ? "bg-gray-900" : "bg-purple-200/80"}`}>
       {/* Connection status indicator */}
       <div
         className={`fixed top-16 right-4 z-50 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${
           isConnected ? "bg-green-500 text-white" : "bg-red-500 text-white"
         }`}
       >
-        <span
-          className={`w-2 h-2 rounded-full ${
-            isConnected ? "bg-white animate-pulse" : "bg-white"
-          }`}
-        ></span>
-        {isConnected
-          ? "Live"
-          : connectionAttempts > 0
-          ? `Reconnecting (${connectionAttempts})`
-          : "Offline"}
+        <span className={`w-2 h-2 rounded-full ${isConnected ? "bg-white animate-pulse" : "bg-white"}`}></span>
+        {isConnected ? "Live" : connectionAttempts > 0 ? `Reconnecting (${connectionAttempts})` : "Offline"}
       </div>
 
-      <div
-        className={`w-11/12 mx-auto py-12 ${
-          isDarkMode ? "text-gray-200" : "text-gray-800"
-        }`}
-      >
+      <div className={`w-11/12 mx-auto py-12 ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>
         <div className="flex flex-col lg:flex-row gap-8">
           <div className="lg:w-2/3 w-full space-y-6">
             <div className="w-full rounded-xl overflow-hidden shadow-lg">
@@ -602,7 +723,7 @@ export default function LiveBid() {
                 className="w-full h-96 object-center object-cover transition-transform hover:scale-105 duration-300"
                 alt="Auction Item"
                 onError={(e) => {
-                  e.target.src = image;
+                  e.target.src = image
                 }}
               />
             </div>
@@ -615,45 +736,185 @@ export default function LiveBid() {
                   className="rounded-lg shadow-md hover:scale-105 transition h-40 w-full object-cover"
                   alt={`Thumbnail ${index + 1}`}
                   onError={(e) => {
-                    e.target.src = image;
+                    e.target.src = image
                   }}
                 />
               ))}
             </div>
 
-            <div
-              className={`p-6 rounded-xl ${
-                isDarkMode ? "bg-gray-800" : "bg-white"
-              } shadow-md`}
-            >
+            <div className={`p-6 rounded-xl ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-md`}>
               <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
-                <h3 className="text-2xl sm:text-3xl font-bold">
-                  {liveBid?.name}
-                </h3>
+                <h3 className="text-2xl sm:text-3xl font-bold">{liveBid?.name}</h3>
+                {/* Replace the existing social icons section with this enhanced version */}
                 <div className="flex items-center gap-3 text-xl">
-                  <GiSelfLove
-                    className={`cursor-pointer hover:text-red-500 transition ${
-                      isDarkMode ? "text-gray-400" : "text-gray-600"
-                    }`}
-                  />
-                  <FaShare
-                    className={`cursor-pointer hover:text-blue-500 transition ${
-                      isDarkMode ? "text-gray-400" : "text-gray-600"
-                    }`}
-                  />
-                  <IoFlagOutline
-                    className={`cursor-pointer hover:text-orange-500 transition ${
-                      isDarkMode ? "text-gray-400" : "text-gray-600"
-                    }`}
-                  />
-                </div>
+  <div className="relative" ref={reactionRef}>
+    <div
+      className="flex items-center gap-1 cursor-pointer"
+      onClick={() => setShowReactions(!showReactions)}
+    >
+      {userReaction ? (
+        userReaction === "likes" ? (
+          <FaThumbsUp className="text-blue-500" />
+        ) : userReaction === "loves" ? (
+          <FaHeart className="text-red-500" />
+        ) : userReaction === "smiles" ? (
+          <FaFaceSmile className="text-yellow-500" />
+        ) : userReaction === "wows" ? (
+          <FaFaceSurprise className="text-yellow-500" />
+        ) : userReaction === "flags" ? (
+          <span className="text-xl text-orange-500" role="img" aria-label="White Flag">
+            🏳️
+          </span>
+        ) : (
+          <GiSelfLove
+            className={`hover:text-red-500 transition ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+          />
+        )
+      ) : (
+        <GiSelfLove
+          className={`hover:text-red-500 transition ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+        />
+      )}
+      <span className="text-sm font-medium">
+        {reactions.likes + reactions.loves + reactions.smiles + reactions.wows + reactions.flags > 0 &&
+          reactions.likes + reactions.loves + reactions.smiles + reactions.wows + reactions.flags}
+      </span>
+    </div>
+
+    {showReactions && (
+      <div
+        className={`absolute top-full left-0 mt-2 p-2 rounded-xl shadow-lg z-10 flex gap-2 ${
+          isDarkMode ? "bg-gray-800" : "bg-white"
+        }`}
+      >
+        <button
+          onClick={() => handleReaction("likes")}
+          className={`p-2 rounded-full transition ${
+            userReaction === "likes" ? "bg-blue-100" : "hover:bg-gray-100"
+          }`}
+          title="Like"
+        >
+          <FaThumbsUp
+            className={`text-xl ${userReaction === "likes" ? "text-blue-500" : "text-blue-400"}`}
+          />
+        </button>
+        <button
+          onClick={() => handleReaction("loves")}
+          className={`p-2 rounded-full transition ${
+            userReaction === "loves" ? "bg-red-100" : "hover:bg-gray-100"
+          }`}
+          title="Love"
+        >
+          <FaHeart
+            className={`text-xl ${userReaction === "loves" ? "text-red-500" : "text-red-400"}`}
+          />
+        </button>
+        <button
+          onClick={() => handleReaction("smiles")}
+          className={`p-2 rounded-full transition ${
+            userReaction === "smiles" ? "bg-yellow-100" : "hover:bg-gray-100"
+          }`}
+          title="Smile"
+        >
+          <FaFaceSmile
+            className={`text-xl ${userReaction === "smiles" ? "text-yellow-500" : "text-yellow-400"}`}
+          />
+        </button>
+        <button
+          onClick={() => handleReaction("wows")}
+          className={`p-2 rounded-full transition ${
+            userReaction === "wows" ? "bg-yellow-100" : "hover:bg-gray-100"
+          }`}
+          title="Wow"
+        >
+          <FaFaceSurprise
+            className={`text-xl ${userReaction === "wows" ? "text-yellow-500" : "text-yellow-400"}`}
+          />
+        </button>
+        <button
+          onClick={() => handleReaction("flags")}
+          className={`p-2 rounded-full transition ${
+            userReaction === "flags" ? "bg-orange-100" : "hover:bg-gray-100"
+          }`}
+          title="Flag"
+        >
+          <span
+            className={`text-xl ${userReaction === "flags" ? "text-orange-500" : "text-orange-400"}`}
+            role="img"
+            aria-label="White Flag"
+          >
+            🏳️
+          </span>
+        </button>
+      </div>
+    )}
+  </div>
+
+  <div className="relative" ref={shareRef}>
+    <FaShare
+      className={`cursor-pointer hover:text-blue-500 transition ${
+        isDarkMode ? "text-gray-400" : "text-gray-600"
+      }`}
+      onClick={() => setShowShareOptions(!showShareOptions)}
+    />
+
+    {showShareOptions && (
+      <div
+        className={`absolute top-full right-0 mt-2 p-2 rounded-xl shadow-lg z-10 ${
+          isDarkMode ? "bg-gray-800" : "bg-white"
+        }`}
+      >
+        <div className="flex flex-col gap-2 min-w-[150px]">
+          <button
+            onClick={() => handleShare("facebook")}
+            className={`flex items-center gap-2 p-2 rounded-md transition ${
+              isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
+            }`}
+          >
+            <FaFacebook className="text-blue-600" />
+            <span>Facebook</span>
+          </button>
+          <button
+            onClick={() => handleShare("twitter")}
+            className={`flex items-center gap-2 p-2 rounded-md transition ${
+              isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
+            }`}
+          >
+            <FaTwitter className="text-blue-400" />
+            <span>Twitter</span>
+          </button>
+          <button
+            onClick={() => handleShare("whatsapp")}
+            className={`flex items-center gap-2 p-2 rounded-md transition ${
+              isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
+            }`}
+          >
+            <FaWhatsapp className="text-green-500" />
+            <span>WhatsApp</span>
+          </button>
+          <button
+            onClick={() => handleShare("copy")}
+            className={`flex items-center gap-2 p-2 rounded-md transition ${
+              isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
+            }`}
+          >
+            <FaLink className="text-gray-500" />
+            <span>Copy Link</span>
+          </button>
+        </div>
+      </div>
+    )}
+  </div>
+
+  <IoFlagOutline
+    className={`cursor-pointer hover:text-orange-500 transition ${
+      isDarkMode ? "text-gray-400" : "text-gray-600"
+    }`}
+  />
+</div>
               </div>
               <h3 className="text-xl font-semibold pt-4">Description:</h3>
-              <p
-                className={`${
-                  isDarkMode ? "text-gray-300" : "text-gray-600"
-                } mt-2`}
-              >
+              <p className={`${isDarkMode ? "text-gray-300" : "text-gray-600"} mt-2`}>
                 {liveBid?.description || "No description available"}
               </p>
             </div>
@@ -664,96 +925,40 @@ export default function LiveBid() {
               }`}
             >
               <div>
-                <h3
-                  className={`${
-                    isDarkMode ? "text-gray-400" : "text-gray-700"
-                  }`}
-                >
-                  Condition:
-                </h3>
-                <p
-                  className={`${
-                    isDarkMode ? "text-gray-300" : "text-gray-600"
-                  }`}
-                >
-                  {liveBid?.condition || "N/A"}
-                </p>
+                <h3 className={`${isDarkMode ? "text-gray-400" : "text-gray-700"}`}>Condition:</h3>
+                <p className={`${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>{liveBid?.condition || "N/A"}</p>
               </div>
               <div>
-                <h3
-                  className={`${
-                    isDarkMode ? "text-gray-400" : "text-gray-700"
-                  }`}
-                >
-                  Year
-                </h3>
-                <p
-                  className={`${
-                    isDarkMode ? "text-gray-300" : "text-gray-600"
-                  }`}
-                >
-                  {liveBid?.itemYear || "N/A"}
-                </p>
+                <h3 className={`${isDarkMode ? "text-gray-400" : "text-gray-700"}`}>Year</h3>
+                <p className={`${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>{liveBid?.itemYear || "N/A"}</p>
               </div>
               <div>
-                <h3
-                  className={`${
-                    isDarkMode ? "text-gray-400" : "text-gray-700"
-                  }`}
-                >
-                  Starting Price:
-                </h3>
-                <p
-                  className={`${
-                    isDarkMode ? "text-gray-300" : "text-gray-600"
-                  }`}
-                >
+                <h3 className={`${isDarkMode ? "text-gray-400" : "text-gray-700"}`}>Starting Price:</h3>
+                <p className={`${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
                   ${liveBid?.startingPrice?.toLocaleString() || "0"}
                 </p>
               </div>
               <div>
-                <h3
-                  className={`${
-                    isDarkMode ? "text-gray-400" : "text-gray-700"
-                  }`}
-                >
-                  Reference
-                </h3>
-                <p
-                  className={`${
-                    isDarkMode ? "text-gray-300" : "text-gray-600"
-                  }`}
-                >
-                  #{liveBid?.reference || "N/A"}
-                </p>
+                <h3 className={`${isDarkMode ? "text-gray-400" : "text-gray-700"}`}>Reference</h3>
+                <p className={`${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>#{liveBid?.reference || "N/A"}</p>
               </div>
             </div>
 
-            <div
-              className={`p-6 rounded-xl shadow-md ${
-                isDarkMode ? "bg-gray-800" : "bg-white"
-              }`}
-            >
+            <div className={`p-6 rounded-xl shadow-md ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
               <h3 className="text-xl font-semibold pb-4">Seller Information</h3>
-              <div className="flex gap-4 items-center justify-between">
+              <div className="lg:flex gap-4 items-center justify-between">
                 <div className="flex gap-4 items-center">
                   <img
                     src={liveBid?.sellerPhotoUrl || image}
                     className="w-16 h-16 rounded-full object-cover"
                     alt="Seller"
                     onError={(e) => {
-                      e.target.src = image;
+                      e.target.src = image
                     }}
                   />
                   <div>
-                    <h3 className="text-lg font-semibold">
-                      {liveBid?.sellerDisplayName || "Anonymous"}
-                    </h3>
-                    <p
-                      className={`${
-                        isDarkMode ? "text-gray-400" : "text-gray-600"
-                      } text-sm`}
-                    >
+                    <h3 className="text-lg font-semibold">{liveBid?.sellerDisplayName || "Anonymous"}</h3>
+                    <p className={`${isDarkMode ? "text-gray-400" : "text-gray-600"} text-sm`}>
                       {liveBid?.sellerEmail}
                     </p>
                     <p className="text-green-500 flex items-center text-sm mt-1">
@@ -763,7 +968,7 @@ export default function LiveBid() {
                 </div>
                 <button
                   onClick={handleMessageSeller}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
+                  className={`flex mt-5 lg:mt-0 items-center gap-2 px-4 py-2 rounded-lg transition ${
                     isDarkMode
                       ? "bg-gray-700 hover:bg-gray-600 text-gray-200"
                       : "bg-purple-100 hover:bg-purple-200 text-purple-600"
@@ -782,8 +987,8 @@ export default function LiveBid() {
                   formatTime(countdown) === "Ended"
                     ? "bg-red-100 text-red-800"
                     : isDarkMode
-                    ? "bg-gray-800 border border-red-500"
-                    : "bg-white border border-red-300"
+                      ? "bg-gray-800 border border-red-500"
+                      : "bg-white border border-red-300"
                 }`}
               >
                 {formatTime(countdown) === "Ended" ? (
@@ -791,30 +996,20 @@ export default function LiveBid() {
                 ) : (
                   <>
                     <p className="text-lg font-semibold">Ends In</p>
-                    <h3 className="font-bold text-2xl text-red-500">
-                      {formatTime(countdown)}
-                    </h3>
+                    <h3 className="font-bold text-2xl text-red-500">{formatTime(countdown)}</h3>
                   </>
                 )}
               </div>
 
               <div
                 className={`p-4 rounded-xl shadow-lg text-center transition ${
-                  bidAnimation
-                    ? "animate-pulse scale-105"
-                    : "hover:scale-[1.02]"
+                  bidAnimation ? "animate-pulse scale-105" : "hover:scale-[1.02]"
                 } flex flex-col justify-center items-center h-full ${
-                  isDarkMode
-                    ? "bg-gray-800 border border-purple-500"
-                    : "bg-white border border-purple-300"
+                  isDarkMode ? "bg-gray-800 border border-purple-500" : "bg-white border border-purple-300"
                 }`}
               >
                 <p className="text-lg font-semibold">Highest Bid</p>
-                <h3
-                  className={`font-bold text-2xl ${
-                    isDarkMode ? "text-purple-400" : "text-purple-600"
-                  }`}
-                >
+                <h3 className={`font-bold text-2xl ${isDarkMode ? "text-purple-400" : "text-purple-600"}`}>
                   $
                   {currentHighestBid?.toLocaleString() ||
                     liveBid?.currentBid?.toLocaleString() ||
@@ -826,36 +1021,22 @@ export default function LiveBid() {
               {user && (
                 <div
                   className={`p-4 rounded-xl col-span-2 shadow-lg text-center transition hover:scale-[1.02] flex flex-col justify-center items-center h-full ${
-                    isDarkMode
-                      ? "bg-gray-800 border border-purple-500"
-                      : "bg-white border border-purple-300"
+                    isDarkMode ? "bg-gray-800 border border-purple-500" : "bg-white border border-purple-300"
                   }`}
                 >
                   <p className="text-lg font-semibold">Your Highest Bid</p>
-                  <h3
-                    className={`font-bold text-2xl ${
-                      isDarkMode ? "text-purple-400" : "text-purple-600"
-                    }`}
-                  >
+                  <h3 className={`font-bold text-2xl ${isDarkMode ? "text-purple-400" : "text-purple-600"}`}>
                     {myBid?.bid || "$0"}
                   </h3>
                 </div>
               )}
             </div>
 
-            <div
-              className={`p-4 rounded-xl shadow-md ${
-                isDarkMode ? "bg-gray-800" : "bg-white"
-              }`}
-            >
+            <div className={`p-4 rounded-xl shadow-md ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
               <h3 className="text-xl font-bold mb-3">Top Bidders</h3>
               <div className="space-y-3">
                 {isTopBiddersFetching && topBidders.length === 0 ? (
-                  <p
-                    className={`text-center py-4 ${
-                      isDarkMode ? "text-gray-400" : "text-gray-600"
-                    }`}
-                  >
+                  <p className={`text-center py-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
                     Loading bidders...
                   </p>
                 ) : topBidders.length > 0 ? (
@@ -864,66 +1045,32 @@ export default function LiveBid() {
                       key={index}
                       className={`flex items-center gap-3 p-3 rounded-lg ${
                         isDarkMode ? "bg-gray-700" : "bg-gray-100"
-                      } ${
-                        bidder.email === user?.email
-                          ? "border-2 border-purple-500"
-                          : ""
-                      } 
+                      } ${bidder.email === user?.email ? "border-2 border-purple-500" : ""} 
                       ${index === 0 ? "" : ""}`}
                     >
                       {bidder.icon}
-                      <img
-                        src={bidder.photo || image}
-                        className="w-10 h-10 rounded-full object-cover"
-                        alt="Bidder"
-                      />
+                      <img src={bidder.photo || image} className="w-10 h-10 rounded-full object-cover" alt="Bidder" />
                       <div className="flex-1">
                         <h3 className="font-medium">
                           {bidder.name}
-                          {bidder.email === user?.email && (
-                            <span className="ml-1 text-xs text-purple-500">
-                              (You)
-                            </span>
-                          )}
+                          {bidder.email === user?.email && <span className="ml-1 text-xs text-purple-500">(You)</span>}
                         </h3>
-                        <p
-                          className={`text-sm ${
-                            isDarkMode ? "text-gray-400" : "text-gray-600"
-                          }`}
-                        >
-                          {bidder.bid}
-                        </p>
+                        <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>{bidder.bid}</p>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <p
-                    className={`text-center py-4 ${
-                      isDarkMode ? "text-gray-400" : "text-gray-600"
-                    }`}
-                  >
+                  <p className={`text-center py-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
                     No bids yet! Be the first to place your bid!
                   </p>
                 )}
               </div>
             </div>
 
-            <div
-              className={`p-5 rounded-xl shadow-md ${
-                isDarkMode ? "bg-gray-800" : "bg-white"
-              }`}
-            >
-              <h3 className="text-xl font-bold text-center mb-4">
-                Place Your Bid
-              </h3>
+            <div className={`p-5 rounded-xl shadow-md ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+              <h3 className="text-xl font-bold text-center mb-4">Place Your Bid</h3>
               <div className="flex gap-3 mb-4">
-                {[
-                  100,
-                  200,
-                  Math.round(
-                    (currentHighestBid || liveBid?.currentBid || 0) * 0.1
-                  ),
-                ].map((amount) => (
+                {[100, 200, Math.round((currentHighestBid || liveBid?.currentBid || 0) * 0.1)].map((amount) => (
                   <button
                     key={amount}
                     onClick={() => handleBidIncrement(amount)}
@@ -943,17 +1090,11 @@ export default function LiveBid() {
                   type="number"
                   value={bidAmount}
                   onChange={(e) => {
-                    setBidAmount(e.target.value);
-                    setExtraMoney(
-                      e.target.value -
-                        (currentHighestBid || liveBid?.currentBid || 0)
-                    );
+                    setBidAmount(e.target.value)
+                    setExtraMoney(e.target.value - (currentHighestBid || liveBid?.currentBid || 0))
                   }}
                   placeholder={`Enter bid (min $${(
-                    (currentHighestBid ||
-                      liveBid?.currentBid ||
-                      liveBid?.startingPrice ||
-                      0) + 100
+                    (currentHighestBid || liveBid?.currentBid || liveBid?.startingPrice || 0) + 100
                   ).toLocaleString()})`}
                   className={`w-full p-3 pb-3 rounded-lg focus:outline-none focus:ring-2 ${
                     isDarkMode
@@ -968,10 +1109,7 @@ export default function LiveBid() {
                   id="extraMoney"
                   type="number"
                   readOnly
-                  value={Math.max(
-                    0,
-                    bidAmount - (currentHighestBid || liveBid?.currentBid || 0)
-                  )}
+                  value={Math.max(0, bidAmount - (currentHighestBid || liveBid?.currentBid || 0))}
                   placeholder={`Extra $${extraMoney || 0}`}
                   className={`w-full p-3 pb-3 rounded-lg focus:outline-none focus:ring-2 ${
                     isDarkMode
@@ -990,81 +1128,49 @@ export default function LiveBid() {
                     : "bg-purple-600 hover:bg-purple-700"
                 } text-white`}
               >
-                {isBidLoading
-                  ? "Placing Bid..."
-                  : formatTime(countdown) === "Ended"
-                  ? "Auction Ended"
-                  : "Place Bid"}
+                {isBidLoading ? "Placing Bid..." : formatTime(countdown) === "Ended" ? "Auction Ended" : "Place Bid"}
               </button>
             </div>
 
-            <div
-              className={`p-4 rounded-xl shadow-md ${
-                isDarkMode ? "bg-gray-800" : "bg-white"
-              }`}
-            >
+            <div className={`p-4 rounded-xl shadow-md ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
               <h3 className="text-xl font-bold mb-3">Recent Activity</h3>
               <div className="space-y-3">
                 {isRecentActivityFetching && recentActivity.length === 0 ? (
-                  <p
-                    className={`text-center py-4 ${
-                      isDarkMode ? "text-gray-400" : "text-gray-600"
-                    }`}
-                  >
+                  <p className={`text-center py-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
                     Loading recent activity...
                   </p>
                 ) : recentActivity.length > 0 ? (
                   recentActivity.map((bidder, index) => (
                     <div
                       key={index}
-                      className={`flex items-center gap-3 p-3 rounded-lg ${
-                        isDarkMode ? "bg-gray-700" : "bg-gray-50"
-                      } ${
-                        bidder.name === user?.displayName
-                          ? "border-2 border-purple-500"
-                          : ""
+                      className={`flex items-center gap-3 p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"} ${
+                        bidder.name === user?.displayName ? "border-2 border-purple-500" : ""
                       } 
                       ${index === 0 ? "animate-fadeIn" : ""}`}
                     >
-                      <img
-                        src={bidder.photo || image}
-                        className="w-10 h-10 rounded-full object-cover"
-                        alt="Bidder"
-                      />
+                      <img src={bidder.photo || image} className="w-10 h-10 rounded-full object-cover" alt="Bidder" />
                       <div className="flex-1">
                         <div className="flex justify-between items-center">
                           <h3 className="font-medium">
                             {bidder.name}
                             {bidder.name === user?.displayName && (
-                              <span className="ml-1 text-xs text-purple-500">
-                                (You)
-                              </span>
+                              <span className="ml-1 text-xs text-purple-500">(You)</span>
                             )}
                           </h3>
                           <span
-                            className={`text-sm font-semibold ${
-                              isDarkMode ? "text-purple-400" : "text-purple-600"
-                            }`}
+                            className={`text-sm font-semibold ${isDarkMode ? "text-purple-400" : "text-purple-600"}`}
                           >
                             {bidder.bid}
                           </span>
                         </div>
-                        <p
-                          className={`text-xs ${
-                            isDarkMode ? "text-gray-400" : "text-gray-500"
-                          }`}
-                        >
+                        <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                           {formatRelativeTime(bidder.createdAt)}
                         </p>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <p
-                    className={`text-center py-4 ${
-                      isDarkMode ? "text-gray-400" : "text-gray-600"
-                    }`}
-                  >
+                  <p className={`text-center py-4 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
                     No recent bids yet! Start the bidding now!
                   </p>
                 )}
@@ -1074,5 +1180,5 @@ export default function LiveBid() {
         </div>
       </div>
     </div>
-  );
+  )
 }

@@ -31,7 +31,7 @@ const useAxiosSecure = () => {
   //   };
   // }, [logout, navigate]);
 
-  return axiosSecure; // Return the axios instance
+  return axiosSecure;
 };
 
 export default useAxiosSecure;
