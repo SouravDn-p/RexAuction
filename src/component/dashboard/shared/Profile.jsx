@@ -105,6 +105,21 @@ const Profile = () => {
   const { user, loading: authLoading, dbUser, setDbUser } = useAuth();
   const [activeTab, setActiveTab] = useState("All");
   const { isDarkMode } = useContext(ThemeContext);
+  // cover image
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // const currentCover = user?.coverPhoto || "hammer.webp";
+  const [currentCover, setCurrentCover] = useState(
+    user?.coverPhoto || "hammer.webp"
+  );
+
+  const [selectedCover, setSelectedCover] = useState(currentCover); // current cover image
+
+  // function to handle save
+  const updateCoverImage = (newCover) => {
+    setCurrentCover(newCover);
+    // Optionally make an API call to save the new cover image
+  };
 
   const renderStatusBadge = (status) => {
     switch (status) {
@@ -167,7 +182,10 @@ const Profile = () => {
         }}
       >
         <div className="absolute inset-0 bg-black opacity-50"></div>
-        <button className="absolute right-4 top-4 bg-white text-black hover:bg-gray-100 px-3 py-1.5 rounded-md border border-gray-200 text-sm font-medium flex items-center">
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="absolute right-4 top-4 bg-white text-black hover:bg-gray-100 px-3 py-1.5 rounded-md border border-gray-200 text-sm font-medium flex items-center"
+        >
           <svg
             width="16"
             height="16"
@@ -187,6 +205,50 @@ const Profile = () => {
           Edit Cover
         </button>
       </div>
+
+      {/* cover */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="bg-white dark:bg-gray-900 p-6 rounded-lg w-full max-w-4xl shadow-xl">
+            <h2 className="text-lg font-bold text-center mb-4 dark:text-white">
+              Choose Your Cover Image
+            </h2>
+            <div className="grid grid-cols-3 gap-4">
+              {[1, 2, 3, 4, 5, 6].map((num) => (
+                <img
+                  key={num}
+                  src={`/covers/cover${num}.jpg`} // static images saved in public/covers/
+                  alt={`Cover ${num}`}
+                  className={`cursor-pointer border-2 rounded-lg transition-all ${
+                    selectedCover === `/covers/cover${num}.jpg`
+                      ? "border-blue-500 scale-105"
+                      : "border-transparent"
+                  }`}
+                  onClick={() => setSelectedCover(`/covers/cover${num}.jpg`)}
+                />
+              ))}
+            </div>
+
+            <div className="flex justify-end mt-6 space-x-4">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="px-4 py-2 bg-gray-300 dark:bg-gray-700 dark:text-white rounded hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  updateCoverImage(selectedCover); // your function to save new cover
+                  setIsModalOpen(false);
+                }}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Save Cover
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Profile Info */}
       <div className="px-6">
