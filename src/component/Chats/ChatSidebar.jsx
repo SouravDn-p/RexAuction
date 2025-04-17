@@ -62,7 +62,7 @@ export default function ChatSidebar({
 
   useEffect(() => {
     if (!socketRef.current) {
-      socketRef.current = io("https://un-aux.onrender.com", {
+      socketRef.current = io("http://localhost:5000", {
         withCredentials: true,
         reconnection: true,
         reconnectionAttempts: 5,
@@ -89,12 +89,9 @@ export default function ChatSidebar({
         setLoading(true);
 
         // Fetch users
-        const usersResponse = await axios.get(
-          "https://un-aux.onrender.com/users",
-          {
-            withCredentials: true,
-          }
-        );
+        const usersResponse = await axios.get("http://localhost:5000/users", {
+          withCredentials: true,
+        });
 
         const filteredUsers = usersResponse.data.filter(
           (user) => user.email !== currentUser.email
@@ -108,7 +105,7 @@ export default function ChatSidebar({
         if (Object.keys(localRecentMessages).length === 0) {
           try {
             const messagesResponse = await axios.get(
-              `https://un-aux.onrender.com/recent-messages/${currentUser.email}`,
+              `http://localhost:5000/recent-messages/${currentUser.email}`,
               {
                 withCredentials: true,
               }

@@ -110,7 +110,7 @@ const AnnouncementDetails = () => {
       try {
         setLoading(true);
         const response = await axios.get(
-          `https://un-aux.onrender.com/announcement/${id}`
+          `http://localhost:5000/announcement/${id}`
         );
         setAnnouncement(response.data);
         setLoading(false);

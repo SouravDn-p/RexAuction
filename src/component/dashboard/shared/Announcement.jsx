@@ -104,7 +104,7 @@ const Announcement = () => {
   useEffect(() => {
     let socket;
     if (user) {
-      socket = io("https://un-aux.onrender.com", {
+      socket = io("http://localhost:5000", {
         withCredentials: true,
         reconnection: true,
         reconnectionAttempts: 5,
@@ -167,7 +167,7 @@ const Announcement = () => {
   const fetchNotifications = async () => {
     try {
       const response = await axios.get(
-        `https://un-aux.onrender.com/notifications/${user.email}`,
+        `http://localhost:5000/notifications/${user.email}`,
         {
           withCredentials: true,
         }
@@ -187,7 +187,7 @@ const Announcement = () => {
   // Fetch user data for notifications
   const fetchUsers = async () => {
     try {
-      const response = await axios.get("https://un-aux.onrender.com/users", {
+      const response = await axios.get("http://localhost:5000/users", {
         withCredentials: true,
       });
 
@@ -207,15 +207,12 @@ const Announcement = () => {
   // Function to post a new announcement
   const handlePostAnnouncement = async (announcementData) => {
     try {
-      const response = await axios.post(
-        "https://un-aux.onrender.com/announcement",
-        {
-          title: announcementData.title,
-          content: announcementData.content,
-          date: announcementData.date || new Date().toISOString(),
-          image: announcementData.image || "/placeholder.svg",
-        }
-      );
+      const response = await axios.post("http://localhost:5000/announcement", {
+        title: announcementData.title,
+        content: announcementData.content,
+        date: announcementData.date || new Date().toISOString(),
+        image: announcementData.image || "/placeholder.svg",
+      });
       if (response.status === 201) {
         toast.success("Announcement posted successfully!");
         refetch(); // Refresh the announcements list
@@ -240,7 +237,7 @@ const Announcement = () => {
     e.stopPropagation(); // Prevent card flip
     try {
       const response = await axios.delete(
-        `https://un-aux.onrender.com/announcement/${id}`
+        `http://localhost:5000/announcement/${id}`
       );
       if (response.status === 200) {
         toast.success("Announcement deleted successfully!");
@@ -304,7 +301,7 @@ const Announcement = () => {
     // Mark as read in the database
     axios
       .put(
-        `https://un-aux.onrender.com/notifications/mark-read/${user.email}`,
+        `http://localhost:5000/notifications/mark-read/${user.email}`,
         { notificationId: notification._id },
         { withCredentials: true }
       )
@@ -353,7 +350,7 @@ const Announcement = () => {
       // Send request to mark all as read in the database
       if (user) {
         await axios.put(
-          `https://un-aux.onrender.com/notifications/mark-read/${user.email}`,
+          `http://localhost:5000/notifications/mark-read/${user.email}`,
           {},
           {
             withCredentials: true,

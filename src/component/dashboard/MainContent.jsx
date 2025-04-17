@@ -48,7 +48,7 @@ const MainContent = () => {
   // Initialize socket connection
   useEffect(() => {
     if (user && !socketRef.current) {
-      socketRef.current = io("https://un-aux.onrender.com", {
+      socketRef.current = io("http://localhost:5000", {
         withCredentials: true,
         reconnection: true,
         reconnectionAttempts: 5,
@@ -81,7 +81,7 @@ const MainContent = () => {
       const fetchNotifications = async () => {
         try {
           const response = await axios.get(
-            `https://un-aux.onrender.com/notifications/${user.email}`,
+            `http://localhost:5000/notifications/${user.email}`,
             {
               withCredentials: true,
             }
@@ -135,7 +135,7 @@ const MainContent = () => {
 
       if (user) {
         await axios.put(
-          `https://un-aux.onrender.com/notifications/mark-read/${user.email}`,
+          `http://localhost:5000/notifications/mark-read/${user.email}`,
           {},
           {
             withCredentials: true,
@@ -162,7 +162,7 @@ const MainContent = () => {
     if (user) {
       axios
         .put(
-          `https://un-aux.onrender.com/notifications/mark-read/${user.email}`,
+          `http://localhost:5000/notifications/mark-read/${user.email}`,
           { notificationId: notification._id },
           { withCredentials: true }
         )
@@ -226,7 +226,7 @@ const MainContent = () => {
         {/* Top Navigation Bar */}
         <header
           className={`sticky top-0 z-10 mx-auto  ${
-           chatPath && selectedUser ? "hidden" : "block"
+            chatPath && selectedUser ? "hidden" : "block"
           } ${
             isDarkMode ? "bg-gray-800/90" : "bg-white"
           } backdrop-blur-md shadow-sm border-b ${

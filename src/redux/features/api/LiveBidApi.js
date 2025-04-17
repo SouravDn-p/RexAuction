@@ -4,7 +4,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 const liveBidApi = createApi({
   reducerPath: "liveBidApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: "https://un-aux.onrender.com",
+    baseUrl: "http://localhost:5000",
   }),
   tagTypes: ["LiveBid", "TopBidders", "RecentActivity"],
 

@@ -1,9 +1,9 @@
 import axios from "axios";
 
 const axiosPublic = axios.create({
-  baseURL: " https://un-aux.onrender.com",
+  baseURL: "http://localhost:5000",
 });
-// https://un-aux.onrender.com
+// http://localhost:5000
 // http://localhost:5000
 const useAxiosPublic = () => {
   return axiosPublic;
