@@ -36,6 +36,7 @@ import AccountBalance from "../extra/wallet/AccountBalance";
 import Chat from "../component/Chats/Chat";
 import WalletHistory from "../extra/wallet/WalletHistory";
 import SdBot from "../extra/sdChatBot/SdBot";
+import ContactUs from "../component/shared/contactUs";
 
 // import TeamSettings from "../component/Settings/TeamSettings";
 // import PlanSettings from "../component/Settings/PlanSettings";
@@ -58,6 +59,10 @@ export const router = createBrowserRouter([
       {
         path: "/auction",
         element: <Auction />,
+      },
+      {
+        path: "/contactUs",
+        element: <ContactUs />,
       },
       {
         path: "/liveBid/:id",
