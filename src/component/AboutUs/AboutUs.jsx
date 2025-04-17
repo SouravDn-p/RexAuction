@@ -181,18 +181,8 @@ const AboutUs = () => {
   return (
     <div style={darkModeStyles} className="overflow-x-hidden">
       {/* 🔹 Hero Section with Gradient Background */}
-<<<<<<< HEAD
       <div className={`relative overflow-hidden ${isDarkMode ? "bg-gray-900" : "bg-gradient-to-r from-purple-900 to-purple-900"}`}>
         
-=======
-      <div
-        className={`relative overflow-hidden h-screen ${
-          isDarkMode
-            ? "bg-gray-900"
-            : "bg-gradient-to-r from-purple-900 to-purple-900"
-        }`}
-      >
->>>>>>> fdfd19bcc88ec25c75ca24443b5b6092379eda27
         <div className="container mx-auto px-4 py-16 md:py-24 flex flex-col md:flex-row items-center gap-8">
           {/* Text Content */}
           <motion.div

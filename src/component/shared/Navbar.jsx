@@ -240,7 +240,6 @@ const Navbar = () => {
                 <button
                   className={`flex items-center gap-2 py-1 px-2 rounded-lg transition-all duration-300 relative overflow-hidden ${
                     isDarkMode
-<<<<<<< HEAD
                       ? "border-2 text-white hover:border-b-purple-600/90 hover:bg-purple-100/20"
                       : "border text-white hover:bg-purple-100/20 hover:border-b-purple-500 border-b-2"
                   } hover:shadow-md hover:scale-105`}
@@ -248,25 +247,6 @@ const Navbar = () => {
                 >
                   <FaWallet className={`${isDarkMode ? "text-yellow-400" : "text-indigo-200"} transition-transform duration-300 group-hover:scale-110`} />
                   <span className={`${isDarkMode ? "text-indigo-100" : "text-indigo-200"} relative z-10`}>$ {dbUser?.accountBalance}</span>
-=======
-                      ? "bg-indigo-900 text-white hover:bg-indigo-600/90"
-                      : "bg-indigo-900 text-white hover:bg-indigo-600/90"
-                  } hover:shadow-md hover:scale-105`}
-                  onClick={() => setShowWalletModal(true)}
-                >
-                  <FaWallet
-                    className={`${
-                      isDarkMode ? "text-yellow-400" : "text-yellow-400"
-                    } transition-transform duration-300 group-hover:scale-110`}
-                  />
-                  <span
-                    className={`${
-                      isDarkMode ? "text-indigo-100" : "text-indigo-100"
-                    } relative z-10`}
-                  >
-                    $ {dbUser?.accountBalance}
-                  </span>
->>>>>>> fdfd19bcc88ec25c75ca24443b5b6092379eda27
                   <FaPlus className="text-green-400 text-xs animate-pulse" />
                   <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/0 to-indigo-400/0 hover:from-indigo-600/20 hover:to-indigo-400/20 transition-all duration-300 opacity-0 hover:opacity-100"></div>
                 </button>
