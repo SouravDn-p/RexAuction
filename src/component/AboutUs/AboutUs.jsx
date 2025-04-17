@@ -88,7 +88,11 @@ const AboutUs = () => {
       date: new Date().toString(),
     };
 
-    const response = await axiosPublic.post("/feedback", newFeedback);
+    try {
+      const response = await axiosPublic.post("/feedback", newFeedback);
+    } catch (error) {
+      console.log(error);
+    }
 
     Swal.fire({
       title: "Thank you!",
@@ -450,19 +454,22 @@ const AboutUs = () => {
               {
                 icon: <FaShieldAlt className="text-3xl" />,
                 title: "Buyer Protection",
-                description: "Policies to safeguard your purchases.",
+                description:
+                  "Policies to safeguard your purchases and payments .",
                 color: "from-emerald-500 to-teal-500",
               },
               {
                 icon: <MdOutlineSecurityUpdate className="text-3xl" />,
                 title: "Regular Audits",
-                description: "Frequent security checks for our systems.",
+                description:
+                  "Frequent security checks for our systems and feedback checking.",
                 color: "from-amber-500 to-orange-500",
               },
               {
                 icon: <MdHeadsetMic className="text-3xl" />,
                 title: "24/7 Support",
-                description: "Dedicated team to assist you anytime.",
+                description:
+                  "Dedicated team to assist you anytime with Messaging.",
                 color: "from-violet-500 to-purple-500",
               },
             ].map((item, index) => (
@@ -553,31 +560,36 @@ const AboutUs = () => {
               {
                 icon: <FaGavel className="text-3xl" />,
                 title: "Place Bids",
-                description: "Join live auctions and bid in real-time.",
+                description:
+                  "Join live auctions and bid in real-time with updates.",
                 color: "from-pink-500 to-rose-500",
               },
               {
                 icon: <FaGavel className="text-3xl" />,
                 title: "Win & Pay",
-                description: "Win items and pay securely with ease.",
+                description:
+                  "Win items and pay securely with ease ssl commerce.",
                 color: "from-blue-500 to-cyan-500",
               },
               {
                 icon: <FaUserCheck className="text-3xl" />,
                 title: "List Your Item",
-                description: "Create listings with photos and details.",
+                description:
+                  "Create listings with photos and details and verification.",
                 color: "from-emerald-500 to-teal-500",
               },
               {
                 icon: <FaGlobe className="text-3xl" />,
                 title: "Reach Global Buyers",
-                description: "Showcase items to a worldwide audience.",
+                description:
+                  "Showcase items to a worldwide audience within a minute.",
                 color: "from-amber-500 to-orange-500",
               },
               {
                 icon: <MdHeadsetMic className="text-3xl" />,
                 title: "Get Support",
-                description: "Our team assists with all your needs.",
+                description:
+                  "Our team assists with all your needs and smoother experience.",
                 color: "from-violet-500 to-purple-500",
               },
             ].map((item, index) => (
@@ -828,7 +840,7 @@ const AboutUs = () => {
       </div>
 
       {/* Statistics Section */}
-      <div
+      {/* <div
         ref={ref}
         className={`py-14 flex flex-wrap justify-around text-center font-bold text-xl md:text-2xl ${
           isDarkMode
@@ -871,13 +883,13 @@ const AboutUs = () => {
             </span>
           </div>
         ))}
-      </div>
+      </div> */}
 
       {/* 🔹 Rate Us Section - Enhanced with Animations */}
       <div
         className={`relative py-16 px-4 sm:px-6 overflow-hidden ${
           isDarkMode
-            ? "bg-gray-900"
+            ? "bg-gray-950"
             : "bg-gradient-to-b from-purple-50 to-indigo-50"
         }`}
       >
