@@ -23,7 +23,7 @@ const SellerRequest = () => {
   const handleRoleFilter = (role) => {
     setSelectedRole(role);
     setCurrentPage(1);
-    fetch("https://un-aux.onrender.com/sellerRequest")
+    fetch("http://localhost:5000/sellerRequest")
       .then((res) => res.json())
       .then((data) => {
         const filtered = data.filter(
@@ -39,9 +39,7 @@ const SellerRequest = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch(
-          "https://un-aux.onrender.com/sellerRequest"
-        );
+        const response = await fetch("http://localhost:5000/sellerRequest");
         const data = await response.json();
         const pendingUsers = data.filter(
           (user) => user.becomeSellerStatus === "pending"
@@ -70,14 +68,14 @@ const SellerRequest = () => {
       try {
         // Step 1: Update seller request status
         const sellerReqRes = await axios.patch(
-          `https://un-aux.onrender.com/sellerRequest/${userId}`,
+          `http://localhost:5000/sellerRequest/${userId}`,
           { becomeSellerStatus: "accepted" }
         );
 
         if (sellerReqRes.data.success) {
           // Step 2: Update user role to "seller"
           const roleUpdateRes = await axios.patch(
-            `https://un-aux.onrender.com/users/${dbUserId}`,
+            `http://localhost:5000/users/${dbUserId}`,
             { role: "seller" }
           );
 
@@ -90,9 +88,7 @@ const SellerRequest = () => {
 
             // Step 3: Refresh UI
             setIsModalOpen(false);
-            const response = await fetch(
-              "https://un-aux.onrender.com/sellerRequest"
-            );
+            const response = await fetch("http://localhost:5000/sellerRequest");
             const data = await response.json();
             const pendingUsers = data.filter(
               (user) => user.becomeSellerStatus === "pending"
@@ -131,7 +127,7 @@ const SellerRequest = () => {
     if (reason) {
       try {
         const sellerReqRes = await axios.patch(
-          `https://un-aux.onrender.com/sellerRequest/${userId}`,
+          `http://localhost:5000/sellerRequest/${userId}`,
           { becomeSellerStatus: "rejected", rejectionReason: reason }
         );
 

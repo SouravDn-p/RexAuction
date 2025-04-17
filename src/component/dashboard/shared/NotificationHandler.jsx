@@ -17,7 +17,7 @@ const NotificationHandler = () => {
   // Initialize socket connection
   useEffect(() => {
     if (user && !socketRef.current) {
-      socketRef.current = io("https://un-aux.onrender.com", {
+      socketRef.current = io("http://localhost:5000", {
         withCredentials: true,
         reconnection: true,
         reconnectionAttempts: 5,
@@ -81,7 +81,7 @@ const NotificationHandler = () => {
     try {
       // Update in database
       await axios.put(
-        `https://un-aux.onrender.com/notifications/mark-read/${user.email}`,
+        `http://localhost:5000/notifications/mark-read/${user.email}`,
         { notificationId },
         { withCredentials: true }
       );

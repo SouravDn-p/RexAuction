@@ -33,7 +33,7 @@ const UserManagement = () => {
     const fetchUsers = async () => {
       try {
         setLoading(true);
-        const response = await fetch("https://un-aux.onrender.com/users");
+        const response = await fetch("http://localhost:5000/users");
         const data = await response.json();
         setUsers(data);
         setLoading(false);
@@ -59,14 +59,14 @@ const UserManagement = () => {
       if (result.isConfirmed) {
         try {
           const res = await axios.patch(
-            `https://un-aux.onrender.com/users/${userId}`,
+            `http://localhost:5000/users/${userId}`,
             { role }
           );
 
           if (res.data.success) {
             Swal.fire("Updated!", "User role has been changed.", "success");
             // Refresh user list after update
-            const response = await fetch("https://un-aux.onrender.com/users");
+            const response = await fetch("http://localhost:5000/users");
             const data = await response.json();
             setUsers(data);
           } else {
@@ -92,7 +92,7 @@ const UserManagement = () => {
     }).then((result) => {
       if (result.isConfirmed) {
         axios
-          .delete(`https://un-aux.onrender.com/users/${userId}`)
+          .delete(`http://localhost:5000/users/${userId}`)
           .then((response) => {
             if (response.data.success) {
               Swal.fire({

@@ -59,19 +59,16 @@ export default function Chat() {
         setCurrentUser(user);
         try {
           const userResponse = await axios.get(
-            `https://un-aux.onrender.com/user/${user.email}`,
+            `http://localhost:5000/user/${user.email}`,
             {
               withCredentials: true,
             }
           );
           setCurrentUserRole(userResponse.data.role || "buyer");
 
-          const usersResponse = await axios.get(
-            "https://un-aux.onrender.com/users",
-            {
-              withCredentials: true,
-            }
-          );
+          const usersResponse = await axios.get("http://localhost:5000/users", {
+            withCredentials: true,
+          });
           setUsers(usersResponse.data.filter((u) => u.email !== user.email));
         } catch (error) {
           console.error("Error fetching user data:", error);
@@ -84,7 +81,7 @@ export default function Chat() {
 
   useEffect(() => {
     if (!socketRef.current) {
-      socketRef.current = io("https://un-aux.onrender.com", {
+      socketRef.current = io("http://localhost:5000", {
         withCredentials: true,
         reconnection: true,
         reconnectionAttempts: 5,
@@ -205,7 +202,7 @@ export default function Chat() {
 
       try {
         const response = await axios.get(
-          `https://un-aux.onrender.com/recent-messages/${user.email}`,
+          `http://localhost:5000/recent-messages/${user.email}`,
           {
             withCredentials: true,
           }
@@ -248,9 +245,9 @@ export default function Chat() {
       const since = lastMessageTimestamp
         ? new Date(lastMessageTimestamp).toISOString()
         : null;
-      const url = `https://un-aux.onrender.com/messages/email/${
-        currentUser.email
-      }/${user.email}${since ? `?since=${since}` : ""}`;
+      const url = `http://localhost:5000/messages/email/${currentUser.email}/${
+        user.email
+      }${since ? `?since=${since}` : ""}`;
 
       const response = await axios.get(url, {
         withCredentials: true,
@@ -460,7 +457,7 @@ export default function Chat() {
     const fetchMessages = async () => {
       try {
         const response = await axios.get(
-          `https://un-aux.onrender.com/messages/email/${user.email}/${selectedUser.email}`,
+          `http://localhost:5000/messages/email/${user.email}/${selectedUser.email}`,
           {
             withCredentials: true,
           }

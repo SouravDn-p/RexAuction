@@ -43,7 +43,7 @@ const BecomeSeller = () => {
       const fetchSellerStatus = async () => {
         try {
           const res = await axiosPublic.get(
-            "https://un-aux.onrender.com/sellerRequest",
+            "http://localhost:5000/sellerRequest",
             {
               params: { email: user.email },
             }
@@ -171,7 +171,7 @@ const BecomeSeller = () => {
         toast.success("Seller request submitted successfully!");
         // Refetch seller status instead of setting it locally
         const updatedStatus = await axiosPublic.get(
-          "https://un-aux.onrender.com/sellerRequest",
+          "http://localhost:5000/sellerRequest",
           {
             params: { email: user.email },
           }

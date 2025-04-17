@@ -38,7 +38,7 @@ const Payment2 = () => {
     };
 
     const response = await axios.post(
-      "https://un-aux.onrender.com/paymentsWithSSL",
+      "http://localhost:5000/paymentsWithSSL",
       Payment
     );
     if (response.data?.gatewayURL) {
