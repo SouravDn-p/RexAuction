@@ -1,4 +1,3 @@
-"use client"
 
 import { useContext, useEffect, useState, useRef } from "react"
 import image from "../../assets/LiveBidAuctionDetails.jpg"
@@ -20,7 +19,6 @@ import {
 } from "../../redux/features/api/LiveBidApi"
 import Swal from "sweetalert2"
 import io from "socket.io-client"
-// Add these imports at the top with the other imports
 import { FaFacebook, FaTwitter, FaWhatsapp, FaLink } from "react-icons/fa"
 import { FaHeart, FaThumbsUp, FaFaceSmile, FaFaceSurprise } from "react-icons/fa6"
 
@@ -36,7 +34,6 @@ export default function LiveBid() {
   const [addBid, { isLoading: isBidLoading }] = useAddBidsMutation()
   const [myBid, setMyBid] = useState(null)
   const [bidAnimation, setBidAnimation] = useState(false)
-  // Add these state variables inside the LiveBid component, near the other state declarations
   const [showShareOptions, setShowShareOptions] = useState(false)
   const [reactions, setReactions] = useState({ likes: 0, loves: 0, smiles: 0, wows: 0 })
   const [userReaction, setUserReaction] = useState(null)
@@ -59,7 +56,7 @@ export default function LiveBid() {
     refetch: refetchTopBidders,
     isFetching: isTopBiddersFetching,
   } = useGetTopBiddersQuery(id, {
-    pollingInterval: 30000, // Fallback polling every 30 seconds if socket fails
+    pollingInterval: 30000,
   })
 
   const {
@@ -67,7 +64,7 @@ export default function LiveBid() {
     refetch: refetchRecentActivity,
     isFetching: isRecentActivityFetching,
   } = useGetRecentActivityQuery(id, {
-    pollingInterval: 30000, // Fallback polling every 30 seconds if socket fails
+    pollingInterval: 30000,
   })
 
   // Initialize local state with fetched data
@@ -75,7 +72,6 @@ export default function LiveBid() {
     if (topBiddersData && topBiddersData.length > 0) {
       setLocalTopBidders(topBiddersData)
 
-      // Find user's highest bid
       if (user) {
         const userBid = topBiddersData.find((bidder) => bidder.email === user.email)
         if (userBid) {
@@ -83,8 +79,6 @@ export default function LiveBid() {
             amount: userBid.amount,
             bid: `$${userBid.amount.toLocaleString()}`,
           })
-
-          // Save user's highest bid to localStorage for persistence
           localStorage.setItem(
             `auction_${id}_user_bid`,
             JSON.stringify({
@@ -95,7 +89,6 @@ export default function LiveBid() {
         }
       }
 
-      // Update current highest bid
       const highestBid = topBiddersData[0]?.amount || 0
       if (highestBid > currentHighestBid) {
         setCurrentHighestBid(highestBid)
@@ -111,17 +104,12 @@ export default function LiveBid() {
 
   // Save bid data to localStorage for persistence
   useEffect(() => {
-    // Save top bidders to localStorage
     if (localTopBidders.length > 0) {
       localStorage.setItem(`auction_${id}_top_bidders`, JSON.stringify(localTopBidders))
     }
-
-    // Save recent activity to localStorage
     if (localRecentActivity.length > 0) {
       localStorage.setItem(`auction_${id}_recent_activity`, JSON.stringify(localRecentActivity))
     }
-
-    // Save current highest bid
     if (currentHighestBid > 0) {
       localStorage.setItem(`auction_${id}_highest_bid`, currentHighestBid.toString())
     }
@@ -136,11 +124,9 @@ export default function LiveBid() {
     if (storedTopBidders) {
       setLocalTopBidders(JSON.parse(storedTopBidders))
     }
-
     if (storedRecentActivity) {
       setLocalRecentActivity(JSON.parse(storedRecentActivity))
     }
-
     if (storedHighestBid) {
       setCurrentHighestBid(Number.parseFloat(storedHighestBid))
     }
@@ -158,7 +144,6 @@ export default function LiveBid() {
 
   // Socket.IO connection setup with reconnection logic
   useEffect(() => {
-    // Connect to Socket.IO server
     const SOCKET_SERVER_URL = "https://un-aux.onrender.com"
 
     const connectSocket = () => {
@@ -171,16 +156,11 @@ export default function LiveBid() {
         timeout: 10000,
       })
 
-      // Connection events
       socketRef.current.on("connect", () => {
         console.log("Socket connected:", socketRef.current.id)
         setIsConnected(true)
         setConnectionAttempts(0)
-
-        // Join auction room
         socketRef.current.emit("joinAuction", { auctionId: id })
-
-        // Request latest data
         socketRef.current.emit("getLatestBids", { auctionId: id })
       })
 
@@ -188,44 +168,31 @@ export default function LiveBid() {
         console.log("Connection acknowledged:", data)
       })
 
-      // Listen for new bids
       socketRef.current.on("newBid", (bidData) => {
         console.log("New bid received:", bidData)
-
         if (bidData.auctionId === id) {
           setLiveBid((prev) => ({
             ...prev,
             currentBid: bidData.amount,
           }))
-
-          // Set current highest bid
           if (bidData.amount > currentHighestBid) {
             setCurrentHighestBid(bidData.amount)
             setBidAnimation(true)
             setTimeout(() => setBidAnimation(false), 1500)
           }
-
-          // Update top bidders
           updateTopBidders(bidData)
-
-          // Update recent activity
           updateRecentActivity(bidData)
-
-          // Update user's bid if it's their own
           if (user && bidData.email === user.email) {
             const newUserBid = {
               amount: bidData.amount,
               bid: `$${bidData.amount.toLocaleString()}`,
             }
             setMyBid(newUserBid)
-
-            // Save to localStorage
             localStorage.setItem(`auction_${id}_user_bid`, JSON.stringify(newUserBid))
           }
         }
       })
 
-      // Listen for latest bid data
       socketRef.current.on("latestBidData", (data) => {
         console.log("Received latest bid data:", data)
         if (data.topBidders) {
@@ -260,7 +227,6 @@ export default function LiveBid() {
 
     connectSocket()
 
-    // Cleanup on component unmount
     return () => {
       if (socketRef.current) {
         socketRef.current.emit("leaveAuction", { auctionId: id })
@@ -269,17 +235,12 @@ export default function LiveBid() {
     }
   }, [id, setLiveBid, currentHighestBid, user])
 
-  // Function to update top bidders locally
   const updateTopBidders = (newBid) => {
     setLocalTopBidders((prevBidders) => {
-      // Create a copy of the current bidders
       const updatedBidders = [...prevBidders]
-
-      // Find if this bidder already exists
       const existingBidderIndex = updatedBidders.findIndex((bidder) => bidder.email === newBid.email)
 
       if (existingBidderIndex !== -1) {
-        // Update existing bidder if new bid is higher
         if (newBid.amount > updatedBidders[existingBidderIndex].amount) {
           updatedBidders[existingBidderIndex] = {
             ...updatedBidders[existingBidderIndex],
@@ -287,7 +248,6 @@ export default function LiveBid() {
           }
         }
       } else {
-        // Add new bidder
         updatedBidders.push({
           name: newBid.name,
           email: newBid.email,
@@ -303,15 +263,12 @@ export default function LiveBid() {
         topBidders: updatedBidders,
       })
 
-      // Sort by bid amount (highest first) and limit to top 3
       return updatedBidders.sort((a, b) => b.amount - a.amount).slice(0, 3)
     })
   }
 
-  // Function to update recent activity locally
   const updateRecentActivity = (newBid) => {
     setLocalRecentActivity((prevActivity) => {
-      // Add new activity to the beginning
       const updatedActivity = [
         {
           name: newBid.name,
@@ -321,13 +278,10 @@ export default function LiveBid() {
         },
         ...prevActivity,
       ]
-
-      // Limit to most recent 3 activities
       return updatedActivity.slice(0, 3)
     })
   }
 
-  // Transform top bidders data for display
   const topBidders =
     localTopBidders?.map((bidder, index) => ({
       name: bidder.name,
@@ -341,7 +295,6 @@ export default function LiveBid() {
       ),
     })) || []
 
-  // Transform recent activity data for display
   const recentActivity =
     localRecentActivity?.map((bidder) => ({
       name: bidder.name,
@@ -356,12 +309,9 @@ export default function LiveBid() {
       .get(`/auction/${id}`)
       .then((res) => {
         setLiveBid(res.data)
-
-        // Initialize current highest bid if not already set
         if (currentHighestBid === 0 && res.data.currentBid) {
           setCurrentHighestBid(res.data.currentBid)
         }
-
         setLoading(false)
       })
       .catch((error) => {
@@ -459,45 +409,33 @@ export default function LiveBid() {
     }
 
     try {
-      // Send bid data to backend
       const response = await axiosPublic.post("/live-bid", bidData)
 
       if (response.status === 200 || response.status === 201) {
-        // Emit the bid through socket for real-time updates
         if (socketRef.current && isConnected) {
           socketRef.current.emit("placeBid", bidData)
         }
 
-        // Update local state immediately for the current user
         setLiveBid((prev) => ({
           ...prev,
           currentBid: Number.parseFloat(bidAmount),
         }))
-
-        // Update current highest bid
         setCurrentHighestBid(Number.parseFloat(bidAmount))
 
-        // Update user's own bid
         const newUserBid = {
           amount: Number.parseFloat(bidAmount),
           bid: `$${Number.parseFloat(bidAmount).toLocaleString()}`,
         }
         setMyBid(newUserBid)
-
-        // Save to localStorage
         localStorage.setItem(`auction_${id}_user_bid`, JSON.stringify(newUserBid))
 
-        // Update local top bidders and recent activity
         updateTopBidders(bidData)
         updateRecentActivity(bidData)
 
-        // Trigger animation
         setBidAnimation(true)
         setTimeout(() => setBidAnimation(false), 1500)
-
         setBidAmount("")
 
-        // Show success notification
         Swal.fire({
           title: "Bid Placed!",
           text: `Your bid of $${Number.parseFloat(bidAmount).toLocaleString()} has been placed successfully.`,
@@ -538,7 +476,6 @@ export default function LiveBid() {
     })
   }
 
-  // Add these functions inside the LiveBid component, before the return statement
   const handleShare = (platform) => {
     const url = window.location.href
     const title = liveBid?.name || "Check out this auction!"
@@ -581,18 +518,14 @@ export default function LiveBid() {
       return
     }
 
-    // If user already reacted with this type, remove it
     if (userReaction === type) {
       setReactions((prev) => ({
         ...prev,
         [type]: Math.max(0, prev[type] - 1),
       }))
       setUserReaction(null)
-
-      // Save to database (you would implement this)
       saveReactionToDatabase(null)
     } else {
-      // If user had a different reaction, decrement that one
       if (userReaction) {
         setReactions((prev) => ({
           ...prev,
@@ -600,21 +533,17 @@ export default function LiveBid() {
         }))
       }
 
-      // Add the new reaction
       setReactions((prev) => ({
         ...prev,
         [type]: prev[type] + 1,
       }))
       setUserReaction(type)
-
-      // Save to database (you would implement this)
       saveReactionToDatabase(type)
     }
 
     setShowReactions(false)
   }
 
-  // Replace the existing saveReactionToDatabase function with this improved version
   const saveReactionToDatabase = async (reactionType) => {
     try {
       if (!user) return
@@ -635,18 +564,13 @@ export default function LiveBid() {
     }
   }
 
-  // Add this useEffect to load reactions from database
-  // Update the useEffect that loads reactions to use the new endpoint
   useEffect(() => {
     const fetchReactions = async () => {
       try {
-        // First check if the endpoint exists by making a simple request
         const response = await axiosPublic.get(`/auction-reactions/${id}`, {
           params: { userId: user?.uid },
-          // Add a timeout to prevent long waiting times
           timeout: 3000
         }).catch(error => {
-          // If endpoint doesn't exist (404) or times out, return a default response
           if (error.response?.status === 404 || error.code === 'ECONNABORTED') {
             console.log("Reaction endpoint not available, using default values");
             return { 
@@ -657,33 +581,26 @@ export default function LiveBid() {
               }
             };
           }
-          throw error; // Re-throw other errors
+          throw error;
         });
-  
+
         if (response.data.success) {
           setReactions(response.data.reactionCounts || { likes: 0, loves: 0, smiles: 0, wows: 0 });
-  
-          // If user is logged in, check if they have reacted
           if (user && response.data.userReactions?.length > 0) {
             setUserReaction(response.data.userReactions[0].reactionType);
           }
         }
       } catch (error) {
         console.error("Failed to fetch reactions:", error);
-        // Set default values if fetch fails
         setReactions({ likes: 0, loves: 0, smiles: 0, wows: 0 });
       }
     };
-  
+
     fetchReactions();
-  
-    // Set up a polling interval to refresh reactions periodically
-    const interval = setInterval(fetchReactions, 30000); // Every 30 seconds
-  
+    const interval = setInterval(fetchReactions, 30000);
     return () => clearInterval(interval);
   }, [id, user, axiosPublic]);
 
-  // Add this useEffect to handle clicking outside of share/reaction menus
   useEffect(() => {
     function handleClickOutside(event) {
       if (shareRef.current && !shareRef.current.contains(event.target)) {
@@ -703,7 +620,31 @@ export default function LiveBid() {
   if (loading) return <LoadingSpinner />
 
   return (
-    <div className={`min-h-screen mt-20 ${isDarkMode ? "bg-gray-900" : "bg-purple-200/80"}`}>
+    <div className={`min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-purple-100/30"}`}>
+      {/* Banner Section */}
+      <div className="relative w-full h-[30vh] lg:h-[40vh] overflow-hidden">
+        {/* Background Image with Gradient Overlay */}
+        <div className="absolute inset-0">
+          <img
+            src="https://i.ibb.co.com/LD4RqkpN/4025865-17454.jpg"
+            alt="Live Bidding Banner"
+            className="w-full h-full object-cover object-center scale-110 transition-transform duration-500"
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/50 to-black/80"></div>
+        </div>
+
+        {/* Content */}
+        <div className="absolute inset-0 flex items-center justify-end">
+          <div className="text-right px-4 mt-20 lg:mt-10 sm:px-6 md:px-8 lg:px-12 mr-4 sm:mr-6 md:mr-8 lg:mr-12 text-white relative z-10">
+            <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold tracking-tight leading-tight">
+              <span className="text-violet-400">LIVE BIDDING</span>{" "}
+              <span className="text-white">BID YOUR AUCTION</span>
+            </h1>
+          </div>
+        </div>
+      </div>
+
       {/* Connection status indicator */}
       <div
         className={`fixed top-16 right-4 z-50 px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${
@@ -714,7 +655,7 @@ export default function LiveBid() {
         {isConnected ? "Live" : connectionAttempts > 0 ? `Reconnecting (${connectionAttempts})` : "Offline"}
       </div>
 
-      <div className={`w-11/12 mx-auto py-12 ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>
+      <div className={`w-11/12 mx-auto py-10 ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>
         <div className="flex flex-col lg:flex-row gap-8">
           <div className="lg:w-2/3 w-full space-y-6">
             <div className="w-full rounded-xl overflow-hidden shadow-lg">
@@ -745,173 +686,172 @@ export default function LiveBid() {
             <div className={`p-6 rounded-xl ${isDarkMode ? "bg-gray-800" : "bg-white"} shadow-md`}>
               <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
                 <h3 className="text-2xl sm:text-3xl font-bold">{liveBid?.name}</h3>
-                {/* Replace the existing social icons section with this enhanced version */}
                 <div className="flex items-center gap-3 text-xl">
-  <div className="relative" ref={reactionRef}>
-    <div
-      className="flex items-center gap-1 cursor-pointer"
-      onClick={() => setShowReactions(!showReactions)}
-    >
-      {userReaction ? (
-        userReaction === "likes" ? (
-          <FaThumbsUp className="text-blue-500" />
-        ) : userReaction === "loves" ? (
-          <FaHeart className="text-red-500" />
-        ) : userReaction === "smiles" ? (
-          <FaFaceSmile className="text-yellow-500" />
-        ) : userReaction === "wows" ? (
-          <FaFaceSurprise className="text-yellow-500" />
-        ) : userReaction === "flags" ? (
-          <span className="text-xl text-orange-500" role="img" aria-label="White Flag">
-            🏳️
-          </span>
-        ) : (
-          <GiSelfLove
-            className={`hover:text-red-500 transition ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
-          />
-        )
-      ) : (
-        <GiSelfLove
-          className={`hover:text-red-500 transition ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
-        />
-      )}
-      <span className="text-sm font-medium">
-        {reactions.likes + reactions.loves + reactions.smiles + reactions.wows + reactions.flags > 0 &&
-          reactions.likes + reactions.loves + reactions.smiles + reactions.wows + reactions.flags}
-      </span>
-    </div>
+                  <div className="relative" ref={reactionRef}>
+                    <div
+                      className="flex items-center gap-1 cursor-pointer"
+                      onClick={() => setShowReactions(!showReactions)}
+                    >
+                      {userReaction ? (
+                        userReaction === "likes" ? (
+                          <FaThumbsUp className="text-blue-500" />
+                        ) : userReaction === "loves" ? (
+                          <FaHeart className="text-red-500" />
+                        ) : userReaction === "smiles" ? (
+                          <FaFaceSmile className="text-yellow-500" />
+                        ) : userReaction === "wows" ? (
+                          <FaFaceSurprise className="text-yellow-500" />
+                        ) : userReaction === "flags" ? (
+                          <span className="text-xl text-orange-500" role="img" aria-label="White Flag">
+                            🏳️
+                          </span>
+                        ) : (
+                          <GiSelfLove
+                            className={`hover:text-red-500 transition ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                          />
+                        )
+                      ) : (
+                        <GiSelfLove
+                          className={`hover:text-red-500 transition ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                        />
+                      )}
+                      <span className="text-sm font-medium">
+                        {reactions.likes + reactions.loves + reactions.smiles + reactions.wows + reactions.flags > 0 &&
+                          reactions.likes + reactions.loves + reactions.smiles + reactions.wows + reactions.flags}
+                      </span>
+                    </div>
 
-    {showReactions && (
-      <div
-        className={`absolute top-full left-0 mt-2 p-2 rounded-xl shadow-lg z-10 flex gap-2 ${
-          isDarkMode ? "bg-gray-800" : "bg-white"
-        }`}
-      >
-        <button
-          onClick={() => handleReaction("likes")}
-          className={`p-2 rounded-full transition ${
-            userReaction === "likes" ? "bg-blue-100" : "hover:bg-gray-100"
-          }`}
-          title="Like"
-        >
-          <FaThumbsUp
-            className={`text-xl ${userReaction === "likes" ? "text-blue-500" : "text-blue-400"}`}
-          />
-        </button>
-        <button
-          onClick={() => handleReaction("loves")}
-          className={`p-2 rounded-full transition ${
-            userReaction === "loves" ? "bg-red-100" : "hover:bg-gray-100"
-          }`}
-          title="Love"
-        >
-          <FaHeart
-            className={`text-xl ${userReaction === "loves" ? "text-red-500" : "text-red-400"}`}
-          />
-        </button>
-        <button
-          onClick={() => handleReaction("smiles")}
-          className={`p-2 rounded-full transition ${
-            userReaction === "smiles" ? "bg-yellow-100" : "hover:bg-gray-100"
-          }`}
-          title="Smile"
-        >
-          <FaFaceSmile
-            className={`text-xl ${userReaction === "smiles" ? "text-yellow-500" : "text-yellow-400"}`}
-          />
-        </button>
-        <button
-          onClick={() => handleReaction("wows")}
-          className={`p-2 rounded-full transition ${
-            userReaction === "wows" ? "bg-yellow-100" : "hover:bg-gray-100"
-          }`}
-          title="Wow"
-        >
-          <FaFaceSurprise
-            className={`text-xl ${userReaction === "wows" ? "text-yellow-500" : "text-yellow-400"}`}
-          />
-        </button>
-        <button
-          onClick={() => handleReaction("flags")}
-          className={`p-2 rounded-full transition ${
-            userReaction === "flags" ? "bg-orange-100" : "hover:bg-gray-100"
-          }`}
-          title="Flag"
-        >
-          <span
-            className={`text-xl ${userReaction === "flags" ? "text-orange-500" : "text-orange-400"}`}
-            role="img"
-            aria-label="White Flag"
-          >
-            🏳️
-          </span>
-        </button>
-      </div>
-    )}
-  </div>
+                    {showReactions && (
+                      <div
+                        className={`absolute top-full left-0 mt-2 p-2 rounded-xl shadow-lg z-10 flex gap-2 ${
+                          isDarkMode ? "bg-gray-800" : "bg-white"
+                        }`}
+                      >
+                        <button
+                          onClick={() => handleReaction("likes")}
+                          className={`p-2 rounded-full transition ${
+                            userReaction === "likes" ? "bg-blue-100" : "hover:bg-gray-100"
+                          }`}
+                          title="Like"
+                        >
+                          <FaThumbsUp
+                            className={`text-xl ${userReaction === "likes" ? "text-blue-500" : "text-blue-400"}`}
+                          />
+                        </button>
+                        <button
+                          onClick={() => handleReaction("loves")}
+                          className={`p-2 rounded-full transition ${
+                            userReaction === "loves" ? "bg-red-100" : "hover:bg-gray-100"
+                          }`}
+                          title="Love"
+                        >
+                          <FaHeart
+                            className={`text-xl ${userReaction === "loves" ? "text-red-500" : "text-red-400"}`}
+                          />
+                        </button>
+                        <button
+                          onClick={() => handleReaction("smiles")}
+                          className={`p-2 rounded-full transition ${
+                            userReaction === "smiles" ? "bg-yellow-100" : "hover:bg-gray-100"
+                          }`}
+                          title="Smile"
+                        >
+                          <FaFaceSmile
+                            className={`text-xl ${userReaction === "smiles" ? "text-yellow-500" : "text-yellow-400"}`}
+                          />
+                        </button>
+                        <button
+                          onClick={() => handleReaction("wows")}
+                          className={`p-2 rounded-full transition ${
+                            userReaction === "wows" ? "bg-yellow-100" : "hover:bg-gray-100"
+                          }`}
+                          title="Wow"
+                        >
+                          <FaFaceSurprise
+                            className={`text-xl ${userReaction === "wows" ? "text-yellow-500" : "text-yellow-400"}`}
+                          />
+                        </button>
+                        <button
+                          onClick={() => handleReaction("flags")}
+                          className={`p-2 rounded-full transition ${
+                            userReaction === "flags" ? "bg-orange-100" : "hover:bg-gray-100"
+                          }`}
+                          title="Flag"
+                        >
+                          <span
+                            className={`text-xl ${userReaction === "flags" ? "text-orange-500" : "text-orange-400"}`}
+                            role="img"
+                            aria-label="White Flag"
+                          >
+                            🏳️
+                          </span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
 
-  <div className="relative" ref={shareRef}>
-    <FaShare
-      className={`cursor-pointer hover:text-blue-500 transition ${
-        isDarkMode ? "text-gray-400" : "text-gray-600"
-      }`}
-      onClick={() => setShowShareOptions(!showShareOptions)}
-    />
+                  <div className="relative" ref={shareRef}>
+                    <FaShare
+                      className={`cursor-pointer hover:text-blue-500 transition ${
+                        isDarkMode ? "text-gray-400" : "text-gray-600"
+                      }`}
+                      onClick={() => setShowShareOptions(!showShareOptions)}
+                    />
 
-    {showShareOptions && (
-      <div
-        className={`absolute top-full right-0 mt-2 p-2 rounded-xl shadow-lg z-10 ${
-          isDarkMode ? "bg-gray-800" : "bg-white"
-        }`}
-      >
-        <div className="flex flex-col gap-2 min-w-[150px]">
-          <button
-            onClick={() => handleShare("facebook")}
-            className={`flex items-center gap-2 p-2 rounded-md transition ${
-              isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
-            }`}
-          >
-            <FaFacebook className="text-blue-600" />
-            <span>Facebook</span>
-          </button>
-          <button
-            onClick={() => handleShare("twitter")}
-            className={`flex items-center gap-2 p-2 rounded-md transition ${
-              isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
-            }`}
-          >
-            <FaTwitter className="text-blue-400" />
-            <span>Twitter</span>
-          </button>
-          <button
-            onClick={() => handleShare("whatsapp")}
-            className={`flex items-center gap-2 p-2 rounded-md transition ${
-              isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
-            }`}
-          >
-            <FaWhatsapp className="text-green-500" />
-            <span>WhatsApp</span>
-          </button>
-          <button
-            onClick={() => handleShare("copy")}
-            className={`flex items-center gap-2 p-2 rounded-md transition ${
-              isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
-            }`}
-          >
-            <FaLink className="text-gray-500" />
-            <span>Copy Link</span>
-          </button>
-        </div>
-      </div>
-    )}
-  </div>
+                    {showShareOptions && (
+                      <div
+                        className={`absolute top-full right-0 mt-2 p-2 rounded-xl shadow-lg z-10 ${
+                          isDarkMode ? "bg-gray-800" : "bg-white"
+                        }`}
+                      >
+                        <div className="flex flex-col gap-2 min-w-[150px]">
+                          <button
+                            onClick={() => handleShare("facebook")}
+                            className={`flex items-center gap-2 p-2 rounded-md transition ${
+                              isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                            }`}
+                          >
+                            <FaFacebook className="text-blue-600" />
+                            <span>Facebook</span>
+                          </button>
+                          <button
+                            onClick={() => handleShare("twitter")}
+                            className={`flex items-center gap-2 p-2 rounded-md transition ${
+                              isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                            }`}
+                          >
+                            <FaTwitter className="text-blue-400" />
+                            <span>Twitter</span>
+                          </button>
+                          <button
+                            onClick={() => handleShare("whatsapp")}
+                            className={`flex items-center gap-2 p-2 rounded-md transition ${
+                              isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                            }`}
+                          >
+                            <FaWhatsapp className="text-green-500" />
+                            <span>WhatsApp</span>
+                          </button>
+                          <button
+                            onClick={() => handleShare("copy")}
+                            className={`flex items-center gap-2 p-2 rounded-md transition ${
+                              isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                            }`}
+                          >
+                            <FaLink className="text-gray-500" />
+                            <span>Copy Link</span>
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
 
-  <IoFlagOutline
-    className={`cursor-pointer hover:text-orange-500 transition ${
-      isDarkMode ? "text-gray-400" : "text-gray-600"
-    }`}
-  />
-</div>
+                  <IoFlagOutline
+                    className={`cursor-pointer hover:text-orange-500 transition ${
+                      isDarkMode ? "text-gray-400" : "text-gray-600"
+                    }`}
+                  />
+                </div>
               </div>
               <h3 className="text-xl font-semibold pt-4">Description:</h3>
               <p className={`${isDarkMode ? "text-gray-300" : "text-gray-600"} mt-2`}>
