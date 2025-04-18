@@ -161,7 +161,9 @@ const HotAuction = () => {
 
   if (isLoading) {
     return (
-      <div className={`min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
+      <div
+        className={`min-h-screen ${isDarkMode ? "bg-gray-950" : "bg-gray-50"}`}
+      >
         <div className="flex justify-center items-center py-20">
           <motion.div
             animate={{ scale: [1, 1.2, 1] }}
@@ -178,7 +180,9 @@ const HotAuction = () => {
 
   if (error) {
     return (
-      <div className={`min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
+      <div
+        className={`min-h-screen ${isDarkMode ? "bg-gray-950" : "bg-gray-50"}`}
+      >
         <div className="text-center py-20">
           <div className="inline-flex items-center justify-center bg-red-100 text-red-600 p-4 rounded-full mb-4">
             <FaSadTear className="text-2xl" />
@@ -197,7 +201,9 @@ const HotAuction = () => {
   }
 
   return (
-    <div className={`min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
+    <div
+      className={`min-h-screen ${isDarkMode ? "bg-gray-950" : "bg-gray-50"}`}
+    >
       <section className="container mx-auto px-4 py-12">
         <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
           <div className="flex items-center">
@@ -243,7 +249,9 @@ const HotAuction = () => {
               <FaSadTear className="text-4xl" />
             </div>
             <h3 className="text-2xl font-bold mb-3">
-              {searchTerm ? "No matching auctions found" : "No active auctions available"}
+              {searchTerm
+                ? "No matching auctions found"
+                : "No active auctions available"}
             </h3>
             <p className="text-lg text-gray-600 mb-6 max-w-md mx-auto">
               {searchTerm
@@ -280,13 +288,19 @@ const HotAuction = () => {
                   <button
                     onClick={() => toggleFavorite(item._id)}
                     className={`absolute top-3 right-3 z-10 p-2 rounded-full transition-all shadow-md ${
-                      isDarkMode ? "bg-gray-800/80 hover:bg-gray-700" : "bg-white/80 hover:bg-white"
+                      isDarkMode
+                        ? "bg-gray-800/80 hover:bg-gray-700"
+                        : "bg-white/80 hover:bg-white"
                     }`}
                   >
                     {favorites.includes(item._id) ? (
                       <FaHeart className="text-red-500 text-xl" />
                     ) : (
-                      <FaRegHeart className={`text-xl ${isDarkMode ? "text-gray-200" : "text-gray-800"}`} />
+                      <FaRegHeart
+                        className={`text-xl ${
+                          isDarkMode ? "text-gray-200" : "text-gray-800"
+                        }`}
+                      />
                     )}
                   </button>
 
@@ -305,30 +319,54 @@ const HotAuction = () => {
                     </div>
                   </div>
 
-                  <div className={`p-5 ${isDarkMode ? "text-gray-100" : "text-gray-800"}`}>
+                  <div
+                    className={`p-5 ${
+                      isDarkMode ? "text-gray-100" : "text-gray-800"
+                    }`}
+                  >
                     <div className="flex justify-between items-start mb-3">
-                      <h3 className="text-lg h-12 font-bold line-clamp-2">{item.name}</h3>
+                      <h3 className="text-lg h-12 font-bold line-clamp-2">
+                        {item.name}
+                      </h3>
                       <span
                         className={`text-xs px-2 py-1 rounded-full ${
-                          isDarkMode ? "bg-purple-900/50 text-purple-300" : "bg-purple-100 text-purple-800"
+                          isDarkMode
+                            ? "bg-purple-900/50 text-purple-300"
+                            : "bg-purple-100 text-purple-800"
                         }`}
                       >
                         {item.category}
                       </span>
                     </div>
 
-                    <p className={`text-sm mb-4 line-clamp-2 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                    <p
+                      className={`text-sm mb-4 line-clamp-2 ${
+                        isDarkMode ? "text-gray-400" : "text-gray-600"
+                      }`}
+                    >
                       {item.description || "No description available"}
                     </p>
 
                     <div className="flex justify-between items-center mb-4">
                       <div>
-                        <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Starting Price :</p>
-                        <p className="text-xl font-bold text-purple-600">${item.startingPrice?.toLocaleString()}</p>
+                        <p
+                          className={`text-xs ${
+                            isDarkMode ? "text-gray-400" : "text-gray-500"
+                          }`}
+                        >
+                          Starting Price :
+                        </p>
+                        <p className="text-xl font-bold text-purple-600">
+                          ${item.startingPrice?.toLocaleString()}
+                        </p>
                       </div>
                       <div className="flex items-center space-x-2">
                         <div className="flex items-center">
-                          <FaGavel className={`mr-1 ${isDarkMode ? "text-purple-400" : "text-purple-600"}`} />
+                          <FaGavel
+                            className={`mr-1 ${
+                              isDarkMode ? "text-purple-400" : "text-purple-600"
+                            }`}
+                          />
                           <span className="text-sm">{item.bids || 0} bids</span>
                         </div>
                       </div>
@@ -336,13 +374,27 @@ const HotAuction = () => {
 
                     <div className="mb-4">
                       <div className="flex justify-between text-xs mb-1">
-                        <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>Bidding Progress</span>
-                        <span className="font-medium">{Math.min(100, (item.bids || 0) * 10)}%</span>
+                        <span
+                          className={
+                            isDarkMode ? "text-gray-400" : "text-gray-600"
+                          }
+                        >
+                          Bidding Progress
+                        </span>
+                        <span className="font-medium">
+                          {Math.min(100, (item.bids || 0) * 10)}%
+                        </span>
                       </div>
-                      <div className={`w-full h-2 rounded-full ${isDarkMode ? "bg-gray-700" : "bg-gray-200"}`}>
+                      <div
+                        className={`w-full h-2 rounded-full ${
+                          isDarkMode ? "bg-gray-700" : "bg-gray-200"
+                        }`}
+                      >
                         <div
                           className="h-2 rounded-full bg-gradient-to-r from-purple-500 to-purple-500"
-                          style={{ width: `${Math.min(100, (item.bids || 0) * 10)}%` }}
+                          style={{
+                            width: `${Math.min(100, (item.bids || 0) * 10)}%`,
+                          }}
                         ></div>
                       </div>
                     </div>
@@ -355,7 +407,11 @@ const HotAuction = () => {
                         Bid Now
                       </Link>
                       <button className="p-2 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
-                        <FaEye className={isDarkMode ? "text-gray-300" : "text-gray-600"} />
+                        <FaEye
+                          className={
+                            isDarkMode ? "text-gray-300" : "text-gray-600"
+                          }
+                        />
                       </button>
                     </div>
                   </div>
@@ -373,7 +429,9 @@ const HotAuction = () => {
                       isDarkMode
                         ? "bg-gray-800 text-gray-300 hover:bg-gray-700"
                         : "bg-white text-gray-700 hover:bg-gray-100"
-                    } shadow-md transition ${currentPage === 0 ? "opacity-50 cursor-not-allowed" : ""}`}
+                    } shadow-md transition ${
+                      currentPage === 0 ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
                     aria-disabled={currentPage === 0}
                   >
                     {"<"}
@@ -398,7 +456,9 @@ const HotAuction = () => {
                     ) : (
                       <span
                         key={`ellipsis-${index}`}
-                        className={`text-sm sm:text-base ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+                        className={`text-sm sm:text-base ${
+                          isDarkMode ? "text-gray-400" : "text-gray-500"
+                        }`}
                       >
                         ...
                       </span>
@@ -412,7 +472,11 @@ const HotAuction = () => {
                       isDarkMode
                         ? "bg-gray-800 text-gray-300 hover:bg-gray-700"
                         : "bg-white text-gray-700 hover:bg-gray-100"
-                    } shadow-md transition ${currentPage === pageCount - 1 ? "opacity-50 cursor-not-allowed" : ""}`}
+                    } shadow-md transition ${
+                      currentPage === pageCount - 1
+                        ? "opacity-50 cursor-not-allowed"
+                        : ""
+                    }`}
                     aria-disabled={currentPage === pageCount - 1}
                   >
                     {">"}

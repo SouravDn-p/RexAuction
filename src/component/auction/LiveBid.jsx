@@ -51,6 +51,9 @@ export default function LiveBid() {
   const shareRef = useRef(null);
   const reactionRef = useRef(null);
 
+  const [autoBidAmount, setAutoBidAmount] = useState(0);
+  const [incrementalAmount, setIncrementalAmount] = useState(0);
+
   // Socket.IO connection
   const socketRef = useRef(null);
   const [isConnected, setIsConnected] = useState(false);
@@ -90,12 +93,14 @@ export default function LiveBid() {
           setMyBid({
             amount: userBid.amount,
             bid: `$${userBid.amount.toLocaleString()}`,
+            autoBid: `$${userBid.autoBid.toLocaleString()}`,
           });
           localStorage.setItem(
             `auction_${id}_user_bid`,
             JSON.stringify({
               amount: userBid.amount,
               bid: `$${userBid.amount.toLocaleString()}`,
+              autoBid: `$${userBid.autoBid.toLocaleString()}`,
             })
           );
         }
@@ -165,6 +170,32 @@ export default function LiveBid() {
     }
   }, [id, user]);
 
+  // handle autoBid system
+  useEffect(() => {
+    const currentBid =
+      Number(currentHighestBid) ||
+      Number(liveBid?.currentBid) ||
+      Number(liveBid?.startingPrice) ||
+      0;
+
+    const userAutoBid = Number(myBid?.autoBid) || 0;
+    const incrementBy = Number(myBid?.incrementBy) || 1;
+    const currentUserBid = Number(myBid?.amount) || 0;
+
+    if (
+      userAutoBid > 0 &&
+      currentUserBid < userAutoBid &&
+      currentUserBid <= currentBid
+    ) {
+      const nextBid = Number((currentBid + incrementBy).toFixed(2));
+
+      if (nextBid <= userAutoBid) {
+        setBidAmount(Number.parseFloat(nextBid));
+        handlePlaceBid();
+      }
+    }
+  }, [liveBid, currentHighestBid]);
+
   // Socket.IO connection setup with reconnection logic
   useEffect(() => {
     const SOCKET_SERVER_URL = "http://localhost:5000";
@@ -209,8 +240,12 @@ export default function LiveBid() {
             const newUserBid = {
               amount: bidData.amount,
               bid: `$${bidData.amount.toLocaleString()}`,
+              autoBid: Number.parseFloat(myBid?.autoBid || 0),
+              incrementBy: Number.parseFloat(myBid?.incrementBy || 0),
             };
             setMyBid(newUserBid);
+
+            console.log("newUserBid in socket ", newUserBid);
             localStorage.setItem(
               `auction_${id}_user_bid`,
               JSON.stringify(newUserBid)
@@ -282,11 +317,12 @@ export default function LiveBid() {
           photo: newBid.photo,
           amount: newBid.amount,
           auctionId: newBid.auctionId,
+          autoBid: newBid.autoBid || 0,
+          incrementBy: newBid.incrementBy || 0,
         });
       }
 
       console.log("updatedBidders", updatedBidders);
-
       axiosPublic.patch("/auctionList/topBidders", {
         topBidders: updatedBidders,
       });
@@ -313,7 +349,7 @@ export default function LiveBid() {
   const topBidders =
     localTopBidders?.map((bidder, index) => ({
       name: bidder.name,
-      bid: `$${bidder.amount.toLocaleString()}`,
+      bid: `$${bidder?.amount?.toLocaleString() || 0}`,
       photo: bidder.photo,
       email: bidder.email,
       icon: (
@@ -332,7 +368,7 @@ export default function LiveBid() {
   const recentActivity =
     localRecentActivity?.map((bidder) => ({
       name: bidder.name,
-      bid: `$${bidder.amount.toLocaleString()}`,
+      bid: `$${bidder?.amount?.toLocaleString() || 0}`,
       photo: bidder.photo,
       createdAt: bidder.createdAt,
     })) || [];
@@ -405,6 +441,11 @@ export default function LiveBid() {
       currentHighestBid || liveBid?.currentBid || liveBid?.startingPrice || 0;
     setBidAmount((Number.parseFloat(current) + amount).toFixed(2));
   };
+  const handleAutoBidIncrement = (amount) => {
+    const current =
+      currentHighestBid || liveBid?.currentBid || liveBid?.startingPrice || 0;
+    setAutoBidAmount((Number.parseFloat(current) + amount).toFixed(2));
+  };
 
   const handlePlaceBid = async () => {
     const startingPrice = liveBid?.startingPrice || 0;
@@ -418,7 +459,7 @@ export default function LiveBid() {
     }
 
     if (!bidAmount || Number.parseFloat(bidAmount) <= currentBid) {
-      alert("Bid must be higher than current bid");
+      alert("Bid is must be higher than current bid");
       return;
     }
 
@@ -444,8 +485,12 @@ export default function LiveBid() {
       photo: user.photoURL || "",
       amount: Number.parseFloat(bidAmount),
       auctionId: id,
+      autoBid: Number.parseFloat(myBid?.autoBid) || 0,
       bidderUserId: dbUser?._id,
+      incrementBy: Number.parseFloat(myBid?.incrementBy) || 0,
     };
+
+    console.log("bidData in place bid", bidData);
 
     try {
       const response = await axiosPublic.post("/live-bid", bidData);
@@ -464,6 +509,8 @@ export default function LiveBid() {
         const newUserBid = {
           amount: Number.parseFloat(bidAmount),
           bid: `$${Number.parseFloat(bidAmount).toLocaleString()}`,
+          autoBid: Number.parseFloat(myBid?.autoBid),
+          incrementBy: Number.parseFloat(myBid?.incrementBy),
         };
         setMyBid(newUserBid);
         localStorage.setItem(
@@ -482,6 +529,107 @@ export default function LiveBid() {
           title: "Bid Placed!",
           text: `Your bid of $${Number.parseFloat(
             bidAmount
+          ).toLocaleString()} has been placed successfully.`,
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false,
+        });
+      } else {
+        throw new Error("Bid not successful");
+      }
+    } catch (error) {
+      console.error("Failed to place bid:", error);
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to place bid. Please try again.",
+        icon: "error",
+      });
+    }
+  };
+
+  const handleAutoBid = async () => {
+    const startingPrice = liveBid?.startingPrice || 0;
+    const minRequiredBid = Math.round(0.1 * startingPrice);
+    const currentBid =
+      currentHighestBid || liveBid?.currentBid || liveBid?.startingPrice || 0;
+
+    if (!user) {
+      alert("Please log in to place a bid");
+      return;
+    }
+    console.log("autoBidAmount", autoBidAmount);
+    console.log("currentBid", currentBid);
+
+    if (!autoBidAmount || Number.parseFloat(autoBidAmount) <= currentBid) {
+      alert("Auto Bid must be higher than current bid");
+      return;
+    }
+
+    if (!autoBidAmount || Number.parseFloat(autoBidAmount) < minRequiredBid) {
+      return Swal.fire({
+        title: "Not enough balance!",
+        text: `Your bid must be at least $${minRequiredBid}, which is 10% of the starting price.`,
+        icon: "error",
+        showCancelButton: true,
+        confirmButtonText: "Add Balance",
+        cancelButtonText: "Cancel",
+        draggable: true,
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = "/addBalance";
+        }
+      });
+    }
+    const bidData = {
+      email: user.email,
+      name: user.displayName || "Anonymous",
+      photo: user.photoURL || "",
+      amount: Number.parseFloat(currentBid),
+      auctionId: id,
+      bidderUserId: dbUser?._id,
+      autoBid: Number.parseFloat(autoBidAmount) || 0,
+      incrementBy: incrementalAmount || 0,
+    };
+
+    console.log("bidData in place autoBid", bidData);
+
+    try {
+      const response = await axiosPublic.post("/live-bid", bidData);
+
+      if (response.status === 200 || response.status === 201) {
+        if (socketRef.current && isConnected) {
+          socketRef.current.emit("placeBid", bidData);
+        }
+
+        setLiveBid((prev) => ({
+          ...prev,
+          currentBid: Number.parseFloat(currentBid),
+        }));
+        setCurrentHighestBid(Number.parseFloat(currentBid));
+
+        const newUserBid = {
+          amount: Number.parseFloat(currentBid),
+          bid: `$${Number.parseFloat(currentBid).toLocaleString()}`,
+          autoBid: Number.parseFloat(autoBidAmount),
+          incrementBy: Number.parseFloat(incrementalAmount),
+        };
+        setMyBid(newUserBid);
+        localStorage.setItem(
+          `auction_${id}_user_bid`,
+          JSON.stringify(newUserBid)
+        );
+
+        updateTopBidders(bidData);
+        updateRecentActivity(bidData);
+
+        setBidAnimation(true);
+        setTimeout(() => setBidAnimation(false), 1500);
+        setBidAmount("");
+
+        Swal.fire({
+          title: "Auto Bid Placed!",
+          text: `Your bid of $${Number.parseFloat(
+            autoBidAmount
           ).toLocaleString()} has been placed successfully.`,
           icon: "success",
           timer: 2000,
@@ -1120,6 +1268,78 @@ export default function LiveBid() {
                 </button>
               </div>
             </div>
+            <div
+              className={`p-4 rounded-xl shadow-md ${
+                isDarkMode ? "bg-gray-800" : "bg-white"
+              }`}
+            >
+              <h3 className="text-xl font-bold mb-3">Recent Activity</h3>
+              <div className="space-y-3">
+                {isRecentActivityFetching && recentActivity.length === 0 ? (
+                  <p
+                    className={`text-center py-4 ${
+                      isDarkMode ? "text-gray-400" : "text-gray-600"
+                    }`}
+                  >
+                    Loading recent activity...
+                  </p>
+                ) : recentActivity.length > 0 ? (
+                  recentActivity.map((bidder, index) => (
+                    <div
+                      key={index}
+                      className={`flex items-center gap-3 p-3 rounded-lg ${
+                        isDarkMode ? "bg-gray-700" : "bg-gray-50"
+                      } ${
+                        bidder.name === user?.displayName
+                          ? "border-2 border-purple-500"
+                          : ""
+                      } 
+                      ${index === 0 ? "animate-fadeIn" : ""}`}
+                    >
+                      <img
+                        src={bidder.photo || image}
+                        className="w-10 h-10 rounded-full object-cover"
+                        alt="Bidder"
+                      />
+                      <div className="flex-1">
+                        <div className="flex justify-between items-center">
+                          <h3 className="font-medium">
+                            {bidder.name}
+                            {bidder.name === user?.displayName && (
+                              <span className="ml-1 text-xs text-purple-500">
+                                (You)
+                              </span>
+                            )}
+                          </h3>
+                          <span
+                            className={`text-sm font-semibold ${
+                              isDarkMode ? "text-purple-400" : "text-purple-600"
+                            }`}
+                          >
+                            {bidder.bid}
+                          </span>
+                        </div>
+                        <p
+                          className={`text-xs ${
+                            isDarkMode ? "text-gray-400" : "text-gray-500"
+                          }`}
+                        >
+                          {formatRelativeTime(bidder.createdAt)}
+                        </p>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <p
+                    className={`text-center py-4 ${
+                      isDarkMode ? "text-gray-400" : "text-gray-600"
+                    }`}
+                  >
+                    No recent bids yet! Start the bidding now!
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
 
           <div className="lg:w-1/3 w-full space-y-6">
@@ -1171,22 +1391,40 @@ export default function LiveBid() {
               </div>
 
               {user && (
-                <div
-                  className={`p-4 rounded-xl col-span-2 shadow-lg text-center transition hover:scale-[1.02] flex flex-col justify-center items-center h-full ${
-                    isDarkMode
-                      ? "bg-gray-800 border border-purple-500"
-                      : "bg-white border border-purple-300"
-                  }`}
-                >
-                  <p className="text-lg font-semibold">Your Highest Bid</p>
-                  <h3
-                    className={`font-bold text-2xl ${
-                      isDarkMode ? "text-purple-400" : "text-purple-600"
+                <>
+                  <div
+                    className={`p-4 rounded-xl col-span-2 shadow-lg text-center transition hover:scale-[1.02] flex flex-col justify-center items-center h-full ${
+                      isDarkMode
+                        ? "bg-gray-800 border border-purple-500"
+                        : "bg-white border border-purple-300"
                     }`}
                   >
-                    {myBid?.bid || "$0"}
-                  </h3>
-                </div>
+                    <p className="text-lg font-semibold">Your Highest Bid</p>
+                    <h3
+                      className={`font-bold text-2xl ${
+                        isDarkMode ? "text-purple-400" : "text-purple-600"
+                      }`}
+                    >
+                      {myBid?.bid || "$ 0"}
+                    </h3>
+                  </div>
+                  <div
+                    className={`p-4 rounded-xl col-span-2 shadow-lg text-center transition hover:scale-[1.02] flex flex-col justify-center items-center h-full ${
+                      isDarkMode
+                        ? "bg-gray-800 border border-purple-500"
+                        : "bg-white border border-purple-300"
+                    }`}
+                  >
+                    <p className="text-lg font-semibold">Your Auto Bid</p>
+                    <h3
+                      className={`font-bold text-2xl ${
+                        isDarkMode ? "text-purple-400" : "text-purple-600"
+                      }`}
+                    >
+                      {myBid?.autoBid || "$0"}
+                    </h3>
+                  </div>
+                </>
               )}
             </div>
 
@@ -1346,76 +1584,87 @@ export default function LiveBid() {
             </div>
 
             <div
-              className={`p-4 rounded-xl shadow-md ${
+              className={`p-5 rounded-xl shadow-md ${
                 isDarkMode ? "bg-gray-800" : "bg-white"
               }`}
             >
-              <h3 className="text-xl font-bold mb-3">Recent Activity</h3>
-              <div className="space-y-3">
-                {isRecentActivityFetching && recentActivity.length === 0 ? (
-                  <p
-                    className={`text-center py-4 ${
-                      isDarkMode ? "text-gray-400" : "text-gray-600"
-                    }`}
+              <h3 className="text-xl font-bold text-center mb-4">
+                Set Your Auto Bid
+              </h3>
+              <div className="flex gap-3 mb-4">
+                {[
+                  100,
+                  200,
+                  Math.round(
+                    (currentHighestBid || liveBid?.currentBid || 0) * 0.1
+                  ),
+                ].map((amount) => (
+                  <button
+                    key={amount}
+                    onClick={() => handleAutoBidIncrement(amount)}
+                    className={`flex-1 py-2 rounded-lg transition ${
+                      isDarkMode
+                        ? "bg-gray-700 hover:bg-gray-600 border border-gray-600"
+                        : "bg-purple-100 hover:bg-purple-200 border border-purple-200"
+                    } text-purple-600 font-medium`}
                   >
-                    Loading recent activity...
-                  </p>
-                ) : recentActivity.length > 0 ? (
-                  recentActivity.map((bidder, index) => (
-                    <div
-                      key={index}
-                      className={`flex items-center gap-3 p-3 rounded-lg ${
-                        isDarkMode ? "bg-gray-700" : "bg-gray-50"
-                      } ${
-                        bidder.name === user?.displayName
-                          ? "border-2 border-purple-500"
-                          : ""
-                      } 
-                      ${index === 0 ? "animate-fadeIn" : ""}`}
-                    >
-                      <img
-                        src={bidder.photo || image}
-                        className="w-10 h-10 rounded-full object-cover"
-                        alt="Bidder"
-                      />
-                      <div className="flex-1">
-                        <div className="flex justify-between items-center">
-                          <h3 className="font-medium">
-                            {bidder.name}
-                            {bidder.name === user?.displayName && (
-                              <span className="ml-1 text-xs text-purple-500">
-                                (You)
-                              </span>
-                            )}
-                          </h3>
-                          <span
-                            className={`text-sm font-semibold ${
-                              isDarkMode ? "text-purple-400" : "text-purple-600"
-                            }`}
-                          >
-                            {bidder.bid}
-                          </span>
-                        </div>
-                        <p
-                          className={`text-xs ${
-                            isDarkMode ? "text-gray-400" : "text-gray-500"
-                          }`}
-                        >
-                          {formatRelativeTime(bidder.createdAt)}
-                        </p>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <p
-                    className={`text-center py-4 ${
-                      isDarkMode ? "text-gray-400" : "text-gray-600"
-                    }`}
-                  >
-                    No recent bids yet! Start the bidding now!
-                  </p>
-                )}
+                    +{amount}
+                  </button>
+                ))}
               </div>
+              <div className="mb-4">
+                <label htmlFor="totalMoney">Increment By :</label>
+                <input
+                  type="number"
+                  value={incrementalAmount}
+                  onChange={(e) => {
+                    setIncrementalAmount(e.target.value);
+                  }}
+                  placeholder={`Enter incremental money)`}
+                  className={`w-full p-3 pb-3 rounded-lg focus:outline-none focus:ring-2 ${
+                    isDarkMode
+                      ? "bg-gray-700 border-gray-700 focus:ring-purple-500"
+                      : "bg-white border-gray-300 focus:ring-purple-400"
+                  } border`}
+                />
+              </div>
+              <div className="mb-4">
+                <label htmlFor="totalMoney">Auto Highest Bid:</label>
+                <input
+                  type="number"
+                  value={autoBidAmount}
+                  onChange={(e) => {
+                    setAutoBidAmount(e.target.value);
+                  }}
+                  placeholder={`Enter bid (min $${(
+                    (currentHighestBid ||
+                      liveBid?.currentBid ||
+                      liveBid?.startingPrice ||
+                      0) + 100
+                  ).toLocaleString()})`}
+                  className={`w-full p-3 pb-3 rounded-lg focus:outline-none focus:ring-2 ${
+                    isDarkMode
+                      ? "bg-gray-700 border-gray-600 focus:ring-purple-500"
+                      : "bg-white border-gray-300 focus:ring-purple-400"
+                  } border`}
+                />
+              </div>
+
+              <button
+                onClick={() => handleAutoBid()}
+                disabled={formatTime(countdown) === "Ended" || isBidLoading}
+                className={`w-full py-3 rounded-lg font-semibold transition ${
+                  formatTime(countdown) === "Ended" || isBidLoading
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-purple-600 hover:bg-purple-700"
+                } text-white`}
+              >
+                {isBidLoading
+                  ? "Placing Auto Bid..."
+                  : formatTime(countdown) === "Ended"
+                  ? "Auction Ended"
+                  : "Place Auto Bid"}
+              </button>
             </div>
           </div>
         </div>
