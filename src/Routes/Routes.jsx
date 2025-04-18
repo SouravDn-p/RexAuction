@@ -37,6 +37,7 @@ import Chat from "../component/Chats/Chat";
 import WalletHistory from "../extra/wallet/WalletHistory";
 import SdBot from "../extra/sdChatBot/SdBot";
 import ContactUs from "../component/shared/contactUs";
+// import AdminFeedback from "../component/dashboard/admin/AdminFeedback";
 
 // import TeamSettings from "../component/Settings/TeamSettings";
 // import PlanSettings from "../component/Settings/PlanSettings";
@@ -132,6 +133,10 @@ export const router = createBrowserRouter([
         path: "sellerRequest",
         element: <SellerRequest />,
       },
+      // {
+      //   path: "adminFeedback",
+      //   element: <AdminFeedback />,
+      // },
       // Seller Only
       {
         path: "createAuction",
