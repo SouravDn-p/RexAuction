@@ -1,171 +1,301 @@
-import React, { useContext } from "react";
-import {
-  VerticalTimeline,
-  VerticalTimelineElement,
-} from "react-vertical-timeline-component";
+import React, { useContext, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import "react-vertical-timeline-component/style.min.css";
+import AOS from "aos";
+import "aos/dist/aos.css";
 import ThemeContext from "../Context/ThemeContext";
 
-// Motion Variants
 const textVariant = () => ({
   hidden: { opacity: 0, y: -50 },
   show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
 });
 
-const feedbacks = [
-  {
-    name: "John Doe",
-    role: "Buyer",
-    date: "March 20, 2025",
-    image: "/images/user1.jpg",
-    feedback:
-      "The auction experience was smooth, and I got a great deal on a rare collectible!",
-    iconBg: "#ffcc00",
-  },
-  {
-    name: "Sarah Smith",
-    role: "Seller",
-    date: "March 18, 2025",
-    image: "/images/user2.jpg",
-    feedback:
-      "Selling my vintage art piece was effortless. The bidding was competitive and rewarding!",
-    iconBg: "#ff5733",
-  },
-  {
-    name: "Michael Lee",
-    role: "Buyer",
-    date: "March 15, 2025",
-    image: "/images/user3.jpg",
-    feedback:
-      "I loved the interface and how transparent the bidding process was. Great experience!",
-    iconBg: "#33aaff",
-  },
+const FeedbackCard = ({ feedback, isDarkMode }) => {
+  const isSeller = feedback.role.toLowerCase() === "seller";
+  const stars = "★".repeat(feedback.rating) + "☆".repeat(5 - feedback.rating);
+  const bids =
+    feedback.bids && feedback.bids.length > 0 ? (
+      feedback.bids.slice(0, 2).map((bid, idx) => (
+        <li key={idx} className="text-xs text-gray-500 dark:text-gray-400">
+          • {bid}
+        </li>
+      ))
+    ) : (
+      <p className="text-sm text-gray-400 italic">No bid yet</p>
+    );
 
-  {
-    name: "Emily Carter",
-    role: "Seller",
-    date: "March 10, 2025",
-    image: "/images/user4.jpg",
-    feedback:
-      "The auction process was seamless, and I got a great price for my antique collection!",
-    iconBg: "#ff9800",
-  },
-  {
-    name: "David Johnson",
-    role: "Buyer",
-    date: "March 8, 2025",
-    image: "/images/user5.jpg",
-    feedback:
-      "Loved the bidding system! I managed to secure a rare watch at an amazing deal.",
-    iconBg: "#4caf50",
-  },
-  {
-    name: "Sophia Martinez",
-    role: "Seller",
-    date: "March 5, 2025",
-    image: "/images/user6.jpg",
-    feedback:
-      "A fantastic platform! Listing my artwork was easy, and I got multiple bids quickly.",
-    iconBg: "#e91e63",
-  },
-  {
-    name: "James Wilson",
-    role: "Buyer",
-    date: "March 3, 2025",
-    image: "/images/user7.jpg",
-    feedback:
-      "Transparent process and fast transactions. Highly recommend for collectors!",
-    iconBg: "#9c27b0",
-  },
-  {
-    name: "Olivia Brown",
-    role: "Seller",
-    date: "March 1, 2025",
-    image: "/images/user8.jpg",
-    feedback:
-      "Selling vintage furniture here was a breeze. Great experience overall!",
-    iconBg: "#03a9f4",
-  },
-];
-
-const FeedbackCard = ({ feedback, isDarkMode }) => (
-  <VerticalTimelineElement
-    contentStyle={{
-      background: isDarkMode ? "#1f2937" : "#fff",
-      color: isDarkMode ? "#f9fafb" : "#333",
-    }}
-    contentArrowStyle={{
-      borderRight: `7px solid ${isDarkMode ? "#374151" : "#ddd"}`,
-    }}
-    date={feedback.date}
-    iconStyle={{ background: feedback.iconBg }}
-    icon={
-      <div className="flex justify-center items-center w-full h-full">
-        <img
-          src={feedback.image}
-          alt={feedback.name}
-          className="w-[60%] h-[60%] object-cover rounded-full"
-        />
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      data-aos="fade-up"
+      className={`rounded-xl shadow-md p-6 transition-all duration-300 ${
+        isDarkMode
+          ? "bg-gray-800 text-white hover:shadow-purple-800/50"
+          : "bg-white text-gray-800 hover:shadow-purple-800/50"
+      }`}
+    >
+      <div className="flex justify-between items-start mb-4">
+        <div className="flex items-center gap-3">
+          <img
+            src={feedback.image}
+            alt={feedback.name}
+            className="w-14 h-14 rounded-full object-cover border-2 border-purple-400"
+          />
+          <div>
+            <h3 className="text-lg font-semibold">{feedback.name}</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {feedback.role}
+            </p>
+          </div>
+        </div>
+        {isSeller && (
+          <div className="flex items-center gap-1 bg-green-100 text-green-600 text-xs px-2 py-1 rounded-full">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-4 h-4 fill-current"
+              viewBox="0 0 24 24"
+            >
+              <path d="M9 16.2l-3.5-3.6L4 14l5 5 10-10-1.5-1.5z" />
+            </svg>
+            Verified
+          </div>
+        )}
       </div>
-    }
-  >
-    <div>
-      <h3
-        className={`text-2xl font-bold ${
-          isDarkMode ? "text-gray-200" : "text-gray-900"
-        }`}
-      >
-        {feedback.name}
-      </h3>
-      <p
-        className={`text-lg font-semibold ${
-          isDarkMode ? "text-gray-400" : "text-gray-600"
-        }`}
-      >
-        {feedback.role}
-      </p>
-    </div>
-    <p className="mt-5 text-[14px] tracking-wider text-gray-500 dark:text-gray-300">
-      {feedback.feedback}
-    </p>
-  </VerticalTimelineElement>
-);
+
+      <div className="mb-3 text-yellow-400 text-sm">{stars}</div>
+
+      <div className="mb-3">
+        <h4 className="text-sm font-medium text-purple-600 dark:text-purple-400">
+          Recent Bids:
+        </h4>
+        <ul className="list-disc pl-4">{bids}</ul>
+      </div>
+
+      <div className="text-sm text-gray-600 dark:text-gray-300 mb-2 italic">
+        "{feedback.feedback}"
+      </div>
+
+      <div className="text-xs text-gray-400 text-right">{feedback.date}</div>
+    </motion.div>
+  );
+};
 
 const Feedback = () => {
   const { isDarkMode } = useContext(ThemeContext);
+  const [feedbacks, setFeedbacks] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+  const [filter, setFilter] = useState("All");
+
+  const filteredFeedbacks = feedbacks.filter((f) => {
+    if (filter === "All") return true;
+    return f.role.toLowerCase() === filter.toLowerCase();
+  });
+
+  const [formData, setFormData] = useState({
+    name: "",
+    role: "Buyer",
+    feedback: "",
+    rating: 5,
+    image: "/images/default-avatar.jpg",
+  });
+
+  // load feedback from localstorage
+  useEffect(() => {
+    AOS.init({ duration: 800 });
+
+    const localData = localStorage.getItem("feedbacks");
+    if (localData) {
+      setFeedbacks(JSON.parse(localData));
+    }
+
+    // Fetch feedback data from the API
+    const fetchFeedbacks = async () => {
+      try {
+        const response = await fetch("/feedbacks");
+        if (response.ok) {
+          const data = await response.json();
+          setFeedbacks(data); // Update the state with fetched feedbacks
+        } else {
+          console.error("Error fetching feedbacks:", response.status);
+        }
+      } catch (error) {
+        console.error("Error fetching feedbacks:", error);
+      }
+    };
+
+    fetchFeedbacks();
+  }, []);
+  useEffect(() => {
+    localStorage.setItem("feedbacks", JSON.stringify(feedbacks));
+  }, [feedbacks]);
+
+  const addReview = (e) => {
+    e.preventDefault();
+
+    const newFeedback = {
+      ...formData,
+      date: new Date().toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      }),
+      badgeColor:
+        formData.role === "Buyer"
+          ? "bg-yellow-400 text-yellow-900"
+          : "bg-red-400 text-white",
+    };
+    setFeedbacks([newFeedback, ...feedbacks]);
+    setFormData({
+      name: "",
+      role: "Buyer",
+      feedback: "",
+      rating: 5,
+      image: "/images/default-avatar.jpg",
+    });
+  };
+
+  const averageRating =
+    feedbacks.reduce((sum, f) => sum + f.rating, 0) / feedbacks.length || 0;
 
   return (
     <section
-      className={`py-16 px-4 rounded-lg ${
-        isDarkMode ? "bg-gray-900 text-white" : "bg-purple-100 text-gray-900"
+      className={`py-16 px-6 md:px-10 ${
+        isDarkMode ? "bg-gray-900" : "bg-purple-50"
       }`}
     >
       <motion.div
-        className="text-center"
+        className="text-center mb-10"
         variants={textVariant()}
         initial="hidden"
         animate="show"
       >
-        <p className="text-purple-600 dark:text-purple-400 text-lg">
+        <p className="text-purple-500 dark:text-purple-400 text-lg font-medium">
           Real Voices
         </p>
-        <h2 className="text-4xl font-bold text-purple-800 dark:text-purple-300">
+        <h2 className="text-4xl font-bold text-purple-700 dark:text-purple-300">
           Customer Feedback
         </h2>
+        <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+          {feedbacks.length} users reviewed · Avg Rating:{" "}
+          {averageRating.toFixed(1)} ★
+        </div>
       </motion.div>
-
-      <div className="mt-20 flex flex-col">
-        <VerticalTimeline>
-          {feedbacks.map((feedback, index) => (
-            <FeedbackCard
-              key={index}
-              feedback={feedback}
-              isDarkMode={isDarkMode}
-            />
-          ))}
-        </VerticalTimeline>
+      {/* filter user type */}
+      <div className="flex justify-center gap-4 mb-10">
+        {["All", "Buyer", "Seller"].map((type) => (
+          <button
+            key={type}
+            onClick={() => setFilter(type)}
+            className={`px-4 py-1 rounded-full text-sm font-medium transition-all duration-300 ${
+              filter === type
+                ? "bg-purple-600 text-white"
+                : "bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
+            }`}
+          >
+            {type}
+          </button>
+        ))}
       </div>
+
+      {/* Feedback Cards */}
+      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        {filteredFeedbacks.map((feedback, idx) => (
+          <FeedbackCard key={idx} feedback={feedback} isDarkMode={isDarkMode} />
+        ))}
+      </div>
+
+      {/* CTA Section */}
+      <div className="mt-16 text-center" data-aos="fade-up">
+        <h3 className="text-2xl font-semibold text-purple-700 dark:text-purple-300">
+          Give your valuable review
+        </h3>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+          Help us improve by sharing your honest feedback.
+        </p>
+        <button
+          onClick={() => setShowForm((prev) => !prev)}
+          className="mt-4 px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-full shadow-md transition-all duration-300"
+        >
+          {showForm ? "Close Form" : "Give Feedback"}
+        </button>
+      </div>
+
+      {/* Toggle Feedback Form */}
+      {showForm && (
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="max-w-4xl mx-auto mt-10 bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg"
+          data-aos="fade-up"
+        >
+          <h3 className="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-200">
+            Add Your Review
+          </h3>
+          <form
+            onSubmit={addReview}
+            className="grid md:grid-cols-2 gap-4 text-sm"
+          >
+            <input
+              type="text"
+              required
+              placeholder="Your Name"
+              value={formData.name}
+              className="p-2 rounded border bg-white dark:bg-gray-700 text-gray-800 dark:text-white border-gray-300 dark:border-gray-600"
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
+            />
+            <select
+              value={formData.role}
+              onChange={(e) =>
+                setFormData({ ...formData, role: e.target.value })
+              }
+              className="p-2 rounded border bg-white dark:bg-gray-700 text-gray-800 dark:text-white border-gray-300 dark:border-gray-600"
+            >
+              <option>Buyer</option>
+              <option>Seller</option>
+            </select>
+            <input
+              type="number"
+              max="5"
+              min="1"
+              required
+              value={formData.rating}
+              className="p-2 rounded border bg-white dark:bg-gray-700 text-gray-800 dark:text-white border-gray-300 dark:border-gray-600"
+              placeholder="Rating (1-5)"
+              onChange={(e) =>
+                setFormData({ ...formData, rating: Number(e.target.value) })
+              }
+            />
+            <input
+              type="text"
+              value={formData.image}
+              className="p-2 rounded border bg-white dark:bg-gray-700 text-gray-800 dark:text-white border-gray-300 dark:border-gray-600"
+              placeholder="Image URL"
+              onChange={(e) =>
+                setFormData({ ...formData, image: e.target.value })
+              }
+            />
+            <textarea
+              placeholder="Write your review"
+              required
+              value={formData.feedback}
+              className="p-2 rounded border md:col-span-2 bg-white dark:bg-gray-700 text-gray-800 dark:text-white border-gray-300 dark:border-gray-600 "
+              onChange={(e) =>
+                setFormData({ ...formData, feedback: e.target.value })
+              }
+            ></textarea>
+            <button
+              type="submit"
+              className="bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded md:col-span-2"
+            >
+              Submit Review
+            </button>
+          </form>
+        </motion.div>
+      )}
     </section>
   );
 };
