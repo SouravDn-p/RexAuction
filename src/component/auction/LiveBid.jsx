@@ -1,4 +1,3 @@
-
 import { useContext, useEffect, useState, useRef } from "react";
 import image from "../../assets/LiveBidAuctionDetails.jpg";
 import { GiSelfLove } from "react-icons/gi";
@@ -16,30 +15,41 @@ import {
   useAddBidsMutation,
   useGetTopBiddersQuery,
   useGetRecentActivityQuery,
-} from "../../redux/features/api/LiveBidApi"
-import Swal from "sweetalert2"
-import io from "socket.io-client"
-import { FaFacebook, FaTwitter, FaWhatsapp, FaLink } from "react-icons/fa"
-import { FaHeart, FaThumbsUp, FaFaceSmile, FaFaceSurprise } from "react-icons/fa6"
+} from "../../redux/features/api/LiveBidApi";
+import Swal from "sweetalert2";
+import io from "socket.io-client";
+import { FaFacebook, FaTwitter, FaWhatsapp, FaLink } from "react-icons/fa";
+import {
+  FaHeart,
+  FaThumbsUp,
+  FaFaceSmile,
+  FaFaceSurprise,
+} from "react-icons/fa6";
 
 export default function LiveBid() {
-  const { user, loading, setLoading, liveBid, setLiveBid, dbUser } = useContext(AuthContexts)
-  const axiosPublic = useAxiosPublic()
-  const { id } = useParams()
-  const navigate = useNavigate()
-  const [countdown, setCountdown] = useState(0)
-  const { isDarkMode } = useContext(ThemeContext)
-  const [bidAmount, setBidAmount] = useState("")
-  const [extraMoney, setExtraMoney] = useState(0)
-  const [addBid, { isLoading: isBidLoading }] = useAddBidsMutation()
-  const [myBid, setMyBid] = useState(null)
-  const [bidAnimation, setBidAnimation] = useState(false)
-  const [showShareOptions, setShowShareOptions] = useState(false)
-  const [reactions, setReactions] = useState({ likes: 0, loves: 0, smiles: 0, wows: 0 })
-  const [userReaction, setUserReaction] = useState(null)
-  const [showReactions, setShowReactions] = useState(false)
-  const shareRef = useRef(null)
-  const reactionRef = useRef(null)
+  const { user, loading, setLoading, liveBid, setLiveBid, dbUser } =
+    useContext(AuthContexts);
+  const axiosPublic = useAxiosPublic();
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [countdown, setCountdown] = useState(0);
+  const { isDarkMode } = useContext(ThemeContext);
+  const [bidAmount, setBidAmount] = useState("");
+  const [extraMoney, setExtraMoney] = useState(0);
+  const [addBid, { isLoading: isBidLoading }] = useAddBidsMutation();
+  const [myBid, setMyBid] = useState(null);
+  const [bidAnimation, setBidAnimation] = useState(false);
+  const [showShareOptions, setShowShareOptions] = useState(false);
+  const [reactions, setReactions] = useState({
+    likes: 0,
+    loves: 0,
+    smiles: 0,
+    wows: 0,
+  });
+  const [userReaction, setUserReaction] = useState(null);
+  const [showReactions, setShowReactions] = useState(false);
+  const shareRef = useRef(null);
+  const reactionRef = useRef(null);
 
   // Socket.IO connection
   const socketRef = useRef(null);
@@ -57,7 +67,7 @@ export default function LiveBid() {
     isFetching: isTopBiddersFetching,
   } = useGetTopBiddersQuery(id, {
     pollingInterval: 30000,
-  })
+  });
 
   const {
     data: recentActivityData,
@@ -65,7 +75,7 @@ export default function LiveBid() {
     isFetching: isRecentActivityFetching,
   } = useGetRecentActivityQuery(id, {
     pollingInterval: 30000,
-  })
+  });
 
   // Initialize local state with fetched data
   useEffect(() => {
@@ -80,7 +90,7 @@ export default function LiveBid() {
           setMyBid({
             amount: userBid.amount,
             bid: `$${userBid.amount.toLocaleString()}`,
-          })
+          });
           localStorage.setItem(
             `auction_${id}_user_bid`,
             JSON.stringify({
@@ -91,7 +101,7 @@ export default function LiveBid() {
         }
       }
 
-      const highestBid = topBiddersData[0]?.amount || 0
+      const highestBid = topBiddersData[0]?.amount || 0;
       if (highestBid > currentHighestBid) {
         setCurrentHighestBid(highestBid);
       }
@@ -157,7 +167,7 @@ export default function LiveBid() {
 
   // Socket.IO connection setup with reconnection logic
   useEffect(() => {
-    const SOCKET_SERVER_URL = "https://un-aux.onrender.com"
+    const SOCKET_SERVER_URL = "http://localhost:5000";
 
     const connectSocket = () => {
       console.log("Attempting to connect to socket server...");
@@ -170,38 +180,41 @@ export default function LiveBid() {
       });
 
       socketRef.current.on("connect", () => {
-        console.log("Socket connected:", socketRef.current.id)
-        setIsConnected(true)
-        setConnectionAttempts(0)
-        socketRef.current.emit("joinAuction", { auctionId: id })
-        socketRef.current.emit("getLatestBids", { auctionId: id })
-      })
+        console.log("Socket connected:", socketRef.current.id);
+        setIsConnected(true);
+        setConnectionAttempts(0);
+        socketRef.current.emit("joinAuction", { auctionId: id });
+        socketRef.current.emit("getLatestBids", { auctionId: id });
+      });
 
       socketRef.current.on("connection_ack", (data) => {
         console.log("Connection acknowledged:", data);
       });
 
       socketRef.current.on("newBid", (bidData) => {
-        console.log("New bid received:", bidData)
+        console.log("New bid received:", bidData);
         if (bidData.auctionId === id) {
           setLiveBid((prev) => ({
             ...prev,
             currentBid: bidData.amount,
-          }))
+          }));
           if (bidData.amount > currentHighestBid) {
             setCurrentHighestBid(bidData.amount);
             setBidAnimation(true);
             setTimeout(() => setBidAnimation(false), 1500);
           }
-          updateTopBidders(bidData)
-          updateRecentActivity(bidData)
+          updateTopBidders(bidData);
+          updateRecentActivity(bidData);
           if (user && bidData.email === user.email) {
             const newUserBid = {
               amount: bidData.amount,
               bid: `$${bidData.amount.toLocaleString()}`,
-            }
-            setMyBid(newUserBid)
-            localStorage.setItem(`auction_${id}_user_bid`, JSON.stringify(newUserBid))
+            };
+            setMyBid(newUserBid);
+            localStorage.setItem(
+              `auction_${id}_user_bid`,
+              JSON.stringify(newUserBid)
+            );
           }
         }
       });
@@ -250,8 +263,10 @@ export default function LiveBid() {
 
   const updateTopBidders = (newBid) => {
     setLocalTopBidders((prevBidders) => {
-      const updatedBidders = [...prevBidders]
-      const existingBidderIndex = updatedBidders.findIndex((bidder) => bidder.email === newBid.email)
+      const updatedBidders = [...prevBidders];
+      const existingBidderIndex = updatedBidders.findIndex(
+        (bidder) => bidder.email === newBid.email
+      );
 
       if (existingBidderIndex !== -1) {
         if (newBid.amount > updatedBidders[existingBidderIndex].amount) {
@@ -276,9 +291,9 @@ export default function LiveBid() {
         topBidders: updatedBidders,
       });
 
-      return updatedBidders.sort((a, b) => b.amount - a.amount).slice(0, 3)
-    })
-  }
+      return updatedBidders.sort((a, b) => b.amount - a.amount).slice(0, 3);
+    });
+  };
 
   const updateRecentActivity = (newBid) => {
     setLocalRecentActivity((prevActivity) => {
@@ -290,10 +305,10 @@ export default function LiveBid() {
           createdAt: new Date().toISOString(),
         },
         ...prevActivity,
-      ]
-      return updatedActivity.slice(0, 3)
-    })
-  }
+      ];
+      return updatedActivity.slice(0, 3);
+    });
+  };
 
   const topBidders =
     localTopBidders?.map((bidder, index) => ({
@@ -327,11 +342,11 @@ export default function LiveBid() {
     axiosPublic
       .get(`/auction/${id}`)
       .then((res) => {
-        setLiveBid(res.data)
+        setLiveBid(res.data);
         if (currentHighestBid === 0 && res.data.currentBid) {
           setCurrentHighestBid(res.data.currentBid);
         }
-        setLoading(false)
+        setLoading(false);
       })
       .catch((error) => {
         console.error("Failed to fetch auction:", error);
@@ -433,7 +448,7 @@ export default function LiveBid() {
     };
 
     try {
-      const response = await axiosPublic.post("/live-bid", bidData)
+      const response = await axiosPublic.post("/live-bid", bidData);
 
       if (response.status === 200 || response.status === 201) {
         if (socketRef.current && isConnected) {
@@ -443,22 +458,25 @@ export default function LiveBid() {
         setLiveBid((prev) => ({
           ...prev,
           currentBid: Number.parseFloat(bidAmount),
-        }))
-        setCurrentHighestBid(Number.parseFloat(bidAmount))
+        }));
+        setCurrentHighestBid(Number.parseFloat(bidAmount));
 
         const newUserBid = {
           amount: Number.parseFloat(bidAmount),
           bid: `$${Number.parseFloat(bidAmount).toLocaleString()}`,
-        }
-        setMyBid(newUserBid)
-        localStorage.setItem(`auction_${id}_user_bid`, JSON.stringify(newUserBid))
+        };
+        setMyBid(newUserBid);
+        localStorage.setItem(
+          `auction_${id}_user_bid`,
+          JSON.stringify(newUserBid)
+        );
 
-        updateTopBidders(bidData)
-        updateRecentActivity(bidData)
+        updateTopBidders(bidData);
+        updateRecentActivity(bidData);
 
-        setBidAnimation(true)
-        setTimeout(() => setBidAnimation(false), 1500)
-        setBidAmount("")
+        setBidAnimation(true);
+        setTimeout(() => setBidAnimation(false), 1500);
+        setBidAmount("");
 
         Swal.fire({
           title: "Bid Placed!",
@@ -555,9 +573,9 @@ export default function LiveBid() {
       setReactions((prev) => ({
         ...prev,
         [type]: Math.max(0, prev[type] - 1),
-      }))
-      setUserReaction(null)
-      saveReactionToDatabase(null)
+      }));
+      setUserReaction(null);
+      saveReactionToDatabase(null);
     } else {
       if (userReaction) {
         setReactions((prev) => ({
@@ -569,9 +587,9 @@ export default function LiveBid() {
       setReactions((prev) => ({
         ...prev,
         [type]: prev[type] + 1,
-      }))
-      setUserReaction(type)
-      saveReactionToDatabase(type)
+      }));
+      setUserReaction(type);
+      saveReactionToDatabase(type);
     }
 
     setShowReactions(false);
@@ -600,25 +618,39 @@ export default function LiveBid() {
   useEffect(() => {
     const fetchReactions = async () => {
       try {
-        const response = await axiosPublic.get(`/auction-reactions/${id}`, {
-          params: { userId: user?.uid },
-          timeout: 3000
-        }).catch(error => {
-          if (error.response?.status === 404 || error.code === 'ECONNABORTED') {
-            console.log("Reaction endpoint not available, using default values");
-            return { 
-              data: {
-                success: true,
-                reactionCounts: { likes: 0, loves: 0, smiles: 0, wows: 0 },
-                userReactions: []
-              }
-            };
-          }
-          throw error;
-        });
+        const response = await axiosPublic
+          .get(`/auction-reactions/${id}`, {
+            params: { userId: user?.uid },
+            timeout: 3000,
+          })
+          .catch((error) => {
+            if (
+              error.response?.status === 404 ||
+              error.code === "ECONNABORTED"
+            ) {
+              console.log(
+                "Reaction endpoint not available, using default values"
+              );
+              return {
+                data: {
+                  success: true,
+                  reactionCounts: { likes: 0, loves: 0, smiles: 0, wows: 0 },
+                  userReactions: [],
+                },
+              };
+            }
+            throw error;
+          });
 
         if (response.data.success) {
-          setReactions(response.data.reactionCounts || { likes: 0, loves: 0, smiles: 0, wows: 0 });
+          setReactions(
+            response.data.reactionCounts || {
+              likes: 0,
+              loves: 0,
+              smiles: 0,
+              wows: 0,
+            }
+          );
           if (user && response.data.userReactions?.length > 0) {
             setUserReaction(response.data.userReactions[0].reactionType);
           }
@@ -653,7 +685,11 @@ export default function LiveBid() {
   if (loading) return <LoadingSpinner />;
 
   return (
-    <div className={`min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-purple-100/30"}`}>
+    <div
+      className={`min-h-screen ${
+        isDarkMode ? "bg-gray-900" : "bg-purple-100/30"
+      }`}
+    >
       {/* Banner Section */}
       <div className="relative w-full h-[30vh] lg:h-[40vh] overflow-hidden">
         {/* Background Image with Gradient Overlay */}
@@ -696,7 +732,11 @@ export default function LiveBid() {
           : "Offline"}
       </div>
 
-      <div className={`w-11/12 mx-auto py-10 ${isDarkMode ? "text-gray-200" : "text-gray-800"}`}>
+      <div
+        className={`w-11/12 mx-auto py-10 ${
+          isDarkMode ? "text-gray-200" : "text-gray-800"
+        }`}
+      >
         <div className="flex flex-col lg:flex-row gap-8">
           <div className="lg:w-2/3 w-full space-y-6">
             <div className="w-full rounded-xl overflow-hidden shadow-lg">
@@ -730,7 +770,9 @@ export default function LiveBid() {
               } shadow-md`}
             >
               <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
-                <h3 className="text-2xl sm:text-3xl font-bold">{liveBid?.name}</h3>
+                <h3 className="text-2xl sm:text-3xl font-bold">
+                  {liveBid?.name}
+                </h3>
                 <div className="flex items-center gap-3 text-xl">
                   <div className="relative" ref={reactionRef}>
                     <div
@@ -747,22 +789,39 @@ export default function LiveBid() {
                         ) : userReaction === "wows" ? (
                           <FaFaceSurprise className="text-yellow-500" />
                         ) : userReaction === "flags" ? (
-                          <span className="text-xl text-orange-500" role="img" aria-label="White Flag">
+                          <span
+                            className="text-xl text-orange-500"
+                            role="img"
+                            aria-label="White Flag"
+                          >
                             🏳️
                           </span>
                         ) : (
                           <GiSelfLove
-                            className={`hover:text-red-500 transition ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                            className={`hover:text-red-500 transition ${
+                              isDarkMode ? "text-gray-400" : "text-gray-600"
+                            }`}
                           />
                         )
                       ) : (
                         <GiSelfLove
-                          className={`hover:text-red-500 transition ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
+                          className={`hover:text-red-500 transition ${
+                            isDarkMode ? "text-gray-400" : "text-gray-600"
+                          }`}
                         />
                       )}
                       <span className="text-sm font-medium">
-                        {reactions.likes + reactions.loves + reactions.smiles + reactions.wows + reactions.flags > 0 &&
-                          reactions.likes + reactions.loves + reactions.smiles + reactions.wows + reactions.flags}
+                        {reactions.likes +
+                          reactions.loves +
+                          reactions.smiles +
+                          reactions.wows +
+                          reactions.flags >
+                          0 &&
+                          reactions.likes +
+                            reactions.loves +
+                            reactions.smiles +
+                            reactions.wows +
+                            reactions.flags}
                       </span>
                     </div>
 
@@ -775,56 +834,86 @@ export default function LiveBid() {
                         <button
                           onClick={() => handleReaction("likes")}
                           className={`p-2 rounded-full transition ${
-                            userReaction === "likes" ? "bg-blue-100" : "hover:bg-gray-100"
+                            userReaction === "likes"
+                              ? "bg-blue-100"
+                              : "hover:bg-gray-100"
                           }`}
                           title="Like"
                         >
                           <FaThumbsUp
-                            className={`text-xl ${userReaction === "likes" ? "text-blue-500" : "text-blue-400"}`}
+                            className={`text-xl ${
+                              userReaction === "likes"
+                                ? "text-blue-500"
+                                : "text-blue-400"
+                            }`}
                           />
                         </button>
                         <button
                           onClick={() => handleReaction("loves")}
                           className={`p-2 rounded-full transition ${
-                            userReaction === "loves" ? "bg-red-100" : "hover:bg-gray-100"
+                            userReaction === "loves"
+                              ? "bg-red-100"
+                              : "hover:bg-gray-100"
                           }`}
                           title="Love"
                         >
                           <FaHeart
-                            className={`text-xl ${userReaction === "loves" ? "text-red-500" : "text-red-400"}`}
+                            className={`text-xl ${
+                              userReaction === "loves"
+                                ? "text-red-500"
+                                : "text-red-400"
+                            }`}
                           />
                         </button>
                         <button
                           onClick={() => handleReaction("smiles")}
                           className={`p-2 rounded-full transition ${
-                            userReaction === "smiles" ? "bg-yellow-100" : "hover:bg-gray-100"
+                            userReaction === "smiles"
+                              ? "bg-yellow-100"
+                              : "hover:bg-gray-100"
                           }`}
                           title="Smile"
                         >
                           <FaFaceSmile
-                            className={`text-xl ${userReaction === "smiles" ? "text-yellow-500" : "text-yellow-400"}`}
+                            className={`text-xl ${
+                              userReaction === "smiles"
+                                ? "text-yellow-500"
+                                : "text-yellow-400"
+                            }`}
                           />
                         </button>
                         <button
                           onClick={() => handleReaction("wows")}
                           className={`p-2 rounded-full transition ${
-                            userReaction === "wows" ? "bg-yellow-100" : "hover:bg-gray-100"
+                            userReaction === "wows"
+                              ? "bg-yellow-100"
+                              : "hover:bg-gray-100"
                           }`}
                           title="Wow"
                         >
                           <FaFaceSurprise
-                            className={`text-xl ${userReaction === "wows" ? "text-yellow-500" : "text-yellow-400"}`}
+                            className={`text-xl ${
+                              userReaction === "wows"
+                                ? "text-yellow-500"
+                                : "text-yellow-400"
+                            }`}
                           />
                         </button>
                         <button
                           onClick={() => handleReaction("flags")}
                           className={`p-2 rounded-full transition ${
-                            userReaction === "flags" ? "bg-orange-100" : "hover:bg-gray-100"
+                            userReaction === "flags"
+                              ? "bg-orange-100"
+                              : "hover:bg-gray-100"
                           }`}
                           title="Flag"
                         >
                           <span
-                            className={`text-xl ${userReaction === "flags" ? "text-orange-500" : "text-orange-400"}`}
+                            className={`text-xl ${
+                              userReaction === "flags"
+                                ? "text-orange-500"
+                                : "text-orange-400"
+                            }`}
                             role="img"
                             aria-label="White Flag"
                           >
@@ -853,7 +942,9 @@ export default function LiveBid() {
                           <button
                             onClick={() => handleShare("facebook")}
                             className={`flex items-center gap-2 p-2 rounded-md transition ${
-                              isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                              isDarkMode
+                                ? "hover:bg-gray-700"
+                                : "hover:bg-gray-100"
                             }`}
                           >
                             <FaFacebook className="text-blue-600" />
@@ -862,7 +953,9 @@ export default function LiveBid() {
                           <button
                             onClick={() => handleShare("twitter")}
                             className={`flex items-center gap-2 p-2 rounded-md transition ${
-                              isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                              isDarkMode
+                                ? "hover:bg-gray-700"
+                                : "hover:bg-gray-100"
                             }`}
                           >
                             <FaTwitter className="text-blue-400" />
@@ -871,7 +964,9 @@ export default function LiveBid() {
                           <button
                             onClick={() => handleShare("whatsapp")}
                             className={`flex items-center gap-2 p-2 rounded-md transition ${
-                              isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                              isDarkMode
+                                ? "hover:bg-gray-700"
+                                : "hover:bg-gray-100"
                             }`}
                           >
                             <FaWhatsapp className="text-green-500" />
@@ -880,7 +975,9 @@ export default function LiveBid() {
                           <button
                             onClick={() => handleShare("copy")}
                             className={`flex items-center gap-2 p-2 rounded-md transition ${
-                              isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-100"
+                              isDarkMode
+                                ? "hover:bg-gray-700"
+                                : "hover:bg-gray-100"
                             }`}
                           >
                             <FaLink className="text-gray-500" />
@@ -1324,5 +1421,5 @@ export default function LiveBid() {
         </div>
       </div>
     </div>
-  )
+  );
 }

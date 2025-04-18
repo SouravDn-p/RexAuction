@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import AOS from "aos";
 import "aos/dist/aos.css";
 import ThemeContext from "../Context/ThemeContext";
+import useAxiosPublic from "../../hooks/useAxiosPublic";
 
 const textVariant = () => ({
   hidden: { opacity: 0, y: -50 },
@@ -86,6 +87,7 @@ const Feedback = () => {
   const [feedbacks, setFeedbacks] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [filter, setFilter] = useState("All");
+  const axiosPublic = useAxiosPublic();
 
   const filteredFeedbacks = feedbacks.filter((f) => {
     if (filter === "All") return true;
@@ -100,22 +102,16 @@ const Feedback = () => {
     image: "/images/default-avatar.jpg",
   });
 
-  // load feedback from localstorage
+  // load feedback
   useEffect(() => {
-    AOS.init({ duration: 800 });
-
-    const localData = localStorage.getItem("feedbacks");
-    if (localData) {
-      setFeedbacks(JSON.parse(localData));
-    }
-
-    // Fetch feedback data from the API
     const fetchFeedbacks = async () => {
       try {
-        const response = await fetch("/feedbacks");
-        if (response.ok) {
-          const data = await response.json();
-          setFeedbacks(data); // Update the state with fetched feedbacks
+        const response = await axiosPublic.get("/feedbacks");
+
+        // axios uses `response.status` and `response.data`
+        if (response.status === 200) {
+          setFeedbacks(response.data);
+          console.log(response.data)
         } else {
           console.error("Error fetching feedbacks:", response.status);
         }
@@ -126,9 +122,6 @@ const Feedback = () => {
 
     fetchFeedbacks();
   }, []);
-  useEffect(() => {
-    localStorage.setItem("feedbacks", JSON.stringify(feedbacks));
-  }, [feedbacks]);
 
   const addReview = (e) => {
     e.preventDefault();
