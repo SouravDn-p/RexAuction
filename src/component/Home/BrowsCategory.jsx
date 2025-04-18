@@ -105,7 +105,7 @@ const BrowsCategory = () => {
   return (
     <section
       className={`py-12 transition-colors duration-300 ${
-        isDarkMode ? "bg-gray-900 text-white" : "bg-gradient-to-b from-white to-violet-50 text-gray-800"
+        isDarkMode ? "bg-gray-800 text-white" : "bg-gradient-to-b from-white to-violet-50 text-gray-800"
       }`}
     >
       <div className="max-w-3xl mx-auto">

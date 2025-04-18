@@ -23,7 +23,7 @@ import SellerRequest from "../component/dashboard/admin/SellerRequest";
 import AnnouncementDetails from "../component/dashboard/shared/AnnouncementDetails";
 import Reports from "../component/dashboard/shared/Reports";
 import ManageAuctions from "../component/dashboard/shared/ManageAuctions";
-import Feedback from "../component/shared/FeedBack";
+// import Feedback from "../component/shared/FeedBack";
 import BillingSettings from "../component/Settings/BillingSettings";
 import ProfileSettings from "../component/Settings/ProfileSettings";
 import PasswordSettings from "../component/Settings/PasswordSettings";
@@ -37,6 +37,8 @@ import Chat from "../component/Chats/Chat";
 import WalletHistory from "../extra/wallet/WalletHistory";
 import SdBot from "../extra/sdChatBot/SdBot";
 import ContactUs from "../component/shared/contactUs";
+import FeedbackDisplay from "../component/dashboard/admin/feedbacks/FeedbackDisplay";
+// import AdminFeedback from "../component/dashboard/admin/AdminFeedback";
 
 // import TeamSettings from "../component/Settings/TeamSettings";
 // import PlanSettings from "../component/Settings/PlanSettings";
@@ -132,6 +134,10 @@ export const router = createBrowserRouter([
         path: "sellerRequest",
         element: <SellerRequest />,
       },
+      // {
+      //   path: "adminFeedback",
+      //   element: <AdminFeedback />,
+      // },
       // Seller Only
       {
         path: "createAuction",
@@ -207,7 +213,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "feedback",
-        element: <Feedback />,
+        element: <FeedbackDisplay />,
       },
       {
         path: "addBalance",

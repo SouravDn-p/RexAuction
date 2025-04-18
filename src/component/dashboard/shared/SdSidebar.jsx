@@ -5,6 +5,7 @@ import { CgProfile } from "react-icons/cg";
 import { CiSquareQuestion, CiUser } from "react-icons/ci";
 import { FaHome } from "react-icons/fa";
 import {
+  MdFeedback,
   MdHistory,
   MdManageAccounts,
   MdOutlineDashboard,
@@ -301,6 +302,34 @@ const Sidebar = () => {
                   }`}
                 >
                   Create Announcement
+                </span>
+              </NavLink>
+              <NavLink
+                to="/dashboard/feedback"
+                className={({ isActive }) =>
+                  `flex items-center gap-3 py-2.5 px-3 rounded-lg transition-all duration-200 ${
+                    isActive
+                      ? isDarkMode
+                        ? "bg-indigo-700/60 text-white font-bold shadow-md"
+                        : "bg-indigo-200 text-indigo-900 font-bold shadow-md"
+                      : isDarkMode
+                      ? "hover:bg-indigo-800/40 text-indigo-100"
+                      : "hover:bg-indigo-100 text-indigo-800"
+                  }`
+                }
+              >
+                <MdFeedback
+                  size={18}
+                  className={`${
+                    isDarkMode ? "text-indigo-300" : "text-indigo-700"
+                  }`}
+                />
+                <span
+                  className={`${
+                    isDarkMode ? "text-indigo-100" : "text-indigo-800"
+                  }`}
+                >
+                  FeedBacks
                 </span>
               </NavLink>
             </div>

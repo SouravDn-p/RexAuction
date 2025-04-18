@@ -85,6 +85,8 @@ const AboutUs = () => {
       userFeedback: feedback,
       userEmail: dbUser?.email,
       userName: dbUser?.name,
+      image: dbUser?.photo,
+      role: dbUser?.role,
       date: new Date().toString(),
     };
 
@@ -182,7 +184,7 @@ const AboutUs = () => {
     <div style={darkModeStyles} className="overflow-x-hidden">
       {/* 🔹 Hero Section with Gradient Background */}
       <div className={`relative overflow-hidden ${isDarkMode ? "bg-gray-900" : "bg-gradient-to-r from-purple-900 to-purple-900"}`}>
-      <div className="absolute inset-0 bg-black/50 z-0"></div>
+        
         <div className="container mx-auto px-4 py-16 md:py-24 flex flex-col md:flex-row items-center gap-8">
           {/* Text Content */}
           <motion.div
