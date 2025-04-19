@@ -185,16 +185,115 @@ export default function LiveBid() {
     if (
       userAutoBid > 0 &&
       currentUserBid < userAutoBid &&
-      currentUserBid <= currentBid
+      currentUserBid <= currentBid &&
+      Number(currentHighestBid) != currentUserBid
     ) {
       const nextBid = Number((currentBid + incrementBy).toFixed(2));
 
       if (nextBid <= userAutoBid) {
         setBidAmount(Number.parseFloat(nextBid));
-        handlePlaceBid();
+        handlePlaceBidder();
+      } else if (currentUserBid < userAutoBid) {
+        setBidAmount(Number.parseFloat(userAutoBid));
+        handlePlaceBidder();
       }
     }
   }, [liveBid, currentHighestBid]);
+
+  const handlePlaceBidder = async () => {
+    const startingPrice = liveBid?.startingPrice || 0;
+    const minRequiredBid = Math.round(0.1 * startingPrice);
+    const currentBid =
+      currentHighestBid || liveBid?.currentBid || liveBid?.startingPrice || 0;
+
+    if (!user) {
+      alert("Please log in to place a bid");
+      return;
+    }
+
+    if (!bidAmount || Number.parseFloat(bidAmount) < minRequiredBid) {
+      return Swal.fire({
+        title: "Not enough balance!",
+        text: `Your bid must be at least $${minRequiredBid}, which is 10% of the starting price.`,
+        icon: "error",
+        showCancelButton: true,
+        confirmButtonText: "Add Balance",
+        cancelButtonText: "Cancel",
+        draggable: true,
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = "/addBalance";
+        }
+      });
+    }
+
+    const bidData = {
+      email: user.email,
+      name: user.displayName || "Anonymous",
+      photo: user.photoURL || "",
+      amount: Number.parseFloat(bidAmount),
+      auctionId: id,
+      autoBid: Number.parseFloat(myBid?.autoBid) || 0,
+      bidderUserId: dbUser?._id,
+      incrementBy: Number.parseFloat(myBid?.incrementBy) || 0,
+    };
+
+    console.log("bidData in place bid", bidData);
+
+    try {
+      const response = await axiosPublic.post("/live-bid", bidData);
+
+      if (response.status === 200 || response.status === 201) {
+        if (socketRef.current && isConnected) {
+          socketRef.current.emit("placeBid", bidData);
+        }
+
+        setLiveBid((prev) => ({
+          ...prev,
+          currentBid: Number.parseFloat(bidAmount),
+        }));
+        setCurrentHighestBid(Number.parseFloat(bidAmount));
+
+        const newUserBid = {
+          amount: Number.parseFloat(bidAmount),
+          bid: `$${Number.parseFloat(bidAmount).toLocaleString()}`,
+          autoBid: Number.parseFloat(myBid?.autoBid),
+          incrementBy: Number.parseFloat(myBid?.incrementBy),
+        };
+        setMyBid(newUserBid);
+        localStorage.setItem(
+          `auction_${id}_user_bid`,
+          JSON.stringify(newUserBid)
+        );
+
+        updateTopBidders(bidData);
+        updateRecentActivity(bidData);
+
+        setBidAnimation(true);
+        setTimeout(() => setBidAnimation(false), 1500);
+        setBidAmount("");
+
+        Swal.fire({
+          title: "Bid Placed!",
+          text: `Your bid of $${Number.parseFloat(
+            bidAmount
+          ).toLocaleString()} has been placed successfully.`,
+          icon: "success",
+          timer: 2000,
+          showConfirmButton: false,
+        });
+      } else {
+        throw new Error("Bid not successful");
+      }
+    } catch (error) {
+      console.error("Failed to place bid:", error);
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to place bid. Please try again.",
+        icon: "error",
+      });
+    }
+  };
 
   // Socket.IO connection setup with reconnection logic
   useEffect(() => {
@@ -1382,7 +1481,7 @@ export default function LiveBid() {
                     isDarkMode ? "text-purple-400" : "text-purple-600"
                   }`}
                 >
-                  $
+                  ${` `}
                   {currentHighestBid?.toLocaleString() ||
                     liveBid?.currentBid?.toLocaleString() ||
                     liveBid?.startingPrice?.toLocaleString() ||
