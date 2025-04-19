@@ -1,4 +1,4 @@
-"use client";
+
 
 import { useContext, useState, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -842,16 +842,16 @@ function EndedAuctionsHistory() {
 
                       {/* Button container for larger screens */}
                       <div className="hidden sm:flex items-center gap-2">
-                        <button
-                          onClick={handleSendNotificationToSeller}
-                          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
-                            isDarkMode
-                              ? "bg-gray-700 hover:bg-gray-600 text-gray-200"
-                              : "bg-purple-100 hover:bg-purple-200 text-purple-600"
-                          }`}
-                        >
-                          <FaEnvelope /> Message Seller
-                        </button>
+                      <button
+                              onClick={() => handleMessageSeller()}
+                              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
+                                isDarkMode
+                                  ? "bg-gray-700 hover:bg-gray-600 text-gray-200"
+                                  : "bg-purple-100 hover:bg-purple-200 text-purple-600"
+                              }`}
+                            >
+                              <FaEnvelope /> Message Seller
+                            </button>
                         <button
                           onClick={handleSendNotificationToSeller}
                           className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
