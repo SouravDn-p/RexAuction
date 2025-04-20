@@ -13,7 +13,7 @@ import auth from "../firebase/firebase.init";
 import useAxiosPublic from "../hooks/useAxiosPublic";
 import { toast } from "react-hot-toast"; // ✅ Hot toast
 import LoadingSpinner from "../component/LoadingSpinner";
-import useAxiosSecure from "../hooks/useAxiosSecure.jsx";
+import axios from "axios";
 
 export const AuthContexts = createContext(null);
 const googleProvider = new GoogleAuthProvider();
@@ -25,7 +25,6 @@ const AuthProvider = ({ children }) => {
   const [dbUser, setDbUser] = useState("");
   const [response, setResponse] = useState(null);
   const axiosPublic = useAxiosPublic();
-  const axiosSecure = useAxiosSecure();
   const [errorMessage, setErrorMessage] = useState("");
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
   const [loading, setLoading] = useState(true);
@@ -118,21 +117,27 @@ const AuthProvider = ({ children }) => {
 
   // This useEffect hook listens to authentication state changes using Firebase's onAuthStateChanged
   useEffect(() => {
-    // setLoader(true);
-    const unSubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      if (currentUser?.email) {
-        axiosSecure.post("/jwt", user).then((res) => console.log(res.data));
-      } else {
-        axiosSecure.post("/logout", user).then((res) => console.log(res.data));
-      }
-      setLoading(false);
+    const unSubscribe = onAuthStateChanged(auth, async (currentUser) => {
+        setUser(currentUser);
+        if (currentUser) {
+            const userInfo = { email: currentUser.email };
+            try {
+                const res = await axios.post("http://localhost:5000/jwt", userInfo);
+                console.log(res.data.token);
+                if (res.data.token) {
+                    localStorage.setItem("access-token", res.data.token);
+                }
+            } catch (error) {
+                console.error("Error fetching token:", error);
+            }
+        } else {
+            localStorage.removeItem("access-token");
+        }
+        setLoading(false);
     });
+    return () => unSubscribe();
+}, []);
 
-    return () => {
-      unSubscribe();
-    };
-  }, []);
 
   const authInfo = {
     createUser,
