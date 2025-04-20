@@ -16,18 +16,19 @@ const queryClient = new QueryClient();
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <div className="min-h-screen">
-      <HelmetProvider>
-        <Provider store={store}>
-        <AuthProvider>
-          <QueryClientProvider client={queryClient}>
-            <ThemeProvider>
-              <RouterProvider router={router} />
-              <Toaster position="top-center" reverseOrder={false} />
-            </ThemeProvider>
-          </QueryClientProvider>
-        </AuthProvider>
-        </Provider>
-      </HelmetProvider>
+      <AuthProvider>
+        <HelmetProvider>
+          <Provider store={store}>
+            <QueryClientProvider client={queryClient}>
+              <ThemeProvider>
+                <RouterProvider router={router} />
+                {/* Any components like global modals or auth listeners can go here */}
+                <Toaster position="top-center" reverseOrder={false} />
+              </ThemeProvider>
+            </QueryClientProvider>
+          </Provider>
+        </HelmetProvider>
+      </AuthProvider>
     </div>
   </StrictMode>
 );
