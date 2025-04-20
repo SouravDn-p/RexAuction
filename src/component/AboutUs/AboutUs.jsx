@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
-import CountUp from "react-countup";
 import { useInView } from "react-intersection-observer";
 import { motion } from "framer-motion";
 import Slider from "react-slick";
@@ -20,7 +19,6 @@ import {
   FaGlobe,
   FaShieldAlt,
   FaUserCheck,
-  FaStar,
 } from "react-icons/fa";
 import { FiBell, FiFileText, FiGrid } from "react-icons/fi";
 import ThemeContext from "../Context/ThemeContext";

@@ -40,6 +40,7 @@ const AuthProvider = ({ children }) => {
         .get(`/user/${user.email}`)
         .then((res) => {
           setDbUser(res.data);
+          console.log("res.data in authProvider", res.data);
           setLoading(false);
         })
         .catch((error) => {

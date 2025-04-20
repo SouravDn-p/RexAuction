@@ -24,6 +24,7 @@ function EndedAuctionsHistory() {
   const { isDarkMode } = useContext(ThemeContext);
   const { user } = useAuth();
   const [auction, setAuction] = useState([]);
+  const [paymentData, setPaymentData] = useState([]);
   const socketRef = useRef(null); // Assuming socket is initialized elsewhere
 
   const { data: auctions = [] } = useQuery({
@@ -167,7 +168,7 @@ function EndedAuctionsHistory() {
         images: selectedAuction.images,
         currentBid: selectedAuction.currentBid,
       },
-      sender: user?.email,
+      sender: user?.email,  
       recipient: selectedAuction.sellerEmail,
       timestamp: new Date(),
       read: false,

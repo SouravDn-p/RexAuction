@@ -12,7 +12,6 @@ import { loadFull } from "tsparticles";
 import Particles from "react-tsparticles";
 import AOS from "aos";
 import "aos/dist/aos.css";
-import Newsletter from "./Newsletter";
 import ThemeContext from "../Context/ThemeContext";
 
 const Footer = () => {
