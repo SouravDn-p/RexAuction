@@ -1,87 +1,100 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { NavLink, useNavigate } from "react-router-dom"
-import { toast } from "react-toastify"
-import "react-toastify/dist/ReactToastify.css"
-import { useDispatch, useSelector } from "react-redux"
-import { createUser } from "../redux/features/user/userSlice"
-import { useAddUserMutation } from "../redux/features/api/userApi"
-import SocialLogin from "../component/SocialLogin"
-import { FaUser, FaEnvelope, FaLock, FaImage, FaCheck, FaTimes } from "react-icons/fa"
-import { motion } from "framer-motion"
+import { useState } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useDispatch, useSelector } from "react-redux";
+import { createUser } from "../redux/features/user/userSlice";
+import { useAddUserMutation } from "../redux/features/api/userApi";
+import SocialLogin from "../component/SocialLogin";
+import {
+  FaUser,
+  FaEnvelope,
+  FaLock,
+  FaImage,
+  FaCheck,
+  FaTimes,
+} from "react-icons/fa";
+import { motion } from "framer-motion";
 
 const Register = () => {
-  const dispatch = useDispatch()
-  const navigate = useNavigate()
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
-  })
-  const [imageFile, setImageFile] = useState(null)
-  const [imagePreview, setImagePreview] = useState(null)
-  const [newUser] = useAddUserMutation()
-  const { isLoading, isError, error } = useSelector((state) => state.userSlice)
+  });
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const [newUser] = useAddUserMutation();
+  const { isLoading, isError, error } = useSelector((state) => state.userSlice);
 
-  const apiKey = import.meta.env.VITE_IMAGE_HOSTING_KEY
-  const imageHostingApi = `https://api.imgbb.com/1/upload?key=${apiKey}`
+  const apiKey = import.meta.env.VITE_IMAGE_HOSTING_KEY;
+  const imageHostingApi = `https://api.imgbb.com/1/upload?key=${apiKey}`;
 
   const passwordCriteria = [
     { test: /[A-Z]/, message: "One uppercase letter" },
     { test: /[a-z]/, message: "One lowercase letter" },
     { test: /.{6,}/, message: "At least 6 characters" },
-  ]
+  ];
 
   const validatePassword = (password) => {
-    const failedCriteria = passwordCriteria.filter((criterion) => !criterion.test.test(password))
-    return failedCriteria.length ? failedCriteria.map((c) => c.message).join(", ") : null
-  }
+    const failedCriteria = passwordCriteria.filter(
+      (criterion) => !criterion.test.test(password)
+    );
+    return failedCriteria.length
+      ? failedCriteria.map((c) => c.message).join(", ")
+      : null;
+  };
 
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value })
+  const handleChange = (e) =>
+    setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0]
-    setImageFile(file)
+    const file = e.target.files[0];
+    setImageFile(file);
 
     if (file) {
-      const reader = new FileReader()
+      const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result)
-      }
-      reader.readAsDataURL(file)
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
     } else {
-      setImagePreview(null)
+      setImagePreview(null);
     }
-  }
+  };
 
   const handleRegister = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    const validationError = validatePassword(formData.password)
-    if (validationError) return toast.error(validationError)
-    if (formData.password !== formData.confirmPassword) return toast.error("Passwords do not match")
+    const validationError = validatePassword(formData.password);
+    if (validationError) return toast.error(validationError);
+    if (formData.password !== formData.confirmPassword)
+      return toast.error("Passwords do not match");
 
-    let photoURL = `https://api.dicebear.com/7.x/avataaars/svg?seed=${formData.email}`
+    let photoURL = `https://api.dicebear.com/7.x/avataaars/svg?seed=${formData.email}`;
 
     if (imageFile) {
-      const formDataImage = new FormData()
-      formDataImage.append("image", imageFile)
+      const formDataImage = new FormData();
+      formDataImage.append("image", imageFile);
       try {
         const res = await fetch(imageHostingApi, {
           method: "POST",
           body: formDataImage,
-        })
-        const data = await res.json()
+        });
+        const data = await res.json();
         if (data.success) {
-          photoURL = data.data.display_url
+          photoURL = data.data.display_url;
         } else {
-          toast.warning("Failed to upload image, using default avatar.")
+          toast.warning("Failed to upload image, using default avatar.");
         }
       } catch (err) {
-        toast.warning("Image upload error, using default avatar.")
+        toast.warning("Image upload error, using default avatar.");
       }
     }
 
@@ -89,9 +102,9 @@ const Register = () => {
       const userData = {
         ...formData,
         photoURL,
-      }
+      };
 
-      const result = await dispatch(createUser(userData)).unwrap()
+      const result = await dispatch(createUser(userData)).unwrap();
 
       await newUser({
         uid: result.uid,
@@ -113,19 +126,19 @@ const Register = () => {
         recentActivity: [],
         watchingNow: [],
         cover: "",
-        phone: "",
-      })
+      });
 
-      toast.success("Registration successful! Redirecting...")
+      toast.success("Registration successful! Redirecting...");
       setTimeout(() => {
-        navigate("/")
-      }, 2000)
+        navigate("/");
+      }, 2000);
     } catch (err) {
-      toast.error(err.message)
+      toast.error(err.message);
     }
-  }
+  };
 
-  const passwordError = formData.confirmPassword && formData.password !== formData.confirmPassword
+  const passwordError =
+    formData.confirmPassword && formData.password !== formData.confirmPassword;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white relative overflow-hidden py-10">
@@ -142,7 +155,9 @@ const Register = () => {
       >
         <div className="bg-white rounded-3xl shadow-xl overflow-hidden p-8">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">Create Account</h1>
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">
+              Create Account
+            </h1>
             <p className="text-gray-600">Join our community today</p>
           </div>
 
@@ -213,7 +228,9 @@ const Register = () => {
                     onChange={handleChange}
                     placeholder="Confirm Password"
                     className={`pl-10 w-full px-4 py-3 rounded-full border ${
-                      passwordError ? "border-red-400 focus:ring-red-400" : "border-gray-300 focus:ring-purple-400"
+                      passwordError
+                        ? "border-red-400 focus:ring-red-400"
+                        : "border-gray-300 focus:ring-purple-400"
                     } bg-white text-gray-800 focus:ring-2 focus:border-transparent outline-none transition`}
                     required
                   />
@@ -253,13 +270,17 @@ const Register = () => {
 
             {formData.password && (
               <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
-                <h3 className="text-sm font-medium text-gray-700 mb-2">Password Requirements:</h3>
+                <h3 className="text-sm font-medium text-gray-700 mb-2">
+                  Password Requirements:
+                </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
                   {passwordCriteria.map((c, i) => (
                     <div
                       key={i}
                       className={`flex items-center text-sm p-2 rounded ${
-                        c.test.test(formData.password) ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"
+                        c.test.test(formData.password)
+                          ? "bg-green-50 text-green-700"
+                          : "bg-red-50 text-red-700"
                       }`}
                     >
                       {c.test.test(formData.password) ? (
@@ -274,18 +295,42 @@ const Register = () => {
               </div>
             )}
 
-            {isError && <div className="bg-red-50 p-3 rounded-lg border border-red-200 text-red-700">{error}</div>}
+            {isError && (
+              <div className="bg-red-50 p-3 rounded-lg border border-red-200 text-red-700">
+                {error}
+              </div>
+            )}
 
             <motion.button
               type="submit"
-              disabled={isLoading || passwordError || !!validatePassword(formData.password)}
+              disabled={
+                isLoading ||
+                passwordError ||
+                !!validatePassword(formData.password)
+              }
               className={`w-full py-3 px-4 flex justify-center items-center rounded-full text-white font-semibold text-lg transition duration-300 ${
-                isLoading || passwordError || !!validatePassword(formData.password)
+                isLoading ||
+                passwordError ||
+                !!validatePassword(formData.password)
                   ? "bg-gray-400 cursor-not-allowed"
                   : "bg-gradient-to-r from-gray-900 to-purple-900  "
               }`}
-              whileHover={{ scale: isLoading || passwordError || !!validatePassword(formData.password) ? 1 : 1.02 }}
-              whileTap={{ scale: isLoading || passwordError || !!validatePassword(formData.password) ? 1 : 0.98 }}
+              whileHover={{
+                scale:
+                  isLoading ||
+                  passwordError ||
+                  !!validatePassword(formData.password)
+                    ? 1
+                    : 1.02,
+              }}
+              whileTap={{
+                scale:
+                  isLoading ||
+                  passwordError ||
+                  !!validatePassword(formData.password)
+                    ? 1
+                    : 0.98,
+              }}
             >
               {isLoading ? (
                 <>
@@ -319,7 +364,10 @@ const Register = () => {
             <div className="text-center mt-6">
               <p className="text-sm text-gray-600">
                 Already have an account?{" "}
-                <NavLink to="/login" className="text-purple-600 hover:text-purple-800 font-medium">
+                <NavLink
+                  to="/login"
+                  className="text-purple-600 hover:text-purple-800 font-medium"
+                >
                   Sign in
                 </NavLink>
               </p>
@@ -330,7 +378,9 @@ const Register = () => {
                 <div className="w-full border-t border-gray-300"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Or continue with</span>
+                <span className="px-2 bg-white text-gray-500">
+                  Or continue with
+                </span>
               </div>
             </div>
 
@@ -339,7 +389,7 @@ const Register = () => {
         </div>
       </motion.div>
     </div>
-  )
-}
+  );
+};
 
-export default Register
+export default Register;

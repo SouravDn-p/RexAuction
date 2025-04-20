@@ -1,3 +1,5 @@
+"use client";
+
 import { useContext, useEffect, useState, useRef } from "react";
 import {
   FaSun,
@@ -8,7 +10,7 @@ import {
   FaGavel,
 } from "react-icons/fa";
 import { MdOutlineDashboard, MdOutlineLogout } from "react-icons/md";
-import { FiHome, FiInfo, FiMail } from "react-icons/fi";
+import { FiHome, FiInfo } from "react-icons/fi";
 import { BiMoney } from "react-icons/bi";
 import { Link, useLocation } from "react-router-dom";
 import { AuthContexts } from "../../providers/AuthProvider";
@@ -223,11 +225,6 @@ const Navbar = () => {
                   <span className="relative z-10 transition-transform duration-300 group-hover:transform group-hover:translate-y-[-2px]">
                     {item.label}
                   </span>
-                  <span
-                    className={`absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-purple-400 to-purple-300 w-0 group-hover:w-full transition-all duration-300 ${
-                      location.pathname === item.path ? "opacity-0" : ""
-                    }`}
-                  ></span>
                   <span className="absolute inset-0 bg-gradient-to-r from-pink-500/0 to-yellow-400/0 group-hover:from-pink-500/5 group-hover:to-yellow-400/5 rounded-lg transition-all duration-300 opacity-0 group-hover:opacity-100"></span>
                 </Link>
               ))}
@@ -245,8 +242,18 @@ const Navbar = () => {
                   } hover:shadow-md hover:scale-105`}
                   onClick={() => setShowWalletModal(true)}
                 >
-                  <FaWallet className={`${isDarkMode ? "text-yellow-400" : "text-indigo-200"} transition-transform duration-300 group-hover:scale-110`} />
-                  <span className={`${isDarkMode ? "text-indigo-100" : "text-indigo-200"} relative z-10`}>$ {dbUser?.accountBalance}</span>
+                  <FaWallet
+                    className={`${
+                      isDarkMode ? "text-yellow-400" : "text-indigo-200"
+                    } transition-transform duration-300 group-hover:scale-110`}
+                  />
+                  <span
+                    className={`${
+                      isDarkMode ? "text-indigo-100" : "text-indigo-200"
+                    } relative z-10`}
+                  >
+                    $ {dbUser?.accountBalance}
+                  </span>
                   <FaPlus className="text-green-400 text-xs animate-pulse" />
                   <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/0 to-indigo-400/0 hover:from-indigo-600/20 hover:to-indigo-400/20 transition-all duration-300 opacity-0 hover:opacity-100"></div>
                 </button>
@@ -282,7 +289,8 @@ const Navbar = () => {
                     <img
                       src={
                         user?.photoURL ||
-                        "https://i.ibb.co/Y75m1Mk9/Final-Boss.jpg"
+                        "https://i.ibb.co/Y75m1Mk9/Final-Boss.jpg" ||
+                        "/placeholder.svg"
                       }
                       alt="Profile"
                       className="w-9 h-9 rounded-full border-2 border-pink-400 transition-all duration-300 hover:border-yellow-400"
@@ -405,11 +413,6 @@ const Navbar = () => {
                 <span className="relative z-10 transition-transform duration-300 group-hover:transform group-hover:translate-y-[-2px]">
                   Login
                 </span>
-                <span
-                  className={`absolute bottom-0 left-0 h-0.5 bg-gradient-to-r from-purple-500 to-purple-700 w-0 group-hover:w-full transition-all duration-300 ${
-                    location.pathname === "/login" ? "opacity-0" : ""
-                  }`}
-                ></span>
                 <span className="absolute inset-0 bg-gradient-to-r from-pink-500/0 to-yellow-400/0 group-hover:from-pink-500/5 group-hover:to-yellow-400/5 rounded-lg transition-all duration-300 opacity-0 group-hover:opacity-100"></span>
               </Link>
             )}
@@ -434,7 +437,10 @@ const Navbar = () => {
                   <span className="relative z-10 text-sm">
                     $ {dbUser?.accountBalance}
                   </span>
-                  <FaPlus className="text-green-400 text-xs animate-pulse" />
+                  <Link to={`/dashboard/walletHistory`}>
+                    <FaPlus className="text-green-400 text-xs animate-pulse ml-auto" />
+                  </Link>
+
                   <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/0 to-indigo-400/0 hover:from-indigo-600/20 hover:to-indigo-400/20 transition-all duration-300 opacity-0 hover:opacity-100"></div>
                 </button>
               </div>
@@ -606,7 +612,8 @@ const Navbar = () => {
                       className="w-10 h-10 rounded-full border-2 border-pink-400 p-0.5"
                       src={
                         user?.photoURL ||
-                        "https://i.ibb.co/Y75m1Mk9/Final-Boss.jpg"
+                        "https://i.ibb.co/Y75m1Mk9/Final-Boss.jpg" ||
+                        "/placeholder.svg"
                       }
                       alt="User profile"
                     />
@@ -691,7 +698,8 @@ const Navbar = () => {
                       />
                       <span>Your Profile</span>
                     </Link>
-                    <button
+                    <Link
+                      to={`/dashboard/walletHistory`}
                       className={`flex items-center gap-3 w-full py-2 px-3 rounded-lg transition-all duration-200 ${
                         isDarkMode
                           ? "bg-indigo-700/50 text-white hover:bg-indigo-600/70"
@@ -709,7 +717,7 @@ const Navbar = () => {
                       />
                       <span>${dbUser?.accountBalance}</span>
                       <FaPlus className="text-green-400 text-xs animate-pulse ml-auto" />
-                    </button>
+                    </Link>
                   </>
                 )}
               </div>

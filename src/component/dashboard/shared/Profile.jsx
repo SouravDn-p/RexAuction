@@ -6,6 +6,7 @@ import { useInView } from "react-intersection-observer";
 import useAuth from "../../../hooks/useAuth";
 import coverPhoto from "../../../assets/bg/hammer.webp";
 import LoadingSpinner from "../../LoadingSpinner";
+import coverImg from "../../../assets/bg/hammer.webp";
 import axios from "axios";
 
 // Hardcoded profile data for the UI elements
@@ -100,8 +101,6 @@ const profileData = {
     },
   ],
 };
-;
-
 const Profile = () => {
   const { user, loading: authLoading, dbUser, setDbUser } = useAuth();
   const [activeTab, setActiveTab] = useState("All");
@@ -111,7 +110,7 @@ const Profile = () => {
   const [currentCover, setCurrentCover] = useState(coverPhoto);
   const [selectedCover, setSelectedCover] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
-  
+
   // Fetch cover options and user-specific cover image
   useEffect(() => {
     // Fetch cover options
@@ -122,9 +121,10 @@ const Profile = () => {
       } catch (error) {
         console.error("Error fetching cover options:", error);
         setCoverOptions([
-          { id: 1, image: "https://i.ibb.co/KSCtW5n/download-2.jpg" },
-          { id: 2, image: "https://i.ibb.co/60Q0GGYP/download-3.jpg" },
-          { id: 3, image: "https://i.ibb.co/RGwFXk1S/download-4.jpg" },
+          { id: 1, image: coverImg },
+          { id: 2, image: "https://i.ibb.co/KSCtW5n/download-2.jpg" },
+          { id: 3, image: "https://i.ibb.co/60Q0GGYP/download-3.jpg" },
+          { id: 4, image: "https://i.ibb.co/RGwFXk1S/download-4.jpg" },
         ]); // Fallback options
       }
     };
@@ -133,7 +133,9 @@ const Profile = () => {
     const fetchUserCover = async () => {
       if (user?.uid) {
         try {
-          const response = await axios.get(`http://localhost:5000/cover/${user.uid}`);
+          const response = await axios.get(
+            `http://localhost:5000/cover/${user.uid}`
+          );
           if (response.data.image) {
             setCurrentCover(response.data.image);
           }

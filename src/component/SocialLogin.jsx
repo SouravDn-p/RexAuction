@@ -61,6 +61,7 @@ const SocialLogin = () => {
           }),
           recentActivity: [],
           watchingNow: [],
+          transactions: [],
         };
 
         // Save user data to the backend using the addUser API

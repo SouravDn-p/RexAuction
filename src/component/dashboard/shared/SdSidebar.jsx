@@ -390,14 +390,14 @@ const Sidebar = () => {
                 }
               >
                 <IoChatbubbleEllipsesOutline
-                  size={20}
+                  size={18}
                   className={`${
-                    isDarkMode ? "text-indigo-300" : "text-indigo-700"
+                    isDarkMode ? "text-amber-300" : "text-amber-700"
                   }`}
                 />
                 <span
                   className={`${
-                    isDarkMode ? "text-indigo-100" : "text-indigo-800"
+                    isDarkMode ? "text-amber-100" : "text-amber-800"
                   }`}
                 >
                   Chats
@@ -502,14 +502,14 @@ const Sidebar = () => {
                 }
               >
                 <TbMessageReport
-                  size={20}
+                  size={18}
                   className={`${
-                    isDarkMode ? "text-indigo-300" : "text-indigo-700"
+                    isDarkMode ? "text-amber-300" : "text-amber-700"
                   }`}
                 />
                 <span
                   className={`${
-                    isDarkMode ? "text-indigo-100" : "text-indigo-800"
+                    isDarkMode ? "text-amber-100" : "text-amber-800"
                   }`}
                 >
                   Reports

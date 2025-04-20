@@ -160,7 +160,7 @@ const HotAuction = () => {
   if (isLoading) {
     return (
       <div
-        className={`min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}
+        className={`min-h-screen ${isDarkMode ? "bg-gray-950" : "bg-gray-50"}`}
       >
         <div className="flex justify-center items-center py-20">
           <motion.div
@@ -179,7 +179,7 @@ const HotAuction = () => {
   if (error) {
     return (
       <div
-        className={`min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}
+        className={`min-h-screen ${isDarkMode ? "bg-gray-950" : "bg-gray-50"}`}
       >
         <div className="text-center py-20">
           <div className="inline-flex items-center justify-center bg-red-100 text-red-600 p-4 rounded-full mb-4">
@@ -200,7 +200,7 @@ const HotAuction = () => {
 
   return (
     <div
-      className={`min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}
+      className={`min-h-screen ${isDarkMode ? "bg-gray-950" : "bg-gray-50"}`}
     >
       <section className="container mx-auto px-4 py-12">
         <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
@@ -283,6 +283,8 @@ const HotAuction = () => {
                       : "bg-white border border-gray-200"
                   } shadow-lg hover:shadow-xl`}
                 >
+                
+
                   <div className="relative h-56 w-full overflow-hidden">
                     <img
                       src={item.images?.[0] || image}

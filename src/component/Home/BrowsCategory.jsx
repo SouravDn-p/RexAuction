@@ -135,7 +135,7 @@ const BrowsCategory = () => {
     <section
       className={`relative overflow-hidden py-16 transition-colors duration-300 ${
         isDarkMode
-          ? "bg-gray-950 text-white"
+          ? "bg-gray-900 text-white"
           : "bg-gradient-to-b from-violet-50 to-violet-100 text-gray-800"
       }`}
     >
@@ -165,14 +165,14 @@ const BrowsCategory = () => {
               key={category.id}
               onClick={() => handleCategoryClick(category.name)}
               className={`relative group rounded-xl p-6 transition-all duration-300 hover:translate-y-[-8px] hover:shadow-xl cursor-pointer ${
-                isDarkMode ? "bg-gray-900" : "bg-white"
+                isDarkMode ? "bg-gray-800" : "bg-white"
               }`}
             >
               {/* Hover overlay */}
               <div
                 className={`absolute inset-0 rounded-xl transition-opacity duration-300 opacity-0 group-hover:opacity-100 ${
                   isDarkMode
-                    ? "bg-gradient-to-r from-slate-800 to-gray-800"
+                    ? "bg-gradient-to-r from-slate-950 to-gray-950"
                     : "bg-gradient-to-r from-violet-100 to-indigo-100"
                 }`}
               />
@@ -192,7 +192,11 @@ const BrowsCategory = () => {
                   {category.name}
                 </h3>
 
-                <p className={`${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+                <p
+                  className={`${
+                    isDarkMode ? "text-gray-300" : "text-gray-600"
+                  }`}
+                >
                   {category.items}
                 </p>
 
