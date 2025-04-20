@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useContext, useEffect } from "react";
 import useAxiosPublic from "../../../../hooks/useAxiosPublic";
+import ThemeContext from "../../../Context/ThemeContext";
 
 const FeedbackDisplay = () => {
   const [selectedRole, setSelectedRole] = useState("all");
   const [feedbacks, setFeedbacks] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
   const axiosPublic = useAxiosPublic();
-
+  const { isDarkMode } = useContext(ThemeContext);
   // Simulate loading effect
   useEffect(() => {
     setIsLoaded(true);
@@ -80,31 +81,36 @@ const FeedbackDisplay = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-white dark:from-gray-900 dark:to-gray-800 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
+    <div
+      className={` ${
+        isDarkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-800"
+      }
+    min-h-screen  py-12 px-4 sm:px-6 lg:px-8`}
+    >
+      <div className={` max-w-7xl mx-auto`}>
         {/* Header Section */}
         <div
           className={`text-center mb-12 transition-all duration-700 ${
             isLoaded ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-10"
-          }`}
+          }  `}
         >
           <h1 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600">
             Customer Testimonials
           </h1>
-          <p className="mt-3 text-xl text-gray-600 dark:text-gray-300">
+          <p className="mt-3 text-xl text-gray-500 dark:text-gray-300">
             See what our customers are saying about their experience
           </p>
 
           {/* Statistics */}
-          <div className="mt-6 flex flex-wrap justify-center gap-6">
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md px-6 py-4 flex items-center space-x-3">
+          <div className={`  mt-6 flex flex-wrap justify-center gap-6`}>
+            <div className="bg-gray-100 dark:bg-gray-700 rounded-lg shadow-md dark:shadow-xl px-6 py-4 flex items-center space-x-3">
               <div className="h-10 w-10 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center">
                 <span className="text-indigo-600 dark:text-indigo-300 text-lg">
                   ★
                 </span>
               </div>
               <div className="text-left">
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-sm text-gray-800 dark:text-white">
                   Average Rating
                 </p>
                 <p className="text-xl font-bold text-gray-800 dark:text-white">
@@ -113,7 +119,7 @@ const FeedbackDisplay = () => {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md px-6 py-4 flex items-center space-x-3">
+            <div className="bg-gray-100 dark:bg-gray-700 rounded-lg shadow-md px-6 py-4 flex items-center space-x-3">
               <div className="h-10 w-10 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center">
                 <span className="text-purple-600 dark:text-purple-300 text-lg">
                   ✓
@@ -129,7 +135,7 @@ const FeedbackDisplay = () => {
               </div>
             </div>
 
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md px-6 py-4 flex items-center space-x-3">
+            <div className="bg-gray-100 dark:bg-gray-700 rounded-lg shadow-md px-6 py-4 flex items-center space-x-3">
               <div className="h-10 w-10 rounded-full bg-pink-100 dark:bg-pink-900 flex items-center justify-center">
                 <span className="text-pink-600 dark:text-pink-300 text-lg">
                   ♥
@@ -151,9 +157,9 @@ const FeedbackDisplay = () => {
         <div
           className={`flex justify-center mb-10 transition-all duration-700 delay-100 ${
             isLoaded ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-10"
-          }`}
+          } `}
         >
-          <div className="inline-flex p-1 bg-gray-100 dark:bg-gray-800 rounded-xl">
+          <div className={`inline-flex p-1 rounded-xl`}>
             <button
               onClick={() => setSelectedRole("all")}
               className={`px-6 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
@@ -188,15 +194,19 @@ const FeedbackDisplay = () => {
         </div>
 
         {/* Feedback Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div
+          className={`${
+            isDarkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-800"
+          } grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6`}
+        >
           {filteredFeedbacks.map((feedback, index) => (
             <div
               key={feedback?._id}
-              className={`bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 ${
+              className={`bg-gray-100 dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 ${
                 isLoaded
                   ? "opacity-100 translate-y-0"
                   : "opacity-0 translate-y-10"
-              }`}
+              } `}
               style={{ transitionDelay: `${index * 100}ms` }}
             >
               {/* Card Header with Role Badge */}
@@ -273,10 +283,10 @@ const FeedbackDisplay = () => {
             isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
           }`}
         >
-          <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">
+          <h3 className="text-2xl font-bold text-gray-400 dark:text-white mb-4">
             Share Your Experience
           </h3>
-          <p className="text-gray-600 dark:text-gray-300 mb-6">
+          <p className="text-gray-500 dark:text-gray-300 mb-6">
             We value your feedback! Help us improve by sharing your thoughts.
           </p>
           <button className="px-8 py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-medium rounded-lg shadow-lg hover:shadow-xl transform transition-all duration-200 hover:-translate-y-1">
