@@ -4,6 +4,7 @@ import { BsCreditCard2Back, BsPhone } from "react-icons/bs";
 import { SiVisa, SiMastercard } from "react-icons/si";
 import ThemeContext from "../../Context/ThemeContext";
 import axios from "axios";
+import useAuth from "../../../hooks/useAuth";
 
 const Payment2 = () => {
   const [paymentMethod, setPaymentMethod] = useState("card");
@@ -13,6 +14,7 @@ const Payment2 = () => {
   const [cardNumber, setCardNumber] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
   const [cvc, setCvc] = useState("");
+  const {user} = useAuth()
 
   // Mobile banking selection
   const [mobileBankingOption, setMobileBankingOption] = useState("");
@@ -21,26 +23,27 @@ const Payment2 = () => {
     console.log("handleCreatePayment function triggered");
 
     const Payment = {
-      email: "user@example.com",
+      email: user?.email,
       paymentPrice: 24745,
       transactionId: `TXN-${Date.now()}`,
       date: new Date(),
       status: "pending",
-      // paymentMethod: paymentMethod,
-      // ...(paymentMethod === "card" && {
-      //   cardNumber: cardNumber,
-      //   expiryDate: expiryDate,
-      //   cvc: cvc,
-      // }),
-      // ...(paymentMethod === "mobile" && {
-      //   mobileBankingOption: mobileBankingOption,
-      // }),
+      paymentMethod: paymentMethod,
+      ...(paymentMethod === "card" && {
+        cardNumber: cardNumber,
+        expiryDate: expiryDate,
+        cvc: cvc,
+      }),
+      ...(paymentMethod === "mobile" && {
+        mobileBankingOption: mobileBankingOption,
+      }),
     };
 
     const response = await axios.post(
       "http://localhost:5000/paymentsWithSSL",
       Payment
     );
+
     if (response.data?.gatewayURL) {
       window.location.replace(response.data.gatewayURL);
     }

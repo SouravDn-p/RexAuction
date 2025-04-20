@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import SdProfile from "./SdProfile";
 import ThemeContext from "../../Context/ThemeContext";
 import CountUp from "react-countup";
@@ -6,13 +6,14 @@ import { useInView } from "react-intersection-observer";
 import useAuth from "../../../hooks/useAuth";
 import coverPhoto from "../../../assets/bg/hammer.webp";
 import LoadingSpinner from "../../LoadingSpinner";
+import axios from "axios";
 
 // Hardcoded profile data for the UI elements
 const profileData = {
   user: {
     location: "Dhaka, BD",
     memberSince: "2024",
-    coverImage: { coverPhoto },
+    coverImage: coverPhoto,
   },
   paymentMethods: [
     { id: 1, cardNumber: "•••• 4385", provider: "Visa" },
@@ -25,7 +26,7 @@ const profileData = {
       price: "$8,500",
       time: "1 hour ago",
       status: "Won",
-      image: "https://i.ibb.co.com/gZ2qhXjs/images-1.jpg",
+      image: "https://i.ibb.co/gZ2qhXjs/images-1.jpg",
     },
     {
       id: 2,
@@ -33,7 +34,7 @@ const profileData = {
       price: "$2,800",
       time: "3 hours ago",
       status: "Active",
-      image: "https://i.ibb.co.com/V0Yxw7Mg/download.jpg",
+      image: "https://i.ibb.co/V0Yxw7Mg/download.jpg",
     },
     {
       id: 3,
@@ -41,7 +42,7 @@ const profileData = {
       price: "$4,200",
       time: "6 hours ago",
       status: "Outbid",
-      image: "https://i.ibb.co.com/N6rH502K/download-1.jpg",
+      image: "https://i.ibb.co/N6rH502K/download-1.jpg",
     },
   ],
   watchingNow: [
@@ -49,19 +50,19 @@ const profileData = {
       id: 1,
       item: "Antique Pocket Watch",
       timeLeft: "3h 25m",
-      image: "https://i.ibb.co.com/KSCtW5n/download-2.jpg",
+      image: "https://i.ibb.co/KSCtW5n/download-2.jpg",
     },
     {
       id: 2,
       item: "Art Deco Vase",
       timeLeft: "2d 4h",
-      image: "https://i.ibb.co.com/60Q0GGYP/download-3.jpg",
+      image: "https://i.ibb.co/60Q0GGYP/download-3.jpg",
     },
     {
       id: 3,
       item: "Vintage Camera",
       timeLeft: "5d 12h",
-      image: "https://i.ibb.co.com/RGwFXk1S/download-4.jpg",
+      image: "https://i.ibb.co/RGwFXk1S/download-4.jpg",
     },
   ],
   biddingHistory: [
@@ -99,28 +100,72 @@ const profileData = {
     },
   ],
 };
+;
 
 const Profile = () => {
-  // Get real user data from auth context
   const { user, loading: authLoading, dbUser, setDbUser } = useAuth();
   const [activeTab, setActiveTab] = useState("All");
   const { isDarkMode } = useContext(ThemeContext);
-  // cover image
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [coverOptions, setCoverOptions] = useState([]);
+  const [currentCover, setCurrentCover] = useState(coverPhoto);
+  const [selectedCover, setSelectedCover] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
+  
+  // Fetch cover options and user-specific cover image
+  useEffect(() => {
+    // Fetch cover options
+    const fetchCoverOptions = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/cover-options");
+        setCoverOptions(response.data);
+      } catch (error) {
+        console.error("Error fetching cover options:", error);
+        setCoverOptions([
+          { id: 1, image: "https://i.ibb.co/KSCtW5n/download-2.jpg" },
+          { id: 2, image: "https://i.ibb.co/60Q0GGYP/download-3.jpg" },
+          { id: 3, image: "https://i.ibb.co/RGwFXk1S/download-4.jpg" },
+        ]); // Fallback options
+      }
+    };
 
-  // const currentCover = user?.coverPhoto || "hammer.webp";
-  const [currentCover, setCurrentCover] = useState(
-    user?.coverPhoto || "hammer.webp"
-  );
+    // Fetch user-specific cover image
+    const fetchUserCover = async () => {
+      if (user?.uid) {
+        try {
+          const response = await axios.get(`http://localhost:5000/cover/${user.uid}`);
+          if (response.data.image) {
+            setCurrentCover(response.data.image);
+          }
+        } catch (error) {
+          console.error("Error fetching user cover:", error);
+          setCurrentCover(coverPhoto); // Fallback to default
+        }
+      }
+    };
 
-  const [selectedCover, setSelectedCover] = useState(currentCover); // current cover image
+    fetchCoverOptions();
+    fetchUserCover();
+  }, [user]);
 
-  // function to handle save
-  const updateCoverImage = (newCover) => {
-    setCurrentCover(newCover);
-    // Optionally make an API call to save the new cover image
+  // Save selected cover image to backend
+  const saveCoverImage = async () => {
+    if (!selectedCover || !user?.uid) return;
+    setIsSaving(true);
+    try {
+      await axios.patch("http://localhost:5000/cover", {
+        userId: user.uid,
+        image: selectedCover, // This will be saved as `cover` in DB
+      });
+      setCurrentCover(selectedCover);
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error("Error saving cover image:", error);
+      alert("Failed to save cover image. Please try again.");
+    } finally {
+      setIsSaving(false);
+    }
   };
-
   const renderStatusBadge = (status) => {
     switch (status) {
       case "Won":
@@ -173,12 +218,11 @@ const Profile = () => {
     >
       {/* Profile Banner */}
       <div
-        className="relative h-[200px] bg-cover bg-center"
+        className="relative h-[300px] bg-cover bg-center rounded-lg overflow-hidden"
         style={{
-          backgroundImage: `url(${coverPhoto})`,
+          backgroundImage: `url(${currentCover})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
-          height: "300px",
         }}
       >
         <div className="absolute inset-0 bg-black opacity-50"></div>
@@ -206,44 +250,65 @@ const Profile = () => {
         </button>
       </div>
 
-      {/* cover */}
+      {/* Cover Image Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white dark:bg-gray-900 p-6 rounded-lg w-full max-w-4xl shadow-xl">
-            <h2 className="text-lg font-bold text-center mb-4 dark:text-white">
+          <div
+            className={`${
+              isDarkMode ? "bg-gray-800" : "bg-white"
+            } p-6 rounded-lg w-full max-w-4xl shadow-xl`}
+          >
+            <h2
+              className={`text-lg font-bold text-center mb-4 ${
+                isDarkMode ? "text-white" : "text-black"
+              }`}
+            >
               Choose Your Cover Image
             </h2>
-            <div className="grid grid-cols-3 gap-4">
-              {[1, 2, 3, 4, 5, 6].map((num) => (
-                <img
-                  key={num}
-                  src={`/covers/cover${num}.jpg`} // static images saved in public/covers/
-                  alt={`Cover ${num}`}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {coverOptions.map((cover) => (
+                <div
+                  key={cover.id}
                   className={`cursor-pointer border-2 rounded-lg transition-all ${
-                    selectedCover === `/covers/cover${num}.jpg`
-                      ? "border-blue-500 scale-105"
+                    selectedCover === cover.image
+                      ? "border-blue-500"
                       : "border-transparent"
                   }`}
-                  onClick={() => setSelectedCover(`/covers/cover${num}.jpg`)}
-                />
+                  onClick={() => setSelectedCover(cover.image)}
+                >
+                  <img
+                    src={cover.image}
+                    alt={`Cover ${cover.id}`}
+                    className="w-full h-32 object-cover rounded-lg"
+                    onError={(e) => {
+                      e.target.src = coverPhoto;
+                    }}
+                  />
+                </div>
               ))}
             </div>
-
             <div className="flex justify-end mt-6 space-x-4">
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="px-4 py-2 bg-gray-300 dark:bg-gray-700 dark:text-white rounded hover:bg-gray-400"
+                className={`px-4 py-2 rounded ${
+                  isDarkMode
+                    ? "bg-gray-700 text-white hover:bg-gray-600"
+                    : "bg-gray-300 hover:bg-gray-400"
+                }`}
+                disabled={isSaving}
               >
                 Cancel
               </button>
               <button
-                onClick={() => {
-                  updateCoverImage(selectedCover); // your function to save new cover
-                  setIsModalOpen(false);
-                }}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                onClick={saveCoverImage}
+                className={`px-4 py-2 rounded ${
+                  isSaving
+                    ? "bg-blue-400 cursor-not-allowed"
+                    : "bg-blue-600 hover:bg-blue-700"
+                } text-white`}
+                disabled={isSaving || !selectedCover}
               >
-                Save Cover
+                {isSaving ? "Saving..." : "Save Cover"}
               </button>
             </div>
           </div>
@@ -257,7 +322,6 @@ const Profile = () => {
             isDarkMode ? "text-white" : "text-black"
           }`}
         >
-          {/* Profile Picture - Using real user photo */}
           <div className="relative flex-shrink-0">
             <div
               className={`w-28 h-28 rounded-full border-4 ${
@@ -269,62 +333,63 @@ const Profile = () => {
               <img
                 src={
                   user?.photoURL ||
-                  "https://i.ibb.co/BmxHqZm/Screenshot-2025-03-23-164850.png"
+                  "https://img.freepik.com/premium-vector/flat-businessman-character_33040-132.jpg?ga=GA1.1.960511258.1740671009&semt=ais_hybrid&w=740"
                 }
                 alt="Profile picture"
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.target.src =
+                    "https://img.freepik.com/premium-vector/flat-businessman-character_33040-132.jpg?ga=GA1.1.960511258.1740671009&semt=ais_hybrid&w=740";
+                }}
               />
+            </div>
+          </div>
+          <div className="lg:text-left text-center w-full">
+            <h1
+              className={`text-2xl font-bold ${
+                isDarkMode ? "text-white" : "text-black"
+              }`}
+            >
+              {user?.displayName || "No name"}
+            </h1>
+            <p
+              className={`text-gray-500 ${
+                isDarkMode ? "text-gray-400" : "text-gray-500"
+              }`}
+            >
+              Email: {user?.email || "No email"}
+              {dbUser?.location ? (
+                <span> • Location: {dbUser?.location}</span>
+              ) : (
+                ""
+              )}
+              {dbUser?.memberSince ? (
+                <span> • Member Since: {dbUser?.memberSince}</span>
+              ) : (
+                ""
+              )}
+            </p>
+            <div className="mt-4">
+              <button
+                className={`px-3 py-1 text-sm border rounded-md ${
+                  isDarkMode
+                    ? "border-gray-600 bg-gray-700 text-white hover:bg-gray-600"
+                    : "border-gray-300 bg-white text-black hover:bg-gray-50"
+                }`}
+              >
+                Edit Profile
+              </button>
             </div>
           </div>
         </div>
 
-        <div className="lg:text-left text-center w-full">
-          {/* Profile Information - Using real user name */}
-          <h1
-            className={`text-2xl font-bold ${
-              isDarkMode ? "text-white" : "text-black"
-            }`}
-          >
-            {user?.displayName || "No name"}
-          </h1>
-          <p
-            className={`text-gray-500 ${
-              isDarkMode ? "text-gray-400" : "text-gray-500"
-            }`}
-          >
-            Email: {user?.email || "No email"}
-            {dbUser?.location ? (
-              <span> • Location: {dbUser?.location}</span>
-            ) : (
-              ""
-            )}{" "}
-            {dbUser?.memberSince ? (
-              <span> • Member Since : {dbUser?.memberSince}</span>
-            ) : (
-              ""
-            )}{" "}
-          </p>
-
-          <div className="mt-4">
-            <button
-              className={`px-3 py-1 text-sm border rounded-md ${
-                isDarkMode
-                  ? "border-gray-600 bg-gray-700 text-white hover:bg-gray-600"
-                  : "border-gray-300 bg-white text-black hover:bg-gray-50"
-              }`}
-            >
-              Edit Profile
-            </button>
-          </div>
-        </div>
         {/* Stats */}
         <div className="grid mt-5 grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          {/* Auctions Won */}
           <div className={boxStyle}>
             <div className="p-4 text-center">
               <div className={titleStyle}>
                 <CountUp
-                  end={dbUser?.AuctionsWon}
+                  end={dbUser?.AuctionsWon || 0}
                   duration={3.5}
                   enableScrollSpy
                 />
@@ -333,12 +398,11 @@ const Profile = () => {
             </div>
           </div>
 
-          {/* Active Bids */}
           <div className={boxStyle}>
             <div className="p-4 text-center">
               <div className={titleStyle}>
                 <CountUp
-                  end={dbUser?.ActiveBids}
+                  end={dbUser?.ActiveBids || 0}
                   duration={3.5}
                   enableScrollSpy
                 />
@@ -347,7 +411,6 @@ const Profile = () => {
             </div>
           </div>
 
-          {/* Success Rate */}
           <div className={boxStyle}>
             <div className="p-4 text-center">
               <div className={titleStyle}>
@@ -357,12 +420,11 @@ const Profile = () => {
             </div>
           </div>
 
-          {/* Total Spent */}
           <div className={boxStyle}>
             <div className="p-4 text-center">
               <div className={titleStyle}>
                 <CountUp
-                  end={dbUser?.totalSpent}
+                  end={dbUser?.totalSpent || 0}
                   duration={1.5}
                   prefix="$ "
                   enableScrollSpy
@@ -373,7 +435,7 @@ const Profile = () => {
           </div>
         </div>
 
-        {/* Main Content here */}
+        {/* Main Content */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           {/* Left Column */}
           <div className="space-y-6">
@@ -406,7 +468,7 @@ const Profile = () => {
                 >
                   {inView ? (
                     <CountUp
-                      end={dbUser?.accountBalance}
+                      end={dbUser?.accountBalance || 0}
                       duration={1.5}
                       prefix="$ "
                     />
@@ -524,7 +586,6 @@ const Profile = () => {
 
           {/* Middle Column */}
           <div className="space-y-6">
-            {/* Recent Activity */}
             <div
               className={`border rounded-lg shadow-sm ${
                 isDarkMode
@@ -547,7 +608,6 @@ const Profile = () => {
               </div>
 
               <div className="p-4">
-                {/* Tabs */}
                 <div className="grid grid-cols-4 gap-1 mb-3">
                   {["All", "Bids", "Wins", "Watching"].map((tab) => (
                     <button
@@ -568,7 +628,6 @@ const Profile = () => {
                   ))}
                 </div>
 
-                {/* Activities */}
                 <div className="space-y-3">
                   {profileData.recentActivity.map((activity) => (
                     <div key={activity.id} className="flex items-center gap-3">
@@ -614,7 +673,6 @@ const Profile = () => {
 
           {/* Right Column */}
           <div className="space-y-6">
-            {/* Watching Now */}
             <div
               className={`border rounded-lg shadow-sm ${
                 isDarkMode

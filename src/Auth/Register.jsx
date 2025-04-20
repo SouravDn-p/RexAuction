@@ -112,6 +112,8 @@ const Register = () => {
         }),
         recentActivity: [],
         watchingNow: [],
+        cover: "",
+        phone: "",
       })
 
       toast.success("Registration successful! Redirecting...")
