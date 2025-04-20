@@ -488,6 +488,34 @@ const Sidebar = () => {
                 </span>
               </NavLink>
               <NavLink
+                to="/dashboard/payment"
+                className={({ isActive }) =>
+                  `flex items-center gap-3 py-2.5 px-3 rounded-lg transition-all duration-200 ${
+                    isActive
+                      ? isDarkMode
+                        ? "bg-amber-700/60 text-white font-bold shadow-md"
+                        : "bg-amber-200 text-amber-900 font-bold shadow-md"
+                      : isDarkMode
+                      ? "hover:bg-amber-800/40 text-amber-100"
+                      : "hover:bg-amber-100 text-amber-800"
+                  }`
+                }
+              >
+                <CgProfile
+                  size={20}
+                  className={`${
+                    isDarkMode ? "text-amber-300" : "text-amber-700"
+                  }`}
+                />
+                <span
+                  className={`${
+                    isDarkMode ? "text-amber-100" : "text-amber-800"
+                  }`}
+                >
+                  Payment
+                </span>
+              </NavLink>
+              <NavLink
                 to="/dashboard/reports"
                 className={({ isActive }) =>
                   `flex items-center gap-3 py-2.5 px-3 rounded-lg transition-all duration-200 ${

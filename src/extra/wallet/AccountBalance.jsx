@@ -24,7 +24,6 @@ const AddBalance = () => {
   const axiosPublic = useAxiosPublic();
 
   const handleDepositSubmit = async () => {
-    console.log(dbUser._id);
     if (!accountNumber) {
       toast.error("Please enter your account number");
       return;
@@ -36,7 +35,7 @@ const AddBalance = () => {
     const transaction = {
       id: (dbUser?.transactions?.length || 0) + 1,
       date: new Date().toISOString(),
-      description: `Deposit  ${Number(depositAmount)} Taka`,
+      description: `Deposit ${Number(depositAmount)} Taka`,
       amount: Number(depositAmount),
       type: "Deposit",
       status: "completed",

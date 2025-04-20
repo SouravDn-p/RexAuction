@@ -1,313 +1,283 @@
-import React, { useContext, useState } from "react";
-import { AuthContexts } from "../../providers/AuthProvider";
+"use client";
+
+import { useState, useEffect, useContext } from "react";
+import { useRouter } from "next/navigation";
+import {
+  HiOutlineCalendar,
+  HiOutlinePlus,
+  HiOutlineSearch,
+  HiOutlineArrowDown,
+  HiOutlineArrowUp,
+  HiOutlineChevronDown,
+  HiOutlineDocumentDownload,
+} from "react-icons/hi";
+import { Link } from "react-router-dom";
 import ThemeContext from "../../component/Context/ThemeContext";
-import { toast } from "react-toastify";
-import Swal from "sweetalert2";
-import { FaArrowLeft, FaWallet } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
-import useAxiosPublic from "../../hooks/useAxiosPublic";
+import useAuth from "../../hooks/useAuth";
+import LoadingSpinner from "../../component/LoadingSpinner";
 
-const AddBalance = () => {
-  const {
-    user,
-    setLoading,
-    setErrorMessage,
-    dbUser,
-    setDbUser,
-    setWalletBalance,
-  } = useContext(AuthContexts);
+export default function WalletHistory() {
   const { isDarkMode } = useContext(ThemeContext);
-  const [depositAmount, setDepositAmount] = useState(300);
-  const [accountNumber, setAccountNumber] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const navigate = useNavigate();
-  const axiosPublic = useAxiosPublic();
-
-  const handleDepositSubmit = async () => {
-    console.log(dbUser._id);
-
-    if (!accountNumber) {
-      toast.error("Please enter your account number");
-      return;
-    }
-
-    const updatedBalance = dbUser.accountBalance + Number(depositAmount);
-    setWalletBalance(updatedBalance);
-
-    try {
-      const res = await axiosPublic.patch(`/accountBalance/${dbUser._id}`, {
-        accountBalance: updatedBalance,
-      });
-
-      if (res.data.success) {
-        Swal.fire(
-          "Updated!",
-          "User accountBalance has been upgraded.",
-          "success"
-        );
-        if (user?.email) {
-          setLoading(true);
-          axiosPublic
-            .get(`/user/${user.email}`)
-            .then((res) => {
-              setDbUser(res.data);
-              setLoading(false);
-            })
-            .catch((error) => {
-              console.error("Error fetching user data:", error);
-              setErrorMessage("Failed to load user data");
-              setLoading(false);
-            });
-        }
-      } else {
-        Swal.fire("Failed!", "Could not update user role.", "error");
-      }
-    } catch (error) {
-      console.error("Error updating role:", error);
-      Swal.fire("Error!", "Something went wrong!", "error");
-    }
-
-    toast.success(`Successfully added ${depositAmount} to your wallet!`);
-    setShowWalletModal(false);
-    setAccountNumber("");
+  const { dbUser, loading } = useAuth();
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [filterValue, setFilterValue] = useState("all");
+  const [darkMode, setDarkMode] = useState(false);
+ const navigateToAddBalance = () => {
+    router.push("/addBalance");
   };
 
+  // Export to PDF function
+  const exportToPDF = () => {
+    // In a real application, you would use a library like jsPDF or react-pdf
+    // This is a simplified example that creates a text file instead
+    const content =
+      `Wallet History\n\nCurrent Balance: $${dbUser?.accountBalance.toFixed(
+        2
+      )}\n\n` +
+      dbUser?.transactions
+        .map(
+          (t) =>
+            `${t.date} | ${t.description} | $${t.amount.toFixed(2)} | ${
+              t.status
+            }`
+        )
+        .join("\n");
+
+    // Create a blob and download it
+    const blob = new Blob([content], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "wallet-history.txt";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    // Alert the user that in a real app this would be a PDF
+    alert(
+      "In a production app, this would generate a properly formatted PDF document."
+    );
+  };
+
+  if (loading) {
+    return <LoadingSpinner />;
+  }
   return (
-    <div
-      className={`min-h-screen ${
+    <section
+      className={`min-h-screen pt- ${
         isDarkMode ? "bg-gray-900" : "bg-gray-100"
       } py-10 px-4 flex items-center justify-center`}
     >
       <div
-        className={`w-full max-w-md rounded-lg shadow-xl ${
-          isDarkMode ? "bg-gray-800" : "bg-white"
-        } overflow-hidden`}
+        className={`max-w-4xl mx-auto p-4 transition-colors duration-200 dark:bg-gray-900`}
       >
-        {/* Header */}
         <div
-          className={`p-4 ${
-            isDarkMode
-              ? "bg-purple-900"
-              : "bg-gradient-to-r from-purple-600 to-purple-500"
-          } flex items-center justify-between`}
+          className={`${
+            isDarkMode ? "bg-gray-800" : "bg-white"
+          }  rounded-lg shadow-lg border-0 overflow-hidden transition-colors duration-200`}
         >
-          <div className="flex items-center gap-2">
-            <Link
-              to="/dashboard"
-              className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
-            >
-              <FaArrowLeft className="text-white" />
-            </Link>
-            <h2 className="text-xl font-bold text-white">
-              Add Money to Wallet
-            </h2>
-          </div>
-          <div className="bg-white/20 p-2 rounded-full">
-            <FaWallet className="text-white text-xl" />
-          </div>
-        </div>
-
-        {/* Current Balance */}
-        <div
-          className={`px-6 pt-6 pb-2 ${
-            isDarkMode ? "text-gray-300" : "text-gray-700"
-          }`}
-        >
-          <p className="text-sm">Current Balance</p>
-          <p
-            className={`text-2xl font-bold ${
-              isDarkMode ? "text-white" : "text-gray-800"
-            }`}
+          {/* Card Header */}
+          <div
+            className={`${
+              isDarkMode
+                ? "bg-purple-900"
+                : "bg-gradient-to-r from-purple-600 to-purple-500"
+            } rounded-t-lg p-6 transition-colors duration-200`}
           >
-            {dbUser?.accountBalance?.toLocaleString() || 0} BDT
-          </p>
-        </div>
-
-        {/* Form */}
-        <div className="p-6">
-          <div className="mb-6">
-            <label
-              className={`block mb-2 text-sm font-medium ${
-                isDarkMode ? "text-gray-300" : "text-gray-700"
-              }`}
-            >
-              Amount (Min 300.00 BDT / Max 20,000.00 BDT):
-            </label>
-            <input
-              type="number"
-              value={depositAmount}
-              onChange={(e) => setDepositAmount(Number(e.target.value))}
-              className={`w-full p-2 border rounded-md ${
-                isDarkMode
-                  ? "bg-gray-700 border-gray-600 text-white"
-                  : "bg-white border-gray-300"
-              }`}
-              min="300"
-              max="20000"
-            />
-          </div>
-
-          <div className="mb-6">
-            <p
-              className={`mb-2 text-sm font-medium ${
-                isDarkMode ? "text-gray-300" : "text-gray-700"
-              }`}
-            >
-              Please enter or select your deposit amount
-            </p>
-            <div className="grid grid-cols-3 gap-2">
-              {[500, 1000, 2000, 5000, 10000, 20000].map((amount) => (
-                <button
-                  key={amount}
-                  onClick={() => setDepositAmount(amount)}
-                  className={`py-2 border rounded-md ${
-                    depositAmount === amount
-                      ? isDarkMode
-                        ? "bg-purple-700 border-purple-600 text-white"
-                        : "bg-purple-100 border-purple-300 text-purple-800"
-                      : isDarkMode
-                      ? "bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600"
-                      : "bg-gray-50 border-gray-200 hover:bg-gray-100"
-                  }`}
-                >
-                  {amount.toLocaleString()}
-                </button>
-              ))}
+            <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-2xl font-bold text-white">
+                  Wallet History
+                </h2>
+                <p className="text-white text-sm">
+                  Track your financial activities
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-white font-medium">
+                  Current Balance
+                </p>
+                <p className="text-3xl font-bold text-white">
+                  {typeof dbUser?.accountBalance === "number"
+                    ? dbUser.accountBalance.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })
+                    : "0.00"}
+                </p>
+              </div>
             </div>
           </div>
 
-          <div className="mb-6">
-            <label
-              className={`block mb-2 text-sm font-medium ${
-                isDarkMode ? "text-gray-300" : "text-gray-700"
-              }`}
-            >
-              Account number:
-            </label>
-            <input
-              type="text"
-              value={accountNumber}
-              onChange={(e) => setAccountNumber(e.target.value)}
-              placeholder="Enter your account number"
-              className={`w-full p-2 border rounded-md ${
-                isDarkMode
-                  ? "bg-gray-700 border-gray-600 text-white"
-                  : "bg-white border-gray-300"
-              }`}
-            />
-          </div>
+          {/* Card Content */}
+          <div className="p-6 dark:text-gray-200">
+            <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+              <div className="flex items-center gap-2 w-full md:w-auto">
+                <Link
+                  to={"/addBalance"}
+                  className="flex items-center gap-2 bg-purple-700 hover:bg-purple-900 text-white px-4 py-2 rounded-md transition-colors"
+                >
+                  <HiOutlinePlus className="h-4 w-4" />
+                  Add Balance
+                </Link>
+                <button
+                  onClick={exportToPDF}
+                  className={`flex items-center gap-2 rounded-md px-4 py-2 ${
+                    isDarkMode
+                      ? "bg-green-900 hover:bg-green-700"
+                      : "bg-gray-200 hover:bg-gray-300"
+                  } transition-colors`}
+                >
+                  <HiOutlineDocumentDownload className="h-4 w-4" />
+                  Export PDF
+                </button>
+              </div>
 
-          <div className="flex gap-3">
-            <button
-              onClick={() => navigate("/dashboard")}
-              className={`flex-1 py-3 ${
-                isDarkMode
-                  ? "bg-gray-700 hover:bg-gray-600"
-                  : "bg-gray-200 hover:bg-gray-300"
-              } text-center font-medium rounded-md transition-colors duration-200`}
-            >
-              CANCEL
-            </button>
+              <div className="flex items-center gap-2 w-full md:w-auto">
+                <div className="relative w-full md:w-auto">
+                  <HiOutlineSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
+                  <input
+                    type="text"
+                    placeholder="Search transactions..."
+                    className="pl-10 w-full md:w-[250px] border border-emerald-200 dark:border-gray-600 dark:bg-gray-700  dark:text-white rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors"
+                  />
+                </div>
 
-            <button
-              onClick={handleDepositSubmit}
-              disabled={isSubmitting}
-              className={`flex-1 py-3 ${
-                isSubmitting
-                  ? "bg-gray-500 cursor-not-allowed"
-                  : "bg-green-600 hover:bg-green-700"
-              } text-white font-medium rounded-md transition-colors duration-200 flex items-center justify-center`}
-            >
-              {isSubmitting ? (
-                <>
-                  <svg
-                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
+                {/* Custom Select */}
+                <div className="relative">
+                  <button
+                    onClick={() => setIsFilterOpen(!isFilterOpen)}
+                    className={`flex items-center justify-between w-[130px] rounded-md py-2 px-3 transition-colors border 
+          ${
+            isDarkMode
+              ? "border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
+              : "border-emerald-200 bg-white text-gray-800 hover:bg-emerald-50"
+          }
+        `}
                   >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Processing...
-                </>
-              ) : (
-                "CONFIRM"
-              )}
-            </button>
-          </div>
+                    <span>
+                      {filterValue === "all"
+                        ? "All"
+                        : filterValue === "credit"
+                        ? "Credits"
+                        : "Debits"}
+                    </span>
+                    <HiOutlineChevronDown className="h-4 w-4 ml-2" />
+                  </button>
 
-          {/* Payment Methods */}
-          <div className="mt-8">
-            <p
-              className={`text-sm font-medium mb-3 ${
-                isDarkMode ? "text-gray-300" : "text-gray-700"
-              }`}
-            >
-              RECOMMENDED PAYMENT METHODS
-            </p>
-            <div className="grid grid-cols-2 gap-3">
-              <div
-                className={`border rounded-md p-3 ${
-                  isDarkMode ? "border-gray-700" : "border-gray-200"
-                }`}
-              >
-                <div className="flex justify-between items-center mb-2">
-                  <img
-                    src="https://i.ibb.co/TDRpg4tS/Screenshot-2025-03-20-174700-removebg-preview.png"
-                    alt="bKash"
-                    className="h-8"
-                  />
-                  <span className="text-xs font-medium text-green-500">
-                    +5%
-                  </span>
+                  {isFilterOpen && (
+                    <div
+                      className={`absolute z-10 mt-1 w-full rounded-md shadow-lg border transition-colors
+            ${
+              isDarkMode
+                ? "bg-gray-800 border-gray-600"
+                : "bg-white border-emerald-100"
+            }
+          `}
+                    >
+                      {["all", "credit", "debit"].map((type) => (
+                        <div
+                          key={type}
+                          className={`py-1 px-3 cursor-pointer transition-colors 
+                ${
+                  isDarkMode
+                    ? "hover:bg-gray-700 text-white"
+                    : "hover:bg-emerald-50 text-gray-800"
+                }
+              `}
+                          onClick={() => {
+                            setFilterValue(type);
+                            setIsFilterOpen(false);
+                          }}
+                        >
+                          {type === "all"
+                            ? "All"
+                            : type === "credit"
+                            ? "Credits"
+                            : "Debits"}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <p
-                  className={`text-center text-sm font-medium ${
-                    isDarkMode ? "text-gray-300" : "text-gray-700"
-                  }`}
-                >
-                  Fast bKash
-                </p>
               </div>
+            </div>
 
-              <div
-                className={`border rounded-md p-3 ${
-                  isDarkMode ? "border-gray-700" : "border-gray-200"
-                }`}
-              >
-                <div className="flex justify-between items-center mb-2">
-                  <img
-                    src="https://i.ibb.co/TDRpg4tS/Screenshot-2025-03-20-174700-removebg-preview.png"
-                    alt="Nagad"
-                    className="h-8"
-                  />
-                </div>
-                <p
-                  className={`text-center text-sm font-medium ${
-                    isDarkMode ? "text-gray-300" : "text-gray-700"
-                  }`}
-                >
-                  Fast Nagad
-                </p>
-              </div>
+            <div className="rounded-lg border border-emerald-100 dark:border-gray-700 overflow-hidden transition-colors">
+              <table className="w-full">
+                <thead className="bg-emerald-50 dark:bg-emerald-900/30 transition-colors">
+                  <tr>
+                    <th className="text-left py-3 px-4 font-medium text-emerald-800 dark:text-emerald-300 w-[100px]">
+                      Date
+                    </th>
+                    <th className="text-left py-3 px-4 font-medium text-emerald-800 dark:text-emerald-300">
+                      Description
+                    </th>
+                    <th className="text-left py-3 px-4 font-medium text-emerald-800 dark:text-emerald-300">
+                      Amount
+                    </th>
+                    <th className="text-right py-3 px-4 font-medium text-emerald-800 dark:text-emerald-300">
+                      Status
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {dbUser?.transactions &&
+                    dbUser?.transactions.map((transaction) => (
+                      <tr
+                        key={transaction.id}
+                        className="hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10 border-t border-emerald-100 dark:border-gray-700 transition-colors"
+                      >
+                        <td className="py-3 px-4 font-medium text-gray-600 dark:text-gray-300">
+                          <div className="flex items-center gap-2">
+                            <HiOutlineCalendar className="h-3.5 w-3.5 text-gray-400 dark:text-gray-500" />
+                            {transaction.date}
+                          </div>
+                        </td>
+                        <td className="py-3 px-4">{transaction.description}</td>
+                        <td className="py-3 px-4">
+                          <div
+                            className={`flex items-center gap-1 font-medium ${
+                              transaction.type === "credit"
+                                ? "text-emerald-600 dark:text-emerald-400"
+                                : "text-rose-600 dark:text-rose-400"
+                            }`}
+                          >
+                            {transaction.type === "credit" ? (
+                              <HiOutlineArrowDown className="h-3.5 w-3.5" />
+                            ) : (
+                              <HiOutlineArrowUp className="h-3.5 w-3.5" />
+                            )}
+                            ${transaction.amount.toFixed(2)}
+                          </div>
+                        </td>
+                        <td className="py-3 px-4 text-right">
+                          <span
+                            className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                              transaction.status === "completed"
+                                ? "border border-emerald-200 text-emerald-700 bg-emerald-50 dark:border-emerald-800 dark:text-emerald-300 dark:bg-emerald-900/30"
+                                : "border border-amber-200 text-amber-700 bg-amber-50 dark:border-amber-800 dark:text-amber-300 dark:bg-amber-900/30"
+                            }`}
+                          >
+                            {transaction.status === "completed"
+                              ? "Completed"
+                              : "Pending"}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="mt-4 text-center text-sm text-gray-500 dark:text-gray-400">
+              Showing {dbUser?.transactions.length} of{" "}
+              {dbUser?.transactions.length} transactions
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
-};
-
-export default AddBalance;
+}

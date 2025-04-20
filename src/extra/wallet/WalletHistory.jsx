@@ -1,91 +1,108 @@
 "use client";
 
-import { useState, useEffect, useContext } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, useRef, useContext } from "react";
 import {
-  HiOutlineCalendar,
-  HiOutlinePlus,
-  HiOutlineSearch,
-  HiOutlineArrowDown,
-  HiOutlineArrowUp,
-  HiOutlineChevronDown,
-  HiOutlineDocumentDownload,
-} from "react-icons/hi";
-import { Link, useNavigate } from "react-router-dom";
+  Calendar,
+  ArrowDown,
+  ArrowUp,
+  ChevronDown,
+  Filter,
+  X,
+} from "lucide-react";
+import { HiOutlinePlus, HiOutlineDocumentDownload } from "react-icons/hi";
+import { Link } from "react-router-dom";
 import ThemeContext from "../../component/Context/ThemeContext";
 import useAuth from "../../hooks/useAuth";
 
 export default function WalletHistory() {
-  const { isDarkMode } = useContext(ThemeContext);
-  const { dbUser } = useAuth();
-  // const [dbUser?.accountBalance, setBalance] = useState(1250.75);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [filterValue, setFilterValue] = useState("all");
-  const [darkMode, setDarkMode] = useState(false);
-  // const [transactions, setTransactions] = useState([
-  //   {
-  //     id: 1,
-  //     date: "2023-06-15",
-  //     description: "Deposit",
-  //     amount: 500,
-  //     type: "credit",
-  //     status: "completed",
-  //   },
-  //   {
-  //     id: 2,
-  //     date: "2023-06-10",
-  //     description: "Withdrawal",
-  //     amount: 150,
-  //     type: "debit",
-  //     status: "completed",
-  //   },
-  //   {
-  //     id: 3,
-  //     date: "2023-06-05",
-  //     description: "Purchase - Coffee Shop",
-  //     amount: 8.5,
-  //     type: "debit",
-  //     status: "completed",
-  //   },
-  //   {
-  //     id: 4,
-  //     date: "2023-06-01",
-  //     description: "Salary",
-  //     amount: 2500,
-  //     type: "credit",
-  //     status: "completed",
-  //   },
-  //   {
-  //     id: 5,
-  //     date: "2023-05-28",
-  //     description: "Refund - Online Store",
-  //     amount: 45.99,
-  //     type: "credit",
-  //     status: "pending",
-  //   },
-  // ]);
+  const [filterType, setFilterType] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const filterRef = useRef(null);
+  const { isDarkMode } = useContext(ThemeContext);
+  const { dbUser, loading } = useAuth();
 
-  // Navigate to Add Balance page
-  const navigateToAddBalance = () => {
-    router.push("/addBalance");
+  // Format date helper function
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
   };
 
-  // Export to PDF function
+  // Format time helper function
+  const formatTime = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  // Format number with commas
+  const formatNumber = (number) => {
+    return number?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  };
+
+  // Filter dbUser?.transactions based on type and search query
+  const filteredTransactions = dbUser?.transactions?.filter((transaction) => {
+    const matchesType =
+      filterType === "all" ||
+      (filterType === "deposit" && transaction.type === "Deposit") ||
+      (filterType === "withdrawal" && transaction.type === "Withdrawal");
+
+    const matchesSearch =
+      transaction.description
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
+      transaction.amount.toString().includes(searchQuery) ||
+      transaction.status.toLowerCase().includes(searchQuery.toLowerCase());
+
+    return matchesType && matchesSearch;
+  });
+
+  // Close filter dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (filterRef.current && !filterRef.current.contains(event.target)) {
+        setIsFilterOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [filterRef]);
+
+  // Export to PDF function (simplified version that creates a text file)
   const exportToPDF = () => {
-    // In a real application, you would use a library like jsPDF or react-pdf
-    // This is a simplified example that creates a text file instead
-    const content =
-      `Wallet History\n\nCurrent Balance: $${dbUser?.accountBalance.toFixed(
-        2
-      )}\n\n` +
-      transactions
-        .map(
-          (t) =>
-            `${t.date} | ${t.description} | $${t.amount.toFixed(2)} | ${
-              t.status
-            }`
-        )
-        .join("\n");
+    // Create a text representation of the data
+    const currentDate = new Date().toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+
+    let content = "WALLET TRANSACTION HISTORY\n\n";
+    content += `Generated on: ${currentDate}\n`;
+    content += `Current Balance: ${formatNumber(
+      dbUser?.accountBalance
+    )} Taka\n\n`;
+    content +=
+      "Date                  Description                Amount           Status\n";
+    content +=
+      "-------------------------------------------------------------------------\n";
+
+    filteredTransactions?.forEach((transaction) => {
+      const date = formatDate(transaction.date);
+      content += `${date.padEnd(22)}${transaction.description.padEnd(26)}${(
+        formatNumber(transaction.amount) + " Taka"
+      ).padEnd(17)}${
+        transaction.status.charAt(0).toUpperCase() + transaction.status.slice(1)
+      }\n`;
+    });
 
     // Create a blob and download it
     const blob = new Blob([content], { type: "text/plain" });
@@ -98,61 +115,73 @@ export default function WalletHistory() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
 
-    // Alert the user that in a real app this would be a PDF
     alert(
-      "In a production app, this would generate a properly formatted PDF document."
+      "Transaction history exported. In a production app, this would generate a properly formatted PDF document."
     );
   };
 
   return (
     <section
-      className={`min-h-screen pt- ${
-        isDarkMode ? "bg-gray-900" : "bg-gray-100"
-      } py-10 px-4 flex items-center justify-center`}
+      className={`min-h-screen py-10 px-4 flex items-center justify-center ${
+        isDarkMode ? "bg-gray-900" : "bg-gradient-to-br from-purple-50 to-white"
+      }`}
     >
-      <div
-        className={`max-w-4xl mx-auto p-4 transition-colors duration-200 dark:bg-gray-900`}
-      >
+      <div className="w-full max-w-5xl mx-auto">
         <div
-          className={`${
-            isDarkMode ? "bg-gray-800" : "bg-white"
-          }  rounded-lg shadow-lg border-0 overflow-hidden transition-colors duration-200`}
+          className={`rounded-xl shadow-xl overflow-hidden border transform transition-all duration-300 hover:shadow-2xl ${
+            isDarkMode ? "border-gray-700" : "border-purple-100"
+          }`}
         >
-          {/* Card Header */}
+          {/* Card Header with gradient background */}
           <div
-            className={`${
+            className={`relative overflow-hidden ${
               isDarkMode
                 ? "bg-purple-900"
-                : "bg-gradient-to-r from-purple-600 to-purple-500"
-            } rounded-t-lg p-6 transition-colors duration-200`}
+                : "bg-gradient-to-r from-purple-600 via-purple-500 to-fuchsia-500"
+            } p-8`}
           >
-            <div className="flex justify-between items-center">
+            {/* Decorative elements */}
+            {!isDarkMode && (
+              <>
+                <div className="absolute top-0 left-0 w-full h-full opacity-10">
+                  <div className="absolute top-10 left-10 w-32 h-32 rounded-full bg-white"></div>
+                  <div className="absolute bottom-10 right-10 w-24 h-24 rounded-full bg-white"></div>
+                </div>
+              </>
+            )}
+
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center relative z-10">
               <div>
-                <h2 className="text-2xl font-bold text-white">
+                <h2 className="text-3xl font-bold text-white mb-1">
                   Wallet History
                 </h2>
-                <p className="text-white text-sm">
+                <p className="text-purple-100 text-sm">
                   Track your financial activities
                 </p>
               </div>
-              <div className="text-right">
-                <p className="text-sm text-white font-medium">
+              <div
+                className="mt-4 md:mt-0 text-right bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20
+                transform transition-all duration-300 hover:scale-105"
+              >
+                <p className="text-sm text-purple-100 font-medium">
                   Current Balance
                 </p>
                 <p className="text-3xl font-bold text-white">
-                  {typeof dbUser?.accountBalance === "number"
-                    ? dbUser.accountBalance.toLocaleString(undefined, {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })
-                    : "0.00"}
+                  {formatNumber(dbUser?.accountBalance)}{" "}
+                  <span className="text-lg">Taka</span>
                 </p>
               </div>
             </div>
           </div>
 
           {/* Card Content */}
-          <div className="p-6 dark:text-gray-200">
+          <div
+            className={`p-6 ${
+              isDarkMode
+                ? "bg-gray-800 text-gray-200"
+                : "bg-white text-gray-800"
+            }`}
+          >
             <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
               <div className="flex items-center gap-2 w-full md:w-auto">
                 <Link
@@ -162,81 +191,83 @@ export default function WalletHistory() {
                   <HiOutlinePlus className="h-4 w-4" />
                   Add Balance
                 </Link>
+
                 <button
                   onClick={exportToPDF}
-                  className={`flex items-center gap-2 rounded-md px-4 py-2 ${
+                  className={`flex items-center gap-2 rounded-lg px-5 py-2.5 shadow-md hover:shadow-lg 
+                  transition-all duration-300 transform hover:scale-105 ${
                     isDarkMode
-                      ? "bg-green-900 hover:bg-green-700"
-                      : "bg-gray-200 hover:bg-gray-300"
-                  } transition-colors`}
+                      ? "bg-green-700 hover:bg-green-600 text-white"
+                      : "bg-white hover:bg-gray-50 text-purple-700 border border-purple-200"
+                  }`}
                 >
-                  <HiOutlineDocumentDownload className="h-4 w-4" />
+                  <HiOutlineDocumentDownload />
                   Export PDF
                 </button>
               </div>
 
-              <div className="flex items-center gap-2 w-full md:w-auto">
-                <div className="relative w-full md:w-auto">
-                  <HiOutlineSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-500" />
-                  <input
-                    type="text"
-                    placeholder="Search transactions..."
-                    className="pl-10 w-full md:w-[250px] border border-emerald-200 dark:border-gray-600 dark:bg-gray-700  dark:text-white rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors"
-                  />
-                </div>
-
+              <div className="flex items-center gap-3 w-full md:w-auto">
                 {/* Custom Select */}
-                <div className="relative">
+                <div className="relative" ref={filterRef}>
                   <button
                     onClick={() => setIsFilterOpen(!isFilterOpen)}
-                    className={`flex items-center justify-between w-[130px] rounded-md py-2 px-3 transition-colors border 
-          ${
-            isDarkMode
-              ? "border-gray-600 bg-gray-800 text-white hover:bg-gray-700"
-              : "border-emerald-200 bg-white text-gray-800 hover:bg-emerald-50"
-          }
-        `}
+                    className={`flex items-center justify-between w-[150px] rounded-lg py-2.5 px-4 
+                    transition-all duration-300 transform hover:scale-105 ${
+                      isDarkMode
+                        ? "bg-gray-700 text-white border border-gray-600 hover:bg-gray-600"
+                        : "bg-white text-gray-700 border border-purple-200 hover:bg-purple-50"
+                    }`}
                   >
-                    <span>
-                      {filterValue === "all"
-                        ? "All"
-                        : filterValue === "credit"
-                        ? "Credits"
-                        : "Debits"}
-                    </span>
-                    <HiOutlineChevronDown className="h-4 w-4 ml-2" />
+                    <div className="flex items-center gap-2">
+                      <Filter className="h-4 w-4 text-purple-500" />
+                      <span>
+                        {filterType === "all"
+                          ? "All Types"
+                          : filterType === "deposit"
+                          ? "Deposits"
+                          : "Withdrawals"}
+                      </span>
+                    </div>
+                    <ChevronDown
+                      className={`h-4 w-4 transition-transform duration-300 ${
+                        isFilterOpen ? "rotate-180" : ""
+                      }`}
+                    />
                   </button>
 
                   {isFilterOpen && (
                     <div
-                      className={`absolute z-10 mt-1 w-full rounded-md shadow-lg border transition-colors
-            ${
-              isDarkMode
-                ? "bg-gray-800 border-gray-600"
-                : "bg-white border-emerald-100"
-            }
-          `}
+                      className={`absolute z-10 mt-1 w-full rounded-lg shadow-lg border 
+                      transform transition-all duration-300 origin-top ${
+                        isDarkMode
+                          ? "bg-gray-700 border-gray-600"
+                          : "bg-white border-purple-100"
+                      }`}
                     >
-                      {["all", "credit", "debit"].map((type) => (
+                      {[
+                        { id: "all", label: "All Types" },
+                        { id: "deposit", label: "Deposits" },
+                        { id: "withdrawal", label: "Withdrawals" },
+                      ].map((type) => (
                         <div
-                          key={type}
-                          className={`py-1 px-3 cursor-pointer transition-colors 
-                ${
-                  isDarkMode
-                    ? "hover:bg-gray-700 text-white"
-                    : "hover:bg-emerald-50 text-gray-800"
-                }
-              `}
+                          key={type.id}
+                          className={`py-2 px-4 cursor-pointer first:rounded-t-lg last:rounded-b-lg transition-colors duration-200 ${
+                            isDarkMode
+                              ? "hover:bg-gray-600 text-white"
+                              : "hover:bg-purple-50 text-gray-700"
+                          } ${
+                            filterType === type.id
+                              ? isDarkMode
+                                ? "bg-gray-600"
+                                : "bg-purple-50"
+                              : ""
+                          }`}
                           onClick={() => {
-                            setFilterValue(type);
+                            setFilterType(type.id);
                             setIsFilterOpen(false);
                           }}
                         >
-                          {type === "all"
-                            ? "All"
-                            : type === "credit"
-                            ? "Credits"
-                            : "Debits"}
+                          {type.label}
                         </div>
                       ))}
                     </div>
@@ -245,80 +276,155 @@ export default function WalletHistory() {
               </div>
             </div>
 
-            <div className="rounded-lg border border-emerald-100 dark:border-gray-700 overflow-hidden transition-colors">
-              <table className="w-full">
-                <thead className="bg-emerald-50 dark:bg-emerald-900/30 transition-colors">
-                  <tr>
-                    <th className="text-left py-3 px-4 font-medium text-emerald-800 dark:text-emerald-300 w-[100px]">
-                      Date
-                    </th>
-                    <th className="text-left py-3 px-4 font-medium text-emerald-800 dark:text-emerald-300">
-                      Description
-                    </th>
-                    <th className="text-left py-3 px-4 font-medium text-emerald-800 dark:text-emerald-300">
-                      Amount
-                    </th>
-                    <th className="text-right py-3 px-4 font-medium text-emerald-800 dark:text-emerald-300">
-                      Status
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {dbUser?.transactions &&
-                    dbUser?.transactions.map((transaction) => (
-                      <tr
-                        key={transaction.id}
-                        className="hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10 border-t border-emerald-100 dark:border-gray-700 transition-colors"
+            {/* Transactions Table */}
+            <div
+              className={`rounded-xl border overflow-hidden ${
+                isDarkMode ? "border-gray-700" : "border-purple-100"
+              }`}
+            >
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead
+                    className={isDarkMode ? "bg-gray-700" : "bg-purple-50"}
+                  >
+                    <tr>
+                      <th className="text-left py-4 px-6 font-medium text-sm uppercase tracking-wider whitespace-nowrap">
+                        <div
+                          className={`flex items-center gap-2 ${
+                            isDarkMode ? "text-purple-300" : "text-purple-700"
+                          }`}
+                        >
+                          <Calendar />
+                          Date
+                        </div>
+                      </th>
+                      <th
+                        className={`text-left py-4 px-6 font-medium text-sm uppercase tracking-wider ${
+                          isDarkMode ? "text-purple-300" : "text-purple-700"
+                        }`}
                       >
-                        <td className="py-3 px-4 font-medium text-gray-600 dark:text-gray-300">
-                          <div className="flex items-center gap-2">
-                            <HiOutlineCalendar className="h-3.5 w-3.5 text-gray-400 dark:text-gray-500" />
-                            {transaction.date}
-                          </div>
-                        </td>
-                        <td className="py-3 px-4">{transaction.description}</td>
-                        <td className="py-3 px-4">
-                          <div
-                            className={`flex items-center gap-1 font-medium ${
-                              transaction.type === "credit"
-                                ? "text-emerald-600 dark:text-emerald-400"
-                                : "text-rose-600 dark:text-rose-400"
-                            }`}
-                          >
-                            {transaction.type === "credit" ? (
-                              <HiOutlineArrowDown className="h-3.5 w-3.5" />
-                            ) : (
-                              <HiOutlineArrowUp className="h-3.5 w-3.5" />
-                            )}
-                            ${transaction.amount.toFixed(2)}
-                          </div>
-                        </td>
-                        <td className="py-3 px-4 text-right">
-                          <span
-                            className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                              transaction.status === "completed"
-                                ? "border border-emerald-200 text-emerald-700 bg-emerald-50 dark:border-emerald-800 dark:text-emerald-300 dark:bg-emerald-900/30"
-                                : "border border-amber-200 text-amber-700 bg-amber-50 dark:border-amber-800 dark:text-amber-300 dark:bg-amber-900/30"
-                            }`}
-                          >
-                            {transaction.status === "completed"
-                              ? "Completed"
-                              : "Pending"}
-                          </span>
+                        Description
+                      </th>
+                      <th
+                        className={`text-left py-4 px-6 font-medium text-sm uppercase tracking-wider ${
+                          isDarkMode ? "text-purple-300" : "text-purple-700"
+                        }`}
+                      >
+                        Amount
+                      </th>
+                      <th
+                        className={`text-right py-4 px-6 font-medium text-sm uppercase tracking-wider ${
+                          isDarkMode ? "text-purple-300" : "text-purple-700"
+                        }`}
+                      >
+                        Status
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredTransactions?.length > 0 ? (
+                      filteredTransactions?.map((transaction, index) => (
+                        <tr
+                          key={transaction.id}
+                          className={`transform transition-all duration-200 hover:scale-[1.01] ${
+                            isDarkMode
+                              ? "hover:bg-gray-700 border-t border-gray-700"
+                              : "hover:bg-purple-50/50 border-t border-purple-100"
+                          }`}
+                          style={{
+                            transitionDelay: `${index * 50}ms`,
+                            opacity: 0,
+                            animation: `fadeIn 0.5s ease forwards ${
+                              index * 0.1
+                            }s`,
+                          }}
+                        >
+                          <td className="py-4 px-6 whitespace-nowrap">
+                            <div
+                              className={`font-medium ${
+                                isDarkMode ? "text-gray-300" : "text-gray-600"
+                              }`}
+                            >
+                              {formatDate(transaction.date)}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {formatTime(transaction.date)}
+                            </div>
+                          </td>
+                          <td className="py-4 px-6">
+                            {transaction.description}
+                          </td>
+                          <td className="py-4 px-6">
+                            <div
+                              className={`flex items-center gap-1 font-medium ${
+                                transaction.type === "Deposit"
+                                  ? "text-emerald-600 dark:text-emerald-400"
+                                  : "text-rose-600 dark:text-rose-400"
+                              }`}
+                            >
+                              {transaction.type === "Deposit" ? (
+                                <ArrowDown />
+                              ) : (
+                                <ArrowUp />
+                              )}
+                              {formatNumber(transaction.amount)} Taka
+                            </div>
+                          </td>
+                          <td className="py-4 px-6 text-right">
+                            <span
+                              className={`inline-flex px-3 py-1 text-xs font-medium rounded-full ${
+                                transaction.status === "completed"
+                                  ? isDarkMode
+                                    ? "bg-emerald-900/30 text-emerald-300 border border-emerald-800"
+                                    : "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                  : isDarkMode
+                                  ? "bg-amber-900/30 text-amber-300 border border-amber-800"
+                                  : "bg-amber-50 text-amber-700 border border-amber-200"
+                              }`}
+                            >
+                              {transaction.status === "completed"
+                                ? "Completed"
+                                : "Pending"}
+                            </span>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td
+                          colSpan={4}
+                          className="py-8 text-center text-gray-500"
+                        >
+                          No transactions found matching your filters
                         </td>
                       </tr>
-                    ))}
-                </tbody>
-              </table>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
 
-            {/* <div className="mt-4 text-center text-sm text-gray-500 dark:text-gray-400">
-              Showing {transactions.length} of {transactions.length}{" "}
-              transactions
-            </div> */}
+            <div className="mt-4 text-center text-sm text-gray-500">
+              Showing {filteredTransactions?.length} of{" "}
+              {dbUser?.transactions?.length} dbUser?.transactions
+            </div>
           </div>
         </div>
       </div>
+
+      {/* CSS for animations */}
+      <style jsx>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </section>
   );
 }
