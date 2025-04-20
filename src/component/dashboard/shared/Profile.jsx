@@ -160,7 +160,6 @@ const Profile = () => {
         image: selectedCover, // This will be saved as `cover` in DB
       });
       setCurrentCover(selectedCover);
-
       setIsModalOpen(false);
     } catch (error) {
       console.error("Error saving cover image:", error);

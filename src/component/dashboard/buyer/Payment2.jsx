@@ -1,6 +1,4 @@
-
-
-import { useContext, useState, useEffect, useRef } from "react"
+import { useContext, useState, useEffect, useRef } from "react";
 import {
   FaLock,
   FaCheckCircle,
@@ -10,130 +8,122 @@ import {
   FaTag,
   FaShippingFast,
   FaTimes,
-} from "react-icons/fa"
-import { BsPhone, BsImages, BsArrowsFullscreen } from "react-icons/bs"
-import { SiVisa, SiMastercard, SiAmericanexpress, SiPaypal } from "react-icons/si"
-import { RiSecurePaymentLine, RiAuctionLine } from "react-icons/ri"
-import ThemeContext from "../../Context/ThemeContext"
-import { AuthContexts } from "../../../providers/AuthProvider"
-import { useLocation, useNavigate } from "react-router-dom"
-import { motion } from "framer-motion"
-import useAxiosPublic from "../../../hooks/useAxiosPublic"
-import { toast } from "react-hot-toast"
+} from "react-icons/fa";
+import {  BsImages, BsArrowsFullscreen } from "react-icons/bs";
+
+import { RiSecurePaymentLine, RiAuctionLine } from "react-icons/ri";
+import ThemeContext from "../../Context/ThemeContext";
+import { AuthContexts } from "../../../providers/AuthProvider";
+import { useLocation, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import useAxiosPublic from "../../../hooks/useAxiosPublic";
+import axios from "axios";
+
 
 const Payment2 = () => {
-  const [paymentMethod, setPaymentMethod] = useState("card")
-  const { isDarkMode } = useContext(ThemeContext)
-  const { user, dbUser } = useContext(AuthContexts)
-  const location = useLocation()
-  const navigate = useNavigate()
-  const [auctionData, setAuctionData] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [showDetails, setShowDetails] = useState(false)
-  const [showDetailsModal, setShowDetailsModal] = useState(false)
-  const [processingPayment, setProcessingPayment] = useState(false)
-  const [paymentSuccess, setPaymentSuccess] = useState(false)
-  const [selectedImage, setSelectedImage] = useState(0)
-  const [modalImage, setModalImage] = useState(0)
-  const modalRef = useRef(null)
+  const [paymentMethod, setPaymentMethod] = useState("card");
+  const { isDarkMode } = useContext(ThemeContext);
+  const { user, dbUser } = useContext(AuthContexts);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [auctionData, setAuctionData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [processingPayment, setProcessingPayment] = useState(false);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(0);
+  const [modalImage, setModalImage] = useState(0);
+  const modalRef = useRef(null);
 
-  // Card payment inputs
-  const [cardNumber, setCardNumber] = useState("")
-  const [expiryDate, setExpiryDate] = useState("")
-  const [cvc, setCvc] = useState("")
-  const [cardholderName, setCardholderName] = useState("")
-
-  // Mobile banking selection
-  const [mobileBankingOption, setMobileBankingOption] = useState("")
-  const [mobileNumber, setMobileNumber] = useState("")
-  const [mobilePin, setMobilePin] = useState("")
-
-  const axiosPublic = useAxiosPublic()
-
-  
+  const axiosPublic = useAxiosPublic();
   useEffect(() => {
     const fetchAuctionData = async () => {
       try {
-        let auctionInfo = null
+        let auctionInfo = null;
 
         // Get auction data from location state
         if (location.state?.auctionData) {
-          auctionInfo = location.state.auctionData
-          console.log("Auction data from location state:", auctionInfo)
+          auctionInfo = location.state.auctionData;
+          console.log("Auction data from location state:", auctionInfo);
         } else if (location.state?.notificationDetails?.auctionData) {
-          auctionInfo = location.state.notificationDetails.auctionData
-          console.log("Auction data from notification details:", auctionInfo)
+          auctionInfo = location.state.notificationDetails.auctionData;
+          console.log("Auction data from notification details:", auctionInfo);
         }
 
         // If we have an auction ID but no complete data, fetch it from the server
-        if (auctionInfo?._id && (!auctionInfo.payment || !auctionInfo.paymentDetails)) {
-          console.log("Fetching complete auction data from server for ID:", auctionInfo._id)
+        if (
+          auctionInfo?._id &&
+          (!auctionInfo.payment || !auctionInfo.paymentDetails)
+        ) {
+          console.log(
+            "Fetching complete auction data from server for ID:",
+            auctionInfo._id
+          );
           try {
-            const response = await axiosPublic.get(`/auction/${auctionInfo._id}`)
+            const response = await axiosPublic.get(
+              `/auction/${auctionInfo._id}`
+            );
             if (response.data) {
-              auctionInfo = response.data
-              console.log("Fetched auction data:", auctionInfo)
+              auctionInfo = response.data;
+              console.log("Fetched auction data:", auctionInfo);
             }
           } catch (error) {
-            console.error("Error fetching auction data from server:", error)
-            
+            console.error("Error fetching auction data from server:", error);
           }
         }
 
         if (auctionInfo) {
-          setAuctionData(auctionInfo)
+          setAuctionData(auctionInfo);
 
           // Check payment status
           if (auctionInfo.payment === "done") {
-            console.log("Payment already completed for this auction")
-            setPaymentSuccess(true)
+            console.log("Payment already completed for this auction");
+            setPaymentSuccess(true);
           }
         }
 
-        setLoading(false)
+        setLoading(false);
       } catch (error) {
-        console.error("Error in fetchAuctionData:", error)
-        setLoading(false)
+        console.error("Error in fetchAuctionData:", error);
+        setLoading(false);
       }
-    }
+    };
 
     fetchAuctionData()
-  }, [location, axiosPublic])
+  }, [location, axiosPublic]);
 
   // Close modal when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (modalRef.current && !modalRef.current.contains(event.target)) {
-        setShowDetailsModal(false)
+        setShowDetailsModal(false);
       }
-    }
+    };
 
     if (showDetailsModal) {
-      document.addEventListener("mousedown", handleClickOutside)
+      document.addEventListener("mousedown", handleClickOutside);
       // Prevent scrolling when modal is open
-      document.body.style.overflow = "hidden"
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = "auto"
+      document.body.style.overflow = "auto";
     }
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-      document.body.style.overflow = "auto"
-    }
-  }, [showDetailsModal])
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.body.style.overflow = "auto";
+    };
+  }, [showDetailsModal]);
 
   // Update the handleCreatePayment function to update the database
   const handleCreatePayment = async () => {
-    if (!auctionData) return
 
-    setProcessingPayment(true)
+  //   if (!auctionData) return;
+  //  setProcessingPayment(true);
 
-    try {
       const paymentData = {
         auctionId: auctionData._id,
-        paymentMethod,
         Description: "Payment",
-        amount: calculateTotal(),
+        price: calculateTotal(),
         serviceFee: calculateServiceFee(),
         bidAmount: auctionData.currentBid,
         transactionId: `TXN-${Date.now()}`,
@@ -156,19 +146,28 @@ const Payment2 = () => {
           images: auctionData.images,
         },
         paymentDate: new Date(),
-        status: "completed",
-      }
+        
+      };
+      const response = await axios.post(
+        "http://localhost:5000/paymentsWithSSL",paymentData
+      );
+      console.log("Payment response:", response.data);
+
 
       // Update auction payment status in database
-      const updateResponse = await axiosPublic.patch(`/auctions/payment/${auctionData._id}`, {
-        payment: "done",
-        paymentDetails: paymentData,
-      })
+
+      const updateResponse = await axiosPublic.patch(
+        `/auctions/payment/${auctionData._id}`,
+        {
+          payment: "done",
+          paymentDetails: paymentData,
+        }
+      );
 
       if (updateResponse.data.success) {
         // Payment successful
-        setProcessingPayment(false)
-        setPaymentSuccess(true)
+        setProcessingPayment(false);
+        setPaymentSuccess(true);
 
         // Create notification for seller
         await axiosPublic.post("/notifications", {
@@ -182,17 +181,19 @@ const Payment2 = () => {
             image: auctionData.images?.[0] || null,
           },
           read: false,
-        })
+        });
 
         // Create notification for admin
         await axiosPublic.post("/notifications", {
           title: "New Payment Completed",
-          message: `Payment of ৳${calculateTotal()} for ${auctionData.name} has been completed by ${user?.name || "User"}`,
+          message: `Payment of ৳${calculateTotal()} for ${
+            auctionData.name
+          } has been completed by ${user?.name || "User"}`,
           type: "payment",
           recipient: "admin",
           paymentData: {
             transactionId: paymentData.transactionId,
-            amount: calculateTotal(),
+            price: calculateTotal(),
             buyerEmail: user?.email,
             sellerEmail: auctionData.sellerEmail,
             auctionId: auctionData._id,
@@ -201,7 +202,7 @@ const Payment2 = () => {
             paymentDate: new Date(),
           },
           read: false,
-        })
+        });
 
         // Redirect after showing success message
         setTimeout(() => {
@@ -216,61 +217,73 @@ const Payment2 = () => {
               amount: calculateTotal(),
               transactionId: paymentData.transactionId,
             },
-          })
-        }, 2000)
+          });
+        }, 2000);
       } else {
         // Handle payment failure
-        setProcessingPayment(false)
-        toast.error("Payment processing failed. Please try again.")
+        setProcessingPayment(false);
+        toast.error("Payment processing failed. Please try again.");
       }
-    } catch (error) {
-      console.error("Payment error:", error)
-      setProcessingPayment(false)
-      toast.error("An error occurred during payment processing. Please try again.")
-    }
-  }
+    
+    
+    
+    // catch (error) {
+    //   console.error("Payment error:", error);
+    //   setProcessingPayment(false);
+    //   toast.error(
+    //     "An error occurred during payment processing. Please try again."
+    //   );
+    // }
+  };
 
   // Calculate service fee
   const calculateServiceFee = () => {
-    if (!auctionData || !auctionData.currentBid) return 0
-    return Math.round(auctionData.currentBid * 0.01)
-  }
+    if (!auctionData || !auctionData.currentBid) return 0;
+    return Math.round(auctionData.currentBid * 0.01);
+  };
 
   // Calculate total amount
   const calculateTotal = () => {
-    if (!auctionData || !auctionData.currentBid) return 0
-    return auctionData.currentBid + calculateServiceFee()
-  }
+    if (!auctionData || !auctionData.currentBid) return 0;
+    return auctionData.currentBid + calculateServiceFee();
+  };
+
 
   // Check if wallet has sufficient balance
-  const hasWalletSufficientBalance = () => {
-    const walletBalance = dbUser?.accountBalance || 0
-    return walletBalance >= calculateTotal()
-  }
+  // const hasWalletSufficientBalance = () => {
+  //   const walletBalance = dbUser?.accountBalance || 0;
+  //   return walletBalance >= calculateTotal();
+  // };
 
   // Open details modal
   const openDetailsModal = (imageIndex = 0) => {
-    setModalImage(imageIndex)
-    setShowDetailsModal(true)
-  }
+    setModalImage(imageIndex);
+    setShowDetailsModal(true);
+  };
 
   // Close details modal
   const closeDetailsModal = () => {
-    setShowDetailsModal(false)
-  }
+    setShowDetailsModal(false);
+  };
 
   if (loading) {
     return (
-      <div className={`min-h-screen flex justify-center items-center ${isDarkMode ? "bg-gray-900" : "bg-gray-100"}`}>
+      <div
+        className={`min-h-screen flex justify-center items-center ${
+          isDarkMode ? "bg-gray-900" : "bg-gray-100"
+        }`}
+      >
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
       </div>
-    )
+    );
   }
 
   if (!auctionData) {
     return (
       <div
-        className={`min-h-screen flex flex-col justify-center items-center ${isDarkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"}`}
+        className={`min-h-screen flex flex-col justify-center items-center ${
+          isDarkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"
+        }`}
       >
         <h2 className="text-2xl font-bold mb-4">No Auction Data Found</h2>
         <p className="mb-6">Unable to find auction details for this payment.</p>
@@ -281,15 +294,21 @@ const Payment2 = () => {
           Go Back
         </button>
       </div>
-    )
+    );
   }
 
   if (paymentSuccess) {
     return (
       <div
-        className={`min-h-screen flex flex-col justify-center items-center ${isDarkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"}`}
+        className={`min-h-screen flex flex-col justify-center items-center ${
+          isDarkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"
+        }`}
       >
-        <div className={`max-w-md w-full p-8 rounded-2xl shadow-xl ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+        <div
+          className={`max-w-md w-full p-8 rounded-2xl shadow-xl ${
+            isDarkMode ? "bg-gray-800" : "bg-white"
+          }`}
+        >
           <div className="flex flex-col items-center">
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-4">
               <FaCheckCircle className="text-green-500 text-4xl" />
@@ -298,24 +317,35 @@ const Payment2 = () => {
 
             {auctionData.payment === "done" ? (
               <div className="text-center space-y-4 w-full">
-                <p className="text-center mb-2 text-gray-500">You have already completed payment for this auction.</p>
+                <p className="text-center mb-2 text-gray-500">
+                  You have already completed payment for this auction.
+                </p>
 
                 <div
-                  className={`p-4 rounded-lg ${isDarkMode ? "bg-green-900/20" : "bg-green-50"} border ${isDarkMode ? "border-green-800" : "border-green-200"}`}
+                  className={`p-4 rounded-lg ${
+                    isDarkMode ? "bg-green-900/20" : "bg-green-50"
+                  } border ${
+                    isDarkMode ? "border-green-800" : "border-green-200"
+                  }`}
                 >
                   <div className="flex items-start">
                     <FaCheckCircle className="text-green-500 mt-0.5 mr-2 flex-shrink-0" />
                     <div>
-                      <p className="font-medium text-green-600 dark:text-green-400">Payment Completed</p>
+                      <p className="font-medium text-green-600 dark:text-green-400">
+                        Payment Completed
+                      </p>
                       {auctionData.paymentDetails && (
                         <>
                           <p className="text-sm text-green-600/70 dark:text-green-400/70 mt-1">
-                            Transaction ID: {auctionData.paymentDetails.transactionId || "N/A"}
+                            Transaction ID:{" "}
+                            {auctionData.paymentDetails.transactionId || "N/A"}
                           </p>
                           <p className="text-sm text-green-600/70 dark:text-green-400/70">
                             Date:{" "}
                             {auctionData.paymentDetails.paymentDate
-                              ? new Date(auctionData.paymentDetails.paymentDate).toLocaleString()
+                              ? new Date(
+                                  auctionData.paymentDetails.paymentDate
+                                ).toLocaleString()
                               : "N/A"}
                           </p>
                         </>
@@ -325,16 +355,22 @@ const Payment2 = () => {
                 </div>
 
                 <div
-                  className={`p-4 rounded-lg ${isDarkMode ? "bg-blue-900/20" : "bg-blue-50"} border ${isDarkMode ? "border-blue-800" : "border-blue-200"} mt-3`}
+                  className={`p-4 rounded-lg ${
+                    isDarkMode ? "bg-blue-900/20" : "bg-blue-50"
+                  } border ${
+                    isDarkMode ? "border-blue-800" : "border-blue-200"
+                  } mt-3`}
                 >
                   <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
-                    Your item will be delivered soon. You can track your order in the dashboard.
+                    Your item will be delivered soon. You can track your order
+                    in the dashboard.
                   </p>
                 </div>
               </div>
             ) : (
               <p className="text-center mb-6 text-gray-500">
-                Your payment for {auctionData.name} has been processed successfully.
+                Your payment for {auctionData.name} has been processed
+                successfully.
               </p>
             )}
 
@@ -362,17 +398,21 @@ const Payment2 = () => {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div
-      className={`min-h-screen transition-all duration-300 ${isDarkMode ? "bg-gray-900 text-gray-200" : " text-gray-900"}`}
+      className={`min-h-screen transition-all duration-300 ${
+        isDarkMode ? "bg-gray-900 text-gray-200" : " text-gray-900"
+      }`}
     >
       {/* Sticky Header with Progress Bar */}
       <div
         className={` ${
-          isDarkMode ? "bg-gray-900 border-b border-gray-800" : "bg-gray-100 border-b border-gray-200"
+          isDarkMode
+            ? "bg-gray-900 border-b border-gray-800"
+            : "bg-gray-100 border-b border-gray-200"
         } shadow-sm`}
       >
         <div className="max-w-7xl mx-auto px-4 py-4">
@@ -380,9 +420,18 @@ const Payment2 = () => {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => navigate(-1)}
-                className={`p-2 rounded-full ${isDarkMode ? "bg-gray-800 hover:bg-gray-700" : "bg-white hover:bg-gray-100"} shadow-md`}
+                className={`p-2 rounded-full ${
+                  isDarkMode
+                    ? "bg-gray-800 hover:bg-gray-700"
+                    : "bg-white hover:bg-gray-100"
+                } shadow-md`}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
                   <path
                     fillRule="evenodd"
                     d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
@@ -399,11 +448,17 @@ const Payment2 = () => {
           </div>
 
           <div className="flex justify-between relative mb-2">
-            <div className={`h-1 absolute top-4 left-0 right-0 ${isDarkMode ? "bg-gray-700" : "bg-gray-200"}`}></div>
+            <div
+              className={`h-1 absolute top-4 left-0 right-0 ${
+                isDarkMode ? "bg-gray-700" : "bg-gray-200"
+              }`}
+            ></div>
 
             <div className="flex flex-col items-center relative z-10">
               <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center ${isDarkMode ? "bg-purple-600" : "bg-purple-500"} text-white`}
+                className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                  isDarkMode ? "bg-purple-600" : "bg-purple-500"
+                } text-white`}
               >
                 1
               </div>
@@ -412,7 +467,9 @@ const Payment2 = () => {
 
             <div className="flex flex-col items-center relative z-10">
               <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center ${isDarkMode ? "bg-purple-600" : "bg-purple-500"} text-white`}
+                className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                  isDarkMode ? "bg-purple-600" : "bg-purple-500"
+                } text-white`}
               >
                 2
               </div>
@@ -421,7 +478,9 @@ const Payment2 = () => {
 
             <div className="flex flex-col items-center relative z-10">
               <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center ${isDarkMode ? "bg-gray-700" : "bg-gray-300"}`}
+                className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                  isDarkMode ? "bg-gray-700" : "bg-gray-300"
+                }`}
               >
                 3
               </div>
@@ -437,17 +496,25 @@ const Payment2 = () => {
           {/* Left side - Order Summary (50% on desktop) */}
           <div className="w-full lg:w-1/2 order-2 lg:order-1">
             <div
-              className={`rounded-xl shadow-lg overflow-hidden sticky top-32 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}
+              className={`rounded-xl shadow-lg overflow-hidden sticky top-32 ${
+                isDarkMode ? "bg-gray-800" : "bg-white"
+              }`}
             >
               <div
                 className={`p-6 ${
                   isDarkMode
                     ? "bg-gradient-to-r from-purple-900/70 to-indigo-900/70"
                     : "bg-gradient-to-r from-purple-100 to-indigo-100"
-                } border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"} flex items-center justify-between`}
+                } border-b ${
+                  isDarkMode ? "border-gray-700" : "border-gray-200"
+                } flex items-center justify-between`}
               >
                 <div className="flex items-center">
-                  <RiAuctionLine className={`mr-2 text-xl ${isDarkMode ? "text-purple-400" : "text-purple-600"}`} />
+                  <RiAuctionLine
+                    className={`mr-2 text-xl ${
+                      isDarkMode ? "text-purple-400" : "text-purple-600"
+                    }`}
+                  />
                   <h3 className="text-xl font-bold">Order Summary</h3>
                 </div>
                 <div className="text-xs px-2 py-1 rounded-full bg-green-500/20 text-green-500 font-medium">
@@ -473,7 +540,10 @@ const Payment2 = () => {
                     >
                       {auctionData.images?.[0] ? (
                         <img
-                          src={auctionData.images[selectedImage] || "/placeholder.svg"}
+                          src={
+                            auctionData.images[selectedImage] ||
+                            "/placeholder.svg"
+                          }
                           alt={auctionData.name}
                           className="w-20 h-20 object-cover rounded-lg shadow-md transition-transform duration-300 hover:scale-105"
                         />
@@ -487,18 +557,24 @@ const Payment2 = () => {
                         </div>
                       )}
                       <div>
-                        <h4 className="font-semibold text-lg">{auctionData.name}</h4>
+                        <h4 className="font-semibold text-lg">
+                          {auctionData.name}
+                        </h4>
                         <div className="flex items-center gap-2 mt-1">
                           <span
                             className={`px-2 py-0.5 text-xs rounded-full ${
-                              isDarkMode ? "bg-purple-900/30 text-purple-300" : "bg-purple-100 text-purple-700"
+                              isDarkMode
+                                ? "bg-purple-900/30 text-purple-300"
+                                : "bg-purple-100 text-purple-700"
                             }`}
                           >
                             {auctionData.category}
                           </span>
                           <span
                             className={`px-2 py-0.5 text-xs rounded-full ${
-                              isDarkMode ? "bg-blue-900/30 text-blue-300" : "bg-blue-100 text-blue-700"
+                              isDarkMode
+                                ? "bg-blue-900/30 text-blue-300"
+                                : "bg-blue-100 text-blue-700"
                             }`}
                           >
                             {auctionData.condition}
@@ -544,7 +620,9 @@ const Payment2 = () => {
                         />
                         <div
                           className={`absolute inset-0 rounded-md ${
-                            selectedImage === index ? "bg-purple-500/20" : "bg-black/0 group-hover:bg-black/10"
+                            selectedImage === index
+                              ? "bg-purple-500/20"
+                              : "bg-black/0 group-hover:bg-black/10"
                           } transition-all duration-300`}
                         ></div>
                       </div>
@@ -566,12 +644,28 @@ const Payment2 = () => {
                   </h4>
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <span className={isDarkMode ? "text-gray-300" : "text-gray-700"}>Winning Bid</span>
-                      <span className="font-medium">৳{auctionData.currentBid?.toLocaleString() || "0"}</span>
+                      <span
+                        className={
+                          isDarkMode ? "text-gray-300" : "text-gray-700"
+                        }
+                      >
+                        Winning Bid
+                      </span>
+                      <span className="font-medium">
+                        ৳{auctionData.currentBid?.toLocaleString() || "0"}
+                      </span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className={isDarkMode ? "text-gray-300" : "text-gray-700"}>Service Fee (1%)</span>
-                      <span className="font-medium">৳{calculateServiceFee().toLocaleString()}</span>
+                      <span
+                        className={
+                          isDarkMode ? "text-gray-300" : "text-gray-700"
+                        }
+                      >
+                        Service Fee (1%)
+                      </span>
+                      <span className="font-medium">
+                        ৳{calculateServiceFee().toLocaleString()}
+                      </span>
                     </div>
                     <div className="h-px bg-gray-300 dark:bg-gray-600 my-2"></div>
                     <div className="flex justify-between items-center">
@@ -580,7 +674,9 @@ const Payment2 = () => {
                         initial={{ scale: 1 }}
                         animate={{ scale: [1, 1.05, 1] }}
                         transition={{ duration: 0.5, repeat: 0 }}
-                        className={`font-bold text-lg ${isDarkMode ? "text-purple-400" : "text-purple-700"}`}
+                        className={`font-bold text-lg ${
+                          isDarkMode ? "text-purple-400" : "text-purple-700"
+                        }`}
                       >
                         ৳{calculateTotal().toLocaleString()}
                       </motion.span>
@@ -589,22 +685,48 @@ const Payment2 = () => {
                 </div>
 
                 {/* Shipping Information */}
-                <div className={`p-4 rounded-lg mb-6 ${isDarkMode ? "bg-gray-700/50" : "bg-gray-100"}`}>
+                <div
+                  className={`p-4 rounded-lg mb-6 ${
+                    isDarkMode ? "bg-gray-700/50" : "bg-gray-100"
+                  }`}
+                >
                   <h4 className="font-medium mb-2 flex items-center">
                     <FaShippingFast className="mr-2" />
                     Shipping Information
                   </h4>
                   <div className="text-sm space-y-2">
                     <div className="flex justify-between">
-                      <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Recipient</span>
-                      <span className="font-medium">{user?.name || "User"}</span>
+                      <span
+                        className={
+                          isDarkMode ? "text-gray-400" : "text-gray-500"
+                        }
+                      >
+                        Recipient
+                      </span>
+                      <span className="font-medium">
+                        {user?.name || "User"}
+                      </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Email</span>
-                      <span className="font-medium">{user?.email || "user@example.com"}</span>
+                      <span
+                        className={
+                          isDarkMode ? "text-gray-400" : "text-gray-500"
+                        }
+                      >
+                        Email
+                      </span>
+                      <span className="font-medium">
+                        {user?.email || "user@example.com"}
+                      </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className={isDarkMode ? "text-gray-400" : "text-gray-500"}>Estimated Delivery</span>
+                      <span
+                        className={
+                          isDarkMode ? "text-gray-400" : "text-gray-500"
+                        }
+                      >
+                        Estimated Delivery
+                      </span>
                       <span className="font-medium">3-5 Business Days</span>
                     </div>
                   </div>
@@ -623,9 +745,17 @@ const Payment2 = () => {
 
           {/* Right side - Payment methods (50% on desktop) */}
           <div className="w-full lg:w-1/2 order-1 lg:order-2">
-            <div className={`rounded-xl shadow-lg overflow-hidden mb-6 ${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
+            <div
+              className={`rounded-xl shadow-lg overflow-hidden mb-6 ${
+                isDarkMode ? "bg-gray-800" : "bg-white"
+              }`}
+            >
               <div
-                className={`p-6 ${isDarkMode ? "bg-gray-750" : "bg-gray-50"} border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}
+                className={`p-6 ${
+                  isDarkMode ? "bg-gray-750" : "bg-gray-50"
+                } border-b ${
+                  isDarkMode ? "border-gray-700" : "border-gray-200"
+                }`}
               >
                 <h3 className="text-xl font-bold">Choose Payment Method</h3>
               </div>
@@ -639,20 +769,29 @@ const Payment2 = () => {
                         ? "border-purple-500 bg-purple-900/20"
                         : "border-purple-500 bg-purple-50"
                       : isDarkMode
-                        ? "border-gray-700 hover:border-gray-600"
-                        : "border-gray-200 hover:border-gray-300"
+                      ? "border-gray-700 hover:border-gray-600"
+                      : "border-gray-200 hover:border-gray-300"
                   }`}
                   onClick={() => setPaymentMethod("wallet")}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <div className={`p-3 rounded-lg ${isDarkMode ? "bg-purple-900/30" : "bg-purple-100"}`}>
+                      <div
+                        className={`p-3 rounded-lg ${
+                          isDarkMode ? "bg-purple-900/30" : "bg-purple-100"
+                        }`}
+                      >
                         <FaWallet className="text-xl text-purple-500" />
                       </div>
                       <div>
                         <h4 className="font-medium">Rex Wallet</h4>
-                        <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                          Balance: {dbUser?.accountBalance?.toLocaleString() || 0} BDT
+                        <p
+                          className={`text-sm ${
+                            isDarkMode ? "text-gray-400" : "text-gray-500"
+                          }`}
+                        >
+                          Balance:{" "}
+                          {dbUser?.accountBalance?.toLocaleString() || 0} BDT
                         </p>
                       </div>
                     </div>
@@ -664,13 +803,15 @@ const Payment2 = () => {
                               ? "border-purple-500"
                               : "border-purple-600"
                             : isDarkMode
-                              ? "border-gray-600"
-                              : "border-gray-300"
+                            ? "border-gray-600"
+                            : "border-gray-300"
                         }`}
                       >
                         {paymentMethod === "wallet" && (
                           <div
-                            className={`w-3 h-3 rounded-full ${isDarkMode ? "bg-purple-500" : "bg-purple-600"}`}
+                            className={`w-3 h-3 rounded-full ${
+                              isDarkMode ? "bg-purple-500" : "bg-purple-600"
+                            }`}
                           ></div>
                         )}
                       </div>
@@ -678,7 +819,11 @@ const Payment2 = () => {
                   </div>
 
                   {paymentMethod === "wallet" && (
-                    <div className={`mt-4 p-4 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}>
+                    <div
+                      className={`mt-4 p-4 rounded-lg ${
+                        isDarkMode ? "bg-gray-700" : "bg-gray-50"
+                      }`}
+                    >
                       {hasWalletSufficientBalance() ? (
                         <div className="flex items-center text-green-500">
                           <FaCheckCircle className="mr-2" />
@@ -710,19 +855,27 @@ const Payment2 = () => {
                         ? "border-blue-500 bg-blue-900/20"
                         : "border-blue-500 bg-blue-50"
                       : isDarkMode
-                        ? "border-gray-700 hover:border-gray-600"
-                        : "border-gray-200 hover:border-gray-300"
+                      ? "border-gray-700 hover:border-gray-600"
+                      : "border-gray-200 hover:border-gray-300"
                   }`}
                   onClick={() => setPaymentMethod("card")}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <div className={`p-3 rounded-lg ${isDarkMode ? "bg-blue-900/30" : "bg-blue-100"}`}>
+                      <div
+                        className={`p-3 rounded-lg ${
+                          isDarkMode ? "bg-blue-900/30" : "bg-blue-100"
+                        }`}
+                      >
                         <FaCreditCard className="text-xl text-blue-500" />
                       </div>
                       <div>
                         <h4 className="font-medium">Credit / Debit Card</h4>
-                        <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                        <p
+                          className={`text-sm ${
+                            isDarkMode ? "text-gray-400" : "text-gray-500"
+                          }`}
+                        >
                           Visa, Mastercard, American Express
                         </p>
                       </div>
@@ -735,305 +888,43 @@ const Payment2 = () => {
                               ? "border-blue-500"
                               : "border-blue-600"
                             : isDarkMode
-                              ? "border-gray-600"
-                              : "border-gray-300"
+                            ? "border-gray-600"
+                            : "border-gray-300"
                         }`}
                       >
                         {paymentMethod === "card" && (
-                          <div className={`w-3 h-3 rounded-full ${isDarkMode ? "bg-blue-500" : "bg-blue-600"}`}></div>
+                          <div
+                            className={`w-3 h-3 rounded-full ${
+                              isDarkMode ? "bg-blue-500" : "bg-blue-600"
+                            }`}
+                          ></div>
                         )}
                       </div>
                     </div>
                   </div>
-
-                  {paymentMethod === "card" && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      transition={{ duration: 0.3 }}
-                      className="mt-4 overflow-hidden"
-                    >
-                      <div className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}>
-                        <div className="mb-4">
-                          <label className="block text-sm font-medium mb-1">Cardholder Name</label>
-                          <input
-                            type="text"
-                            placeholder="John Smith"
-                            value={cardholderName}
-                            onChange={(e) => setCardholderName(e.target.value)}
-                            className={`w-full p-3 border rounded-lg ${
-                              isDarkMode ? "bg-gray-800 border-gray-600" : "bg-white border-gray-300"
-                            }`}
-                          />
-                        </div>
-
-                        <div className="mb-4">
-                          <label className="block text-sm font-medium mb-1">Card Number</label>
-                          <div className="relative">
-                            <input
-                              type="text"
-                              placeholder="1234 5678 9012 3456"
-                              value={cardNumber}
-                              onChange={(e) => setCardNumber(e.target.value)}
-                              className={`w-full p-3 border rounded-lg ${
-                                isDarkMode ? "bg-gray-800 border-gray-600" : "bg-white border-gray-300"
-                              }`}
-                            />
-                            <div className="absolute top-3 right-3 flex space-x-2">
-                              <SiVisa className="text-blue-500 text-xl" />
-                              <SiMastercard className="text-red-500 text-xl" />
-                              <SiAmericanexpress className="text-blue-400 text-xl" />
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="flex space-x-4">
-                          <div className="w-1/2">
-                            <label className="block text-sm font-medium mb-1">Expiry Date</label>
-                            <input
-                              type="text"
-                              placeholder="MM/YY"
-                              value={expiryDate}
-                              onChange={(e) => setExpiryDate(e.target.value)}
-                              className={`w-full p-3 border rounded-lg ${
-                                isDarkMode ? "bg-gray-800 border-gray-600" : "bg-white border-gray-300"
-                              }`}
-                            />
-                          </div>
-                          <div className="w-1/2">
-                            <label className="block text-sm font-medium mb-1">CVC</label>
-                            <input
-                              type="text"
-                              placeholder="123"
-                              value={cvc}
-                              onChange={(e) => setCvc(e.target.value)}
-                              className={`w-full p-3 border rounded-lg ${
-                                isDarkMode ? "bg-gray-800 border-gray-600" : "bg-white border-gray-300"
-                              }`}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-                </div>
-
-                {/* Mobile Banking */}
-                <div
-                  className={`p-4 border rounded-xl cursor-pointer transition-all ${
-                    paymentMethod === "mobile"
-                      ? isDarkMode
-                        ? "border-green-500 bg-green-900/20"
-                        : "border-green-500 bg-green-50"
-                      : isDarkMode
-                        ? "border-gray-700 hover:border-gray-600"
-                        : "border-gray-200 hover:border-gray-300"
-                  }`}
-                  onClick={() => setPaymentMethod("mobile")}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className={`p-3 rounded-lg ${isDarkMode ? "bg-green-900/30" : "bg-green-100"}`}>
-                        <BsPhone className="text-xl text-green-500" />
-                      </div>
-                      <div>
-                        <h4 className="font-medium">Mobile Banking</h4>
-                        <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                          bKash, Nagad, Rocket
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center">
-                      <div
-                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                          paymentMethod === "mobile"
-                            ? isDarkMode
-                              ? "border-green-500"
-                              : "border-green-600"
-                            : isDarkMode
-                              ? "border-gray-600"
-                              : "border-gray-300"
-                        }`}
-                      >
-                        {paymentMethod === "mobile" && (
-                          <div className={`w-3 h-3 rounded-full ${isDarkMode ? "bg-green-500" : "bg-green-600"}`}></div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {paymentMethod === "mobile" && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      transition={{ duration: 0.3 }}
-                      className="mt-4 overflow-hidden"
-                    >
-                      <div className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"}`}>
-                        <div className="grid grid-cols-3 gap-3 mb-4">
-                          <div
-                            className={`p-3 border rounded-lg cursor-pointer flex flex-col items-center ${
-                              mobileBankingOption === "bKash"
-                                ? "border-pink-500 bg-pink-500/10"
-                                : isDarkMode
-                                  ? "border-gray-600"
-                                  : "border-gray-300"
-                            }`}
-                            onClick={() => setMobileBankingOption("bKash")}
-                          >
-                            <img
-                              src="https://i.ibb.co/cXVmyXGv/images-removebg-preview-1.png"
-                              alt="bKash"
-                              className="h-8 mb-1"
-                            />
-                            <span className="text-sm font-medium text-pink-500">bKash</span>
-                          </div>
-
-                          <div
-                            className={`p-3 border rounded-lg cursor-pointer flex flex-col items-center ${
-                              mobileBankingOption === "Nagad"
-                                ? "border-yellow-500 bg-yellow-500/10"
-                                : isDarkMode
-                                  ? "border-gray-600"
-                                  : "border-gray-300"
-                            }`}
-                            onClick={() => setMobileBankingOption("Nagad")}
-                          >
-                            <img
-                              src="https://i.ibb.co/yBbmYdnP/images-removebg-preview-2.png"
-                              alt="Nagad"
-                              className="h-8 mb-1"
-                            />
-                            <span className="text-sm font-medium text-yellow-600">Nagad</span>
-                          </div>
-
-                          <div
-                            className={`p-3 border rounded-lg cursor-pointer flex flex-col items-center ${
-                              mobileBankingOption === "Rocket"
-                                ? "border-purple-500 bg-purple-500/10"
-                                : isDarkMode
-                                  ? "border-gray-600"
-                                  : "border-gray-300"
-                            }`}
-                            onClick={() => setMobileBankingOption("Rocket")}
-                          >
-                            <img src="https://i.ibb.co/vxSGZK1Q/rocket.png" alt="Rocket" className="h-8 mb-1" />
-                            <span className="text-sm font-medium text-purple-500">Rocket</span>
-                          </div>
-                        </div>
-
-                        {mobileBankingOption && (
-                          <div className="space-y-4">
-                            <div>
-                              <label className="block text-sm font-medium mb-1">Mobile Number</label>
-                              <input
-                                type="text"
-                                placeholder="01XXXXXXXXX"
-                                value={mobileNumber}
-                                onChange={(e) => setMobileNumber(e.target.value)}
-                                className={`w-full p-3 border rounded-lg ${
-                                  isDarkMode ? "bg-gray-800 border-gray-600" : "bg-white border-gray-300"
-                                }`}
-                              />
-                            </div>
-
-                            <div>
-                              <label className="block text-sm font-medium mb-1">PIN</label>
-                              <input
-                                type="password"
-                                placeholder="Enter your PIN"
-                                value={mobilePin}
-                                onChange={(e) => setMobilePin(e.target.value)}
-                                className={`w-full p-3 border rounded-lg ${
-                                  isDarkMode ? "bg-gray-800 border-gray-600" : "bg-white border-gray-300"
-                                }`}
-                              />
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </motion.div>
-                  )}
-                </div>
-
-                {/* PayPal */}
-                <div
-                  className={`p-4 border rounded-xl cursor-pointer transition-all ${
-                    paymentMethod === "paypal"
-                      ? isDarkMode
-                        ? "border-blue-500 bg-blue-900/20"
-                        : "border-blue-500 bg-blue-50"
-                      : isDarkMode
-                        ? "border-gray-700 hover:border-gray-600"
-                        : "border-gray-200 hover:border-gray-300"
-                  }`}
-                  onClick={() => setPaymentMethod("paypal")}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className={`p-3 rounded-lg ${isDarkMode ? "bg-blue-900/30" : "bg-blue-100"}`}>
-                        <SiPaypal className="text-xl text-blue-600" />
-                      </div>
-                      <div>
-                        <h4 className="font-medium">PayPal</h4>
-                        <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
-                          Fast and secure payment
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center">
-                      <div
-                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                          paymentMethod === "paypal"
-                            ? isDarkMode
-                              ? "border-blue-500"
-                              : "border-blue-600"
-                            : isDarkMode
-                              ? "border-gray-600"
-                              : "border-gray-300"
-                        }`}
-                      >
-                        {paymentMethod === "paypal" && (
-                          <div className={`w-3 h-3 rounded-full ${isDarkMode ? "bg-blue-500" : "bg-blue-600"}`}></div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {paymentMethod === "paypal" && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      transition={{ duration: 0.3 }}
-                      className="mt-4 overflow-hidden"
-                    >
-                      <div className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-50"} text-center`}>
-                        <p className="mb-3">You'll be redirected to PayPal to complete your payment.</p>
-                        <div className="flex justify-center">
-                          <img
-                            src="https://www.paypalobjects.com/webstatic/en_US/i/buttons/checkout-logo-large.png"
-                            alt="PayPal Checkout"
-                            className="h-10"
-                          />
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
                 </div>
               </div>
             </div>
 
             {/* Payment Button */}
-            <div className={`rounded-xl shadow-lg overflow-hidden mb-6 ${isDarkMode ? "bg-gray-800" : "bg-white"} p-6`}>
+            <div
+              className={`rounded-xl shadow-lg overflow-hidden mb-6 ${
+                isDarkMode ? "bg-gray-800" : "bg-white"
+              } p-6`}
+            >
               <button
                 onClick={handleCreatePayment}
-                disabled={processingPayment || (paymentMethod === "wallet" && !hasWalletSufficientBalance())}
+                disabled={
+                  processingPayment
+                  //  || (paymentMethod === "wallet" && !hasWalletSufficientBalance())
+                }
                 className={`w-full py-4 rounded-lg font-semibold transition flex items-center justify-center ${
-                  processingPayment || (paymentMethod === "wallet" && !hasWalletSufficientBalance())
+                  processingPayment ||
+                  (paymentMethod === "wallet" && !hasWalletSufficientBalance())
                     ? "bg-gray-500 cursor-not-allowed"
                     : isDarkMode
-                      ? "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-lg"
-                      : "bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white shadow-lg"
+                    ? "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-lg"
+                    : "bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white shadow-lg"
                 }`}
               >
                 {processingPayment ? (
@@ -1063,7 +954,7 @@ const Payment2 = () => {
                 ) : (
                   <>
                     <FaLock className="mr-2" />
-                    Pay ৳{calculateTotal().toLocaleString()}
+                    Pay 
                   </>
                 )}
               </button>
@@ -1092,12 +983,23 @@ const Payment2 = () => {
       {showDetailsModal && (
         <div className="fixed inset-0 z-50 overflow-y-auto">
           <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-            <div className="fixed inset-0 transition-opacity" aria-hidden="true" onClick={closeDetailsModal}>
-              <div className={`absolute inset-0 ${isDarkMode ? "bg-gray-900" : "bg-gray-500"} opacity-75`}></div>
+            <div
+              className="fixed inset-0 transition-opacity"
+              aria-hidden="true"
+              onClick={closeDetailsModal}
+            >
+              <div
+                className={`absolute inset-0 ${
+                  isDarkMode ? "bg-gray-900" : "bg-gray-500"
+                } opacity-75`}
+              ></div>
             </div>
 
             {/* Modal content */}
-            <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">
+            <span
+              className="hidden sm:inline-block sm:align-middle sm:h-screen"
+              aria-hidden="true"
+            >
               &#8203;
             </span>
             <div
@@ -1120,12 +1022,16 @@ const Payment2 = () => {
               <div className="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div className="sm:flex sm:items-start">
                   <div className="mt-3 text-center sm:mt-0 sm:text-left w-full">
-                    <h3 className="text-2xl leading-6 font-bold mb-4">{auctionData.name}</h3>
+                    <h3 className="text-2xl leading-6 font-bold mb-4">
+                      {auctionData.name}
+                    </h3>
 
                     {/* Main image */}
                     <div className="mb-4">
                       <img
-                        src={auctionData.images?.[modalImage] || "/placeholder.svg"}
+                        src={
+                          auctionData.images?.[modalImage] || "/placeholder.svg"
+                        }
                         alt={auctionData.name}
                         className="w-full h-64 object-contain rounded-lg shadow-md mx-auto"
                       />
@@ -1151,39 +1057,89 @@ const Payment2 = () => {
                     </div>
 
                     {/* Auction details */}
-                    <div className={`p-4 rounded-lg mb-4 ${isDarkMode ? "bg-gray-700" : "bg-gray-100"}`}>
+                    <div
+                      className={`p-4 rounded-lg mb-4 ${
+                        isDarkMode ? "bg-gray-700" : "bg-gray-100"
+                      }`}
+                    >
                       <h4 className="font-semibold mb-3">Auction Details</h4>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Category</p>
+                          <p
+                            className={`text-sm ${
+                              isDarkMode ? "text-gray-400" : "text-gray-500"
+                            }`}
+                          >
+                            Category
+                          </p>
                           <p className="font-medium">{auctionData.category}</p>
                         </div>
                         <div>
-                          <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Condition</p>
+                          <p
+                            className={`text-sm ${
+                              isDarkMode ? "text-gray-400" : "text-gray-500"
+                            }`}
+                          >
+                            Condition
+                          </p>
                           <p className="font-medium">{auctionData.condition}</p>
                         </div>
                         <div>
-                          <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Year</p>
+                          <p
+                            className={`text-sm ${
+                              isDarkMode ? "text-gray-400" : "text-gray-500"
+                            }`}
+                          >
+                            Year
+                          </p>
                           <p className="font-medium">{auctionData.itemYear}</p>
                         </div>
                         <div>
-                          <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Auction ID</p>
-                          <p className="font-medium">{auctionData._id.substring(0, 10)}...</p>
+                          <p
+                            className={`text-sm ${
+                              isDarkMode ? "text-gray-400" : "text-gray-500"
+                            }`}
+                          >
+                            Auction ID
+                          </p>
+                          <p className="font-medium">
+                            {auctionData._id.substring(0, 10)}...
+                          </p>
                         </div>
                         <div>
-                          <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>Seller</p>
-                          <p className="font-medium">{auctionData.sellerDisplayName}</p>
+                          <p
+                            className={`text-sm ${
+                              isDarkMode ? "text-gray-400" : "text-gray-500"
+                            }`}
+                          >
+                            Seller
+                          </p>
+                          <p className="font-medium">
+                            {auctionData.sellerDisplayName}
+                          </p>
                         </div>
                         <div>
-                          <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>End Time</p>
-                          <p className="font-medium">{new Date(auctionData.endTime).toLocaleString()}</p>
+                          <p
+                            className={`text-sm ${
+                              isDarkMode ? "text-gray-400" : "text-gray-500"
+                            }`}
+                          >
+                            End Time
+                          </p>
+                          <p className="font-medium">
+                            {new Date(auctionData.endTime).toLocaleString()}
+                          </p>
                         </div>
                       </div>
                     </div>
 
                     {/* Description */}
                     {auctionData.description && (
-                      <div className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-gray-100"}`}>
+                      <div
+                        className={`p-4 rounded-lg ${
+                          isDarkMode ? "bg-gray-700" : "bg-gray-100"
+                        }`}
+                      >
                         <h4 className="font-semibold mb-2">Description</h4>
                         <p className="text-sm">{auctionData.description}</p>
                       </div>
@@ -1192,7 +1148,9 @@ const Payment2 = () => {
                 </div>
               </div>
               <div
-                className={`px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse ${isDarkMode ? "bg-gray-750" : "bg-gray-50"}`}
+                className={`px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse ${
+                  isDarkMode ? "bg-gray-750" : "bg-gray-50"
+                }`}
               >
                 <button
                   type="button"
@@ -1207,7 +1165,7 @@ const Payment2 = () => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default Payment2
+export default Payment2;

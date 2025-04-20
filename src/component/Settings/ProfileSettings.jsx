@@ -63,28 +63,29 @@ const ProfileSettings = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
-
     try {
       const dataToUpdate = { ...formData };
-
+      delete dataToUpdate.photoFile; // Remove photoFile from dataToUpdate
+  
       if (activeSection === "photo" && formData.photoFile) {
+        const formDataPhoto = new FormData();
+        formDataPhoto.append("photo", formData.photoFile);
+        const photoResponse = await axiosSecure.post("/upload-photo", formDataPhoto, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+        dataToUpdate.photo = photoResponse.data.url;
       }
-
-      // Send the update request to the server
-      const response = await axiosSecure.patch(
-        `/user/${user.email}`,
-        dataToUpdate
-      );
-
+  
+      // Send update request for all allowed fields
+      const response = await axiosSecure.patch(`/user/${user.email}`, dataToUpdate);
+  
       setProfileData(response.data);
-
+  
       if (setDbUser) {
         setDbUser(response.data);
       }
-
+  
       toast.success("Profile updated successfully!");
-
-      // Close the modal
       closeModal();
     } catch (err) {
       console.error("Error updating profile:", err);
@@ -93,8 +94,7 @@ const ProfileSettings = () => {
       setIsSubmitting(false);
     }
   };
-
-  if (loading) return <LoadingSpinner />;
+  // if (loading) return <LoadingSpinner />;
   if (error) return <div className="text-red-500 p-4">Error: {error}</div>;
   if (!profileData && !dbUser)
     return <div className="p-4">No profile data found</div>;

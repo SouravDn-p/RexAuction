@@ -5,8 +5,6 @@ import {
   FaSearch,
   FaSadTear,
   FaClock,
-  FaHeart,
-  FaRegHeart,
   FaEye,
 } from "react-icons/fa";
 import { motion } from "framer-motion";
@@ -285,24 +283,7 @@ const HotAuction = () => {
                       : "bg-white border border-gray-200"
                   } shadow-lg hover:shadow-xl`}
                 >
-                  <button
-                    onClick={() => toggleFavorite(item._id)}
-                    className={`absolute top-3 right-3 z-10 p-2 rounded-full transition-all shadow-md ${
-                      isDarkMode
-                        ? "bg-gray-800/80 hover:bg-gray-700"
-                        : "bg-white/80 hover:bg-white"
-                    }`}
-                  >
-                    {favorites.includes(item._id) ? (
-                      <FaHeart className="text-red-500 text-xl" />
-                    ) : (
-                      <FaRegHeart
-                        className={`text-xl ${
-                          isDarkMode ? "text-gray-200" : "text-gray-800"
-                        }`}
-                      />
-                    )}
-                  </button>
+                
 
                   <div className="relative h-56 w-full overflow-hidden">
                     <img
