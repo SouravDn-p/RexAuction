@@ -7,6 +7,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import ThemeContext from "../../component/Context/ThemeContext";
 import { toast } from "react-hot-toast";
+import LoadingSpinner from "../LoadingSpinner";
 
 const ProfileSettings = () => {
   const { user, dbUser, setDbUser } = useAuth();
