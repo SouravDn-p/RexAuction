@@ -1,120 +1,139 @@
-"use client"
+"use client";
 
-import { useContext, useEffect, useState, useRef } from "react"
-import { FaSun, FaMoon, FaWallet, FaPlus, FaUserCircle, FaGavel } from "react-icons/fa"
-import { MdOutlineDashboard, MdOutlineLogout } from "react-icons/md"
-import { FiHome, FiInfo } from "react-icons/fi"
-import { BiMoney } from "react-icons/bi"
-import { Link, useLocation } from "react-router-dom"
-import { AuthContexts } from "../../providers/AuthProvider"
-import ThemeContext from "../../component/Context/ThemeContext"
-import auth from "../../firebase/firebase.init"
-import { toast } from "react-toastify"
-import { signOut } from "firebase/auth"
-import Swal from "sweetalert2"
-import useAxiosPublic from "../../hooks/useAxiosPublic"
+import { useContext, useEffect, useState, useRef } from "react";
+import {
+  FaSun,
+  FaMoon,
+  FaWallet,
+  FaPlus,
+  FaUserCircle,
+  FaGavel,
+} from "react-icons/fa";
+import { MdOutlineDashboard, MdOutlineLogout } from "react-icons/md";
+import { FiHome, FiInfo } from "react-icons/fi";
+import { BiMoney } from "react-icons/bi";
+import { Link, useLocation } from "react-router-dom";
+import { AuthContexts } from "../../providers/AuthProvider";
+import ThemeContext from "../../component/Context/ThemeContext";
+import auth from "../../firebase/firebase.init";
+import { toast } from "react-toastify";
+import { signOut } from "firebase/auth";
+import Swal from "sweetalert2";
+import useAxiosPublic from "../../hooks/useAxiosPublic";
 
 const Navbar = () => {
-  const { user, setUser, setLoading, setErrorMessage, dbUser, setDbUser, walletBalance, setWalletBalance } =
-    useContext(AuthContexts)
-  const { isDarkMode, toggleTheme } = useContext(ThemeContext)
-  const location = useLocation()
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [isScrolled, setIsScrolled] = useState(false)
-  const [showProfileMenu, setShowProfileMenu] = useState(false)
-  const [showWalletModal, setShowWalletModal] = useState(false)
-  const [depositAmount, setDepositAmount] = useState(300)
-  const [accountNumber, setAccountNumber] = useState("")
-  const profileRef = useRef(null)
-  const axiosPublic = useAxiosPublic()
+  const {
+    user,
+    setUser,
+    setLoading,
+    setErrorMessage,
+    dbUser,
+    setDbUser,
+    walletBalance,
+    setWalletBalance,
+  } = useContext(AuthContexts);
+  const { isDarkMode, toggleTheme } = useContext(ThemeContext);
+  const location = useLocation();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showWalletModal, setShowWalletModal] = useState(false);
+  const [depositAmount, setDepositAmount] = useState(300);
+  const [accountNumber, setAccountNumber] = useState("");
+  const profileRef = useRef(null);
+  const axiosPublic = useAxiosPublic();
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10)
-    }
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (profileRef.current && !profileRef.current.contains(event.target)) {
-        setShowProfileMenu(false)
+        setShowProfileMenu(false);
       }
-    }
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => document.removeEventListener("mousedown", handleClickOutside)
-  }, [])
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   useEffect(() => {
     if (isDarkMode) {
-      document.documentElement.classList.add("dark")
+      document.documentElement.classList.add("dark");
     } else {
-      document.documentElement.classList.remove("dark")
+      document.documentElement.classList.remove("dark");
     }
-  }, [isDarkMode])
+  }, [isDarkMode]);
 
   const handleGoogleSignOut = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      await signOut(auth)
-      setUser(null)
-      setErrorMessage(null)
-      setShowProfileMenu(false)
+      await signOut(auth);
+      setUser(null);
+      setErrorMessage(null);
+      setShowProfileMenu(false);
       toast.success("Successfully signed out", {
         position: "top-right",
         autoClose: 3000,
-      })
+      });
     } catch (err) {
-      console.error("Sign-Out error:", err.message)
-      setErrorMessage(err.message)
-      toast.error(err.message)
+      console.error("Sign-Out error:", err.message);
+      setErrorMessage(err.message);
+      toast.error(err.message);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleDepositSubmit = async () => {
     if (!accountNumber) {
-      toast.error("Please enter your account number")
-      return
+      toast.error("Please enter your account number");
+      return;
     }
 
-    const updatedBalance = dbUser.accountBalance + Number(depositAmount)
-    setWalletBalance(updatedBalance)
+    const updatedBalance = dbUser.accountBalance + Number(depositAmount);
+    setWalletBalance(updatedBalance);
 
     try {
       const res = await axiosPublic.patch(`/accountBalance/${dbUser._id}`, {
         accountBalance: updatedBalance,
-      })
+      });
       if (res.data.success) {
-        Swal.fire("Updated!", "User accountBalance has been upgraded.", "success")
+        Swal.fire(
+          "Updated!",
+          "User accountBalance has been upgraded.",
+          "success"
+        );
         if (user?.email) {
-          setLoading(true)
+          setLoading(true);
           axiosPublic
             .get(`/user/${user.email}`)
             .then((res) => {
-              setDbUser(res.data)
-              setLoading(false)
+              setDbUser(res.data);
+              setLoading(false);
             })
             .catch((error) => {
-              console.error("Error fetching user data:", error)
-              setErrorMessage("Failed to load user data")
-              setLoading(false)
-            })
+              console.error("Error fetching user data:", error);
+              setErrorMessage("Failed to load user data");
+              setLoading(false);
+            });
         }
       } else {
-        Swal.fire("Failed!", "Could not update user role.", "error")
+        Swal.fire("Failed!", "Could not update user role.", "error");
       }
     } catch (error) {
-      console.error("Error updating role:", error)
-      Swal.fire("Error!", "Something went wrong!", "error")
+      console.error("Error updating role:", error);
+      Swal.fire("Error!", "Something went wrong!", "error");
     }
 
-    toast.success(`Successfully added ${depositAmount} to your wallet!`)
-    setShowWalletModal(false)
-    setAccountNumber("")
-  }
+    toast.success(`Successfully added ${depositAmount} to your wallet!`);
+    setShowWalletModal(false);
+    setAccountNumber("");
+  };
 
   const getNavLinkClass = (path) =>
     location.pathname === path
@@ -122,8 +141,8 @@ const Navbar = () => {
         ? "flex items-center gap-3 py-2 px-3 rounded-lg bg-indigo-700/60 text-white font-bold shadow-md"
         : "flex items-center gap-3 py-2 px-3 rounded-lg bg-indigo-200 text-indigo-900 font-bold shadow-md"
       : isDarkMode
-        ? "flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-indigo-800/40 text-indigo-100"
-        : "flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-indigo-100 text-indigo-800"
+      ? "flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-indigo-800/40 text-indigo-100"
+      : "flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-indigo-100 text-indigo-800";
 
   const navRoutes = [
     { path: "/", label: "Home", icon: <FiHome className="w-5 h-5" /> },
@@ -141,7 +160,7 @@ const Navbar = () => {
       label: "About Us",
       icon: <FiInfo className="w-5 h-5" />,
     },
-  ]
+  ];
 
   return (
     <div>
@@ -152,8 +171,8 @@ const Navbar = () => {
               ? "backdrop-blur-md bg-gray-900/30 shadow-lg"
               : "backdrop-blur-md bg-purple-900/30 shadow-lg"
             : isDarkMode
-              ? "bg-transparent"
-              : "bg-transparent"
+            ? "bg-transparent"
+            : "bg-transparent"
         }`}
       >
         <div className="container mx-auto flex justify-between items-center px-4">
@@ -176,7 +195,10 @@ const Navbar = () => {
                 >
                   Rex
                 </span>
-                <span className="text-white transition-all duration-500 group-hover:tracking-wider"> Auction</span>
+                <span className="text-white transition-all duration-500 group-hover:tracking-wider">
+                  {" "}
+                  Auction
+                </span>
               </h1>
             </div>
 
@@ -193,11 +215,13 @@ const Navbar = () => {
                     location.pathname === item.path
                       ? "text-white font-bold border-b-2 border-purple-400"
                       : isDarkMode
-                        ? "text-white hover:text-purple-200"
-                        : "text-white hover:text-purple-100"
+                      ? "text-white hover:text-purple-200"
+                      : "text-white hover:text-purple-100"
                   }`}
                 >
-                  <span className="transition-transform duration-300 group-hover:scale-110">{item.icon}</span>
+                  <span className="transition-transform duration-300 group-hover:scale-110">
+                    {item.icon}
+                  </span>
                   <span className="relative z-10 transition-transform duration-300 group-hover:transform group-hover:translate-y-[-2px]">
                     {item.label}
                   </span>
@@ -219,9 +243,15 @@ const Navbar = () => {
                   onClick={() => setShowWalletModal(true)}
                 >
                   <FaWallet
-                    className={`${isDarkMode ? "text-yellow-400" : "text-indigo-200"} transition-transform duration-300 group-hover:scale-110`}
+                    className={`${
+                      isDarkMode ? "text-yellow-400" : "text-indigo-200"
+                    } transition-transform duration-300 group-hover:scale-110`}
                   />
-                  <span className={`${isDarkMode ? "text-indigo-100" : "text-indigo-200"} relative z-10`}>
+                  <span
+                    className={`${
+                      isDarkMode ? "text-indigo-100" : "text-indigo-200"
+                    } relative z-10`}
+                  >
                     $ {dbUser?.accountBalance}
                   </span>
                   <FaPlus className="text-green-400 text-xs animate-pulse" />
@@ -235,7 +265,9 @@ const Navbar = () => {
                       : "bg-indigo-100/50 text-indigo-700 hover:bg-indigo-200/70"
                   } hover:scale-110`}
                   onClick={toggleTheme}
-                  aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+                  aria-label={
+                    isDarkMode ? "Switch to light mode" : "Switch to dark mode"
+                  }
                 >
                   {isDarkMode ? (
                     <FaSun className="text-yellow-400 relative z-10 transition-transform duration-300 hover:rotate-12" />
@@ -255,7 +287,11 @@ const Navbar = () => {
                     className="flex items-center justify-center p-1 rounded-full transition-all duration-300 hover:scale-110 relative"
                   >
                     <img
-                      src={user?.photoURL || "https://i.ibb.co/Y75m1Mk9/Final-Boss.jpg" || "/placeholder.svg"}
+                      src={
+                        user?.photoURL ||
+                        "https://i.ibb.co/Y75m1Mk9/Final-Boss.jpg" ||
+                        "/placeholder.svg"
+                      }
                       alt="Profile"
                       className="w-9 h-9 rounded-full border-2 border-pink-400 transition-all duration-300 hover:border-yellow-400"
                     />
@@ -272,13 +308,23 @@ const Navbar = () => {
                     >
                       <div
                         className={`px-4 py-3 ${
-                          isDarkMode ? "border-b border-indigo-700/50" : "border-b border-indigo-200/50"
+                          isDarkMode
+                            ? "border-b border-indigo-700/50"
+                            : "border-b border-indigo-200/50"
                         }`}
                       >
-                        <p className={`font-semibold text-sm ${isDarkMode ? "text-white" : "text-gray-800"}`}>
+                        <p
+                          className={`font-semibold text-sm ${
+                            isDarkMode ? "text-white" : "text-gray-800"
+                          }`}
+                        >
                           {user?.displayName || "User"}
                         </p>
-                        <p className={`text-xs truncate ${isDarkMode ? "text-indigo-200" : "text-indigo-600"}`}>
+                        <p
+                          className={`text-xs truncate ${
+                            isDarkMode ? "text-indigo-200" : "text-indigo-600"
+                          }`}
+                        >
                           {user?.email}
                         </p>
                         <span className="inline-block px-2 py-0.5 mt-1 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full text-white text-xs font-semibold capitalize">
@@ -326,7 +372,9 @@ const Navbar = () => {
 
                       <div
                         className={`mt-1 ${
-                          isDarkMode ? "border-t border-indigo-700/50" : "border-t border-indigo-200/50"
+                          isDarkMode
+                            ? "border-t border-indigo-700/50"
+                            : "border-t border-indigo-200/50"
                         }`}
                       >
                         <button
@@ -337,7 +385,11 @@ const Navbar = () => {
                               : "text-red-600 hover:bg-red-100 hover:text-red-700"
                           }`}
                         >
-                          <MdOutlineLogout className={`${isDarkMode ? "text-red-300" : "text-red-600"}`} />
+                          <MdOutlineLogout
+                            className={`${
+                              isDarkMode ? "text-red-300" : "text-red-600"
+                            }`}
+                          />
                           <span className="relative z-10">Logout</span>
                           <div className="absolute inset-0 bg-gradient-to-r from-transparent to-transparent hover:from-red-500/10 hover:to-red-400/5 transition-all duration-200 opacity-0 hover:opacity-100"></div>
                         </button>
@@ -353,8 +405,8 @@ const Navbar = () => {
                   location.pathname === "/login"
                     ? "text-white font-bold border-b-2 border-purple-500"
                     : isDarkMode
-                      ? "text-white hover:text-purple-200"
-                      : "text-white hover:text-purple-100"
+                    ? "text-white hover:text-purple-200"
+                    : "text-white hover:text-purple-100"
                 }`}
               >
                 <FaUserCircle className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" />
@@ -377,9 +429,18 @@ const Navbar = () => {
                   } hover:scale-105`}
                   onClick={() => setShowWalletModal(true)}
                 >
-                  <FaWallet className={`${isDarkMode ? "text-yellow-400" : "text-indigo-700"} text-sm`} />
-                  <span className="relative z-10 text-sm">$ {dbUser?.accountBalance}</span>
-                  <FaPlus className="text-green-400 text-xs animate-pulse ml-auto" />
+                  <FaWallet
+                    className={`${
+                      isDarkMode ? "text-yellow-400" : "text-indigo-700"
+                    } text-sm`}
+                  />
+                  <span className="relative z-10 text-sm">
+                    $ {dbUser?.accountBalance}
+                  </span>
+                  <Link to={`/dashboard/walletHistory`}>
+                    <FaPlus className="text-green-400 text-xs animate-pulse ml-auto" />
+                  </Link>
+
                   <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/0 to-indigo-400/0 hover:from-indigo-600/20 hover:to-indigo-400/20 transition-all duration-300 opacity-0 hover:opacity-100"></div>
                 </button>
               </div>
@@ -392,7 +453,9 @@ const Navbar = () => {
                   : "bg-indigo-100/50 text-indigo-700 hover:bg-indigo-200/70"
               } hover:scale-110`}
               onClick={toggleTheme}
-              aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+              aria-label={
+                isDarkMode ? "Switch to light mode" : "Switch to dark mode"
+              }
             >
               {isDarkMode ? (
                 <FaSun className="text-yellow-400 relative z-10 transition-transform duration-300 hover:rotate-12" />
@@ -413,8 +476,8 @@ const Navbar = () => {
                     ? "bg-indigo-700/70 text-yellow-400 border border-yellow-400/40"
                     : "bg-indigo-200/70 text-indigo-900 border border-indigo-400/40"
                   : isDarkMode
-                    ? "bg-indigo-800/50 text-yellow-400 hover:bg-indigo-700/70"
-                    : "bg-indigo-100/50 text-indigo-700 hover:bg-indigo-200/70"
+                  ? "bg-indigo-800/50 text-yellow-400 hover:bg-indigo-700/70"
+                  : "bg-indigo-100/50 text-indigo-700 hover:bg-indigo-200/70"
               } hover:scale-110`}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
@@ -426,7 +489,12 @@ const Navbar = () => {
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               ) : (
                 <svg
@@ -435,7 +503,12 @@ const Navbar = () => {
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
                 </svg>
               )}
               <div
@@ -489,13 +562,25 @@ const Navbar = () => {
             <div className="absolute top-4 right-4 z-10">
               <button
                 className={`p-2 rounded-full transition-all duration-200 ${
-                  isDarkMode ? "text-indigo-300 hover:bg-indigo-800/50" : "text-indigo-700 hover:bg-indigo-200"
+                  isDarkMode
+                    ? "text-indigo-300 hover:bg-indigo-800/50"
+                    : "text-indigo-700 hover:bg-indigo-200"
                 }`}
                 onClick={() => setMobileMenuOpen(false)}
                 aria-label="Close menu"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               </button>
             </div>
@@ -525,14 +610,26 @@ const Navbar = () => {
                   <div className="flex items-center gap-2">
                     <img
                       className="w-10 h-10 rounded-full border-2 border-pink-400 p-0.5"
-                      src={user?.photoURL || "https://i.ibb.co/Y75m1Mk9/Final-Boss.jpg" || "/placeholder.svg"}
+                      src={
+                        user?.photoURL ||
+                        "https://i.ibb.co/Y75m1Mk9/Final-Boss.jpg" ||
+                        "/placeholder.svg"
+                      }
                       alt="User profile"
                     />
                     <div>
-                      <p className={`font-bold text-sm ${isDarkMode ? "text-white" : "text-gray-800"}`}>
+                      <p
+                        className={`font-bold text-sm ${
+                          isDarkMode ? "text-white" : "text-gray-800"
+                        }`}
+                      >
                         {user?.displayName || "User"}
                       </p>
-                      <p className={`text-xs ${isDarkMode ? "text-indigo-200" : "text-indigo-600"}`}>
+                      <p
+                        className={`text-xs ${
+                          isDarkMode ? "text-indigo-200" : "text-indigo-600"
+                        }`}
+                      >
                         <span className="inline-block px-2 py-0.5 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full text-white text-xs font-semibold mt-1 capitalize">
                           {dbUser?.role || "Guest"}
                         </span>
@@ -557,7 +654,13 @@ const Navbar = () => {
                     className={getNavLinkClass(item.path)}
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <span className={`w-4 h-4 ${isDarkMode ? "text-indigo-300" : "text-indigo-700"}`}>{item.icon}</span>
+                    <span
+                      className={`w-4 h-4 ${
+                        isDarkMode ? "text-indigo-300" : "text-indigo-700"
+                      }`}
+                    >
+                      {item.icon}
+                    </span>
                     <span>{item.label}</span>
                   </Link>
                 ))}
@@ -576,7 +679,11 @@ const Navbar = () => {
                       className={getNavLinkClass("/dashboard")}
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      <MdOutlineDashboard className={`w-4 h-4 ${isDarkMode ? "text-indigo-300" : "text-indigo-700"}`} />
+                      <MdOutlineDashboard
+                        className={`w-4 h-4 ${
+                          isDarkMode ? "text-indigo-300" : "text-indigo-700"
+                        }`}
+                      />
                       <span>Dashboard</span>
                     </Link>
                     <Link
@@ -584,34 +691,47 @@ const Navbar = () => {
                       className={getNavLinkClass("/dashboard/profile")}
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      <FaUserCircle className={`w-4 h-4 ${isDarkMode ? "text-indigo-300" : "text-indigo-700"}`} />
+                      <FaUserCircle
+                        className={`w-4 h-4 ${
+                          isDarkMode ? "text-indigo-300" : "text-indigo-700"
+                        }`}
+                      />
                       <span>Your Profile</span>
                     </Link>
-                    <button
+                    <Link
+                      to={`/dashboard/walletHistory`}
                       className={`flex items-center gap-3 w-full py-2 px-3 rounded-lg transition-all duration-200 ${
                         isDarkMode
                           ? "bg-indigo-700/50 text-white hover:bg-indigo-600/70"
                           : "bg-indigo-200/50 text-indigo-900 hover:bg-indigo-300/70"
                       }`}
                       onClick={() => {
-                        setShowWalletModal(true)
-                        setMobileMenuOpen(false)
+                        setShowWalletModal(true);
+                        setMobileMenuOpen(false);
                       }}
                     >
-                      <FaWallet className={`w-4 h-4 ${isDarkMode ? "text-yellow-400" : "text-indigo-700"}`} />
+                      <FaWallet
+                        className={`w-4 h-4 ${
+                          isDarkMode ? "text-yellow-400" : "text-indigo-700"
+                        }`}
+                      />
                       <span>${dbUser?.accountBalance}</span>
                       <FaPlus className="text-green-400 text-xs animate-pulse ml-auto" />
-                    </button>
+                    </Link>
                   </>
                 )}
               </div>
 
-              <div className={`mt-4 pt-4 border-t ${isDarkMode ? "border-indigo-700/40" : "border-indigo-200/40"}`}>
+              <div
+                className={`mt-4 pt-4 border-t ${
+                  isDarkMode ? "border-indigo-700/40" : "border-indigo-200/40"
+                }`}
+              >
                 {user?.email ? (
                   <button
                     onClick={() => {
-                      handleGoogleSignOut()
-                      setMobileMenuOpen(false)
+                      handleGoogleSignOut();
+                      setMobileMenuOpen(false);
                     }}
                     className={`w-full flex items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 ${
                       isDarkMode
@@ -619,7 +739,11 @@ const Navbar = () => {
                         : "bg-red-50 text-red-600 hover:bg-red-100"
                     }`}
                   >
-                    <MdOutlineLogout className={`w-4 h-4 ${isDarkMode ? "text-red-300" : "text-red-600"}`} />
+                    <MdOutlineLogout
+                      className={`w-4 h-4 ${
+                        isDarkMode ? "text-red-300" : "text-red-600"
+                      }`}
+                    />
                     <span>Logout</span>
                   </button>
                 ) : (
@@ -632,13 +756,21 @@ const Navbar = () => {
                     }`}
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <FaUserCircle className={`w-4 h-4 ${isDarkMode ? "text-indigo-300" : "text-indigo-700"}`} />
+                    <FaUserCircle
+                      className={`w-4 h-4 ${
+                        isDarkMode ? "text-indigo-300" : "text-indigo-700"
+                      }`}
+                    />
                     <span>Login</span>
                   </Link>
                 )}
               </div>
 
-              <div className={`mt-4 text-center text-xs ${isDarkMode ? "text-indigo-300/70" : "text-indigo-600/70"}`}>
+              <div
+                className={`mt-4 text-center text-xs ${
+                  isDarkMode ? "text-indigo-300/70" : "text-indigo-600/70"
+                }`}
+              >
                 <p>Rex Auction v1.2.0</p>
               </div>
             </div>
@@ -653,7 +785,7 @@ const Navbar = () => {
         )}
       </nav>
     </div>
-  )
-}
+  );
+};
 
-export default Navbar
+export default Navbar;

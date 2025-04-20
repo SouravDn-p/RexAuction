@@ -13,55 +13,57 @@ import {
 } from "react-icons/hi";
 import { Link, useNavigate } from "react-router-dom";
 import ThemeContext from "../../component/Context/ThemeContext";
+import useAuth from "../../hooks/useAuth";
 
 export default function WalletHistory() {
   const { isDarkMode } = useContext(ThemeContext);
-  const [balance, setBalance] = useState(1250.75);
+  const { dbUser } = useAuth();
+  // const [dbUser?.accountBalance, setBalance] = useState(1250.75);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [filterValue, setFilterValue] = useState("all");
   const [darkMode, setDarkMode] = useState(false);
-  const [transactions, setTransactions] = useState([
-    {
-      id: 1,
-      date: "2023-06-15",
-      description: "Deposit",
-      amount: 500,
-      type: "credit",
-      status: "completed",
-    },
-    {
-      id: 2,
-      date: "2023-06-10",
-      description: "Withdrawal",
-      amount: 150,
-      type: "debit",
-      status: "completed",
-    },
-    {
-      id: 3,
-      date: "2023-06-05",
-      description: "Purchase - Coffee Shop",
-      amount: 8.5,
-      type: "debit",
-      status: "completed",
-    },
-    {
-      id: 4,
-      date: "2023-06-01",
-      description: "Salary",
-      amount: 2500,
-      type: "credit",
-      status: "completed",
-    },
-    {
-      id: 5,
-      date: "2023-05-28",
-      description: "Refund - Online Store",
-      amount: 45.99,
-      type: "credit",
-      status: "pending",
-    },
-  ]);
+  // const [transactions, setTransactions] = useState([
+  //   {
+  //     id: 1,
+  //     date: "2023-06-15",
+  //     description: "Deposit",
+  //     amount: 500,
+  //     type: "credit",
+  //     status: "completed",
+  //   },
+  //   {
+  //     id: 2,
+  //     date: "2023-06-10",
+  //     description: "Withdrawal",
+  //     amount: 150,
+  //     type: "debit",
+  //     status: "completed",
+  //   },
+  //   {
+  //     id: 3,
+  //     date: "2023-06-05",
+  //     description: "Purchase - Coffee Shop",
+  //     amount: 8.5,
+  //     type: "debit",
+  //     status: "completed",
+  //   },
+  //   {
+  //     id: 4,
+  //     date: "2023-06-01",
+  //     description: "Salary",
+  //     amount: 2500,
+  //     type: "credit",
+  //     status: "completed",
+  //   },
+  //   {
+  //     id: 5,
+  //     date: "2023-05-28",
+  //     description: "Refund - Online Store",
+  //     amount: 45.99,
+  //     type: "credit",
+  //     status: "pending",
+  //   },
+  // ]);
 
   // Navigate to Add Balance page
   const navigateToAddBalance = () => {
@@ -73,7 +75,9 @@ export default function WalletHistory() {
     // In a real application, you would use a library like jsPDF or react-pdf
     // This is a simplified example that creates a text file instead
     const content =
-      `Wallet History\n\nCurrent Balance: $${balance.toFixed(2)}\n\n` +
+      `Wallet History\n\nCurrent Balance: $${dbUser?.accountBalance.toFixed(
+        2
+      )}\n\n` +
       transactions
         .map(
           (t) =>
@@ -136,7 +140,12 @@ export default function WalletHistory() {
                   Current Balance
                 </p>
                 <p className="text-3xl font-bold text-white">
-                  ${balance.toFixed(2)}
+                  {typeof dbUser?.accountBalance === "number"
+                    ? dbUser.accountBalance.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })
+                    : "0.00"}
                 </p>
               </div>
             </div>
@@ -255,57 +264,58 @@ export default function WalletHistory() {
                   </tr>
                 </thead>
                 <tbody>
-                  {transactions.map((transaction) => (
-                    <tr
-                      key={transaction.id}
-                      className="hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10 border-t border-emerald-100 dark:border-gray-700 transition-colors"
-                    >
-                      <td className="py-3 px-4 font-medium text-gray-600 dark:text-gray-300">
-                        <div className="flex items-center gap-2">
-                          <HiOutlineCalendar className="h-3.5 w-3.5 text-gray-400 dark:text-gray-500" />
-                          {transaction.date}
-                        </div>
-                      </td>
-                      <td className="py-3 px-4">{transaction.description}</td>
-                      <td className="py-3 px-4">
-                        <div
-                          className={`flex items-center gap-1 font-medium ${
-                            transaction.type === "credit"
-                              ? "text-emerald-600 dark:text-emerald-400"
-                              : "text-rose-600 dark:text-rose-400"
-                          }`}
-                        >
-                          {transaction.type === "credit" ? (
-                            <HiOutlineArrowDown className="h-3.5 w-3.5" />
-                          ) : (
-                            <HiOutlineArrowUp className="h-3.5 w-3.5" />
-                          )}
-                          ${transaction.amount.toFixed(2)}
-                        </div>
-                      </td>
-                      <td className="py-3 px-4 text-right">
-                        <span
-                          className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                            transaction.status === "completed"
-                              ? "border border-emerald-200 text-emerald-700 bg-emerald-50 dark:border-emerald-800 dark:text-emerald-300 dark:bg-emerald-900/30"
-                              : "border border-amber-200 text-amber-700 bg-amber-50 dark:border-amber-800 dark:text-amber-300 dark:bg-amber-900/30"
-                          }`}
-                        >
-                          {transaction.status === "completed"
-                            ? "Completed"
-                            : "Pending"}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
+                  {dbUser?.transactions &&
+                    dbUser?.transactions.map((transaction) => (
+                      <tr
+                        key={transaction.id}
+                        className="hover:bg-emerald-50/50 dark:hover:bg-emerald-900/10 border-t border-emerald-100 dark:border-gray-700 transition-colors"
+                      >
+                        <td className="py-3 px-4 font-medium text-gray-600 dark:text-gray-300">
+                          <div className="flex items-center gap-2">
+                            <HiOutlineCalendar className="h-3.5 w-3.5 text-gray-400 dark:text-gray-500" />
+                            {transaction.date}
+                          </div>
+                        </td>
+                        <td className="py-3 px-4">{transaction.description}</td>
+                        <td className="py-3 px-4">
+                          <div
+                            className={`flex items-center gap-1 font-medium ${
+                              transaction.type === "credit"
+                                ? "text-emerald-600 dark:text-emerald-400"
+                                : "text-rose-600 dark:text-rose-400"
+                            }`}
+                          >
+                            {transaction.type === "credit" ? (
+                              <HiOutlineArrowDown className="h-3.5 w-3.5" />
+                            ) : (
+                              <HiOutlineArrowUp className="h-3.5 w-3.5" />
+                            )}
+                            ${transaction.amount.toFixed(2)}
+                          </div>
+                        </td>
+                        <td className="py-3 px-4 text-right">
+                          <span
+                            className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
+                              transaction.status === "completed"
+                                ? "border border-emerald-200 text-emerald-700 bg-emerald-50 dark:border-emerald-800 dark:text-emerald-300 dark:bg-emerald-900/30"
+                                : "border border-amber-200 text-amber-700 bg-amber-50 dark:border-amber-800 dark:text-amber-300 dark:bg-amber-900/30"
+                            }`}
+                          >
+                            {transaction.status === "completed"
+                              ? "Completed"
+                              : "Pending"}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             </div>
 
-            <div className="mt-4 text-center text-sm text-gray-500 dark:text-gray-400">
+            {/* <div className="mt-4 text-center text-sm text-gray-500 dark:text-gray-400">
               Showing {transactions.length} of {transactions.length}{" "}
               transactions
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

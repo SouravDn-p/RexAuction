@@ -525,23 +525,24 @@ const MainContent = () => {
                           to={`/dashboard/profile`}
                           className={`w-full flex items-center px-4 py-2 text-sm ${
                             isDarkMode
-                              ? "hover:bg-gray-700"
+                              ? "hover:bg-gray-700 text-white"
                               : "hover:bg-gray-100 text-black"
                           }`}
                         >
                           <User className="h-4 w-4 mr-2" />
                           Profile
                         </Link>
-                        <button
+                        <Link
+                          to={`/dashboard/settings`}
                           className={`w-full flex items-center px-4 py-2 text-sm ${
                             isDarkMode
-                              ? "hover:bg-gray-700"
+                              ? "hover:bg-gray-700 text-white"
                               : "hover:bg-gray-100 text-black"
                           }`}
                         >
                           <Settings className="h-4 w-4 mr-2" />
                           Settings
-                        </button>
+                        </Link>
                         <button
                           className={`w-full flex items-center px-4 py-2 text-sm ${
                             isDarkMode
