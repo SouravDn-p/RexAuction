@@ -17,53 +17,24 @@ import { AuthContexts } from "../../../providers/AuthProvider";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import useAxiosPublic from "../../../hooks/useAxiosPublic";
-import Swal from "sweetalert2";
 
-const Payment2 = () => {
+const sdPayment = () => {
   const [paymentMethod, setPaymentMethod] = useState("card");
   const { isDarkMode } = useContext(ThemeContext);
-  const { user, dbUser, setWalletBalance, setDbUser, loading, setLoading } =
-    useContext(AuthContexts);
+  const { user, dbUser } = useContext(AuthContexts);
   const location = useLocation();
   const navigate = useNavigate();
   const [auctionData, setAuctionData] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [processingPayment, setProcessingPayment] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
   const [modalImage, setModalImage] = useState(0);
-  const [payments, setPayments] = useState([]);
   const modalRef = useRef(null);
-  const [isPaid, setIsPaid] = useState(false);
   const [hasWalletSufficientBalance, setHasWalletSufficientBalance] =
     useState(true);
   const axiosPublic = useAxiosPublic();
-  const [payment, setPayment] = useState("");
-
-  // const [id ,setId] = useState([])
-
-  // auction id get
-  useEffect(() => {
-    const fetchPayments = async () => {
-      try {
-        const response = await fetch("http://localhost:5000/payments");
-        const result = await response.json();
-        setPayments(result);
-
-        if (auctionData?._id) {
-          const matched = result.find(
-            (item) => item.auctionId === auctionData._id
-          );
-          setPayment(matched);
-          setIsPaid(matched?.PaymentStatus == "success");
-        }
-      } catch (error) {
-        console.error("Error fetching payments:", error);
-      }
-    };
-
-    fetchPayments();
-  }, [auctionData]);
 
   useEffect(() => {
     const fetchAuctionData = async () => {
@@ -176,20 +147,9 @@ const Payment2 = () => {
         },
         paymentDate: new Date(),
         PaymentStatus: "pending",
-        PaymentMethod: "sslcommerz",
+        paymentMethod: "sslcommerz",
       };
 
-      const updatedBalance = dbUser.accountBalance - calculateTotal();
-      setWalletBalance(updatedBalance);
-
-      const transaction = {
-        id: (dbUser?.transactions?.length || 0) + 1,
-        date: new Date().toISOString(),
-        description: `Deposit ${Number(calculateTotal())} Taka`,
-        amount: Number(calculateTotal()),
-        type: "Withdrawals",
-        status: "completed",
-      };
       const response = await axiosPublic.post("/paymentsWithSSL", paymentData);
 
       console.log("Payment response:", response.data);
@@ -201,40 +161,6 @@ const Payment2 = () => {
         setProcessingPayment(false);
         toast.error("Payment processing failed. Please try again.");
         return;
-      }
-
-      try {
-        const res = await axiosPublic.patch(`/accountBalance/${dbUser._id}`, {
-          accountBalance: updatedBalance,
-          transaction,
-        });
-
-        if (res.data.success) {
-          Swal.fire(
-            "Updated!",
-            "User accountBalance has been updated.",
-            "success"
-          );
-          if (user?.email) {
-            setLoading(true);
-            axiosPublic
-              .get(`/user/${user.email}`)
-              .then((res) => {
-                setDbUser(res.data);
-                setLoading(false);
-              })
-              .catch((error) => {
-                console.error("Error fetching user data:", error);
-                setErrorMessage("Failed to load user data");
-                setLoading(false);
-              });
-          }
-        } else {
-          Swal.fire("Failed!", "Could not update user role.", "error");
-        }
-      } catch (error) {
-        console.error("Error updating role:", error);
-        Swal.fire("Error!", "Something went wrong!", "error");
       }
 
       // Create notification for seller
@@ -274,9 +200,8 @@ const Payment2 = () => {
 
       // Redirect after success
       setTimeout(() => {
-        navigate(`dashboard/payments/:${paymentData.trxid}`, {
+        navigate("/dashboard", {
           state: {
-            trxid: paymentData.trxid, // use trxid here
             auctionData: {
               ...auctionData,
               status: "success",
@@ -284,6 +209,7 @@ const Payment2 = () => {
             },
             paymentMethod,
             amount: calculateTotal(),
+            transactionId: paymentData.transactionId,
           },
         });
       }, 2000);
@@ -295,6 +221,7 @@ const Payment2 = () => {
       );
     }
   };
+
   // Update the handleRexPayment function to update the database
   const handleRexPayment = async () => {
     if (!auctionData) return;
@@ -327,51 +254,43 @@ const Payment2 = () => {
           images: auctionData.images,
         },
         paymentDate: new Date(),
-        PaymentStatus: "success",
-        PaymentMethod: "rex wallet",
+        PaymentStatus: "pending",
+        paymentMethod: "rex Wallet",
       };
 
-      const updatedBalance = dbUser.accountBalance - calculateTotal();
+      const response = await axiosPublic.post(
+        "/paymentsWithRexWallet",
+        paymentData
+      );
+
+      const updatedBalance = dbUser.accountBalance + Number(depositAmount);
       setWalletBalance(updatedBalance);
 
       const transaction = {
         id: (dbUser?.transactions?.length || 0) + 1,
         date: new Date().toISOString(),
-        description: `Payment ${calculateTotal()} Taka`,
-        amount: calculateTotal(),
-        type: "Withdrawals",
+        description: `Deposit ${Number(depositAmount)} Taka`,
+        amount: Number(depositAmount),
+        type: "Deposit",
         status: "completed",
       };
 
-      const response = await axiosPublic.post("/rexPayment", paymentData);
-      const res = await axiosPublic.patch(`/accountBalance/${dbUser._id}`, {
-        accountBalance: updatedBalance,
-        transaction,
-      });
-      setProcessingPayment(false);
+      try {
+       
+      } catch (error) {
+        console.error("Error updating role:", error);
+        Swal.fire("Error!", "Something went wrong!", "error");
+      }
 
-      if (res.data.success && response.status == 201) {
-        setIsPaid(true);
-        Swal.fire(
-          "Updated!",
-          "User accountBalance has been updated.",
-          "success"
-        );
-        if (user?.email) {
-          setLoading(true);
-          axiosPublic
-            .get(`/user/${user.email}`)
-            .then((res) => {
-              setDbUser(res.data);
-              setLoading(false);
-            })
-            .catch((error) => {
-              console.error("Error fetching user data:", error);
-              setLoading(false);
-            });
-        }
+      console.log("Payment response:", response.data);
+
+      if (response.data?.gatewayURL) {
+        window.location.replace(response.data.gatewayURL);
       } else {
-        Swal.fire("Failed!", "Could not update user role.", "error");
+        // Payment failed
+        setProcessingPayment(false);
+        toast.error("Payment processing failed. Please try again.");
+        return;
       }
 
       // Create notification for seller
@@ -391,7 +310,7 @@ const Payment2 = () => {
       // Create notification for admin
       await axiosPublic.post("/notifications", {
         title: "New Payment Completed",
-        message: `Payment of ৳ ${calculateTotal()} for ${
+        message: `Payment of ৳${calculateTotal()} for ${
           auctionData.name
         } has been completed by ${user?.name || "User"}`,
         type: "payment",
@@ -408,6 +327,22 @@ const Payment2 = () => {
         },
         read: false,
       });
+
+      // Redirect after success
+      setTimeout(() => {
+        navigate("/dashboard", {
+          state: {
+            auctionData: {
+              ...auctionData,
+              status: "success",
+              paymentDetails: paymentData,
+            },
+            paymentMethod,
+            amount: calculateTotal(),
+            transactionId: paymentData.transactionId,
+          },
+        });
+      }, 2000);
     } catch (error) {
       console.error("Payment error:", error);
       setProcessingPayment(false);
@@ -471,109 +406,109 @@ const Payment2 = () => {
     );
   }
 
-  // if (paymentSuccess) {
-  //   return (
-  //     <div
-  //       className={`min-h-screen flex flex-col justify-center items-center ${
-  //         isDarkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"
-  //       }`}
-  //     >
-  //       <div
-  //         className={`max-w-md w-full p-8 rounded-2xl shadow-xl ${
-  //           isDarkMode ? "bg-gray-800" : "bg-white"
-  //         }`}
-  //       >
-  //         <div className="flex flex-col items-center">
-  //           <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-4">
-  //             <FaCheckCircle className="text-green-500 text-4xl" />
-  //           </div>
-  //           <h2 className="text-2xl font-bold mb-2">Payment Successful!</h2>
+  if (paymentSuccess) {
+    return (
+      <div
+        className={`min-h-screen flex flex-col justify-center items-center ${
+          isDarkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"
+        }`}
+      >
+        <div
+          className={`max-w-md w-full p-8 rounded-2xl shadow-xl ${
+            isDarkMode ? "bg-gray-800" : "bg-white"
+          }`}
+        >
+          <div className="flex flex-col items-center">
+            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-4">
+              <FaCheckCircle className="text-green-500 text-4xl" />
+            </div>
+            <h2 className="text-2xl font-bold mb-2">Payment Successful!</h2>
 
-  //           {auctionData.payment === "done" ? (
-  //             <div className="text-center space-y-4 w-full">
-  //               <p className="text-center mb-2 text-gray-500">
-  //                 You have already completed payment for this auction.
-  //               </p>
+            {auctionData.payment === "done" ? (
+              <div className="text-center space-y-4 w-full">
+                <p className="text-center mb-2 text-gray-500">
+                  You have already completed payment for this auction.
+                </p>
 
-  //               <div
-  //                 className={`p-4 rounded-lg ${
-  //                   isDarkMode ? "bg-green-900/20" : "bg-green-50"
-  //                 } border ${
-  //                   isDarkMode ? "border-green-800" : "border-green-200"
-  //                 }`}
-  //               >
-  //                 <div className="flex items-start">
-  //                   <FaCheckCircle className="text-green-500 mt-0.5 mr-2 flex-shrink-0" />
-  //                   <div>
-  //                     <p className="font-medium text-green-600 dark:text-green-400">
-  //                       Payment Completed
-  //                     </p>
-  //                     {auctionData.paymentDetails && (
-  //                       <>
-  //                         <p className="text-sm text-green-600/70 dark:text-green-400/70 mt-1">
-  //                           Transaction ID:{" "}
-  //                           {auctionData.paymentDetails.transactionId || "N/A"}
-  //                         </p>
-  //                         <p className="text-sm text-green-600/70 dark:text-green-400/70">
-  //                           Date:{" "}
-  //                           {auctionData.paymentDetails.paymentDate
-  //                             ? new Date(
-  //                                 auctionData.paymentDetails.paymentDate
-  //                               ).toLocaleString()
-  //                             : "N/A"}
-  //                         </p>
-  //                       </>
-  //                     )}
-  //                   </div>
-  //                 </div>
-  //               </div>
+                <div
+                  className={`p-4 rounded-lg ${
+                    isDarkMode ? "bg-green-900/20" : "bg-green-50"
+                  } border ${
+                    isDarkMode ? "border-green-800" : "border-green-200"
+                  }`}
+                >
+                  <div className="flex items-start">
+                    <FaCheckCircle className="text-green-500 mt-0.5 mr-2 flex-shrink-0" />
+                    <div>
+                      <p className="font-medium text-green-600 dark:text-green-400">
+                        Payment Completed
+                      </p>
+                      {auctionData.paymentDetails && (
+                        <>
+                          <p className="text-sm text-green-600/70 dark:text-green-400/70 mt-1">
+                            Transaction ID:{" "}
+                            {auctionData.paymentDetails.transactionId || "N/A"}
+                          </p>
+                          <p className="text-sm text-green-600/70 dark:text-green-400/70">
+                            Date:{" "}
+                            {auctionData.paymentDetails.paymentDate
+                              ? new Date(
+                                  auctionData.paymentDetails.paymentDate
+                                ).toLocaleString()
+                              : "N/A"}
+                          </p>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
 
-  //               <div
-  //                 className={`p-4 rounded-lg ${
-  //                   isDarkMode ? "bg-blue-900/20" : "bg-blue-50"
-  //                 } border ${
-  //                   isDarkMode ? "border-blue-800" : "border-blue-200"
-  //                 } mt-3`}
-  //               >
-  //                 <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
-  //                   Your item will be delivered soon. You can track your order
-  //                   in the dashboard.
-  //                 </p>
-  //               </div>
-  //             </div>
-  //           ) : (
-  //             <p className="text-center mb-6 text-gray-500">
-  //               Your payment for {auctionData.name} has been processed
-  //               successfully.
-  //             </p>
-  //           )}
+                <div
+                  className={`p-4 rounded-lg ${
+                    isDarkMode ? "bg-blue-900/20" : "bg-blue-50"
+                  } border ${
+                    isDarkMode ? "border-blue-800" : "border-blue-200"
+                  } mt-3`}
+                >
+                  <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                    Your item will be delivered soon. You can track your order
+                    in the dashboard.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <p className="text-center mb-6 text-gray-500">
+                Your payment for {auctionData.name} has been processed
+                successfully.
+              </p>
+            )}
 
-  //           <div className="w-full space-y-3 mt-6">
-  //             <button
-  //               onClick={() => navigate("/dashboard")}
-  //               className="w-full py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
-  //             >
-  //               Return to Dashboard
-  //             </button>
+            <div className="w-full space-y-3 mt-6">
+              <button
+                onClick={() => navigate("/dashboard")}
+                className="w-full py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+              >
+                Return to Dashboard
+              </button>
 
-  //             {auctionData.payment === "done" && (
-  //               <button
-  //                 onClick={() => navigate("/dashboard/orders")}
-  //                 className={`w-full py-3 rounded-lg border ${
-  //                   isDarkMode
-  //                     ? "border-gray-700 bg-gray-700 hover:bg-gray-600 text-white"
-  //                     : "border-gray-300 bg-white hover:bg-gray-50 text-gray-800"
-  //                 }`}
-  //               >
-  //                 View Order Details
-  //               </button>
-  //             )}
-  //           </div>
-  //         </div>
-  //       </div>
-  //     </div>
-  //   );
-  // }
+              {auctionData.payment === "done" && (
+                <button
+                  onClick={() => navigate("/dashboard/orders")}
+                  className={`w-full py-3 rounded-lg border ${
+                    isDarkMode
+                      ? "border-gray-700 bg-gray-700 hover:bg-gray-600 text-white"
+                      : "border-gray-300 bg-white hover:bg-gray-50 text-gray-800"
+                  }`}
+                >
+                  View Order Details
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -1010,7 +945,7 @@ const Payment2 = () => {
                             <span>Insufficient balance for this purchase</span>
                           </div>
                           <button
-                            onClick={() => navigate("/dashboard/walletHistory")}
+                            onClick={() => navigate("/dashboard/add-balance")}
                             className="px-4 py-2 bg-purple-600 text-white rounded-lg text-sm hover:bg-purple-700"
                           >
                             Add Balance
@@ -1081,22 +1016,20 @@ const Payment2 = () => {
             </div>
 
             {/* Payment Button */}
-            {paymentMethod === "card" ? (
-              <div
-                className={`rounded-xl shadow-lg overflow-hidden mb-6 ${
-                  isDarkMode ? "bg-gray-800" : "bg-white"
-                } p-6`}
-              >
+            <div
+              className={`rounded-xl shadow-lg overflow-hidden mb-6 ${
+                isDarkMode ? "bg-gray-800" : "bg-white"
+              } p-6`}
+            >
+              {paymentMethod === "card" ? (
                 <button
                   onClick={handleCreatePayment}
                   disabled={
-                    processingPayment ||
-                    isPaid ||
-                    (paymentMethod === "wallet" && !hasWalletSufficientBalance)
+                    processingPayment
+                    //  || (paymentMethod === "wallet" && !hasWalletSufficientBalance())
                   }
                   className={`w-full py-4 rounded-lg font-semibold transition flex items-center justify-center ${
                     processingPayment ||
-                    isPaid ||
                     (paymentMethod === "wallet" && !hasWalletSufficientBalance)
                       ? "bg-gray-500 cursor-not-allowed"
                       : isDarkMode
@@ -1131,49 +1064,19 @@ const Payment2 = () => {
                   ) : (
                     <>
                       <FaLock className="mr-2" />
-                      {isPaid ? "Payment Completed" : "Pay Now"}
+                      Pay
                     </>
                   )}
                 </button>
-
-                {/* Security badges */}
-                <div className="mt-6 flex flex-wrap justify-center gap-6 items-center">
-                  <div className="flex items-center gap-2">
-                    <FaLock className="text-green-500" />
-                    <span className="text-sm font-medium">
-                      Secure Encryption
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <RiSecurePaymentLine className="text-blue-500" />
-                    <span className="text-sm font-medium">
-                      PCI DSS Compliant
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <FaCheckCircle className="text-green-500" />
-                    <span className="text-sm font-medium">
-                      Verified by Visa
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div
-                className={`rounded-xl shadow-lg overflow-hidden mb-6 ${
-                  isDarkMode ? "bg-gray-800" : "bg-white"
-                } p-6`}
-              >
+              ) : (
                 <button
                   onClick={handleRexPayment}
                   disabled={
-                    processingPayment ||
-                    isPaid ||
-                    (paymentMethod === "wallet" && !hasWalletSufficientBalance)
+                    processingPayment
+                    //  || (paymentMethod === "wallet" && !hasWalletSufficientBalance())
                   }
                   className={`w-full py-4 rounded-lg font-semibold transition flex items-center justify-center ${
                     processingPayment ||
-                    isPaid ||
                     (paymentMethod === "wallet" && !hasWalletSufficientBalance)
                       ? "bg-gray-500 cursor-not-allowed"
                       : isDarkMode
@@ -1208,34 +1111,28 @@ const Payment2 = () => {
                   ) : (
                     <>
                       <FaLock className="mr-2" />
-                      {isPaid ? "Payment Completed" : "Pay With Rex Wallet "}
+                      rex Wallet Pay
                     </>
                   )}
                 </button>
+              )}
 
-                {/* Security badges */}
-                <div className="mt-6 flex flex-wrap justify-center gap-6 items-center">
-                  <div className="flex items-center gap-2">
-                    <FaLock className="text-green-500" />
-                    <span className="text-sm font-medium">
-                      Secure Encryption
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <RiSecurePaymentLine className="text-blue-500" />
-                    <span className="text-sm font-medium">
-                      PCI DSS Compliant
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <FaCheckCircle className="text-green-500" />
-                    <span className="text-sm font-medium">
-                      Verified by Visa
-                    </span>
-                  </div>
+              {/* Security badges */}
+              <div className="mt-6 flex flex-wrap justify-center gap-6 items-center">
+                <div className="flex items-center gap-2">
+                  <FaLock className="text-green-500" />
+                  <span className="text-sm font-medium">Secure Encryption</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <RiSecurePaymentLine className="text-blue-500" />
+                  <span className="text-sm font-medium">PCI DSS Compliant</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <FaCheckCircle className="text-green-500" />
+                  <span className="text-sm font-medium">Verified by Visa</span>
                 </div>
               </div>
-            )}
+            </div>
           </div>
         </div>
       </div>
@@ -1429,4 +1326,4 @@ const Payment2 = () => {
   );
 };
 
-export default Payment2;
+export default sdPayment;

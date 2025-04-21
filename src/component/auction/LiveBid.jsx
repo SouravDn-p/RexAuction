@@ -593,8 +593,16 @@ export default function LiveBid() {
 
     try {
       const response = await axiosPublic.post("/live-bid", bidData);
-
-      if (response.status === 200 || response.status === 201) {
+      const res = await axiosPublic.patch(
+        `/updateUserRecentActivity/${dbUser._id}`,
+        {
+          bidData,
+        }
+      );
+      if (
+        response.status === 200 ||
+        (response.status === 201 && res.status === 201)
+      ) {
         if (socketRef.current && isConnected) {
           socketRef.current.emit("placeBid", bidData);
         }
