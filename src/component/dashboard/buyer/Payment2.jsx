@@ -185,8 +185,8 @@ const Payment2 = () => {
       const transaction = {
         id: (dbUser?.transactions?.length || 0) + 1,
         date: new Date().toISOString(),
-        description: `Deposit ${Number(depositAmount)} Taka`,
-        amount: Number(depositAmount),
+        description: `Deposit ${Number(calculateTotal())} Taka`,
+        amount: Number(calculateTotal()),
         type: "Withdrawals",
         status: "completed",
       };
@@ -339,7 +339,7 @@ const Payment2 = () => {
         date: new Date().toISOString(),
         description: `Payment ${calculateTotal()} Taka`,
         amount: calculateTotal(),
-        type: "Deposit",
+        type: "Withdrawals",
         status: "completed",
       };
 
