@@ -116,10 +116,10 @@ const Payment2 = () => {
 
   // Update the handleCreatePayment function to update the database
   const handleCreatePayment = async () => {
-
-  //   if (!auctionData) return;
-  //  setProcessingPayment(true);
-
+    if (!auctionData) return;
+    setProcessingPayment(true);
+  
+    try {
       const paymentData = {
         auctionId: auctionData._id,
         Description: "Payment",
@@ -146,95 +146,82 @@ const Payment2 = () => {
           images: auctionData.images,
         },
         paymentDate: new Date(),
-        
+        PaymentStatus: "pending",
       };
+  
       const response = await axios.post(
-        "http://localhost:5000/paymentsWithSSL",paymentData
+        "http://localhost:5000/paymentsWithSSL",
+        paymentData
       );
+  
       console.log("Payment response:", response.data);
-
-
-      // Update auction payment status in database
-
-      const updateResponse = await axiosPublic.patch(
-        `/auctions/payment/${auctionData._id}`,
-        {
-          payment: "done",
-          paymentDetails: paymentData,
-        }
-      );
-
-      if (updateResponse.data.success) {
-        // Payment successful
-        setProcessingPayment(false);
-        setPaymentSuccess(true);
-
-        // Create notification for seller
-        await axiosPublic.post("/notifications", {
-          title: "Payment Received",
-          message: `Payment for ${auctionData.name} has been completed`,
-          type: "payment",
-          recipient: auctionData.sellerEmail,
-          auctionData: {
-            _id: auctionData._id,
-            name: auctionData.name,
-            image: auctionData.images?.[0] || null,
-          },
-          read: false,
-        });
-
-        // Create notification for admin
-        await axiosPublic.post("/notifications", {
-          title: "New Payment Completed",
-          message: `Payment of ৳${calculateTotal()} for ${
-            auctionData.name
-          } has been completed by ${user?.name || "User"}`,
-          type: "payment",
-          recipient: "admin",
-          paymentData: {
-            transactionId: paymentData.transactionId,
-            price: calculateTotal(),
-            buyerEmail: user?.email,
-            sellerEmail: auctionData.sellerEmail,
-            auctionId: auctionData._id,
-            auctionName: auctionData.name,
-            paymentMethod: paymentMethod,
-            paymentDate: new Date(),
-          },
-          read: false,
-        });
-
-        // Redirect after showing success message
-        setTimeout(() => {
-          navigate("/dashboard/", {
-            state: {
-              auctionData: {
-                ...auctionData,
-                payment: "done",
-                paymentDetails: paymentData,
-              },
-              paymentMethod,
-              amount: calculateTotal(),
-              transactionId: paymentData.transactionId,
-            },
-          });
-        }, 2000);
+  
+      if (response.data?.gatewayURL) {
+        window.location.replace(response.data.gatewayURL);
       } else {
-        // Handle payment failure
+        // Payment failed
         setProcessingPayment(false);
         toast.error("Payment processing failed. Please try again.");
+        return;
       }
-    
-    
-    
-    // catch (error) {
-    //   console.error("Payment error:", error);
-    //   setProcessingPayment(false);
-    //   toast.error(
-    //     "An error occurred during payment processing. Please try again."
-    //   );
-    // }
+  
+      // Create notification for seller
+      await axiosPublic.post("/notifications", {
+        title: "Payment Received",
+        message: `Payment for ${auctionData.name} has been completed`,
+        type: "payment",
+        recipient: auctionData.sellerEmail,
+        auctionData: {
+          _id: auctionData._id,
+          name: auctionData.name,
+          image: auctionData.images?.[0] || null,
+        },
+        read: false,
+      });
+  
+      // Create notification for admin
+      await axiosPublic.post("/notifications", {
+        title: "New Payment Completed",
+        message: `Payment of ৳${calculateTotal()} for ${
+          auctionData.name
+        } has been completed by ${user?.name || "User"}`,
+        type: "payment",
+        recipient: "admin",
+        paymentData: {
+          transactionId: paymentData.transactionId,
+          price: calculateTotal(),
+          buyerEmail: user?.email,
+          sellerEmail: auctionData.sellerEmail,
+          auctionId: auctionData._id,
+          auctionName: auctionData.name,
+          paymentMethod: paymentMethod,
+          paymentDate: new Date(),
+        },
+        read: false,
+      });
+  
+      // Redirect after success
+      setTimeout(() => {
+        navigate("/dashboard", {
+          state: {
+            auctionData: {
+              ...auctionData,
+              status: "success",
+              paymentDetails: paymentData,
+            },
+            paymentMethod,
+            amount: calculateTotal(),
+            transactionId: paymentData.transactionId,
+          },
+        });
+      }, 2000);
+    } catch (error) {
+      console.error("Payment error:", error);
+      setProcessingPayment(false);
+      toast.error("An error occurred during payment processing. Please try again.");
+    }
   };
+  
 
   // Calculate service fee
   const calculateServiceFee = () => {
