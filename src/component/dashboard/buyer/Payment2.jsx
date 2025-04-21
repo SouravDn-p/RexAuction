@@ -18,6 +18,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import useAxiosPublic from "../../../hooks/useAxiosPublic";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 
 const Payment2 = () => {
@@ -33,7 +34,33 @@ const Payment2 = () => {
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
   const [modalImage, setModalImage] = useState(0);
+  const [payments, setPayments] = useState([]);
   const modalRef = useRef(null);
+  const [isPaid, setIsPaid] = useState(false);
+  // const [id ,setId] = useState([])
+
+  // auction id get
+ useEffect(() => {
+    const fetchPayments = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/payments');
+        const result = await response.json();
+        setPayments(result);
+
+        if (auctionData?._id) {
+          const matched = result.some(
+            (item) => item.auctionId === auctionData._id
+          );
+          setIsPaid(matched);
+        }
+      } catch (error) {
+        console.error('Error fetching payments:', error);
+      }
+    };
+
+    fetchPayments();
+  }, [auctionData]);
+
 
   const axiosPublic = useAxiosPublic();
   useEffect(() => {
@@ -199,21 +226,18 @@ const Payment2 = () => {
         },
         read: false,
       });
-  
+       
       // Redirect after success
       setTimeout(() => {
-        navigate("/dashboard", {
+        navigate(`dashboard/payments/:${paymentData.trxid}`, {
           state: {
-            auctionData: {
-              ...auctionData,
-              status: "success",
-              paymentDetails: paymentData,
-            },
+            trxid: paymentData.trxid, // use trxid here
+            auctionData: { ...auctionData, status: "success", paymentDetails: paymentData },
             paymentMethod,
             amount: calculateTotal(),
-            transactionId: paymentData.transactionId,
           },
         });
+        
       }, 2000);
     } catch (error) {
       console.error("Payment error:", error);
@@ -899,52 +923,50 @@ const Payment2 = () => {
                 isDarkMode ? "bg-gray-800" : "bg-white"
               } p-6`}
             >
-              <button
-                onClick={handleCreatePayment}
-                disabled={
-                  processingPayment
-                  //  || (paymentMethod === "wallet" && !hasWalletSufficientBalance())
-                }
-                className={`w-full py-4 rounded-lg font-semibold transition flex items-center justify-center ${
-                  processingPayment ||
-                  (paymentMethod === "wallet" && !hasWalletSufficientBalance())
-                    ? "bg-gray-500 cursor-not-allowed"
-                    : isDarkMode
-                    ? "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-lg"
-                    : "bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white shadow-lg"
-                }`}
-              >
-                {processingPayment ? (
-                  <>
-                    <svg
-                      className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    <FaLock className="mr-2" />
-                    Pay 
-                  </>
-                )}
-              </button>
+           <button
+  onClick={handleCreatePayment}
+  disabled={
+    processingPayment || isPaid || (paymentMethod === "wallet" && !hasWalletSufficientBalance())
+  }
+  className={`w-full py-4 rounded-lg font-semibold transition flex items-center justify-center ${
+    processingPayment || isPaid || (paymentMethod === "wallet" && !hasWalletSufficientBalance())
+      ? "bg-gray-500 cursor-not-allowed"
+      : isDarkMode
+      ? "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-lg"
+      : "bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white shadow-lg"
+  }`}
+>
+  {processingPayment ? (
+    <>
+      <svg
+        className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <circle
+          className="opacity-25"
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          strokeWidth="4"
+        ></circle>
+        <path
+          className="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+        ></path>
+      </svg>
+      Processing...
+    </>
+  ) : (
+    <>
+      <FaLock className="mr-2" />
+      {isPaid ? 'Payment Completed' : 'Pay Now'}
+    </>
+  )}
+</button>
 
               {/* Security badges */}
               <div className="mt-6 flex flex-wrap justify-center gap-6 items-center">
