@@ -6,16 +6,41 @@ import ThemeContext from "../../Context/ThemeContext";
 export default function BidHistory() {
   // Sample bid history data
   const bids = [
-    { bidder: "John Doe", bidAmount: 8000, time: "2025-03-15 10:00:00", status: "Won" },
-    { bidder: "Jane Smith", bidAmount: 7500, time: "2025-03-14 08:30:00", status: "Lost" },
-    { bidder: "David Johnson", bidAmount: 7000, time: "2025-03-13 05:15:00", status: "Won" },
-    { bidder: "Sarah Brown", bidAmount: 6000, time: "2025-03-12 12:45:00", status: "Lost" },
-    { bidder: "Chris Evans", bidAmount: 5000, time: "2025-03-11 09:00:00", status: "Lost" },
+    {
+      bidder: "John Doe",
+      bidAmount: 8000,
+      time: "2025-03-15 10:00:00",
+      status: "Won",
+    },
+    {
+      bidder: "Jane Smith",
+      bidAmount: 7500,
+      time: "2025-03-14 08:30:00",
+      status: "Lost",
+    },
+    {
+      bidder: "David Johnson",
+      bidAmount: 7000,
+      time: "2025-03-13 05:15:00",
+      status: "Won",
+    },
+    {
+      bidder: "Sarah Brown",
+      bidAmount: 6000,
+      time: "2025-03-12 12:45:00",
+      status: "Lost",
+    },
+    {
+      bidder: "Chris Evans",
+      bidAmount: 5000,
+      time: "2025-03-11 09:00:00",
+      status: "Lost",
+    },
   ];
 
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOrder, setSortOrder] = useState("desc");
- const {isDarkMode} = useContext(ThemeContext)
+  const { isDarkMode } = useContext(ThemeContext);
 
   // Filter bids by search query
   const filteredBids = bids
@@ -25,14 +50,18 @@ export default function BidHistory() {
         bid.bidAmount.toString().includes(searchQuery) ||
         bid.status.toLowerCase().includes(searchQuery.toLowerCase())
     )
-    .sort((a, b) => (sortOrder === "desc" ? b.bidAmount - a.bidAmount : a.bidAmount - b.bidAmount));
+    .sort((a, b) =>
+      sortOrder === "desc"
+        ? b.bidAmount - a.bidAmount
+        : a.bidAmount - b.bidAmount
+    );
 
   return (
     <div
       className={`p-4 md:p-6 h-full ${
         isDarkMode
-          ? "bg-gray-900 border-gray-600 text-white"
-          : "bg-gradient-to-b from-purple-100 via-white to-purple-50 placeholder-gray-500"
+          ? "bg-gray-900 border-gray-600 font-medium text-white"
+          : "bg-gradient-to-b font-medium from-purple-100 via-white to-purple-50 placeholder-gray-500"
       }`}
     >
       {/* Header with Title and Search */}
@@ -41,7 +70,7 @@ export default function BidHistory() {
           className={`text-2xl md:text-3xl font-bold ${
             isDarkMode
               ? "text-transparent bg-clip-text bg-gradient-to-r from-white via-violet-100 to-violet-100"
-              : "text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-500 to-indigo-600"
+              : "text-gray-700"
           }`}
         >
           Bid History
@@ -55,11 +84,14 @@ export default function BidHistory() {
             onChange={(e) => setSearchQuery(e.target.value)}
             className={`w-full pl-10 pr-4 py-2 rounded-lg border ${
               isDarkMode
-                ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                ? "bg-gray-700 border-gray-600 text-white placeholder-gray-300"
                 : "bg-white border-gray-300 text-gray-800 placeholder-gray-700"
             } focus:outline-none focus:ring-2 focus:ring-purple-500`}
           />
-          <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          <FaSearch
+            className={`absolute left-3 top-1/2 transform -translate-y-1/2 
+           ${isDarkMode ? "text-gray-200" : "text-gray-500"} `}
+          />
         </div>
       </div>
 
@@ -78,7 +110,7 @@ export default function BidHistory() {
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300"
             }`}
           >
-            Sort: Highest to Lowest
+            Sort (High → Low)
           </button>
           <button
             onClick={() => setSortOrder("asc")}
@@ -92,14 +124,16 @@ export default function BidHistory() {
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300"
             }`}
           >
-            Sort: Lowest to Highest
+            Sort (Low → High)
           </button>
         </div>
 
         <div className="flex items-center gap-2">
           <span
             className={`text-sm ${
-              isDarkMode ? "text-gray-400" : "text-gray-500"
+              isDarkMode
+                ? "text-white font-medium"
+                : "text-gray-600 font-medium"
             }`}
           >
             {filteredBids.length} bids found
@@ -120,7 +154,11 @@ export default function BidHistory() {
               : "divide-gray-200 bg-white"
           }`}
         >
-          <thead className={isDarkMode ? "bg-gray-700 text-gray-100" : "bg-gray-50 text-black"}>
+          <thead
+            className={
+              isDarkMode ? "bg-gray-700 text-gray-100" : "bg-gray-50 text-black"
+            }
+          >
             <tr>
               <th
                 scope="col"
@@ -158,13 +196,19 @@ export default function BidHistory() {
                 <tr
                   key={index}
                   className={`${
-                    isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50 text-gray-600"
+                    isDarkMode
+                      ? "hover:bg-gray-700"
+                      : "hover:bg-gray-50 text-gray-600"
                   } transition-colors`}
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="flex-shrink-0 h-10 w-10">
-                        <img src={img} alt="Bidder" className="w-10 h-10 rounded-full" />
+                        <img
+                          src={img}
+                          alt="Bidder"
+                          className="w-10 h-10 rounded-full"
+                        />
                       </div>
                       <div className="ml-4">
                         <div className="text-sm font-medium">{bid.bidder}</div>
@@ -172,12 +216,20 @@ export default function BidHistory() {
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-semibold text-purple-600">
+                    <div
+                      className={`text-sm font-medium ${
+                        isDarkMode ? " text-gray-300" : "text-purple-600 "
+                      }`}
+                    >
                       ${bid.bidAmount.toFixed(2)}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                    <div
+                      className={`text-sm ${
+                        isDarkMode ? "text-gray-300 " : "text-gray-600 "
+                      }`}
+                    >
                       {bid.time}
                     </div>
                   </td>
@@ -185,8 +237,8 @@ export default function BidHistory() {
                     <span
                       className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                         bid.status === "Won"
-                          ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                          : "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+                          ? "bg-green-500 text-gray-100 "
+                          : "bg-red-500 text-gray-100 "
                       }`}
                     >
                       {bid.status}
@@ -207,25 +259,29 @@ export default function BidHistory() {
 
       {/* Pagination */}
       <div className="flex justify-between items-center mt-4 flex-wrap gap-4">
-        <div className="text-sm text-gray-500 dark:text-gray-400">
+        <div
+          className={`text-sm ${
+            isDarkMode ? "text-white font-medium" : "text-gray-600 font-medium"
+          }`}
+        >
           Showing {filteredBids.length} of {bids.length} bids
         </div>
 
         <div className="flex space-x-1">
           <button
-            className={`px-3 py-1 rounded-md ${
+            className={`px-3 py-1 rounded-md text-sm font-medium ${
               isDarkMode
-                ? "bg-gray-700 hover:bg-gray-600"
-                : "bg-gray-400 hover:bg-gray-600"
+                ? "bg-purple-600 text-white hover:bg-purple-800"
+                : "bg-purple-600 text-white hover:bg-purple-800"
             }`}
           >
             Previous
           </button>
           <button
-            className={`px-3 py-1 rounded-md ${
+            className={`px-3 py-1 rounded-md text-sm font-medium ${
               isDarkMode
-                ? "bg-gray-700 hover:bg-gray-600"
-                : "bg-gray-400 hover:bg-gray-600"
+                ? "bg-purple-600 text-white hover:bg-purple-800"
+                : "bg-purple-600 text-white hover:bg-purple-800"
             }`}
           >
             Next
