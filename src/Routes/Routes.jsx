@@ -38,6 +38,8 @@ import WalletHistory from "../extra/wallet/WalletHistory";
 import SdBot from "../extra/sdChatBot/SdBot";
 import ContactUs from "../component/shared/contactUs";
 import FeedbackDisplay from "../component/dashboard/admin/feedbacks/FeedbackDisplay";
+import PaymentSuccess from "../component/dashboard/buyer/PaymentSuccess";
+import PaymentFailed from "../component/dashboard/buyer/PaymentFailed";
 // import AdminFeedback from "../component/dashboard/admin/AdminFeedback";
 
 // import TeamSettings from "../component/Settings/TeamSettings";
@@ -144,6 +146,16 @@ export const router = createBrowserRouter([
         element: <CreateAuction />,
       },
       // Buyer Only
+      {
+        path: "payments/:trxid",
+        element:<PaymentSuccess />,
+        loader: ({ params }) =>
+          fetch(`http://localhost:5000/payments/${params.trxid}`)
+      },
+      {
+        path: "paymentFailed",
+        element: <PaymentFailed />,
+      },
       {
         path: "termsConditionsBuyer",
         element: <TermsAndConditionsBuyer />,
