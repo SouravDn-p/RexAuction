@@ -50,7 +50,7 @@ const AddBalance = () => {
       if (res.data.success) {
         Swal.fire(
           "Updated!",
-          "User accountBalance has been upgraded.",
+          "User accountBalance has been updated.",
           "success"
         );
         if (user?.email) {
