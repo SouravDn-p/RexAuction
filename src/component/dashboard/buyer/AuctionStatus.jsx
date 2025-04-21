@@ -1,193 +1,333 @@
 import React, { useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import Swal from "sweetalert2";
 import { motion } from "framer-motion";
 import ThemeContext from "../../Context/ThemeContext";
-import antique from "../../../assets/antique.jpeg";
+import { onAuthStateChanged } from "firebase/auth";
+import auth from "../../../firebase/firebase.init";
+import { useQuery } from "@tanstack/react-query";
+import useAxiosSecure from "../../../hooks/useAxiosSecure";
+// images for demo auction data
+import antique from "../../../../public/DemoAuctionImg/antique.jpg";
+import antique2 from "../../../../public/DemoAuctionImg/antique2.jpg";
+import antique3 from "../../../../public/DemoAuctionImg/antique3.jpg";
+import antique4 from "../../../../public/DemoAuctionImg/antique4.jpeg";
+import antique5 from "../../../../public/DemoAuctionImg/antique5.jpeg";
+import antique6 from "../../../../public/DemoAuctionImg/antique6.jpeg";
 
-const AuctionStatus = ({ userRole, userId }) => {
-  const navigate = useNavigate();
-  const [buyerInfo, setBuyerInfo] = useState(null);
-  const [hasAlertShown, setHasAlertShown] = useState(false);
+const AuctionStatus = () => {
   const { isDarkMode } = useContext(ThemeContext);
+  const [buyerInfo, setBuyerInfo] = useState(null);
+  const [filterStatus, setFilterStatus] = useState("All");
+  const axiosSecure = useAxiosSecure();
 
+  // Get buyer info from Firebase Auth
   useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setBuyerInfo({
+          buyerName: user.displayName || "Unknown Buyer",
+          buyerEmail: user.email,
+          buyerPhoto: user.photoURL || "https://i.ibb.co/ck1SGFJ/avatar.png",
+        });
+      } else {
+        setBuyerInfo(null);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
 
-    const fetchBuyerInfo = {
-      isBuyer: true,
-      buyerName: "Joyeta Mondal Kotha",
-      buyerEmail: "dipannitakotha2019@gmail.com",
-      buyerPhoto: "https://i.ibb.co/ck1SGFJ/avatar.png",
-      biddingOnProduct: "Gramophone from 1823's",
-      biddingProductImage: antique,
+  // Fetch all auction data
+  const { data: allAuctions = [], isLoading } = useQuery({
+    queryKey: ["userAuctionData", buyerInfo?.buyerEmail],
+    enabled: !!buyerInfo?.buyerEmail,
+    queryFn: async () => {
+      const res = await axiosSecure.get("/auctions");
+      return res.data || [];
+    },
+  });
 
-      currentPosition: 2,
-      totalBidders: 10,
+  // Extract only auctions the user has participated in
+  const bids = allAuctions
+    .filter((auction) => Array.isArray(auction.bidders))
+    .filter((auction) =>
+      auction.bidders.some((b) => b.email === buyerInfo?.buyerEmail)
+    )
+    .map((auction) => {
+      const userBid = auction.bidders.find(
+        (b) => b.email === buyerInfo?.buyerEmail
+      );
+
+      return {
+        id: auction._id,
+        product: auction.name,
+        image: auction.images?.[0] || antique,
+        position: userBid?.position ?? "-",
+        totalBidders: auction.bidders.length,
+        isWinning: userBid?.isWinning ?? false,
+      };
+    });
+
+  const filteredBids = bids.filter((bid) => {
+    if (filterStatus === "All") return true;
+    if (filterStatus === "Won") return bid.isWinning;
+    if (filterStatus === "Lost") return !bid.isWinning;
+  });
+
+  // Demo data to show when no bids are found
+  const demoData = [
+    {
+      id: "1",
+      product: "Antique Vase",
+      image: antique,
+      position: "1",
+      totalBidders: 5,
       isWinning: true,
-      hasDuePayment: true,
-    };
-    setBuyerInfo(fetchBuyerInfo);
-  }, [isDarkMode]);
+    },
+    {
+      id: "2",
+      product: "Old Painting",
+      image: antique2,
+      position: "2",
+      totalBidders: 8,
+      isWinning: false,
+    },
+    {
+      id: "3",
+      product: "Vintage Car",
+      image: antique3,
+      position: "1",
+      totalBidders: 6,
+      isWinning: true,
+    },
+    {
+      id: "4",
+      product: "Gold Watch",
+      image: antique4,
+      position: "3",
+      totalBidders: 4,
+      isWinning: false,
+    },
+    {
+      id: "5",
+      product: "Diamond Necklace",
+      image: antique5,
+      position: "1",
+      totalBidders: 7,
+      isWinning: true,
+    },
+    {
+      id: "6",
+      product: "Rare Sculpture",
+      image: antique6,
+      position: "2",
+      totalBidders: 9,
+      isWinning: false,
+    },
+  ];
 
-  useEffect(() => {
-    if (buyerInfo?.isWinning && buyerInfo?.hasDuePayment && !hasAlertShown) {
-      setHasAlertShown(true);
-      Swal.fire({
-        title: "You Won the Bid! 🎉",
-        text: "Make payment to claim your winnings.",
-        icon: "success",
-        confirmButtonText: "OK",
-        confirmButtonColor: "#6366f1",
-        background: isDarkMode ? "#1f2937" : "#fff",
-        color: isDarkMode ? "#fff" : "#000",
-      });
-    }
-  }, [buyerInfo, hasAlertShown]);
+  const themeStyles = {
+    background: isDarkMode ? "bg-gray-900" : "bg-gray-100",
+    text: isDarkMode ? "text-white" : "text-gray-900",
+    tableBg: isDarkMode ? "bg-gray-800" : "bg-white",
+    tableHeaderBg: isDarkMode ? "bg-gray-700" : "bg-gray-200",
+    tableHover: isDarkMode ? "hover:bg-gray-600" : "hover:bg-gray-50",
+    border: isDarkMode ? "border-gray-700" : "border-gray-300",
+    buttonBg: isDarkMode ? "bg-gray-600" : "bg-gray-300",
+    buttonText: isDarkMode ? "text-white" : "text-gray-700",
+    buttonHover: isDarkMode ? "hover:bg-gray-500" : "hover:bg-gray-400",
+    activeFilterBg: "bg-purple-600",
+    activeFilterText: "text-white",
+  };
 
-  if (!buyerInfo) {
+  if (!buyerInfo || isLoading) {
     return (
-      <div className="text-center text-gray-600 dark:text-gray-300 mt-20 animate-pulse">
-        Fetching your bidding status...
+      <div className="text-center mt-20 text-gray-500 dark:text-gray-300 animate-pulse">
+        Loading your profile...
       </div>
     );
   }
 
-  const {
-    buyerName,
-    buyerEmail,
-    buyerPhoto,
-    biddingOnProduct,
-    biddingProductImage,
-    currentPosition,
-    totalBidders,
-    isWinning,
-    hasDuePayment,
-  } = buyerInfo;
-
   return (
     <div
-      className={`${
-        isDarkMode
-          ? "bg-gray-800 text-white border border-gray-700"
-          : "bg-gradient-to-b from-purple-100 to-purple-300 text-gray-900 border border-gray-200"
-      }`}
+      className={`min-h-screen p-4 sm:p-6 ${themeStyles.background} ${themeStyles.text}`}
     >
+      {/* Buyer Info Section */}
       <motion.div
-        className={`max-w-5xl mx-auto p-12 shadow-2xl rounded-2xl transition-all duration-300
-        ${
-          isDarkMode
-            ? "bg-gray-900 text-white border border-gray-700"
-            : "bg-gradient-to-b from-purple-100 to-purple-300 text-gray-900 border border-gray-200"
-        }
-          `}
-        initial={{ opacity: 0, y: 40 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
+        transition={{ duration: 0.5 }}
+        className={`flex flex-col sm:flex-row items-center sm:justify-between ${
+          isDarkMode ? "bg-gray-800" : "bg-purple-100"
+        } rounded-lg shadow p-6 mb-8`}
       >
-        {/* Profile Info */}
-        <div
-          className={`animate-border rounded-xl p-6 text-center mb-8 shadow-md relative
-        ${
-          isDarkMode
-            ? "bg-gray-700 text-gray-300"
-            : "bg-purple-300 text-gray-800"
-        }
-        `}
-        >
+        <div className="flex items-center gap-4">
           <img
-            src={buyerPhoto}
+            src={buyerInfo.buyerPhoto}
             alt="Buyer"
-            className="w-24 h-24 mx-auto rounded-full border-4 border-purple-400 shadow-md mb-4"
+            className="w-20 h-20 rounded-full border-4 border-purple-500"
           />
-          <h2 className="text-xl font-bold mb-1">Buyer : {buyerName}</h2>
-          <p>{buyerEmail}</p>
-        </div>
-
-        {/* Product Info Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center mb-8">
-          {/* Left: Product details */}
           <div>
-            <h3 className="text-lg font-semibold text-purple-400 mb-2">
-              You're Bidding On:
-            </h3>
-            <p className="text-xl font-bold mb-4">{biddingOnProduct}</p>
-            <p className="text-gray-500">
-              This is a rare collectible item up for auction. Make sure you
-              place your bids wisely!
-            </p>
-          </div>
-
-          {/* Right: Product image */}
-          <div className="flex justify-center">
-            <img
-              src={biddingProductImage}
-              alt="Bidding Product"
-              className="rounded-xl w-72 h-72 object-cover shadow-lg border-4 border-purple-500"
-            />
-          </div>
-        </div>
-
-        {/* Bidding Status */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-          <div
-            className={` ${
-              isDarkMode
-                ? "bg-gray-700 text-gray-300"
-                : "bg-purple-400 text-gray-800"
-            }  rounded-lg p-4`}
-          >
-            <p className="text-sm ">Position</p>
-            <p className="font-semibold text-purple-700">
-              #{currentPosition} of {totalBidders}
-            </p>
-          </div>
-
-          <div
-            className={` ${
-              isDarkMode
-                ? "bg-gray-700 text-gray-300"
-                : "bg-purple-400 text-gray-800"
-            }  rounded-lg p-4`}
-          >
-            <p className="text-sm text-gray-8s00">Status</p>
-            <p className="font-semibold text-green-700">
-              {isWinning ? "Winning 🏆" : "Still Competing 🔁"}
-            </p>
-          </div>
-
-          <div
-            className={` ${
-              isDarkMode
-                ? "bg-gray-700 text-gray-300"
-                : "bg-purple-400 text-gray-800"
-            }  rounded-lg p-4`}
-          >
-            <p className="text-sm ">Payment Due</p>
-            <p className="font-semibold text-yellow-700">
-              {hasDuePayment ? "Yes 🔔" : "No ✅"}
+            <h2 className="text-xl font-bold">{buyerInfo.buyerName}</h2>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              {buyerInfo.buyerEmail}
             </p>
           </div>
         </div>
-
-        {/* CTA Payment Button */}
-        {hasDuePayment && isWinning && (
-          <div className="text-center mt-8">
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              whileHover={{ scale: 1.05 }}
-              onClick={() => navigate("/payment")}
-              className="bg-purple-600 text-white px-8 py-3 rounded-full shadow-md hover:bg-purple-700 transition"
-            >
-              Make Payment
-            </motion.button>
-          </div>
-        )}
       </motion.div>
+
+      {/* Filter Buttons */}
+      <div className="flex justify-center sm:justify-start gap-3 mb-6">
+        {["All", "Won", "Lost"].map((status) => (
+          <button
+            key={status}
+            onClick={() => setFilterStatus(status)}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              filterStatus === status
+                ? `${themeStyles.activeFilterBg} ${themeStyles.activeFilterText}`
+                : `${themeStyles.buttonBg} ${themeStyles.buttonText} ${themeStyles.buttonHover}`
+            }`}
+          >
+            {status}
+          </button>
+        ))}
+      </div>
+
+      {/* Bids Table */}
+      <div
+        className={`overflow-x-auto rounded-lg shadow ${themeStyles.border}`}
+      >
+        <table
+          className={`min-w-full ${themeStyles.tableBg} rounded-lg overflow-hidden`}
+        >
+          <thead className={`${themeStyles.tableHeaderBg}`}>
+            <tr>
+              <th className="py-3 px-4 text-left">Image</th>
+              <th className="py-3 px-4 text-left">Product</th>
+              <th className="py-3 px-4 text-left">Position</th>
+              <th className="py-3 px-4 text-left">Status</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {filteredBids.length === 0
+              ? demoData
+                  .filter((bid) => {
+                    if (filterStatus === "All") return true;
+                    if (filterStatus === "Won") return bid.isWinning;
+                    if (filterStatus === "Lost") return !bid.isWinning;
+                  })
+                  .map((bid) => (
+                    <tr
+                      key={bid.id}
+                      className={`${themeStyles.tableHover} border-b ${themeStyles.border}`}
+                    >
+                      <td className="py-3 px-4">
+                        <img
+                          src={bid.image}
+                          alt={bid.product}
+                          className="w-20 h-16 object-cover rounded"
+                        />
+                      </td>
+                      <td className="py-3 px-4">{bid.product}</td>
+                      <td className="py-3 px-4">
+                        #{bid.position} / {bid.totalBidders}
+                        {/* Progress Bar */}
+                        <div className="relative pt-1 mt-2">
+                          <div className="flex mb-2 items-center justify-between">
+                            <div>
+                              <span className="font-bold text-sm">
+                                Position
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-teal-600 bg-teal-200">
+                                #{bid.position} / {bid.totalBidders}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex mb-2">
+                            <div className="w-full bg-gray-200 rounded-full h-2.5">
+                              <div
+                                className="bg-teal-500 h-2.5 rounded-full"
+                                style={{
+                                  width: `${
+                                    (bid.position / bid.totalBidders) * 100
+                                  }%`,
+                                }}
+                              ></div>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                            bid.isWinning
+                              ? "bg-green-200 text-green-800"
+                              : "bg-red-200 text-red-800"
+                          }`}
+                        >
+                          {bid.isWinning ? "Won" : "Lost"}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+              : filteredBids.map((bid) => (
+                  <tr
+                    key={bid.id}
+                    className={`${themeStyles.tableHover} border-b ${themeStyles.border}`}
+                  >
+                    <td className="py-3 px-4">
+                      <img
+                        src={bid.image}
+                        alt={bid.product}
+                        className="w-20 h-16 object-cover rounded"
+                      />
+                    </td>
+                    <td className="py-3 px-4">{bid.product}</td>
+                    <td className="py-3 px-4">
+                      #{bid.position} / {bid.totalBidders}
+                      {/* Progress Bar */}
+                      <div className="relative pt-1 mt-2">
+                        <div className="flex mb-2 items-center justify-between">
+                          <div>
+                            <span className="font-bold text-sm">Position</span>
+                          </div>
+                          <div>
+                            <span className="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-teal-600 bg-teal-200">
+                              #{bid.position} / {bid.totalBidders}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex mb-2">
+                          <div className="w-full bg-gray-200 rounded-full h-2.5">
+                            <div
+                              className="bg-teal-500 h-2.5 rounded-full"
+                              style={{
+                                width: `${
+                                  (bid.position / bid.totalBidders) * 100
+                                }%`,
+                              }}
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-3 px-4">
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                          bid.isWinning
+                            ? "bg-green-200 text-green-800"
+                            : "bg-red-200 text-red-800"
+                        }`}
+                      >
+                        {bid.isWinning ? "Won" : "Lost"}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
