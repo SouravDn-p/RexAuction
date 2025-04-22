@@ -187,7 +187,7 @@ const Payment2 = () => {
         date: new Date().toISOString(),
         description: `Deposit ${Number(calculateTotal())} Taka`,
         amount: Number(calculateTotal()),
-        type: "Withdrawals",
+        type: "Withdrawal",
         status: "completed",
       };
       const response = await axiosPublic.post("/paymentsWithSSL", paymentData);

@@ -475,9 +475,9 @@ export default function WalletHistory() {
       (filterType === "withdrawal" && transaction.type === "Withdrawal")
 
     const matchesSearch =
-      transaction.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      transaction.amount.toString().includes(searchQuery) ||
-      transaction.status.toLowerCase().includes(searchQuery.toLowerCase())
+      transaction?.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      transaction?.amount?.toString().includes(searchQuery) ||
+      transaction?.status?.toLowerCase().includes(searchQuery.toLowerCase())
 
     return matchesType && matchesSearch
   })
