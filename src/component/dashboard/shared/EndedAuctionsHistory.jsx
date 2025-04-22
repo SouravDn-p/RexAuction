@@ -331,11 +331,16 @@ function EndedAuctionsHistory() {
   };
 
   const updateAuctionStatus = async (auctionId, status) => {
+    const deliveryStatus = "in transit";
+    const notes = "Fragile item, handle with care";
     try {
       const response = await axiosSecure.patch(`/auctions/${auctionId}`, {
         status,
+        deliveryStatus,
+        notes,
       });
-      if (response.data.modifiedCount > 0) {
+      const res = await axiosSecure.post("/endedAuctions", { auctionId });
+      if (response.data.modifiedCount > 0 || res.data?.data?.insertedId) {
         // Refresh the auctions data to reflect the updated status
         // You might need to refetch the data using react-query's refetch function
         console.log("Auction status updated successfully");
@@ -966,16 +971,15 @@ function EndedAuctionsHistory() {
                       onClick={() =>
                         updateAuctionStatus(selectedAuction._id, "Place Order")
                       }
-                      className={`flex-1 min-w-[120px] px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-all ${
-                        selectedAuction.payment !== "done" ||
-                        selectedAuction.status === "Place Order"
-                          ? "bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
-                          : "bg-green-500 hover:bg-green-600 text-white shadow-md hover:shadow-lg"
-                      }`}
                       disabled={
-                        selectedAuction.payment !== "done" ||
-                        selectedAuction.status === "Place Order"
+                        selectedAuction.payment?.toLowerCase().trim() !== "done"
                       }
+                      className={`flex-1 min-w-[140px] px-5 py-2.5 rounded-lg flex items-center justify-center gap-2 font-semibold transition-all duration-300 ease-in-out transform 
+                     ${
+                       selectedAuction.payment?.toLowerCase().trim() === "done"
+                         ? "bg-green-500 text-white hover:bg-green-600 hover:shadow-lg active:scale-95"
+                         : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                     }`}
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -989,7 +993,9 @@ function EndedAuctionsHistory() {
                           clipRule="evenodd"
                         />
                       </svg>
-                      Accept
+                      {selectedAuction.payment?.toLowerCase().trim() === "done"
+                        ? "Place in Delivery Process"
+                        : "Payment Pending"}
                     </button>
                   </div>
                 </div>

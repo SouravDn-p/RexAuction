@@ -17,7 +17,6 @@ import {
   Printer,
   BarChart3,
   RefreshCw,
-  FileText,
   Eye,
   Trash2,
   Settings,
@@ -121,20 +120,30 @@ export default function AdminPayment() {
   }, []);
 
   // Modal Component
-  const Modal = ({ isOpen, onClose, title, children }) => {
+  const Modal = ({ isOpen, onClose, title, children, isDarkMode }) => {
     if (!isOpen) return null;
 
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm animate-fadeIn">
         <div
-          className="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-auto transform transition-all duration-300 ease-in-out animate-scaleIn"
+          className={`relative rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-auto transform transition-all duration-300 ease-in-out animate-scaleIn ${
+            isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"
+          }`}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="flex items-center justify-between p-4 border-b dark:border-gray-700">
+          <div
+            className={`flex items-center justify-between p-4 border-b ${
+              isDarkMode ? "border-gray-700" : "border-gray-300"
+            }`}
+          >
             <h3 className="text-lg font-medium">{title}</h3>
             <button
               onClick={onClose}
-              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors duration-200"
+              className={`transition-colors duration-200 ${
+                isDarkMode
+                  ? "text-gray-400 hover:text-gray-200"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
             >
               <X className="w-5 h-5" />
             </button>
@@ -145,35 +154,76 @@ export default function AdminPayment() {
     );
   };
 
-  const StatsCard = ({ title, value, icon, color, isDarkMode }) => {
-    const Icon = icon;
-
+  const StatsCard = ({ title, value, icon: Icon, color, isDarkMode }) => {
     return (
       <div
-        className={`rounded-lg shadow-md p-4 transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1 border-l-4 ${color} ${
-          isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-900"
-        }`}
+        className={`relative rounded-2xl p-6 border-l-[8px] ${color} transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_15px_30px_-5px_rgba(0,0,0,0.3)] backdrop-blur-lg ${
+          isDarkMode
+            ? "bg-gradient-to-br from-gray-900/80 to-gray-800/80 text-white"
+            : "bg-gradient-to-br from-white/90 to-blue-50/90 text-gray-900"
+        } overflow-hidden`}
       >
-        <div className="flex items-center">
+        <div className="flex items-center gap-5">
           <div
-            className={`p-3 rounded-full bg-opacity-20 ${color.replace(
+            className={`p-4 rounded-xl bg-opacity-20 shadow-lg ${color.replace(
               "border-",
               "bg-"
-            )} mr-4`}
+            )} transform transition-transform duration-300 hover:scale-110`}
           >
-            <Icon className={`w-6 h-6 ${color.replace("border-", "text-")}`} />
+            <Icon
+              className={`w-6 h-6 ${color.replace(
+                "border-",
+                "text-"
+              )} drop-shadow-lg animate-pulse-slow`}
+            />
           </div>
-          <div>
+          <div className="relative z-10">
             <p
-              className={`text-sm ${
-                isDarkMode ? "text-gray-400" : "text-gray-600"
+              className={`text-xs font-semibold tracking-wide uppercase ${
+                isDarkMode ? "text-gray-300/90" : "text-gray-600/90"
               }`}
             >
               {title}
             </p>
-            <h3 className="text-2xl font-bold">{value}</h3>
+            <h3
+              className={`text-2xl font-black tracking-tighter bg-clip-text ${
+                isDarkMode
+                  ? "text-transparent bg-gradient-to-r from-white to-gray-300"
+                  : "text-transparent bg-gradient-to-r from-gray-900 to-blue-600"
+              }`}
+            >
+              {value}
+            </h3>
           </div>
         </div>
+
+        {/* Enhanced shine effect */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
+          <div
+            className={`absolute -top-1/2 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent transform rotate-45 scale-x-200 animate-shine ${
+              isDarkMode ? "opacity-30" : "opacity-20"
+            }`}
+          />
+        </div>
+
+        {/* Subtle corner glow */}
+        <div
+          className={`absolute top-0 left-0 w-24 h-24 bg-${
+            color.split("-")[1]
+          }-500/30 blur-3xl rounded-full -z-10 animate-pulse-slow`}
+        />
+        <div
+          className={`absolute bottom-0 right-0 w-24 h-24 bg-${
+            color.split("-")[1]
+          }-500/30 blur-3xl rounded-full -z-10 animate-pulse-slow`}
+        />
+
+        {/* Hover sparkle effect */}
+        <div
+          className={`absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-300 bg-${
+            color.split("-")[1]
+          }-500/10 bg-[radial-gradient(circle_at_center,_rgba(255,255,255,0.3)_0%,_transparent_70%)] -z-10`}
+        />
       </div>
     );
   };
@@ -602,7 +652,11 @@ export default function AdminPayment() {
             <input
               type="text"
               placeholder="Search payments..."
-              className="pl-10 pr-4 py-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 w-full md:w-auto"
+              className={`pl-10 pr-4 py-2 rounded-lg ${
+                isDarkMode
+                  ? "border-gray-700 bg-gray-800 hover:bg-gray-700"
+                  : "border-gray-300 bg-white hover:bg-gray-100"
+              } focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 w-full md:w-auto`}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -611,7 +665,11 @@ export default function AdminPayment() {
           <div className="relative" ref={dateFilterRef}>
             <button
               onClick={() => setIsDateFilterOpen(!isDateFilterOpen)}
-              className="p-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 flex items-center"
+              className={`p-2 rounded-lg  ${
+                isDarkMode
+                  ? "border-gray-700 bg-gray-800 hover:bg-gray-700"
+                  : "border-gray-300 bg-white hover:bg-gray-100"
+              }   transition-colors duration-300 flex items-center`}
               title="Date filter"
             >
               <Calendar className="w-5 h-5" />
@@ -675,7 +733,11 @@ export default function AdminPayment() {
           <div className="relative" ref={filterRef}>
             <button
               onClick={() => setIsFilterOpen(!isFilterOpen)}
-              className="p-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 flex items-center"
+              className={`p-2 rounded-lg  ${
+                isDarkMode
+                  ? "border-gray-700 bg-gray-800 hover:bg-gray-700"
+                  : "border-gray-300 bg-white hover:bg-gray-100"
+              }   transition-colors duration-300 flex items-center`}
               title="More filters"
             >
               <Filter className="w-5 h-5" />
@@ -987,15 +1049,15 @@ export default function AdminPayment() {
           >
             <table
               className={`min-w-full divide-y ${
-                isDarkMode ? "divide-gray-200" : "divide-gray-700"
-              } `}
+                isDarkMode ? "divide-gray-700" : "divide-gray-200"
+              }`}
             >
               <thead
                 className={`${
                   isDarkMode
-                    ? "bg-gray-50 text-black"
-                    : "bg-gray-800  text-white"
-                }  `}
+                    ? "bg-gray-800 text-white"
+                    : "bg-gray-50 text-black"
+                }`}
               >
                 <tr>
                   <th scope="col" className="px-3 py-3 text-left">
@@ -1111,16 +1173,25 @@ export default function AdminPayment() {
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+
+              <tbody
+                className={`${
+                  isDarkMode
+                    ? "divide-gray-700 bg-gray-900 text-gray-200"
+                    : "divide-gray-200 bg-white text-gray-800"
+                } divide-y`}
+              >
                 {currentItems.length > 0 ? (
                   currentItems.map((payment) => (
                     <tr
                       key={payment.id}
                       className={`transition-colors duration-150 ${
-                        isDarkMode ? "hover:bg-gray-50" : "hover:bg-gray-700"
-                      }  dark: ${
+                        isDarkMode ? "hover:bg-gray-800" : "hover:bg-gray-100"
+                      } ${
                         selectedRows.includes(payment.id)
-                          ? "bg-blue-50 dark:bg-blue-900/20"
+                          ? isDarkMode
+                            ? "bg-blue-900/20"
+                            : "bg-blue-50"
                           : ""
                       }`}
                     >
@@ -1154,8 +1225,12 @@ export default function AdminPayment() {
                         <span
                           className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                             payment.status === "pending"
-                              ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200"
-                              : "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200"
+                              ? isDarkMode
+                                ? "bg-yellow-900/30 text-yellow-200"
+                                : "bg-yellow-100 text-yellow-800"
+                              : isDarkMode
+                              ? "bg-green-900/30 text-green-200"
+                              : "bg-green-100 text-green-800"
                           }`}
                         >
                           {payment.status === "pending" ? (
@@ -1166,12 +1241,17 @@ export default function AdminPayment() {
                           {payment.status.charAt(0).toUpperCase() +
                             payment.status.slice(1)}
                         </span>
+
                         {payment.deliveryStatus && (
                           <span
                             className={`ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                               payment.deliveryStatus === "delivered"
-                                ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200"
-                                : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200"
+                                ? isDarkMode
+                                  ? "bg-green-900/30 text-green-200"
+                                  : "bg-green-100 text-green-800"
+                                : isDarkMode
+                                ? "bg-blue-900/30 text-blue-200"
+                                : "bg-blue-100 text-blue-800"
                             }`}
                           >
                             <Truck className="w-4 h-4 mr-1" />
@@ -1193,7 +1273,11 @@ export default function AdminPayment() {
                             </button>
                             <button
                               onClick={() => handleViewDetails(payment)}
-                              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 px-2 py-1 transition-colors duration-300"
+                              className={`${
+                                isDarkMode
+                                  ? "text-gray-400 hover:text-gray-300"
+                                  : "text-gray-500 hover:text-gray-700"
+                              } px-2 py-1 transition-colors duration-300`}
                             >
                               <Eye className="w-5 h-5" />
                             </button>
@@ -1216,7 +1300,11 @@ export default function AdminPayment() {
                             )}
                             <button
                               onClick={() => handleViewDetails(payment)}
-                              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 px-2 py-1 transition-colors duration-300"
+                              className={`${
+                                isDarkMode
+                                  ? "text-gray-400 hover:text-gray-300"
+                                  : "text-gray-500 hover:text-gray-700"
+                              } px-2 py-1 transition-colors duration-300`}
                             >
                               <Eye className="w-5 h-5" />
                             </button>
@@ -1244,42 +1332,63 @@ export default function AdminPayment() {
 
           {/* Pagination */}
           {sortedData.length > itemsPerPage && (
-            <div className="flex flex-col sm:flex-row items-center justify-between mt-4 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
-              <div className="text-sm text-gray-500 dark:text-gray-400 mb-3 sm:mb-0">
+            <div
+              className={`flex flex-col sm:flex-row items-center justify-between mt-4 p-4 rounded-xl border shadow-sm transition-all duration-300 ${
+                isDarkMode
+                  ? "bg-gray-900/80 border-gray-700 text-gray-300"
+                  : "bg-white/80 border-gray-200 text-gray-600"
+              }`}
+            >
+              <div className="text-sm mb-3 sm:mb-0">
                 Showing {indexOfFirstItem + 1} to{" "}
                 {Math.min(indexOfLastItem, sortedData.length)} of{" "}
                 {sortedData.length} entries
               </div>
-              <div className="flex items-center">
+
+              <div className="flex items-center space-x-3">
+                {/* Items per page selector */}
                 <select
                   value={itemsPerPage}
                   onChange={(e) => {
                     setItemsPerPage(Number(e.target.value));
                     setCurrentPage(1);
                   }}
-                  className="mr-4 p-1 border border-gray-300 dark:border-gray-700 rounded bg-white dark:bg-gray-800 text-sm"
+                  className={`mr-2 px-2 py-1 rounded-md border text-sm focus:ring-2 transition-all duration-300 ${
+                    isDarkMode
+                      ? "border-gray-600 bg-gray-800 text-gray-300 focus:ring-indigo-500"
+                      : "border-gray-300 bg-white text-gray-700 focus:ring-blue-500"
+                  }`}
                 >
-                  <option value={5}>5 per page</option>
-                  <option value={10}>10 per page</option>
-                  <option value={25}>25 per page</option>
-                  <option value={50}>50 per page</option>
+                  {[5, 10, 25, 50].map((num) => (
+                    <option key={num} value={num}>
+                      {num} per page
+                    </option>
+                  ))}
                 </select>
-                <div className="flex space-x-2">
+
+                {/* Pagination controls */}
+                <div className="flex space-x-1">
                   <button
                     onClick={() =>
                       setCurrentPage((prev) => Math.max(prev - 1, 1))
                     }
                     disabled={currentPage === 1}
-                    className={`p-2 rounded-md ${
+                    className={`p-2 rounded-md transition-all duration-300 ${
                       currentPage === 1
                         ? "opacity-50 cursor-not-allowed"
-                        : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600"
-                    } transition-colors duration-300`}
+                        : isDarkMode
+                        ? "bg-gray-700 hover:bg-gray-600"
+                        : "bg-gray-100 hover:bg-gray-200"
+                    }`}
                   >
-                    <ChevronLeft className="w-5 h-5" />
+                    <ChevronLeft
+                      className={`w-5 h-5 ${
+                        isDarkMode ? "text-white" : "text-gray-800"
+                      }`}
+                    />
                   </button>
+
                   {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                    // Show first page, last page, current page, and pages around current
                     let pageToShow;
                     if (totalPages <= 5) {
                       pageToShow = i + 1;
@@ -1295,28 +1404,37 @@ export default function AdminPayment() {
                       <button
                         key={pageToShow}
                         onClick={() => setCurrentPage(pageToShow)}
-                        className={`px-3 py-1 rounded-md transition-colors duration-300 ${
+                        className={`px-3 py-1 rounded-md text-sm font-semibold transition-all duration-300 ${
                           currentPage === pageToShow
-                            ? "bg-blue-600 text-white"
-                            : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600"
+                            ? "bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md scale-105"
+                            : isDarkMode
+                            ? "bg-gray-700 text-gray-200 hover:bg-gray-600"
+                            : "bg-gray-100 text-gray-800 hover:bg-gray-200"
                         }`}
                       >
                         {pageToShow}
                       </button>
                     );
                   })}
+
                   <button
                     onClick={() =>
                       setCurrentPage((prev) => Math.min(prev + 1, totalPages))
                     }
                     disabled={currentPage === totalPages}
-                    className={`p-2 rounded-md ${
+                    className={`p-2 rounded-md transition-all duration-300 ${
                       currentPage === totalPages
                         ? "opacity-50 cursor-not-allowed"
-                        : "bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600"
-                    } transition-colors duration-300`}
+                        : isDarkMode
+                        ? "bg-gray-700 hover:bg-gray-600"
+                        : "bg-gray-100 hover:bg-gray-200"
+                    }`}
                   >
-                    <ChevronRight className="w-5 h-5" />
+                    <ChevronRight
+                      className={`w-5 h-5 ${
+                        isDarkMode ? "text-white" : "text-gray-800"
+                      }`}
+                    />
                   </button>
                 </div>
               </div>
@@ -1329,35 +1447,85 @@ export default function AdminPayment() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        className={`${
+          isDarkMode ? "bg-gray-900 text-white" : "bg-white text-black"
+        }`}
         title="Payment Details"
+        color={isDarkMode ? "text-white" : "text-black"}
       >
         {selectedPayment && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p
+                  className={`text-sm  dark: ${
+                    isDarkMode ? "text-gray-500" : "text-gray-400"
+                  }`}
+                >
                   Auction ID
                 </p>
-                <p className="font-medium">{selectedPayment.auctionId}</p>
+                <p
+                  className={`  font-medium  ${
+                    isDarkMode ? "text-gray-500" : "text-gray-400"
+                  }`}
+                >
+                  {selectedPayment.auctionId}
+                </p>
               </div>
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Item</p>
-                <p className="font-medium">{selectedPayment.item}</p>
+                <p
+                  className={`text-sm  dark: ${
+                    isDarkMode ? "text-gray-500" : "text-gray-400"
+                  }`}
+                >
+                  Item
+                </p>
+                <p
+                  className={`  font-medium  ${
+                    isDarkMode ? "text-gray-500" : "text-gray-400"
+                  }`}
+                >
+                  {selectedPayment.item}
+                </p>
               </div>
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p
+                  className={`text-sm  dark: ${
+                    isDarkMode ? "text-gray-500" : "text-gray-400"
+                  }`}
+                >
                   Buyer
                 </p>
-                <p className="font-medium">{selectedPayment.buyer}</p>
+                <p
+                  className={`  font-medium  ${
+                    isDarkMode ? "text-gray-500" : "text-gray-400"
+                  }`}
+                >
+                  {selectedPayment.buyer}
+                </p>
               </div>
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p
+                  className={`text-sm  dark: ${
+                    isDarkMode ? "text-gray-500" : "text-gray-400"
+                  }`}
+                >
                   Seller
                 </p>
-                <p className="font-medium">{selectedPayment.seller}</p>
+                <p
+                  className={`  font-medium  ${
+                    isDarkMode ? "text-gray-500" : "text-gray-400"
+                  }`}
+                >
+                  {selectedPayment.seller}
+                </p>
               </div>
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p
+                  className={`text-sm  dark: ${
+                    isDarkMode ? "text-gray-500" : "text-gray-400"
+                  }`}
+                >
                   Amount
                 </p>
                 <p className="font-medium text-green-600 dark:text-green-400">
@@ -1365,18 +1533,46 @@ export default function AdminPayment() {
                 </p>
               </div>
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Date</p>
-                <p className="font-medium">{selectedPayment.date}</p>
+                <p
+                  className={`text-sm  dark: ${
+                    isDarkMode ? "text-gray-500" : "text-gray-400"
+                  }`}
+                >
+                  Date
+                </p>
+                <p
+                  className={`  font-medium  ${
+                    isDarkMode ? "text-gray-500" : "text-gray-400"
+                  }`}
+                >
+                  {selectedPayment.date}
+                </p>
               </div>
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p
+                  className={`text-sm  dark: ${
+                    isDarkMode ? "text-gray-500" : "text-gray-400"
+                  }`}
+                >
                   Payment Method
                 </p>
-                <p className="font-medium">{selectedPayment.paymentMethod}</p>
+                <p
+                  className={`  font-medium  ${
+                    isDarkMode ? "text-gray-500" : "text-gray-400"
+                  }`}
+                >
+                  {selectedPayment.paymentMethod}
+                </p>
               </div>
             </div>
             <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Status</p>
+              <p
+                className={`text-sm  dark: ${
+                  isDarkMode ? "text-gray-500" : "text-gray-400"
+                }`}
+              >
+                Status
+              </p>
               <div className="flex items-center mt-1">
                 <span
                   className={`px-2 py-1 inline-flex items-center text-xs leading-5 font-semibold rounded-full ${
@@ -1410,10 +1606,20 @@ export default function AdminPayment() {
             </div>
             {selectedPayment.notes && (
               <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p
+                  className={`text-sm  dark: ${
+                    isDarkMode ? "text-gray-500" : "text-gray-400"
+                  }`}
+                >
                   Notes
                 </p>
-                <p className="mt-1 p-2 bg-gray-50 dark:bg-gray-700 rounded border border-gray-200 dark:border-gray-600">
+                <p
+                  className={`mt-1 p-2 rounded border ${
+                    isDarkMode
+                      ? " bg-gray-700  border-gray-600"
+                      : " border-gray-200 bg-gray-50"
+                  }`}
+                >
                   {selectedPayment.notes || "No notes available"}
                 </p>
               </div>
@@ -1459,7 +1665,11 @@ export default function AdminPayment() {
                     <CheckCircle className="w-4 h-4 mr-1" /> Mark Delivered
                   </button>
                 ) : (
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  <p
+                    className={`text-sm  dark: ${
+                      isDarkMode ? "text-gray-500" : "text-gray-400"
+                    }`}
+                  >
                     No actions available
                   </p>
                 )}

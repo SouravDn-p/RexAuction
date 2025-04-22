@@ -18,6 +18,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import useAxiosPublic from "../../../hooks/useAxiosPublic";
 import Swal from "sweetalert2";
+import LoadingSpinner from "../../LoadingSpinner";
 
 const Payment2 = () => {
   const [paymentMethod, setPaymentMethod] = useState("card");
@@ -441,15 +442,7 @@ const Payment2 = () => {
   };
 
   if (loading) {
-    return (
-      <div
-        className={`min-h-screen flex justify-center items-center ${
-          isDarkMode ? "bg-gray-900" : "bg-gray-100"
-        }`}
-      >
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   if (!auctionData) {
