@@ -1,3 +1,5 @@
+"use client";
+
 import { FaBars } from "react-icons/fa";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState, useContext } from "react";
@@ -8,6 +10,7 @@ import {
   User,
   Search,
   ChevronDown,
+  Wallet,
 } from "lucide-react";
 import { FaSun, FaMoon } from "react-icons/fa";
 import ThemeContext from "../Context/ThemeContext";
@@ -103,7 +106,7 @@ const MainContent = () => {
     }
   }, [user]);
 
-  // Close notifications dropdown when clicking outside
+  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -111,6 +114,9 @@ const MainContent = () => {
         !notificationsRef.current.contains(event.target)
       ) {
         setIsNotificationsOpen(false);
+      }
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setIsProfileOpen(false);
       }
     };
 
@@ -148,17 +154,13 @@ const MainContent = () => {
   };
 
   const viewNotificationDetails = (notification) => {
-    // Mark the notification as read locally
     setNotifications((prev) =>
       prev.map((n) => (n._id === notification._id ? { ...n, read: true } : n))
     );
-
-    // Decrease notification count if applicable
     if (notificationCount > 0) {
       setNotificationCount((prev) => prev - 1);
     }
 
-    // Update the notification as read in the database
     if (user) {
       axios
         .put(
@@ -171,10 +173,7 @@ const MainContent = () => {
         });
     }
 
-    // Close notifications panel
     setIsNotificationsOpen(false);
-
-    // Navigate to the announcement page
     navigate("/dashboard/announcement", {
       state: { notificationDetails: notification },
     });
@@ -220,12 +219,12 @@ const MainContent = () => {
 
   return (
     <div
-      className={`drawer-content flex flex-col md:flex-row justify-between items-stretch`}
+      className={`drawer-content flex flex-col md:flex-row justify-between items-stretch overflow-x-hidden`}
     >
       <div className="mx-auto w-full">
         {/* Top Navigation Bar */}
         <header
-          className={`sticky top-0 z-10 mx-auto  ${
+          className={`sticky top-0 z-10 mx-auto ${
             chatPath && selectedUser ? "hidden" : "block"
           } ${
             isDarkMode ? "bg-gray-800/90" : "bg-white"
@@ -323,7 +322,7 @@ const MainContent = () => {
                         isDarkMode
                           ? "bg-gray-800 border border-gray-700"
                           : "bg-white border border-gray-200"
-                      }`}
+                      } no-scrollbar`}
                     >
                       <div
                         className={`p-3 border-b flex justify-between items-center ${
@@ -508,7 +507,7 @@ const MainContent = () => {
                     >
                       <div
                         className={`p-3 border-b ${
-                          isDarkMode ? "border-gray-700" : "border-gray-200 "
+                          isDarkMode ? "border-gray-700" : "border-gray-200"
                         }`}
                       >
                         <p className="text-sm font-medium">{user?.name}</p>
@@ -531,6 +530,17 @@ const MainContent = () => {
                         >
                           <User className="h-4 w-4 mr-2" />
                           Profile
+                        </Link>
+                        <Link
+                          to={`/dashboard/walletHistory`}
+                          className={`w-full flex items-center px-4 py-2 text-sm ${
+                            isDarkMode
+                              ? "hover:bg-gray-700 text-white"
+                              : "hover:bg-gray-100 text-black"
+                          }`}
+                        >
+                          <Wallet className="h-4 w-4 mr-2" />
+                          Wallet History
                         </Link>
                         <Link
                           to={`/dashboard/settings`}
@@ -566,8 +576,32 @@ const MainContent = () => {
           <Outlet />
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out forwards;
+        }
+        .no-scrollbar {
+          scrollbar-width: none; /* Firefox */
+          -ms-overflow-style: none; /* IE and Edge */
+        }
+        .no-scrollbar::-webkit-scrollbar {
+          display: none; /* Chrome, Safari, Edge */
+        }
+      `}</style>
     </div>
   );
 };
 
 export default MainContent;
+  

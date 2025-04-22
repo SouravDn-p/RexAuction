@@ -34,7 +34,7 @@ const DashboardLayout = () => {
         isDarkMode
           ? " bg-gray-900"
           : "bg-gradient-to-b from-purple-100 via-white to-purple-50"
-      } min-h-screen w-screen`}
+      } min-h-screen max-w-screen`}
     >
       <div className="drawer lg:drawer-open">
         <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />

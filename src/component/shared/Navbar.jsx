@@ -1,5 +1,3 @@
-"use client";
-
 import { useContext, useEffect, useState, useRef } from "react";
 import {
   FaSun,
@@ -12,7 +10,8 @@ import {
 import { MdOutlineDashboard, MdOutlineLogout } from "react-icons/md";
 import { FiHome, FiInfo } from "react-icons/fi";
 import { BiMoney } from "react-icons/bi";
-import { Link, useLocation } from "react-router-dom";
+import { Bell } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AuthContexts } from "../../providers/AuthProvider";
 import ThemeContext from "../../component/Context/ThemeContext";
 import auth from "../../firebase/firebase.init";
@@ -20,6 +19,8 @@ import { toast } from "react-toastify";
 import { signOut } from "firebase/auth";
 import Swal from "sweetalert2";
 import useAxiosPublic from "../../hooks/useAxiosPublic";
+import io from "socket.io-client";
+import axios from "axios";
 
 const Navbar = () => {
   const {
@@ -34,15 +35,77 @@ const Navbar = () => {
   } = useContext(AuthContexts);
   const { isDarkMode, toggleTheme } = useContext(ThemeContext);
   const location = useLocation();
+  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showWalletModal, setShowWalletModal] = useState(false);
   const [depositAmount, setDepositAmount] = useState(300);
   const [accountNumber, setAccountNumber] = useState("");
+  const [notifications, setNotifications] = useState([]);
+  const [notificationCount, setNotificationCount] = useState(0);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const profileRef = useRef(null);
+  const notificationsRef = useRef(null);
+  const socketRef = useRef(null);
   const axiosPublic = useAxiosPublic();
 
+  // Socket.IO connection
+  useEffect(() => {
+    if (user && !socketRef.current) {
+      socketRef.current = io("http://localhost:5000", {
+        withCredentials: true,
+        reconnection: true,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000,
+        timeout: 10000,
+      });
+
+      socketRef.current.on("receiveNotification", (notification) => {
+        setNotifications((prev) => [notification, ...prev]);
+        setNotificationCount((prev) => prev + 1);
+        toast.info(notification.message, {
+          position: "top-right",
+          autoClose: 5000,
+        });
+      });
+
+      return () => {
+        if (socketRef.current) {
+          socketRef.current.disconnect();
+          socketRef.current = null;
+        }
+      };
+    }
+  }, [user]);
+
+  // Fetch notifications
+  useEffect(() => {
+    if (user) {
+      const fetchNotifications = async () => {
+        try {
+          const response = await axios.get(
+            `http://localhost:5000/notifications/${user.email}`,
+            {
+              withCredentials: true,
+            }
+          );
+          if (response.data) {
+            setNotifications(response.data);
+            const unreadCount = response.data.filter(
+              (notif) => !notif.read
+            ).length;
+            setNotificationCount(unreadCount);
+          }
+        } catch (error) {
+          console.error("Error fetching notifications:", error);
+        }
+      };
+      fetchNotifications();
+    }
+  }, [user]);
+
+  // Handle scroll
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
@@ -51,16 +114,24 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Handle click outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (profileRef.current && !profileRef.current.contains(event.target)) {
         setShowProfileMenu(false);
+      }
+      if (
+        notificationsRef.current &&
+        !notificationsRef.current.contains(event.target)
+      ) {
+        setIsNotificationsOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Apply dark mode
   useEffect(() => {
     if (isDarkMode) {
       document.documentElement.classList.add("dark");
@@ -135,6 +206,55 @@ const Navbar = () => {
     setAccountNumber("");
   };
 
+  const markNotificationsAsRead = async () => {
+    if (notifications.length === 0) return;
+
+    try {
+      setNotifications((prev) =>
+        prev.map((notif) => ({ ...notif, read: true }))
+      );
+      setNotificationCount(0);
+
+      if (user) {
+        await axios.put(
+          `http://localhost:5000/notifications/mark-read/${user.email}`,
+          {},
+          {
+            withCredentials: true,
+          }
+        );
+      }
+    } catch (error) {
+      console.error("Error marking notifications as read:", error);
+    }
+  };
+
+  const viewNotificationDetails = (notification) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n._id === notification._id ? { ...n, read: true } : n))
+    );
+    if (notificationCount > 0) {
+      setNotificationCount((prev) => prev - 1);
+    }
+
+    if (user) {
+      axios
+        .put(
+          `http://localhost:5000/notifications/mark-read/${user.email}`,
+          { notificationId: notification._id },
+          { withCredentials: true }
+        )
+        .catch((error) => {
+          console.error("Error marking notification as read:", error);
+        });
+    }
+
+    setIsNotificationsOpen(false);
+    navigate("/dashboard/announcement", {
+      state: { notificationDetails: notification },
+    });
+  };
+
   const getNavLinkClass = (path) =>
     location.pathname === path
       ? isDarkMode
@@ -201,7 +321,6 @@ const Navbar = () => {
                 </span>
               </h1>
             </div>
-
             <div className="absolute -inset-1 bg-gradient-to-r from-purple-500/0 to-purple-700/0 group-hover:from-purple-500/10 group-hover:to-purple-700/10 rounded-lg blur-lg transition-all duration-500 opacity-0 group-hover:opacity-100"></div>
           </Link>
 
@@ -258,8 +377,163 @@ const Navbar = () => {
                   <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/0 to-indigo-400/0 hover:from-indigo-600/20 hover:to-indigo-400/20 transition-all duration-300 opacity-0 hover:opacity-100"></div>
                 </button>
 
+                {/* Notifications Button and Dropdown (Desktop) */}
+                <div className="relative" ref={notificationsRef}>
+                  <button
+                    className={`p-2 rounded-full transition-all duration-300 relative overflow-hidden ${
+                      isDarkMode
+                        ? "bg-indigo-800/50 text-yellow-400 hover:bg-indigo-700/70"
+                        : "bg-indigo-100/50 text-indigo-700 hover:bg-indigo-200/70"
+                    } hover:scale-110`}
+                    onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+                    aria-label="Notifications"
+                  >
+                    <Bell className="h-5 w-5 relative z-10 transition-transform duration-300 hover:rotate-12" />
+                    {notificationCount > 0 && (
+                      <span className="absolute top-0 right-0 h-5 w-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center animate-pulse">
+                        {notificationCount > 9 ? "9+" : notificationCount}
+                      </span>
+                    )}
+                    <div
+                      className={`absolute inset-0 rounded-full transition-all duration-300 opacity-0 hover:opacity-100 ${
+                        isDarkMode ? "bg-yellow-400/10" : "bg-indigo-700/10"
+                      }`}
+                    ></div>
+                  </button>
+
+                  {isNotificationsOpen && (
+                    <div
+                      className={`absolute lg:right-0 mt-2 w-80 max-h-96 overflow-y-auto rounded-xl shadow-2xl z-50 backdrop-blur-lg animate-fadeIn max-w-[90vw] lg:max-w-[20rem] lg:top-[3rem] top-12 lg:right-0 right-2 ${
+                        isDarkMode
+                          ? "bg-gradient-to-b from-indigo-800/90 to-gray-900/90 border border-indigo-700/40"
+                          : "bg-gradient-to-b from-white/90 to-indigo-100/90 border border-indigo-200/40"
+                      }`}
+                    >
+                      <div
+                        className={`p-3 border-b flex justify-between items-center ${
+                          isDarkMode
+                            ? "border-indigo-700/50"
+                            : "border-indigo-200/50"
+                        }`}
+                      >
+                        <h3
+                          className={`font-medium ${
+                            isDarkMode ? "text-white" : "text-gray-800"
+                          }`}
+                        >
+                          Notifications
+                        </h3>
+                        {notificationCount > 0 && (
+                          <button
+                            onClick={markNotificationsAsRead}
+                            className={`text-xs px-2 py-1 rounded ${
+                              isDarkMode
+                                ? "bg-indigo-700 hover:bg-indigo-600 text-indigo-200"
+                                : "bg-indigo-100 hover:bg-indigo-200 text-indigo-700"
+                            }`}
+                          >
+                            Mark all as read
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="py-1">
+                        {notifications.length > 0 ? (
+                          notifications.map((notification) => (
+                            <div
+                              key={notification._id}
+                              onClick={() =>
+                                viewNotificationDetails(notification)
+                              }
+                              className={`px-4 py-3 border-b last:border-b-0 cursor-pointer transition-all duration-200 ${
+                                isDarkMode
+                                  ? "border-indigo-700/50 hover:bg-indigo-700/70"
+                                  : "border-indigo-200/50 hover:bg-indigo-100"
+                              } ${
+                                !notification.read
+                                  ? isDarkMode
+                                    ? "bg-indigo-700/50"
+                                    : "bg-blue-50"
+                                  : ""
+                              }`}
+                            >
+                              <div className="flex items-start">
+                                <div
+                                  className={`p-2 rounded-full mr-3 ${
+                                    isDarkMode ? "bg-indigo-700" : "bg-blue-100"
+                                  }`}
+                                >
+                                  {notification.type === "auction" ? (
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      className="h-5 w-5 text-blue-500"
+                                      viewBox="0 0 20 20"
+                                      fill="currentColor"
+                                    >
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                        clipRule="evenodd"
+                                      />
+                                    </svg>
+                                  ) : (
+                                    <Bell className="h-5 w-5 text-blue-500" />
+                                  )}
+                                </div>
+                                <div className="flex-1">
+                                  <p
+                                    className={`font-medium text-sm ${
+                                      isDarkMode
+                                        ? "text-white"
+                                        : "text-gray-800"
+                                    } ${!notification.read ? "font-bold" : ""}`}
+                                  >
+                                    {notification.title}
+                                  </p>
+                                  <p
+                                    className={`text-xs mt-1 ${
+                                      isDarkMode
+                                        ? "text-indigo-200"
+                                        : "text-gray-500"
+                                    }`}
+                                  >
+                                    {notification.message}
+                                  </p>
+                                  <p
+                                    className={`text-xs mt-1 ${
+                                      isDarkMode
+                                        ? "text-indigo-300"
+                                        : "text-gray-400"
+                                    }`}
+                                  >
+                                    {new Date(
+                                      notification.timestamp
+                                    ).toLocaleString()}
+                                  </p>
+                                </div>
+                                {!notification.read && (
+                                  <div className="h-2 w-2 rounded-full bg-blue-500 mt-1"></div>
+                                )}
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div
+                            className={`px-4 py-6 text-center ${
+                              isDarkMode ? "text-indigo-200" : "text-gray-500"
+                            }`}
+                          >
+                            <p>No notifications yet</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Dark Mode Toggle Button (Desktop) */}
                 <button
-                  className={`p-2 rounded-full transition-all duration-300 relative overflow-hidden ${
+                  className={`p-2 lg:p-2 rounded-full transition-all duration-300 relative overflow-hidden ${
                     isDarkMode
                       ? "bg-indigo-800/50 text-yellow-400 hover:bg-indigo-700/70"
                       : "bg-indigo-100/50 text-indigo-700 hover:bg-indigo-200/70"
@@ -440,18 +714,18 @@ const Navbar = () => {
                   <Link to={`/dashboard/walletHistory`}>
                     <FaPlus className="text-green-400 text-xs animate-pulse ml-auto" />
                   </Link>
-
                   <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/0 to-indigo-400/0 hover:from-indigo-600/20 hover:to-indigo-400/20 transition-all duration-300 opacity-0 hover:opacity-100"></div>
                 </button>
               </div>
             )}
 
+            {/* Dark Mode Toggle Button (Mobile) */}
             <button
-              className={`p-2 rounded-full transition-all duration-300 relative overflow-hidden ${
+              className={`p-2 lg:p-2 rounded-full transition-all duration-300 relative overflow-hidden ${
                 isDarkMode
                   ? "bg-indigo-800/50 text-yellow-400 hover:bg-indigo-700/70"
                   : "bg-indigo-100/50 text-indigo-700 hover:bg-indigo-200/70"
-              } hover:scale-110`}
+              } hover:scale-110 touch-p-3`}
               onClick={toggleTheme}
               aria-label={
                 isDarkMode ? "Switch to light mode" : "Switch to dark mode"
@@ -468,7 +742,159 @@ const Navbar = () => {
                 }`}
               ></div>
             </button>
+            {/* Mobile Notifications Button */}
+            {user?.email && (
+              <div className="relative" ref={notificationsRef}>
+                <button
+                  className={`p-2 rounded-full transition-all duration-300 relative overflow-hidden ${
+                    isDarkMode
+                      ? "bg-indigo-800/50 text-yellow-400 hover:bg-indigo-700/70"
+                      : "bg-indigo-100/50 text-indigo-700 hover:bg-indigo-200/70"
+                  } hover:scale-110`}
+                  onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
+                  aria-label="Notifications"
+                >
+                  <Bell className="h-5 w-5 relative z-10 transition-transform duration-300 hover:rotate-12" />
+                  {notificationCount > 0 && (
+                    <span className="absolute top-0 right-0 h-5 w-5 rounded-full bg-red-500 text-white text-xs flex items-center justify-center animate-pulse">
+                      {notificationCount > 9 ? "9+" : notificationCount}
+                    </span>
+                  )}
+                  <div
+                    className={`absolute inset-0 rounded-full transition-all duration-300 opacity-0 hover:opacity-100 ${
+                      isDarkMode ? "bg-yellow-400/10" : "bg-indigo-700/10"
+                    }`}
+                  ></div>
+                </button>
 
+                {isNotificationsOpen && (
+                  <div
+                    className={`absolute lg:right-0 mt-2 w-80 max-h-96 overflow-y-auto rounded-xl shadow-2xl z-50 backdrop-blur-lg animate-fadeIn max-w-[90vw] lg:max-w-[20rem] lg:top-[3rem] top-12  right-0  ${
+                      isDarkMode
+                        ? "bg-gradient-to-b from-indigo-800/90 to-gray-900/90 border border-indigo-700/40"
+                        : "bg-gradient-to-b from-white/90 to-indigo-100/90 border border-indigo-200/40"
+                    }`}
+                  >
+                    <div
+                      className={`p-3 border-b flex justify-between items-center ${
+                        isDarkMode
+                          ? "border-indigo-700/50"
+                          : "border-indigo-200/50"
+                      }`}
+                    >
+                      <h3
+                        className={`font-medium ${
+                          isDarkMode ? "text-white" : "text-gray-800"
+                        }`}
+                      >
+                        Notifications
+                      </h3>
+                      {notificationCount > 0 && (
+                        <button
+                          onClick={markNotificationsAsRead}
+                          className={`text-xs px-2 py-1 rounded ${
+                            isDarkMode
+                              ? "bg-indigo-700 hover:bg-indigo-600 text-indigo-200"
+                              : "bg-indigo-100 hover:bg-indigo-200 text-indigo-700"
+                          }`}
+                        >
+                          Mark all as read
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="py-1">
+                      {notifications.length > 0 ? (
+                        notifications.map((notification) => (
+                          <div
+                            key={notification._id}
+                            onClick={() =>
+                              viewNotificationDetails(notification)
+                            }
+                            className={`px-4 py-3 border-b last:border-b-0 cursor-pointer transition-all duration-200 ${
+                              isDarkMode
+                                ? "border-indigo-700/50 hover:bg-indigo-700/70"
+                                : "border-indigo-200/50 hover:bg-indigo-100"
+                            } ${
+                              !notification.read
+                                ? isDarkMode
+                                  ? "bg-indigo-700/50"
+                                  : "bg-blue-50"
+                                : ""
+                            }`}
+                          >
+                            <div className="flex items-start">
+                              <div
+                                className={`p-2 rounded-full mr-3 ${
+                                  isDarkMode ? "bg-indigo-700" : "bg-blue-100"
+                                }`}
+                              >
+                                {notification.type === "auction" ? (
+                                  <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="h-5 w-5 text-blue-500"
+                                    viewBox="0 0 20 20"
+                                    fill="currentColor"
+                                  >
+                                    <path
+                                      fillRule="evenodd"
+                                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                      clipRule="evenodd"
+                                    />
+                                  </svg>
+                                ) : (
+                                  <Bell className="h-5 w-5 text-blue-500" />
+                                )}
+                              </div>
+                              <div className="flex-1">
+                                <p
+                                  className={`font-medium text-sm ${
+                                    isDarkMode ? "text-white" : "text-gray-800"
+                                  } ${!notification.read ? "font-bold" : ""}`}
+                                >
+                                  {notification.title}
+                                </p>
+                                <p
+                                  className={`text-xs mt-1 ${
+                                    isDarkMode
+                                      ? "text-indigo-200"
+                                      : "text-gray-500"
+                                  }`}
+                                >
+                                  {notification.message}
+                                </p>
+                                <p
+                                  className={`text-xs mt-1 ${
+                                    isDarkMode
+                                      ? "text-indigo-300"
+                                      : "text-gray-400"
+                                  }`}
+                                >
+                                  {new Date(
+                                    notification.timestamp
+                                  ).toLocaleString()}
+                                </p>
+                              </div>
+                              {!notification.read && (
+                                <div className="h-2 w-2 rounded-full bg-blue-500 mt-1"></div>
+                              )}
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div
+                          className={`px-4 py-6 text-center ${
+                            isDarkMode ? "text-indigo-200" : "text-gray-500"
+                          }`}
+                        >
+                          <p>No notifications yet</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
             <button
               className={`p-2 rounded-full transition-all duration-300 relative overflow-hidden ${
                 mobileMenuOpen
@@ -518,35 +944,6 @@ const Navbar = () => {
               ></div>
             </button>
           </div>
-
-          <style jsx>{`
-            .shadow-glow {
-              box-shadow: 0 0 8px 1px rgba(147, 51, 234, 0.3);
-            }
-            @keyframes fadeIn {
-              from {
-                opacity: 0;
-                transform: translateY(-10px);
-              }
-              to {
-                opacity: 1;
-                transform: translateY(0);
-              }
-            }
-            .animate-fadeIn {
-              animation: fadeIn 0.3s ease-out forwards;
-            }
-            .scrollbar-thin::-webkit-scrollbar {
-              width: 6px;
-            }
-            .scrollbar-thin::-webkit-scrollbar-thumb {
-              background-color: #6366f1;
-              border-radius: 9999px;
-            }
-            .scrollbar-thin::-webkit-scrollbar-track {
-              background: transparent;
-            }
-          `}</style>
         </div>
 
         <div
@@ -784,6 +1181,91 @@ const Navbar = () => {
           ></div>
         )}
       </nav>
+
+      {/* Wallet Modal */}
+      {showWalletModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div
+            className={`p-6 rounded-lg shadow-lg ${
+              isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"
+            }`}
+          >
+            <h2 className="text-lg font-semibold mb-4">Add Funds to Wallet</h2>
+            <input
+              type="number"
+              value={depositAmount}
+              onChange={(e) => setDepositAmount(e.target.value)}
+              className={`w-full p-2 mb-4 border rounded ${
+                isDarkMode
+                  ? "bg-gray-700 border-gray-600"
+                  : "bg-gray-100 border-gray-300"
+              }`}
+              placeholder="Enter amount"
+            />
+            <input
+              type="text"
+              value={accountNumber}
+              onChange={(e) => setAccountNumber(e.target.value)}
+              className={`w-full p-2 mb-4 border rounded ${
+                isDarkMode
+                  ? "bg-gray-700 border-gray-600"
+                  : "bg-gray-100 border-gray-300"
+              }`}
+              placeholder="Enter account number"
+            />
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={() => setShowWalletModal(false)}
+                className={`px-4 py-2 rounded ${
+                  isDarkMode
+                    ? "bg-gray-600 hover:bg-gray-500"
+                    : "bg-gray-200 hover:bg-gray-300"
+                }`}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDepositSubmit}
+                className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+              >
+                Deposit
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <style jsx>{`
+        .shadow-glow {
+          box-shadow: 0 0 8px 1px rgba(147, 51, 234, 0.3);
+        }
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out forwards;
+        }
+        .scrollbar-thin::-webkit-scrollbar {
+          width: 6px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+          background-color: #6366f1;
+          border-radius: 9999px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .touch-p-3 {
+          padding: 0.75rem; /* Slightly larger padding for touch devices */
+        }
+      `}</style>
     </div>
   );
 };
