@@ -1,54 +1,34 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { FaSearch, FaSort } from "react-icons/fa";
-import img from "../../../assets/LiveBidAuctionDetails.jpg";
 import ThemeContext from "../../Context/ThemeContext";
+import useAuth from "../../../hooks/useAuth";
+import useAxiosPublic from "../../../hooks/useAxiosPublic";
 
 export default function BidHistory() {
-  // Sample bid history data
-  const bids = [
-    {
-      bidder: "John Doe",
-      bidAmount: 8000,
-      time: "2025-03-15 10:00:00",
-      status: "Won",
-    },
-    {
-      bidder: "Jane Smith",
-      bidAmount: 7500,
-      time: "2025-03-14 08:30:00",
-      status: "Lost",
-    },
-    {
-      bidder: "David Johnson",
-      bidAmount: 7000,
-      time: "2025-03-13 05:15:00",
-      status: "Won",
-    },
-    {
-      bidder: "Sarah Brown",
-      bidAmount: 6000,
-      time: "2025-03-12 12:45:00",
-      status: "Lost",
-    },
-    {
-      bidder: "Chris Evans",
-      bidAmount: 5000,
-      time: "2025-03-11 09:00:00",
-      status: "Lost",
-    },
-  ];
-
+  const [bidHistory, setBidHistory] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOrder, setSortOrder] = useState("desc");
   const { isDarkMode } = useContext(ThemeContext);
+  const { user } = useAuth();
+  const axiosPublic = useAxiosPublic();
+
+  useEffect(() => {
+    if (user?.email) {
+      axiosPublic
+        .get(`/bid-history/${user?.email}`)
+        .then((res) => setBidHistory(res.data))
+        .catch((err) => console.error("Failed to fetch bid history", err));
+    }
+  }, [user, axiosPublic]);
 
   // Filter bids by search query
-  const filteredBids = bids
+  const filteredBids = bidHistory
     .filter(
       (bid) =>
-        bid.bidder.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        bid.bidAmount.toString().includes(searchQuery) ||
-        bid.status.toLowerCase().includes(searchQuery.toLowerCase())
+        bid?.bidder?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        bid?.bidAmount?.toString().includes(searchQuery) ||
+        bid?.status?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        bid?.auctionTitle?.toLowerCase().includes(searchQuery.toLowerCase())
     )
     .sort((a, b) =>
       sortOrder === "desc"
@@ -136,7 +116,7 @@ export default function BidHistory() {
                 : "text-gray-600 font-medium"
             }`}
           >
-            {filteredBids.length} bids found
+            {filteredBids?.length} bids found
           </span>
         </div>
       </div>
@@ -184,6 +164,12 @@ export default function BidHistory() {
               >
                 Status
               </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+              >
+                Position
+              </th>
             </tr>
           </thead>
           <tbody
@@ -191,8 +177,8 @@ export default function BidHistory() {
               isDarkMode ? "divide-gray-700" : "divide-gray-200"
             }`}
           >
-            {filteredBids.length > 0 ? (
-              filteredBids.map((bid, index) => (
+            {filteredBids?.length > 0 ? (
+              filteredBids?.map((bid, index) => (
                 <tr
                   key={index}
                   className={`${
@@ -205,13 +191,15 @@ export default function BidHistory() {
                     <div className="flex items-center">
                       <div className="flex-shrink-0 h-10 w-10">
                         <img
-                          src={img}
+                          src={bid?.auctionImage}
                           alt="Bidder"
                           className="w-10 h-10 rounded-full"
                         />
                       </div>
                       <div className="ml-4">
-                        <div className="text-sm font-medium">{bid.bidder}</div>
+                        <div className="text-sm font-medium">
+                          {bid?.auctionTitle}
+                        </div>
                       </div>
                     </div>
                   </td>
@@ -221,7 +209,7 @@ export default function BidHistory() {
                         isDarkMode ? " text-gray-300" : "text-purple-600 "
                       }`}
                     >
-                      ${bid.bidAmount.toFixed(2)}
+                      ${bid?.bidAmount.toFixed(2)}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -230,19 +218,22 @@ export default function BidHistory() {
                         isDarkMode ? "text-gray-300 " : "text-gray-600 "
                       }`}
                     >
-                      {bid.time}
+                      {bid?.time}
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-6 py-4 text-sm font-bold">
                     <span
-                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        bid.status === "Won"
-                          ? "bg-green-500 text-gray-100 "
-                          : "bg-red-500 text-gray-100 "
+                      className={`px-2 py-1 rounded-full text-xs ${
+                        bid.status === "End"
+                          ? "bg-red-200 text-red-800"
+                          : "bg-green-200 text-green-800"
                       }`}
                     >
-                      {bid.status}
+                      {bid?.status}
                     </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    # {bid?.position}
                   </td>
                 </tr>
               ))
@@ -264,7 +255,7 @@ export default function BidHistory() {
             isDarkMode ? "text-white font-medium" : "text-gray-600 font-medium"
           }`}
         >
-          Showing {filteredBids.length} of {bids.length} bids
+          Showing {filteredBids?.length} of bids
         </div>
 
         <div className="flex space-x-1">
