@@ -9,6 +9,51 @@ import LoadingSpinner from "../../LoadingSpinner";
 import coverImg from "../../../assets/bg/hammer.webp";
 import axios from "axios";
 
+// Demo admin data
+const adminActivity = [
+  {
+    id: "admin-1",
+    type: "Auction",
+    title: "Vintage Camera",
+    date: "2 hours ago",
+    image: "https://i.ibb.co/sWZ5Hp7/camera.jpg",
+  },
+  {
+    id: "admin-2",
+    type: "Seller",
+    title: "Seller: JohnDoe32",
+    date: "5 hours ago",
+    image: "https://i.ibb.co/qFZdnRB/seller.jpg",
+  },
+  {
+    id: "admin-3",
+    type: "Buyer",
+    title: "Buyer: artCollector77",
+    date: "1 day ago",
+    image: "https://i.ibb.co/qRRj7Ws/buyer.jpg",
+  },
+];
+
+// Seller demo
+const sellerActivity = [
+  {
+    id: "sell-1",
+    item: "Antique Clock",
+    status: "listed",
+    price: "$120",
+    time: "3 hours ago",
+    image: "https://i.ibb.co/fMCxzMs/clock.jpg",
+  },
+  {
+    id: "sell-2",
+    item: "Gaming Console",
+    status: "bidded",
+    price: "$260",
+    time: "7 hours ago",
+    image: "https://i.ibb.co/0pFJZpg/console.jpg",
+  },
+];
+
 // Hardcoded profile data for the UI elements
 const profileData = {
   user: {
@@ -100,6 +145,24 @@ const profileData = {
       status: "Won",
     },
   ],
+  sellerActivity: [
+    {
+      id: "sell-1",
+      item: "Antique Clock",
+      status: "listed",
+      price: "$120",
+      time: "3 hours ago",
+      image: "https://i.ibb.co/fMCxzMs/clock.jpg",
+    },
+    {
+      id: "sell-2",
+      item: "Gaming Console",
+      status: "bidded",
+      price: "$260",
+      time: "7 hours ago",
+      image: "https://i.ibb.co/0pFJZpg/console.jpg",
+    },
+  ],
 };
 const Profile = () => {
   const { user, loading: authLoading, dbUser, setDbUser } = useAuth();
@@ -110,6 +173,31 @@ const Profile = () => {
   const [currentCover, setCurrentCover] = useState(coverPhoto);
   const [selectedCover, setSelectedCover] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [userReviews, setUserReviews] = useState([]);
+  const [upcomingAuctions, setUpcomingAuctions] = useState([]);
+
+  const isBuyer = dbUser?.role === "buyer";
+  const isSeller = dbUser?.role === "seller";
+  const isAdmin = dbUser?.role === "admin";
+
+  // upcoming auction fetch
+  useEffect(() => {
+    if (dbUser?.role === "admin") {
+      axios
+        .get("http://localhost:5000/upcoming-auctions")
+        .then((res) => setUpcomingAuctions(res.data))
+        .catch((err) => console.error(err));
+    }
+  }, [dbUser]);
+  // user review
+  useEffect(() => {
+    if (dbUser?.role === "admin") {
+      axios
+        .get("http://localhost:5000/reviews")
+        .then((res) => setUserReviews(res.data))
+        .catch((err) => console.error(err));
+    }
+  }, [dbUser]);
 
   // Fetch cover options and user-specific cover image
   useEffect(() => {
@@ -371,71 +459,205 @@ const Profile = () => {
                 ""
               )}
             </p>
-            <div className="mt-4">
-              <button
-                className={`px-3 py-1 text-sm border rounded-md ${
-                  isDarkMode
-                    ? "border-gray-600 bg-gray-700 text-white hover:bg-gray-600"
-                    : "border-gray-300 bg-white text-black hover:bg-gray-50"
-                }`}
-              >
-                Edit Profile
-              </button>
+            {/* admin control */}
+            <div className="mt-4 space-y-3">
+              <div className="flex items-center gap-3 flex-wrap">
+                <button
+                  className={`px-3 py-1 text-sm border rounded-md ${
+                    isDarkMode
+                      ? "border-gray-600 bg-gray-700 text-white hover:bg-gray-600"
+                      : "border-gray-300 bg-white text-black hover:bg-gray-50"
+                  }`}
+                >
+                  Edit Profile
+                </button>
+                {dbUser?.role && (
+                  <span
+                    className={`text-xs font-semibold px-3 py-1 rounded-full capitalize ${
+                      dbUser.role === "admin"
+                        ? "bg-red-600 text-white"
+                        : dbUser.role === "seller"
+                        ? "bg-blue-600 text-white"
+                        : "bg-green-600 text-white"
+                    }`}
+                  >
+                    {dbUser.role}
+                  </span>
+                )}
+              </div>
+              {dbUser?.role === "seller" && (
+                <div className="flex items-center gap-1 mt-1">
+                  <svg className="w-4 h-4 text-yellow-400" />
+                  <span className="text-xs text-gray-400">
+                    4.8 Seller Rating
+                  </span>
+                </div>
+              )}
+
+              {dbUser?.role === "seller" && (
+                <div className="flex flex-wrap gap-2 mt-4">
+                  <button className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded">
+                    Add New Auction
+                  </button>
+                  <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded">
+                    View My Listings
+                  </button>
+                </div>
+              )}
+
+              {/* Admin Controls Inline Card */}
+              {dbUser?.role === "admin" && (
+                <div
+                  className={`rounded-lg shadow-sm p-4 border mt-3 ${
+                    isDarkMode
+                      ? "bg-gray-800 border-gray-700"
+                      : "bg-white border-gray-200"
+                  }`}
+                >
+                  <h3
+                    className={`text-sm font-semibold mb-2 ${
+                      isDarkMode ? "text-white" : "text-black"
+                    }`}
+                  >
+                    Admin Controls
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    <button className="flex-1 min-w-[120px] bg-blue-600 hover:bg-blue-700 text-white text-xs py-1.5 px-2 rounded">
+                      Manage Users
+                    </button>
+                    <button className="flex-1 min-w-[120px] bg-purple-600 hover:bg-purple-700 text-white text-xs py-1.5 px-2 rounded">
+                      Review Complaints
+                    </button>
+                    <button className="flex-1 min-w-[120px] bg-green-600 hover:bg-green-700 text-white text-xs py-1.5 px-2 rounded">
+                      Approve Auctions
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Stats */}
-        <div className="grid mt-5 grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <div className={boxStyle}>
-            <div className="p-4 text-center">
-              <div className={titleStyle}>
-                <CountUp
-                  end={dbUser?.AuctionsWon || 0}
-                  duration={3.5}
-                  enableScrollSpy
-                />
+        {/* Stats for buyers */}
+        {dbUser?.role === "buyer" && (
+          <div className="grid mt-5 grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div className={boxStyle}>
+              <div className="p-4 text-center">
+                <div className={titleStyle}>
+                  <CountUp
+                    end={dbUser?.AuctionsWon || 0}
+                    duration={3.5}
+                    enableScrollSpy
+                  />
+                </div>
+                <div className={labelStyle}>Auctions Won</div>
               </div>
-              <div className={labelStyle}>Auctions Won</div>
             </div>
-          </div>
 
-          <div className={boxStyle}>
-            <div className="p-4 text-center">
-              <div className={titleStyle}>
-                <CountUp
-                  end={dbUser?.ActiveBids || 0}
-                  duration={3.5}
-                  enableScrollSpy
-                />
+            <div className={boxStyle}>
+              <div className="p-4 text-center">
+                <div className={titleStyle}>
+                  <CountUp
+                    end={dbUser?.ActiveBids || 0}
+                    duration={3.5}
+                    enableScrollSpy
+                  />
+                </div>
+                <div className={labelStyle}>Active Bids</div>
               </div>
-              <div className={labelStyle}>Active Bids</div>
             </div>
-          </div>
 
-          <div className={boxStyle}>
-            <div className="p-4 text-center">
-              <div className={titleStyle}>
-                <CountUp end={0} duration={3.5} suffix=" %" enableScrollSpy />
+            <div className={boxStyle}>
+              <div className="p-4 text-center">
+                <div className={titleStyle}>
+                  <CountUp end={0} duration={3.5} suffix=" %" enableScrollSpy />
+                </div>
+                <div className={labelStyle}>Success Rate</div>
               </div>
-              <div className={labelStyle}>Success Rate</div>
             </div>
-          </div>
 
-          <div className={boxStyle}>
-            <div className="p-4 text-center">
-              <div className={titleStyle}>
-                <CountUp
-                  end={dbUser?.totalSpent || 0}
-                  duration={1.5}
-                  prefix="$ "
-                  enableScrollSpy
-                />
+            <div className={boxStyle}>
+              <div className="p-4 text-center">
+                <div className={titleStyle}>
+                  <CountUp
+                    end={dbUser?.totalSpent || 0}
+                    duration={1.5}
+                    prefix="$ "
+                    enableScrollSpy
+                  />
+                </div>
+                <div className={labelStyle}>Total Spent</div>
               </div>
-              <div className={labelStyle}>Total Spent</div>
             </div>
           </div>
-        </div>
+        )}
+
+        {/* stats for seller */}
+        {dbUser?.role === "seller" && (
+          <div className={boxStyle}>
+            <div className="p-4 border-b">
+              <h2 className={titleStyle}>Seller Dashboard</h2>
+            </div>
+            <div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+              <div>
+                <p className="text-xl font-bold">{dbUser?.listedItems || 0}</p>
+                <p className={labelStyle}>Items Listed</p>
+              </div>
+              <div>
+                <p className="text-xl font-bold">{dbUser?.soldItems || 0}</p>
+                <p className={labelStyle}>Items Sold</p>
+              </div>
+              <div>
+                <p className="text-xl font-bold">
+                  ${dbUser?.totalEarnings || 0}
+                </p>
+                <p className={labelStyle}>Total Earnings</p>
+              </div>
+              <div>
+                <p className="text-xl font-bold">{dbUser?.reviews || 0}</p>
+                <p className={labelStyle}>Buyer Reviews</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* achievements for buyer */}
+        {dbUser?.role === "buyer" && (
+          <div className={boxStyle}>
+            <div className="p-4 border-b">
+              <h2 className={titleStyle}>Your Achievements</h2>
+            </div>
+            <div className="p-4 flex flex-wrap gap-2 text-xs">
+              <span className="bg-purple-500 text-white px-2 py-1 rounded-full">
+                🎯 First Win
+              </span>
+              <span className="bg-green-500 text-white px-2 py-1 rounded-full">
+                💰 Spent $5k+
+              </span>
+              <span className="bg-yellow-500 text-white px-2 py-1 rounded-full">
+                🔥 Bid Warrior
+              </span>
+            </div>
+          </div>
+        )}
+        {/* latest feedback for admin */}
+        {dbUser?.role === "admin" && userReviews?.length > 0 && (
+          <div className={`${boxStyle} mb-6`}>
+            <div className="p-4 border-b">
+              <h2 className={titleStyle}>Latest User Feedback</h2>
+            </div>
+            <div className="p-4 space-y-3">
+              {userReviews.map((review) => (
+                <div key={review._id} className="text-sm">
+                  <p className="font-semibold">
+                    {review.userName} ({review.role})
+                  </p>
+                  <p className="italic text-gray-400">{review.feedback}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Main Content */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
@@ -587,91 +809,186 @@ const Profile = () => {
           </div>
 
           {/* Middle Column */}
-          <div className="space-y-6">
-            <div
-              className={`border rounded-lg shadow-sm ${
-                isDarkMode
-                  ? "bg-gray-800 border-gray-700"
-                  : "bg-white border-gray-200"
-              }`}
-            >
+          {dbUser?.role !== "admin" && (
+            <div className="space-y-6">
               <div
-                className={`p-4 border-b ${
-                  isDarkMode ? "border-gray-700" : "border-gray-200"
+                className={`border rounded-lg shadow-sm ${
+                  isDarkMode
+                    ? "bg-gray-800 border-gray-700"
+                    : "bg-white border-gray-200"
                 }`}
               >
-                <h2
-                  className={`text-base font-medium ${
-                    isDarkMode ? "text-white" : "text-black"
+                <div
+                  className={`p-4 border-b ${
+                    isDarkMode ? "border-gray-700" : "border-gray-200"
                   }`}
                 >
-                  Recent Activity
-                </h2>
-              </div>
-
-              <div className="p-4">
-                <div className="grid grid-cols-4 gap-1 mb-3">
-                  {["All", "Bids", "Wins", "Watching"].map((tab) => (
-                    <button
-                      key={tab}
-                      onClick={() => setActiveTab(tab)}
-                      className={`h-8 text-xs rounded-md ${
-                        activeTab === tab
-                          ? "bg-purple-600 hover:bg-purple-700 text-white"
-                          : `${
-                              isDarkMode
-                                ? "border border-gray-600 hover:bg-gray-700 bg-gray-800 text-white"
-                                : "border border-gray-300 hover:bg-gray-50 bg-white text-black"
-                            }`
-                      }`}
-                    >
-                      {tab}
-                    </button>
-                  ))}
+                  <h2
+                    className={`text-base font-medium ${
+                      isDarkMode ? "text-white" : "text-black"
+                    }`}
+                  >
+                    {isBuyer && "Recent Activity"}
+                    {isSeller && "Selling Activity"}
+                    {isAdmin && "Platform Activity"}
+                  </h2>
                 </div>
 
-                <div className="space-y-3">
-                  {profileData.recentActivity.map((activity) => (
-                    <div key={activity.id} className="flex items-center gap-3">
-                      <div
-                        className={`w-12 h-12 rounded-md overflow-hidden border ${
-                          isDarkMode
-                            ? "bg-gray-700 border-gray-600"
-                            : "bg-white border-gray-200"
+                <div className="p-4">
+                  <div className="grid grid-cols-4 gap-1 mb-3">
+                    {["All", "Bids", "Wins", "Watching"].map((tab) => (
+                      <button
+                        key={tab}
+                        onClick={() => setActiveTab(tab)}
+                        className={`h-8 text-xs rounded-md ${
+                          activeTab === tab
+                            ? "bg-purple-600 hover:bg-purple-700 text-white"
+                            : `${
+                                isDarkMode
+                                  ? "border border-gray-600 hover:bg-gray-700 bg-gray-800 text-white"
+                                  : "border border-gray-300 hover:bg-gray-50 bg-white text-black"
+                              }`
                         }`}
                       >
-                        <img
-                          src={
-                            activity.image ||
-                            "/placeholder.svg?height=48&width=48"
-                          }
-                          alt={activity.item}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="flex-grow">
+                        {tab}
+                      </button>
+                    ))}
+                  </div>
+                  {/* recent activity */}
+                  <div className="space-y-3">
+                    {/* For Buyer */}
+                    {isBuyer &&
+                      profileData?.recentActivity?.map((activity) => (
                         <div
-                          className={`text-sm font-medium ${
-                            isDarkMode ? "text-white" : "text-black"
-                          }`}
+                          key={activity.id}
+                          className="flex items-center gap-3"
                         >
-                          {activity.item}
+                          <div
+                            className={`w-12 h-12 rounded-md overflow-hidden border ${
+                              isDarkMode
+                                ? "bg-gray-700 border-gray-600"
+                                : "bg-white border-gray-200"
+                            }`}
+                          >
+                            <img
+                              src={
+                                activity.image ||
+                                "/placeholder.svg?height=48&width=48"
+                              }
+                              alt={activity.item}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div className="flex-grow">
+                            <div
+                              className={`text-sm font-medium ${
+                                isDarkMode ? "text-white" : "text-black"
+                              }`}
+                            >
+                              {activity.item}
+                            </div>
+                            <div
+                              className={`text-sm ${
+                                isDarkMode ? "text-gray-300" : "text-black"
+                              }`}
+                            >
+                              {activity.price} • {activity.time}
+                            </div>
+                          </div>
+                          {renderStatusBadge(activity.status)}
                         </div>
+                      ))}
+
+                    {/* For Seller */}
+
+                    {isSeller && sellerActivity.length > 0 ? (
+                      sellerActivity.map((activity) => (
                         <div
-                          className={`text-sm ${
-                            isDarkMode ? "text-gray-300" : "text-black"
-                          }`}
+                          key={activity.id}
+                          className="flex items-center gap-3"
                         >
-                          {activity.price} • {activity.time}
+                          <div
+                            className={`w-12 h-12 rounded-md overflow-hidden border ${
+                              isDarkMode
+                                ? "bg-gray-700 border-gray-600"
+                                : "bg-white border-gray-200"
+                            }`}
+                          >
+                            <img
+                              src={activity.image}
+                              alt={activity.item}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div className="flex-grow">
+                            <div
+                              className={`text-sm font-medium ${
+                                isDarkMode ? "text-white" : "text-black"
+                              }`}
+                            >
+                              {activity.item}
+                            </div>
+                            <div
+                              className={`text-sm ${
+                                isDarkMode ? "text-gray-300" : "text-black"
+                              }`}
+                            >
+                              {activity.price} • {activity.time}
+                            </div>
+                          </div>
+                          {renderStatusBadge(activity.status)}
                         </div>
-                      </div>
-                      {renderStatusBadge(activity.status)}
-                    </div>
-                  ))}
+                      ))
+                    ) : (
+                      <div>No seller activity available</div>
+                    )}
+
+                    {/* For Admin */}
+                    {isAdmin && adminActivity.length > 0 ? (
+                      adminActivity.map((activity) => (
+                        <div
+                          key={activity.id}
+                          className="flex items-center gap-3"
+                        >
+                          <div
+                            className={`w-12 h-12 rounded-md overflow-hidden border ${
+                              isDarkMode
+                                ? "bg-gray-700 border-gray-600"
+                                : "bg-white border-gray-200"
+                            }`}
+                          >
+                            <img
+                              src={activity.image}
+                              alt={activity.title}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <div className="flex-grow">
+                            <div
+                              className={`text-sm font-medium ${
+                                isDarkMode ? "text-white" : "text-black"
+                              }`}
+                            >
+                              {activity.title}
+                            </div>
+                            <div
+                              className={`text-xs ${
+                                isDarkMode ? "text-gray-400" : "text-gray-500"
+                              }`}
+                            >
+                              {activity.type} • {activity.date}
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div>No admin activity available</div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* Right Column */}
           <div className="space-y-6">
@@ -740,6 +1057,22 @@ const Profile = () => {
             </div>
           </div>
         </div>
+        {/* bidding tips for buyers */}
+        {dbUser?.role === "buyer" && (
+          <div className={boxStyle}>
+            <div className="p-4 border-b">
+              <h2 className={titleStyle}>Bidding Tips</h2>
+            </div>
+            <div className="p-4 space-y-2 text-sm text-gray-500">
+              <ul className="list-disc list-inside space-y-1">
+                <li>Set a budget before entering an auction.</li>
+                <li>Use the "Watch" feature to stay updated.</li>
+                <li>Bid late for less competition.</li>
+                <li>Check seller credibility before bidding.</li>
+              </ul>
+            </div>
+          </div>
+        )}
 
         {/* Bidding History */}
         <div
@@ -871,6 +1204,24 @@ const Profile = () => {
             </div>
           </div>
         </div>
+        {/* upcoming auctions for admin */}
+        {dbUser?.role === "admin" && upcomingAuctions?.length > 0 && (
+          <div className={`${boxStyle} mb-6`}>
+            <div className="p-4 border-b">
+              <h2 className={titleStyle}>Upcoming Seller Auctions</h2>
+            </div>
+            <div className="p-4 space-y-3">
+              {upcomingAuctions.map((auction) => (
+                <div key={auction._id} className="text-sm">
+                  <p className="font-bold">{auction.title}</p>
+                  <p className="text-gray-500">
+                    By: {auction.sellerName} • {auction.date}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
       <SdProfile />
     </div>
