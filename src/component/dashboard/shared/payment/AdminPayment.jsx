@@ -22,8 +22,6 @@ import {
   Trash2,
   Settings,
   Bell,
-  Moon,
-  Sun,
 } from "lucide-react";
 import LoadingSpinner from "../../../LoadingSpinner";
 import useAuth from "../../../../hooks/useAuth";
@@ -750,7 +748,11 @@ export default function AdminPayment() {
 
           <button
             onClick={exportData}
-            className="p-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300"
+            className={`p-2 rounded-lg border transition-colors duration-300 ${
+              isDarkMode
+                ? "bg-gray-800 text-white border-gray-700 hover:bg-gray-700"
+                : "bg-white text-gray-900 border-gray-300 hover:bg-gray-100"
+            }`}
             title="Export data"
           >
             <Download className="w-5 h-5" />
@@ -758,7 +760,11 @@ export default function AdminPayment() {
 
           <button
             onClick={printData}
-            className="p-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300"
+            className={`p-2 rounded-lg border transition-colors duration-300 ${
+              isDarkMode
+                ? "bg-gray-800 text-white border-gray-700 hover:bg-gray-700"
+                : "bg-white text-gray-900 border-gray-300 hover:bg-gray-100"
+            }`}
             title="Print"
           >
             <Printer className="w-5 h-5" />
@@ -769,7 +775,9 @@ export default function AdminPayment() {
             className={`p-2 rounded-lg border transition-colors duration-300 ${
               showChart
                 ? "bg-blue-500 text-white border-blue-500 hover:bg-blue-600"
-                : "bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700"
+                : isDarkMode
+                ? "bg-gray-800 text-white border-gray-700 hover:bg-gray-700"
+                : "bg-white text-gray-900 border-gray-300 hover:bg-gray-100"
             }`}
             title="Toggle chart view"
           >
@@ -778,9 +786,11 @@ export default function AdminPayment() {
 
           <button
             onClick={refreshData}
-            className={`p-2 rounded-lg bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300 ${
-              isRefreshing ? "animate-spin" : ""
-            }`}
+            className={`p-2 rounded-lg border transition-colors duration-300 ${
+              isDarkMode
+                ? "bg-gray-800 border-gray-700 hover:bg-gray-700 text-white"
+                : "bg-white border-gray-300 hover:bg-gray-100 text-gray-900"
+            } ${isRefreshing ? "animate-spin" : ""}`}
             title="Refresh data"
             disabled={isRefreshing}
           >
@@ -969,7 +979,11 @@ export default function AdminPayment() {
         <>
           <div
             className={`overflow-x-auto rounded-lg border shadow-sm 
-            ${isDarkMode ? "border-gray-700 bg-gray-800" : "border-gray-200 bg-white"}`}
+            ${
+              isDarkMode
+                ? "border-gray-700 bg-gray-800"
+                : "border-gray-200 bg-white"
+            }`}
           >
             <table
               className={`min-w-full divide-y ${
@@ -1102,7 +1116,9 @@ export default function AdminPayment() {
                   currentItems.map((payment) => (
                     <tr
                       key={payment.id}
-                      className={`transition-colors duration-150 ${isDarkMode ? "hover:bg-gray-50" : "hover:bg-gray-700"}  dark: ${
+                      className={`transition-colors duration-150 ${
+                        isDarkMode ? "hover:bg-gray-50" : "hover:bg-gray-700"
+                      }  dark: ${
                         selectedRows.includes(payment.id)
                           ? "bg-blue-50 dark:bg-blue-900/20"
                           : ""
