@@ -40,6 +40,7 @@ import ContactUs from "../component/shared/contactUs";
 import FeedbackDisplay from "../component/dashboard/admin/feedbacks/FeedbackDisplay";
 import PaymentSuccess from "../component/dashboard/buyer/PaymentSuccess";
 import PaymentFailed from "../component/dashboard/buyer/PaymentFailed";
+import SharedPayment from "../component/dashboard/shared/payment/SharedPayment";
 // import AdminFeedback from "../component/dashboard/admin/AdminFeedback";
 
 // import TeamSettings from "../component/Settings/TeamSettings";
@@ -148,9 +149,9 @@ export const router = createBrowserRouter([
       // Buyer Only
       {
         path: "payments/:trxid",
-        element:<PaymentSuccess />,
+        element: <PaymentSuccess />,
         loader: ({ params }) =>
-          fetch(`http://localhost:5000/payments/${params.trxid}`)
+          fetch(`http://localhost:5000/payments/${params.trxid}`),
       },
       {
         path: "paymentFailed",
@@ -168,10 +169,7 @@ export const router = createBrowserRouter([
         path: "status",
         element: <AuctionStatus />,
       },
-      {
-        path: "payment",
-        element: <Payment />,
-      },
+
       {
         path: "becomeSeller",
         element: <BecomeSeller />,
@@ -238,6 +236,10 @@ export const router = createBrowserRouter([
       {
         path: "walletHistory",
         element: <WalletHistory />,
+      },
+      {
+        path: "payment",
+        element: <SharedPayment />,
       },
     ],
   },
