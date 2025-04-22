@@ -25,7 +25,7 @@ export default function BidHistory() {
 
   const formatTime = (timeString) => {
     const date = new Date(timeString);
-    return date.toLocaleString(); 
+    return date.toLocaleString();
   };
 
   const filteredBids = bidHistory
@@ -212,14 +212,18 @@ export default function BidHistory() {
                       {bid?.status}
                     </span>
                     <button
-                      onClick={() => navigate(`/liveBid/${bid.auctionId}`)}
+                      onClick={() =>
+                        bid?.status === "End"
+                          ? navigate(`/dashboard/status`)
+                          : navigate(`/liveBid/${bid.auctionId}`)
+                      }
                       className={`px-2 py-1 rounded-full text-xs ${
                         bid.status === "End"
                           ? "bg-red-200 text-red-800"
                           : "bg-green-200 text-green-800"
                       }`}
                     >
-                      Live bids
+                      {bid.status === "End" ? "auction status" : "live bids"}
                     </button>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
