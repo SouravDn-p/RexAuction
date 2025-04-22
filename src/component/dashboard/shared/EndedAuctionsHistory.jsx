@@ -969,7 +969,7 @@ function EndedAuctionsHistory() {
                   <div className="flex flex-wrap gap-3">
                     <button
                       onClick={() =>
-                        updateAuctionStatus(selectedAuction._id, "Place Order")
+                        updateAuctionStatus(selectedAuction._id, "pending")
                       }
                       disabled={
                         selectedAuction.payment?.toLowerCase().trim() !== "done"

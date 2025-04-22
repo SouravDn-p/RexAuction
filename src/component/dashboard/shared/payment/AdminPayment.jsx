@@ -25,6 +25,7 @@ import {
 import LoadingSpinner from "../../../LoadingSpinner";
 import useAuth from "../../../../hooks/useAuth";
 import ThemeContext from "../../../Context/ThemeContext";
+import useAxiosPublic from "../../../../hooks/useAxiosPublic";
 
 // Toast Component
 const Toast = ({ message, type, onClose }) => {
@@ -89,6 +90,7 @@ export default function AdminPayment() {
     status: "all",
   });
   const { isDarkMode } = useContext(ThemeContext);
+  const axiosPublic = useAxiosPublic();
 
   const chartRef = useRef(null);
   const dateFilterRef = useRef(null);
@@ -231,7 +233,7 @@ export default function AdminPayment() {
   // Mock data for admin payments
   const mockPayments = [
     {
-      id: 1,
+      _id: 1,
       buyer: "John Doe",
       seller: "Jane Smith",
       amount: 1250,
@@ -243,7 +245,7 @@ export default function AdminPayment() {
       notes: "Customer requested express shipping",
     },
     {
-      id: 2,
+      _id: 2,
       buyer: "Mike Johnson",
       seller: "Sarah Williams",
       amount: 850,
@@ -256,7 +258,7 @@ export default function AdminPayment() {
       notes: "Fragile item, handle with care",
     },
     {
-      id: 3,
+      _id: 3,
       buyer: "Emily Davis",
       seller: "Robert Brown",
       amount: 3200,
@@ -269,7 +271,7 @@ export default function AdminPayment() {
       notes: "Insurance included",
     },
     {
-      id: 4,
+      _id: 4,
       buyer: "Alex Wilson",
       seller: "Lisa Taylor",
       amount: 750,
@@ -281,7 +283,7 @@ export default function AdminPayment() {
       notes: "",
     },
     {
-      id: 5,
+      _id: 5,
       buyer: "David Miller",
       seller: "Jennifer Clark",
       amount: 1800,
@@ -293,7 +295,7 @@ export default function AdminPayment() {
       notes: "First edition",
     },
     {
-      id: 6,
+      _id: 6,
       buyer: "Sophia Lee",
       seller: "William Johnson",
       amount: 920,
@@ -306,7 +308,7 @@ export default function AdminPayment() {
       notes: "Includes original case",
     },
     {
-      id: 7,
+      _id: 7,
       buyer: "Oliver Brown",
       seller: "Emma Wilson",
       amount: 1450,
@@ -318,7 +320,7 @@ export default function AdminPayment() {
       notes: "Requires restoration",
     },
     {
-      id: 8,
+      _id: 8,
       buyer: "Isabella Martinez",
       seller: "James Taylor",
       amount: 2100,
@@ -331,7 +333,7 @@ export default function AdminPayment() {
       notes: "Working condition",
     },
     {
-      id: 9,
+      _id: 9,
       buyer: "Lucas Garcia",
       seller: "Olivia Moore",
       amount: 1750,
@@ -343,7 +345,7 @@ export default function AdminPayment() {
       notes: "Pickup only",
     },
     {
-      id: 10,
+      _id: 10,
       buyer: "Mia Robinson",
       seller: "Noah Anderson",
       amount: 3500,
@@ -361,26 +363,34 @@ export default function AdminPayment() {
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      setPayments(mockPayments);
 
-      // Calculate stats
-      const total = mockPayments.length;
-      const pending = mockPayments.filter((p) => p.status === "pending").length;
-      const completed = mockPayments.filter(
-        (p) => p.status === "completed"
-      ).length;
-      const totalAmount = mockPayments.reduce((sum, p) => sum + p.amount, 0);
+      try {
+        const response = await axiosPublic.get("/endedAuctions");
+        const data = response.data;
+        console.log("data", data.length);
 
-      setStats({
-        totalPayments: total,
-        pendingPayments: pending,
-        completedPayments: completed,
-        totalAmount: totalAmount,
-      });
+        setPayments(data);
 
-      setIsLoading(false);
+        // Calculate stats from ended auctions
+        const total = data.length;
+        const pending = data.filter((a) => a.status === "pending").length;
+        const completed = data.filter((a) => a.status === "completed").length;
+        const totalAmount = data.reduce(
+          (sum, a) => sum + (a.paymentDetails.amount || 0),
+          0
+        );
+
+        setStats({
+          totalPayments: total,
+          pendingPayments: pending,
+          completedPayments: completed,
+          totalAmount,
+        });
+      } catch (error) {
+        console.error("Error fetching ended auctions:", error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     fetchData();
@@ -422,10 +432,14 @@ export default function AdminPayment() {
     if (searchTerm) {
       filteredData = filteredData.filter(
         (payment) =>
-          payment.buyer.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          payment.seller.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          payment.item.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          payment.auctionId.toLowerCase().includes(searchTerm.toLowerCase())
+          payment.paymentDetails.buyerInfo.name
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          payment.sellerDisplayName
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase()) ||
+          payment.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          payment._id.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -436,7 +450,7 @@ export default function AdminPayment() {
       toDate.setHours(23, 59, 59, 999); // Include the entire "to" day
 
       filteredData = filteredData.filter((payment) => {
-        const paymentDate = new Date(payment.date);
+        const paymentDate = new Date(payment.paymentDate.toLocaleString());
         return paymentDate >= fromDate && paymentDate <= toDate;
       });
     }
@@ -444,13 +458,15 @@ export default function AdminPayment() {
     // Apply amount filters
     if (filterOptions.minAmount) {
       filteredData = filteredData.filter(
-        (payment) => payment.amount >= parseFloat(filterOptions.minAmount)
+        (payment) =>
+          payment.paymentDetails.amount >= parseFloat(filterOptions.minAmount)
       );
     }
 
     if (filterOptions.maxAmount) {
       filteredData = filteredData.filter(
-        (payment) => payment.amount <= parseFloat(filterOptions.maxAmount)
+        (payment) =>
+          payment.paymentDetails.amount <= parseFloat(filterOptions.maxAmount)
       );
     }
 
@@ -481,7 +497,7 @@ export default function AdminPayment() {
   const handleDeliveryAction = (paymentId, action) => {
     // In a real app, this would be an API call
     const updatedPayments = payments.map((payment) => {
-      if (payment.id === paymentId) {
+      if (payment._id === paymentId) {
         if (action === "approve") {
           return { ...payment, status: "completed" };
         } else if (action === "place-delivery") {
@@ -530,11 +546,11 @@ export default function AdminPayment() {
     }, 500);
   };
 
-  const toggleRowSelection = (id) => {
-    if (selectedRows.includes(id)) {
-      setSelectedRows(selectedRows.filter((rowId) => rowId !== id));
+  const toggleRowSelection = (_id) => {
+    if (selectedRows.includes(_id)) {
+      setSelectedRows(selectedRows.filter((rowId) => rowId !== _id));
     } else {
-      setSelectedRows([...selectedRows, id]);
+      setSelectedRows([...selectedRows, _id]);
     }
   };
 
@@ -542,7 +558,7 @@ export default function AdminPayment() {
     if (selectedRows.length === currentItems.length) {
       setSelectedRows([]);
     } else {
-      setSelectedRows(currentItems.map((item) => item.id));
+      setSelectedRows(currentItems.map((item) => item._id));
     }
   };
 
@@ -557,7 +573,7 @@ export default function AdminPayment() {
 
     if (action === "approve") {
       const updatedPayments = payments.map((payment) =>
-        selectedRows.includes(payment.id) && payment.status === "pending"
+        selectedRows.includes(payment._id) && payment.status === "pending"
           ? { ...payment, status: "completed" }
           : payment
       );
@@ -1184,11 +1200,11 @@ export default function AdminPayment() {
                 {currentItems.length > 0 ? (
                   currentItems.map((payment) => (
                     <tr
-                      key={payment.id}
+                      key={payment._id}
                       className={`transition-colors duration-150 ${
                         isDarkMode ? "hover:bg-gray-800" : "hover:bg-gray-100"
                       } ${
-                        selectedRows.includes(payment.id)
+                        selectedRows.includes(payment._id)
                           ? isDarkMode
                             ? "bg-blue-900/20"
                             : "bg-blue-50"
@@ -1199,27 +1215,33 @@ export default function AdminPayment() {
                         <input
                           type="checkbox"
                           className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-4 w-4 cursor-pointer"
-                          checked={selectedRows.includes(payment.id)}
-                          onChange={() => toggleRowSelection(payment.id)}
+                          checked={selectedRows.includes(payment._id)}
+                          onChange={() => toggleRowSelection(payment._id)}
                         />
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        {payment.auctionId}
+                        {payment._id}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        {payment.item}
+                        {payment.name}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        {payment.buyer}
+                        {payment.paymentDetails.buyerInfo.name}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        {payment.seller}
+                        {payment.sellerDisplayName}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        ${payment.amount.toLocaleString()}
+                        ${payment.paymentDetails.amount.toLocaleString()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        {payment.date}
+                        {new Date(payment.paymentDate).toLocaleString(
+                          undefined,
+                          {
+                            dateStyle: "medium",
+                            timeStyle: "short",
+                          }
+                        )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
@@ -1265,7 +1287,7 @@ export default function AdminPayment() {
                           <div className="flex space-x-2">
                             <button
                               onClick={() =>
-                                handleDeliveryAction(payment.id, "approve")
+                                handleDeliveryAction(payment._id, "approve")
                               }
                               className="text-white bg-green-600 hover:bg-green-700 px-3 py-1 rounded-md text-sm flex items-center transition-colors duration-300"
                             >
@@ -1288,7 +1310,7 @@ export default function AdminPayment() {
                               <button
                                 onClick={() =>
                                   handleDeliveryAction(
-                                    payment.id,
+                                    payment._id,
                                     "mark-delivered"
                                   )
                                 }
@@ -1469,7 +1491,7 @@ export default function AdminPayment() {
                     isDarkMode ? "text-gray-500" : "text-gray-400"
                   }`}
                 >
-                  {selectedPayment.auctionId}
+                  {selectedPaymentpayment._id}
                 </p>
               </div>
               <div>
@@ -1485,7 +1507,7 @@ export default function AdminPayment() {
                     isDarkMode ? "text-gray-500" : "text-gray-400"
                   }`}
                 >
-                  {selectedPayment.item}
+                  {selectedPayment.name}
                 </p>
               </div>
               <div>
@@ -1501,7 +1523,7 @@ export default function AdminPayment() {
                     isDarkMode ? "text-gray-500" : "text-gray-400"
                   }`}
                 >
-                  {selectedPayment.buyer}
+                  {selectedPayment.paymentDetails.buyerInfo.name}
                 </p>
               </div>
               <div>
@@ -1517,7 +1539,7 @@ export default function AdminPayment() {
                     isDarkMode ? "text-gray-500" : "text-gray-400"
                   }`}
                 >
-                  {selectedPayment.seller}
+                  {selectedPayment.sellerDisplayName}
                 </p>
               </div>
               <div>
@@ -1529,7 +1551,7 @@ export default function AdminPayment() {
                   Amount
                 </p>
                 <p className="font-medium text-green-600 dark:text-green-400">
-                  ${selectedPayment.amount.toLocaleString()}
+                  ${selectedPayment.paymentDetails.amount.toLocaleString()}
                 </p>
               </div>
               <div>
@@ -1545,7 +1567,7 @@ export default function AdminPayment() {
                     isDarkMode ? "text-gray-500" : "text-gray-400"
                   }`}
                 >
-                  {selectedPayment.date}
+                  {selectedPayment.paymentDate.toLocaleString()}
                 </p>
               </div>
               <div>
@@ -1631,7 +1653,7 @@ export default function AdminPayment() {
                   <>
                     <button
                       onClick={() => {
-                        handleDeliveryAction(selectedPayment.id, "approve");
+                        handleDeliveryAction(selectedPayment._id, "approve");
                         setIsModalOpen(false);
                       }}
                       className="text-white bg-green-600 hover:bg-green-700 px-3 py-1 rounded-md text-sm flex items-center transition-colors duration-300"
@@ -1641,7 +1663,7 @@ export default function AdminPayment() {
                     <button
                       onClick={() => {
                         handleDeliveryAction(
-                          selectedPayment.id,
+                          selectedPayment._id,
                           "place-delivery"
                         );
                         setIsModalOpen(false);
@@ -1655,7 +1677,7 @@ export default function AdminPayment() {
                   <button
                     onClick={() => {
                       handleDeliveryAction(
-                        selectedPayment.id,
+                        selectedPayment._id,
                         "mark-delivered"
                       );
                       setIsModalOpen(false);
