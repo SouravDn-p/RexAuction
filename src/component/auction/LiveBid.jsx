@@ -587,6 +587,7 @@ export default function LiveBid() {
       autoBid: Number.parseFloat(myBid?.autoBid) || 0,
       bidderUserId: dbUser?._id,
       incrementBy: Number.parseFloat(myBid?.incrementBy) || 0,
+      time: new Date().toISOString(),
     };
 
     console.log("bidData in place bid", bidData);
