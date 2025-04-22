@@ -1,5 +1,3 @@
-
-
 import { useContext, useEffect, useState, useRef } from "react";
 import {
   FaSun,
@@ -86,12 +84,17 @@ const Navbar = () => {
     if (user) {
       const fetchNotifications = async () => {
         try {
-          const response = await axios.get(`http://localhost:5000/notifications/${user.email}`, {
-            withCredentials: true,
-          });
+          const response = await axios.get(
+            `http://localhost:5000/notifications/${user.email}`,
+            {
+              withCredentials: true,
+            }
+          );
           if (response.data) {
             setNotifications(response.data);
-            const unreadCount = response.data.filter((notif) => !notif.read).length;
+            const unreadCount = response.data.filter(
+              (notif) => !notif.read
+            ).length;
             setNotificationCount(unreadCount);
           }
         } catch (error) {
@@ -117,7 +120,10 @@ const Navbar = () => {
       if (profileRef.current && !profileRef.current.contains(event.target)) {
         setShowProfileMenu(false);
       }
-      if (notificationsRef.current && !notificationsRef.current.contains(event.target)) {
+      if (
+        notificationsRef.current &&
+        !notificationsRef.current.contains(event.target)
+      ) {
         setIsNotificationsOpen(false);
       }
     };
@@ -204,7 +210,9 @@ const Navbar = () => {
     if (notifications.length === 0) return;
 
     try {
-      setNotifications((prev) => prev.map((notif) => ({ ...notif, read: true })));
+      setNotifications((prev) =>
+        prev.map((notif) => ({ ...notif, read: true }))
+      );
       setNotificationCount(0);
 
       if (user) {
@@ -403,7 +411,9 @@ const Navbar = () => {
                     >
                       <div
                         className={`p-3 border-b flex justify-between items-center ${
-                          isDarkMode ? "border-indigo-700/50" : "border-indigo-200/50"
+                          isDarkMode
+                            ? "border-indigo-700/50"
+                            : "border-indigo-200/50"
                         }`}
                       >
                         <h3
@@ -432,12 +442,20 @@ const Navbar = () => {
                           notifications.map((notification) => (
                             <div
                               key={notification._id}
-                              onClick={() => viewNotificationDetails(notification)}
+                              onClick={() =>
+                                viewNotificationDetails(notification)
+                              }
                               className={`px-4 py-3 border-b last:border-b-0 cursor-pointer transition-all duration-200 ${
                                 isDarkMode
                                   ? "border-indigo-700/50 hover:bg-indigo-700/70"
                                   : "border-indigo-200/50 hover:bg-indigo-100"
-                              } ${!notification.read ? (isDarkMode ? "bg-indigo-700/50" : "bg-blue-50") : ""}`}
+                              } ${
+                                !notification.read
+                                  ? isDarkMode
+                                    ? "bg-indigo-700/50"
+                                    : "bg-blue-50"
+                                  : ""
+                              }`}
                             >
                               <div className="flex items-start">
                                 <div
@@ -465,24 +483,32 @@ const Navbar = () => {
                                 <div className="flex-1">
                                   <p
                                     className={`font-medium text-sm ${
-                                      isDarkMode ? "text-white" : "text-gray-800"
+                                      isDarkMode
+                                        ? "text-white"
+                                        : "text-gray-800"
                                     } ${!notification.read ? "font-bold" : ""}`}
                                   >
                                     {notification.title}
                                   </p>
                                   <p
                                     className={`text-xs mt-1 ${
-                                      isDarkMode ? "text-indigo-200" : "text-gray-500"
+                                      isDarkMode
+                                        ? "text-indigo-200"
+                                        : "text-gray-500"
                                     }`}
                                   >
                                     {notification.message}
                                   </p>
                                   <p
                                     className={`text-xs mt-1 ${
-                                      isDarkMode ? "text-indigo-300" : "text-gray-400"
+                                      isDarkMode
+                                        ? "text-indigo-300"
+                                        : "text-gray-400"
                                     }`}
                                   >
-                                    {new Date(notification.timestamp).toLocaleString()}
+                                    {new Date(
+                                      notification.timestamp
+                                    ).toLocaleString()}
                                   </p>
                                 </div>
                                 {!notification.read && (
@@ -693,8 +719,6 @@ const Navbar = () => {
               </div>
             )}
 
-         
-
             {/* Dark Mode Toggle Button (Mobile) */}
             <button
               className={`p-2 lg:p-2 rounded-full transition-all duration-300 relative overflow-hidden ${
@@ -716,8 +740,8 @@ const Navbar = () => {
                 }`}
               ></div>
             </button>
-   {/* Mobile Notifications Button */}
-   {user?.email && (
+            {/* Mobile Notifications Button */}
+            {user?.email && (
               <div className="relative" ref={notificationsRef}>
                 <button
                   className={`p-2 rounded-full transition-all duration-300 relative overflow-hidden ${
@@ -751,7 +775,9 @@ const Navbar = () => {
                   >
                     <div
                       className={`p-3 border-b flex justify-between items-center ${
-                        isDarkMode ? "border-indigo-700/50" : "border-indigo-200/50"
+                        isDarkMode
+                          ? "border-indigo-700/50"
+                          : "border-indigo-200/50"
                       }`}
                     >
                       <h3
@@ -780,12 +806,20 @@ const Navbar = () => {
                         notifications.map((notification) => (
                           <div
                             key={notification._id}
-                            onClick={() => viewNotificationDetails(notification)}
+                            onClick={() =>
+                              viewNotificationDetails(notification)
+                            }
                             className={`px-4 py-3 border-b last:border-b-0 cursor-pointer transition-all duration-200 ${
                               isDarkMode
                                 ? "border-indigo-700/50 hover:bg-indigo-700/70"
                                 : "border-indigo-200/50 hover:bg-indigo-100"
-                            } ${!notification.read ? (isDarkMode ? "bg-indigo-700/50" : "bg-blue-50") : ""}`}
+                            } ${
+                              !notification.read
+                                ? isDarkMode
+                                  ? "bg-indigo-700/50"
+                                  : "bg-blue-50"
+                                : ""
+                            }`}
                           >
                             <div className="flex items-start">
                               <div
@@ -820,17 +854,23 @@ const Navbar = () => {
                                 </p>
                                 <p
                                   className={`text-xs mt-1 ${
-                                    isDarkMode ? "text-indigo-200" : "text-gray-500"
+                                    isDarkMode
+                                      ? "text-indigo-200"
+                                      : "text-gray-500"
                                   }`}
                                 >
                                   {notification.message}
                                 </p>
                                 <p
                                   className={`text-xs mt-1 ${
-                                    isDarkMode ? "text-indigo-300" : "text-gray-400"
+                                    isDarkMode
+                                      ? "text-indigo-300"
+                                      : "text-gray-400"
                                   }`}
                                 >
-                                  {new Date(notification.timestamp).toLocaleString()}
+                                  {new Date(
+                                    notification.timestamp
+                                  ).toLocaleString()}
                                 </p>
                               </div>
                               {!notification.read && (
@@ -1156,7 +1196,9 @@ const Navbar = () => {
               value={depositAmount}
               onChange={(e) => setDepositAmount(e.target.value)}
               className={`w-full p-2 mb-4 border rounded ${
-                isDarkMode ? "bg-gray-700 border-gray-600" : "bg-gray-100 border-gray-300"
+                isDarkMode
+                  ? "bg-gray-700 border-gray-600"
+                  : "bg-gray-100 border-gray-300"
               }`}
               placeholder="Enter amount"
             />
@@ -1165,7 +1207,9 @@ const Navbar = () => {
               value={accountNumber}
               onChange={(e) => setAccountNumber(e.target.value)}
               className={`w-full p-2 mb-4 border rounded ${
-                isDarkMode ? "bg-gray-700 border-gray-600" : "bg-gray-100 border-gray-300"
+                isDarkMode
+                  ? "bg-gray-700 border-gray-600"
+                  : "bg-gray-100 border-gray-300"
               }`}
               placeholder="Enter account number"
             />
@@ -1173,7 +1217,9 @@ const Navbar = () => {
               <button
                 onClick={() => setShowWalletModal(false)}
                 className={`px-4 py-2 rounded ${
-                  isDarkMode ? "bg-gray-600 hover:bg-gray-500" : "bg-gray-200 hover:bg-gray-300"
+                  isDarkMode
+                    ? "bg-gray-600 hover:bg-gray-500"
+                    : "bg-gray-200 hover:bg-gray-300"
                 }`}
               >
                 Cancel

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // import { FaBars } from "react-icons/fa";
 // import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 // import { useEffect, useRef, useState, useContext } from "react";
@@ -572,12 +573,26 @@
 
 // export default MainContent;
 
+=======
+>>>>>>> 22d00148bf7af03d3c65d285190c98be40e843f5
 "use client";
 
 import { FaBars } from "react-icons/fa";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState, useContext } from "react";
+<<<<<<< HEAD
 import { Bell, LogOut, Settings, User, Search, ChevronDown, Wallet } from "lucide-react";
+=======
+import {
+  Bell,
+  LogOut,
+  Settings,
+  User,
+  Search,
+  ChevronDown,
+  Wallet,
+} from "lucide-react";
+>>>>>>> 22d00148bf7af03d3c65d285190c98be40e843f5
 import { FaSun, FaMoon } from "react-icons/fa";
 import ThemeContext from "../Context/ThemeContext";
 import { AuthContexts } from "../../providers/AuthProvider";
@@ -710,7 +725,13 @@ const MainContent = () => {
   };
 
   const viewNotificationDetails = (notification) => {
+<<<<<<< HEAD
     setNotifications((prev) => prev.map((n) => (n._id === notification._id ? { ...n, read: true } : n)));
+=======
+    setNotifications((prev) =>
+      prev.map((n) => (n._id === notification._id ? { ...n, read: true } : n))
+    );
+>>>>>>> 22d00148bf7af03d3c65d285190c98be40e843f5
     if (notificationCount > 0) {
       setNotificationCount((prev) => prev - 1);
     }
@@ -772,7 +793,13 @@ const MainContent = () => {
   };
 
   return (
+<<<<<<< HEAD
     <div className={`drawer-content flex flex-col md:flex-row justify-between items-stretch overflow-x-hidden`}>
+=======
+    <div
+      className={`drawer-content flex flex-col md:flex-row justify-between items-stretch overflow-x-hidden`}
+    >
+>>>>>>> 22d00148bf7af03d3c65d285190c98be40e843f5
       <div className="mx-auto w-full">
         {/* Top Navigation Bar */}
         <header
@@ -857,7 +884,13 @@ const MainContent = () => {
                   {isNotificationsOpen && (
                     <div
                       className={`absolute right-0 mt-2 w-80 max-h-96 overflow-y-auto rounded-md shadow-lg ${
+<<<<<<< HEAD
                         isDarkMode ? "bg-gray-800 border border-gray-700" : "bg-white border border-gray-200"
+=======
+                        isDarkMode
+                          ? "bg-gray-800 border border-gray-700"
+                          : "bg-white border border-gray-200"
+>>>>>>> 22d00148bf7af03d3c65d285190c98be40e843f5
                       } no-scrollbar`}
                     >
                       <div
@@ -989,7 +1022,15 @@ const MainContent = () => {
                         isDarkMode ? "bg-gray-800 border border-gray-700" : "bg-white border border-gray-200"
                       }`}
                     >
+<<<<<<< HEAD
                       <div className={`p-3 border-b ${isDarkMode ? "border-gray-700" : "border-gray-200"}`}>
+=======
+                      <div
+                        className={`p-3 border-b ${
+                          isDarkMode ? "border-gray-700" : "border-gray-200"
+                        }`}
+                      >
+>>>>>>> 22d00148bf7af03d3c65d285190c98be40e843f5
                         <p className="text-sm font-medium">{user?.name}</p>
                         <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{user?.email}</p>
                       </div>
@@ -1006,7 +1047,13 @@ const MainContent = () => {
                         <Link
                           to={`/dashboard/walletHistory`}
                           className={`w-full flex items-center px-4 py-2 text-sm ${
+<<<<<<< HEAD
                             isDarkMode ? "hover:bg-gray-700 text-white" : "hover:bg-gray-100 text-black"
+=======
+                            isDarkMode
+                              ? "hover:bg-gray-700 text-white"
+                              : "hover:bg-gray-100 text-black"
+>>>>>>> 22d00148bf7af03d3c65d285190c98be40e843f5
                           }`}
                         >
                           <Wallet className="h-4 w-4 mr-2" />
@@ -1069,4 +1116,9 @@ const MainContent = () => {
   );
 };
 
+<<<<<<< HEAD
 export default MainContent;
+=======
+export default MainContent;
+  
+>>>>>>> 22d00148bf7af03d3c65d285190c98be40e843f5
