@@ -1,8 +1,9 @@
 import React, { useContext, useEffect, useState } from "react";
-import { FaSearch, FaSort } from "react-icons/fa";
+import { FaSearch } from "react-icons/fa";
 import ThemeContext from "../../Context/ThemeContext";
 import useAuth from "../../../hooks/useAuth";
 import useAxiosPublic from "../../../hooks/useAxiosPublic";
+import { useNavigate } from "react-router-dom";
 
 export default function BidHistory() {
   const [bidHistory, setBidHistory] = useState([]);
@@ -11,6 +12,7 @@ export default function BidHistory() {
   const { isDarkMode } = useContext(ThemeContext);
   const { user } = useAuth();
   const axiosPublic = useAxiosPublic();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (user?.email) {
@@ -21,7 +23,11 @@ export default function BidHistory() {
     }
   }, [user, axiosPublic]);
 
-  // Filter bids by search query
+  const formatTime = (timeString) => {
+    const date = new Date(timeString);
+    return date.toLocaleString(); 
+  };
+
   const filteredBids = bidHistory
     .filter(
       (bid) =>
@@ -44,7 +50,6 @@ export default function BidHistory() {
           : "bg-gradient-to-b font-medium from-purple-100 via-white to-purple-50 placeholder-gray-500"
       }`}
     >
-      {/* Header with Title and Search */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <h1
           className={`text-2xl md:text-3xl font-bold ${
@@ -75,16 +80,13 @@ export default function BidHistory() {
         </div>
       </div>
 
-      {/* Filters and Actions */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setSortOrder("desc")}
             className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
               sortOrder === "desc"
-                ? isDarkMode
-                  ? "bg-purple-600 text-white"
-                  : "bg-purple-600 text-white"
+                ? "bg-purple-600 text-white"
                 : isDarkMode
                 ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300"
@@ -96,9 +98,7 @@ export default function BidHistory() {
             onClick={() => setSortOrder("asc")}
             className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
               sortOrder === "asc"
-                ? isDarkMode
-                  ? "bg-purple-600 text-white"
-                  : "bg-purple-600 text-white"
+                ? "bg-purple-600 text-white"
                 : isDarkMode
                 ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300"
@@ -108,20 +108,15 @@ export default function BidHistory() {
           </button>
         </div>
 
-        <div className="flex items-center gap-2">
-          <span
-            className={`text-sm ${
-              isDarkMode
-                ? "text-white font-medium"
-                : "text-gray-600 font-medium"
-            }`}
-          >
-            {filteredBids?.length} bids found
-          </span>
-        </div>
+        <span
+          className={`text-sm ${
+            isDarkMode ? "text-white font-medium" : "text-gray-600 font-medium"
+          }`}
+        >
+          {filteredBids?.length} bids found
+        </span>
       </div>
 
-      {/* Bid History Table */}
       <div
         className={`overflow-x-auto rounded-lg border ${
           isDarkMode ? "border-gray-700" : "border-gray-200"
@@ -140,34 +135,19 @@ export default function BidHistory() {
             }
           >
             <tr>
-              <th
-                scope="col"
-                className="px-6  py-3 text-left text-xs font-medium uppercase tracking-wider"
-              >
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                 Bidder
               </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
-              >
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                 Bid Amount
               </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
-              >
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                 Time
               </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
-              >
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                 Status
               </th>
-              <th
-                scope="col"
-                className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
-              >
+              <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
                 Position
               </th>
             </tr>
@@ -178,7 +158,7 @@ export default function BidHistory() {
             }`}
           >
             {filteredBids?.length > 0 ? (
-              filteredBids?.map((bid, index) => (
+              filteredBids.map((bid, index) => (
                 <tr
                   key={index}
                   className={`${
@@ -206,7 +186,7 @@ export default function BidHistory() {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div
                       className={`text-sm font-medium ${
-                        isDarkMode ? " text-gray-300" : "text-purple-600 "
+                        isDarkMode ? "text-gray-300" : "text-purple-600"
                       }`}
                     >
                       ${bid?.bidAmount.toFixed(2)}
@@ -215,13 +195,13 @@ export default function BidHistory() {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div
                       className={`text-sm ${
-                        isDarkMode ? "text-gray-300 " : "text-gray-600 "
+                        isDarkMode ? "text-gray-300" : "text-gray-600"
                       }`}
                     >
-                      {bid?.time}
+                      {formatTime(bid?.time)}
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-sm font-bold">
+                  <td className="px-6 py-4 text-sm font-bold flex items-center gap-3">
                     <span
                       className={`px-2 py-1 rounded-full text-xs ${
                         bid.status === "End"
@@ -231,6 +211,16 @@ export default function BidHistory() {
                     >
                       {bid?.status}
                     </span>
+                    <button
+                      onClick={() => navigate(`/liveBid/${bid.auctionId}`)}
+                      className={`px-2 py-1 rounded-full text-xs ${
+                        bid.status === "End"
+                          ? "bg-red-200 text-red-800"
+                          : "bg-green-200 text-green-800"
+                      }`}
+                    >
+                      Live bids
+                    </button>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     # {bid?.position}
@@ -239,7 +229,7 @@ export default function BidHistory() {
               ))
             ) : (
               <tr>
-                <td colSpan="4" className="px-6 py-4 text-center text-sm">
+                <td colSpan="5" className="px-6 py-4 text-center text-sm">
                   No bids found matching your criteria
                 </td>
               </tr>
@@ -248,7 +238,6 @@ export default function BidHistory() {
         </table>
       </div>
 
-      {/* Pagination */}
       <div className="flex justify-between items-center mt-4 flex-wrap gap-4">
         <div
           className={`text-sm ${
@@ -257,7 +246,6 @@ export default function BidHistory() {
         >
           Showing {filteredBids?.length} of bids
         </div>
-
         <div className="flex space-x-1">
           <button
             className={`px-3 py-1 rounded-md text-sm font-medium ${
