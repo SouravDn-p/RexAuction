@@ -285,7 +285,7 @@ const Profile = () => {
     }
   };
 
-  const boxStyle = `border rounded-lg shadow-sm ${
+  const boxStyle = `border mb-6 rounded-lg shadow-sm ${
     isDarkMode
       ? "bg-gray-800 hover:bg-gray-600 border-gray-700"
       : "bg-white border"
@@ -624,10 +624,12 @@ const Profile = () => {
         {/* achievements for buyer */}
         {dbUser?.role === "buyer" && (
           <div className={boxStyle}>
-            <div className="p-4 border-b">
+            <div className="p-4 border-b ">
               <h2 className={titleStyle}>Your Achievements</h2>
             </div>
+
             <div className="p-4 flex flex-wrap gap-2 text-xs">
+              {/* Existing badges */}
               <span className="bg-purple-500 text-white px-2 py-1 rounded-full">
                 🎯 First Win
               </span>
@@ -637,9 +639,66 @@ const Profile = () => {
               <span className="bg-yellow-500 text-white px-2 py-1 rounded-full">
                 🔥 Bid Warrior
               </span>
+
+              {/* Demo achievement badges */}
+              {true && ( // Simulate condition with `true` for demo
+                <span className="bg-blue-600 text-white px-2 py-1 rounded-full">
+                  🏆 Auction Master
+                </span>
+              )}
+              {true && (
+                <span className="bg-indigo-600 text-white px-2 py-1 rounded-full">
+                  ⏰ Last-Second Bidder
+                </span>
+              )}
+              {true && (
+                <span className="bg-pink-500 text-white px-2 py-1 rounded-full">
+                  💎 Big Spender
+                </span>
+              )}
             </div>
           </div>
         )}
+        {/* achievements for seller */}
+        {dbUser?.role === "seller" && (
+          <div className={boxStyle}>
+            <div className="p-4 border-b">
+              <h2 className={titleStyle}>Seller Achievements</h2>
+            </div>
+            <div className="p-4 flex flex-wrap gap-2 text-xs">
+              {/* Static badges */}
+              <span className="bg-blue-500 text-white px-2 py-1 rounded-full">
+                🛍️ First Listing
+              </span>
+              <span className="bg-green-500 text-white px-2 py-1 rounded-full">
+                🎉 First Sale
+              </span>
+
+              {/* Dynamic achievements */}
+              {dbUser?.listedItems > 20 && (
+                <span className="bg-indigo-600 text-white px-2 py-1 rounded-full">
+                  🧱 Pro Lister
+                </span>
+              )}
+              {dbUser?.soldItems > 15 && (
+                <span className="bg-purple-600 text-white px-2 py-1 rounded-full">
+                  💼 Power Seller
+                </span>
+              )}
+              {dbUser?.totalEarnings > 10000 && (
+                <span className="bg-pink-600 text-white px-2 py-1 rounded-full">
+                  💸 10k+ Earner
+                </span>
+              )}
+              {dbUser?.reviews >= 10 && (
+                <span className="bg-yellow-500 text-white px-2 py-1 rounded-full">
+                  🌟 Top Rated Seller
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* latest feedback for admin */}
         {dbUser?.role === "admin" && userReviews?.length > 0 && (
           <div className={`${boxStyle} mb-6`}>
@@ -684,6 +743,7 @@ const Profile = () => {
                   Account Balance
                 </h2>
               </div>
+
               <div className="p-4">
                 <div
                   className={`text-2xl font-bold mb-3 ${
@@ -716,93 +776,6 @@ const Profile = () => {
                     />
                   </svg>
                   Add Funds
-                </button>
-              </div>
-            </div>
-
-            {/* Payment Methods */}
-            <div
-              className={`border rounded-lg shadow-sm ${
-                isDarkMode
-                  ? "bg-gray-800 border-gray-700"
-                  : "bg-white border-gray-200"
-              }`}
-            >
-              <div
-                className={`p-4 border-b ${
-                  isDarkMode ? "border-gray-700" : "border-gray-200"
-                }`}
-              >
-                <h2
-                  className={`text-base font-medium ${
-                    isDarkMode ? "text-white" : "text-black"
-                  }`}
-                >
-                  Payment Methods
-                </h2>
-              </div>
-              <div className="p-4 space-y-3">
-                {profileData.paymentMethods.map((method) => (
-                  <div
-                    key={method.id}
-                    className={`flex items-center justify-between p-2 border rounded-md ${
-                      isDarkMode
-                        ? "bg-gray-700 border-gray-600"
-                        : "bg-white border-gray-200"
-                    }`}
-                  >
-                    <div className="flex items-center">
-                      <svg
-                        className={`w-4 h-4 mr-2 ${
-                          isDarkMode ? "text-white" : "text-black"
-                        }`}
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <rect
-                          x="2"
-                          y="5"
-                          width="20"
-                          height="14"
-                          rx="2"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        />
-                        <path
-                          d="M2 10h20"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        />
-                      </svg>
-                      <span
-                        className={`text-sm ${
-                          isDarkMode ? "text-white" : "text-black"
-                        }`}
-                      >
-                        {method.cardNumber}
-                      </span>
-                    </div>
-                    <span
-                      className={`text-xs border px-2 py-0.5 rounded-md ${
-                        isDarkMode
-                          ? "text-white border-gray-400"
-                          : "text-black border-gray-300"
-                      }`}
-                    >
-                      {method.provider}
-                    </span>
-                  </div>
-                ))}
-
-                <button
-                  className={`w-full text-sm border rounded-md py-1.5 ${
-                    isDarkMode
-                      ? "border-gray-600 bg-gray-700 text-white hover:bg-gray-600"
-                      : "border-gray-300 bg-white text-black hover:bg-gray-50"
-                  }`}
-                >
-                  Add New Card
                 </button>
               </div>
             </div>
