@@ -6,12 +6,12 @@ import auth from "../../../firebase/firebase.init";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 // images for demo auction data
-import antique from "../../../../public/DemoAuctionImg/antique.jpg";
-import antique2 from "../../../../public/DemoAuctionImg/antique2.jpg";
-import antique3 from "../../../../public/DemoAuctionImg/antique3.jpg";
-import antique4 from "../../../../public/DemoAuctionImg/antique4.jpeg";
-import antique5 from "../../../../public/DemoAuctionImg/antique5.jpeg";
-import antique6 from "../../../../public/DemoAuctionImg/antique6.jpeg";
+import antique from "/DemoAuctionImg/antique.jpg";
+import antique2 from "/DemoAuctionImg/antique2.jpg";
+import antique3 from "/DemoAuctionImg/antique3.jpg";
+import antique4 from "/DemoAuctionImg/antique4.jpeg";
+import antique5 from "/DemoAuctionImg/antique5.jpeg";
+import antique6 from "/DemoAuctionImg/antique6.jpeg";
 
 const AuctionStatus = () => {
   const { isDarkMode } = useContext(ThemeContext);
