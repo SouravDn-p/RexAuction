@@ -464,109 +464,109 @@ const Payment2 = () => {
     );
   }
 
-  // if (paymentSuccess) {
-  //   return (
-  //     <div
-  //       className={`min-h-screen flex flex-col justify-center items-center ${
-  //         isDarkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"
-  //       }`}
-  //     >
-  //       <div
-  //         className={`max-w-md w-full p-8 rounded-2xl shadow-xl ${
-  //           isDarkMode ? "bg-gray-800" : "bg-white"
-  //         }`}
-  //       >
-  //         <div className="flex flex-col items-center">
-  //           <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-4">
-  //             <FaCheckCircle className="text-green-500 text-4xl" />
-  //           </div>
-  //           <h2 className="text-2xl font-bold mb-2">Payment Successful!</h2>
+  if (isPaid) {
+    return (
+      <div
+        className={`min-h-screen flex flex-col justify-center items-center ${
+          isDarkMode ? "bg-gray-900 text-white" : "bg-gray-100 text-gray-900"
+        }`}
+      >
+        <div
+          className={`max-w-md w-full p-8 rounded-2xl shadow-xl ${
+            isDarkMode ? "bg-gray-800" : "bg-white"
+          }`}
+        >
+          <div className="flex flex-col items-center">
+            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-4">
+              <FaCheckCircle className="text-green-500 text-4xl" />
+            </div>
+            <h2 className="text-2xl font-bold mb-2">Payment Successful!</h2>
 
-  //           {auctionData.payment === "done" ? (
-  //             <div className="text-center space-y-4 w-full">
-  //               <p className="text-center mb-2 text-gray-500">
-  //                 You have already completed payment for this auction.
-  //               </p>
+            {auctionData.payment === "done" ? (
+              <div className="text-center space-y-4 w-full">
+                <p className="text-center mb-2 text-gray-500">
+                  You have already completed payment for this auction.
+                </p>
 
-  //               <div
-  //                 className={`p-4 rounded-lg ${
-  //                   isDarkMode ? "bg-green-900/20" : "bg-green-50"
-  //                 } border ${
-  //                   isDarkMode ? "border-green-800" : "border-green-200"
-  //                 }`}
-  //               >
-  //                 <div className="flex items-start">
-  //                   <FaCheckCircle className="text-green-500 mt-0.5 mr-2 flex-shrink-0" />
-  //                   <div>
-  //                     <p className="font-medium text-green-600 dark:text-green-400">
-  //                       Payment Completed
-  //                     </p>
-  //                     {auctionData.paymentDetails && (
-  //                       <>
-  //                         <p className="text-sm text-green-600/70 dark:text-green-400/70 mt-1">
-  //                           Transaction ID:{" "}
-  //                           {auctionData.paymentDetails.transactionId || "N/A"}
-  //                         </p>
-  //                         <p className="text-sm text-green-600/70 dark:text-green-400/70">
-  //                           Date:{" "}
-  //                           {auctionData.paymentDetails.paymentDate
-  //                             ? new Date(
-  //                                 auctionData.paymentDetails.paymentDate
-  //                               ).toLocaleString()
-  //                             : "N/A"}
-  //                         </p>
-  //                       </>
-  //                     )}
-  //                   </div>
-  //                 </div>
-  //               </div>
+                <div
+                  className={`p-4 rounded-lg ${
+                    isDarkMode ? "bg-green-900/20" : "bg-green-50"
+                  } border ${
+                    isDarkMode ? "border-green-800" : "border-green-200"
+                  }`}
+                >
+                  <div className="flex items-start">
+                    <FaCheckCircle className="text-green-500 mt-0.5 mr-2 flex-shrink-0" />
+                    <div>
+                      <p className="font-medium text-green-600 dark:text-green-400">
+                        Payment Completed
+                      </p>
+                      {auctionData.paymentDetails && (
+                        <>
+                          <p className="text-sm text-green-600/70 dark:text-green-400/70 mt-1">
+                            Transaction ID:{" "}
+                            {auctionData.paymentDetails.transactionId || "N/A"}
+                          </p>
+                          <p className="text-sm text-green-600/70 dark:text-green-400/70">
+                            Date:{" "}
+                            {auctionData.paymentDetails.paymentDate
+                              ? new Date(
+                                  auctionData.paymentDetails.paymentDate
+                                ).toLocaleString()
+                              : "N/A"}
+                          </p>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
 
-  //               <div
-  //                 className={`p-4 rounded-lg ${
-  //                   isDarkMode ? "bg-blue-900/20" : "bg-blue-50"
-  //                 } border ${
-  //                   isDarkMode ? "border-blue-800" : "border-blue-200"
-  //                 } mt-3`}
-  //               >
-  //                 <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
-  //                   Your item will be delivered soon. You can track your order
-  //                   in the dashboard.
-  //                 </p>
-  //               </div>
-  //             </div>
-  //           ) : (
-  //             <p className="text-center mb-6 text-gray-500">
-  //               Your payment for {auctionData.name} has been processed
-  //               successfully.
-  //             </p>
-  //           )}
+                <div
+                  className={`p-4 rounded-lg ${
+                    isDarkMode ? "bg-blue-900/20" : "bg-blue-50"
+                  } border ${
+                    isDarkMode ? "border-blue-800" : "border-blue-200"
+                  } mt-3`}
+                >
+                  <p className="text-sm font-medium text-blue-600 dark:text-blue-400">
+                    Your item will be delivered soon. You can track your order
+                    in the dashboard.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <p className="text-center mb-6 text-gray-500">
+                Your payment for {auctionData.name} has been processed
+                successfully.
+              </p>
+            )}
 
-  //           <div className="w-full space-y-3 mt-6">
-  //             <button
-  //               onClick={() => navigate("/dashboard")}
-  //               className="w-full py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
-  //             >
-  //               Return to Dashboard
-  //             </button>
+            <div className="w-full space-y-3 mt-6">
+              <button
+                onClick={() => navigate("/dashboard")}
+                className="w-full py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700"
+              >
+                Return to Dashboard
+              </button>
 
-  //             {auctionData.payment === "done" && (
-  //               <button
-  //                 onClick={() => navigate("/dashboard/orders")}
-  //                 className={`w-full py-3 rounded-lg border ${
-  //                   isDarkMode
-  //                     ? "border-gray-700 bg-gray-700 hover:bg-gray-600 text-white"
-  //                     : "border-gray-300 bg-white hover:bg-gray-50 text-gray-800"
-  //                 }`}
-  //               >
-  //                 View Order Details
-  //               </button>
-  //             )}
-  //           </div>
-  //         </div>
-  //       </div>
-  //     </div>
-  //   );
-  // }
+              {auctionData.payment === "done" && (
+                <button
+                  onClick={() => navigate("/dashboard/orders")}
+                  className={`w-full py-3 rounded-lg border ${
+                    isDarkMode
+                      ? "border-gray-700 bg-gray-700 hover:bg-gray-600 text-white"
+                      : "border-gray-300 bg-white hover:bg-gray-50 text-gray-800"
+                  }`}
+                >
+                  View Order Details
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
