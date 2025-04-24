@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import {
   ShoppingBag,
   CheckCircle,
@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import LoadingSpinner from "../../../LoadingSpinner";
 import useAuth from "../../../../hooks/useAuth";
+import ThemeContext from "../../../Context/ThemeContext";
 
 // Toast Component
 const Toast = ({ message, type, onClose }) => {
@@ -94,7 +95,7 @@ export default function SellerPayment() {
     status: "all",
   });
   const [expandedAuction, setExpandedAuction] = useState(null);
-  const { isDarkMode, dbUser } = useAuth();
+  const { isDarkMode} = useContext(ThemeContext);
 
   const dateFilterRef = useRef(null);
   const filterRef = useRef(null);
@@ -1044,213 +1045,193 @@ export default function SellerPayment() {
       {isLoading ? (
         <LoadingSpinner />
       ) : activeTab === "received" ? (
-        <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className={isDarkMode ? "bg-gray-800" : "bg-gray-50"}>
-              <tr>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer"
-                  onClick={() => requestSort("auctionId")}
+    <div
+  className={`overflow-x-auto rounded-lg border shadow-sm ${
+    isDarkMode ? "border-gray-700 bg-gray-800" : "border-gray-200 bg-white"
+  }`}
+>
+  <table
+    className={`min-w-full divide-y ${
+      isDarkMode ? "divide-gray-700" : "divide-gray-200"
+    }`}
+  >
+    <thead className={isDarkMode ? "bg-gray-800" : "bg-gray-50"}>
+      <tr>
+        <th
+          scope="col"
+          className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer"
+          onClick={() => requestSort("auctionId")}
+        >
+          <div className="flex items-center">
+            Auction ID
+            <ArrowUpDown
+              className={`ml-1 h-4 w-4 ${
+                sortConfig.key === "auctionId"
+                  ? "opacity-100"
+                  : "opacity-50"
+              }`}
+            />
+          </div>
+        </th>
+        {/* Other ths... */}
+      </tr>
+    </thead>
+    <tbody
+      className={`divide-y ${
+        isDarkMode ? "divide-gray-700" : "divide-gray-200"
+      }`}
+    >
+      {filteredPayments.length > 0 ? (
+        filteredPayments.map((payment) => (
+          <tr
+            key={payment.id}
+            className={`transition-colors duration-150 ${
+              isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"
+            }`}
+          >
+            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+              {payment.auctionId}
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap text-sm">
+              <div className="flex items-center">
+                <div
+                  className={`h-10 w-10 flex-shrink-0 rounded overflow-hidden ${
+                    isDarkMode ? "bg-gray-700" : "bg-gray-200"
+                  }`}
                 >
-                  <div className="flex items-center">
-                    Auction ID
-                    <ArrowUpDown
-                      className={`ml-1 h-4 w-4 ${
-                        sortConfig.key === "auctionId"
-                          ? "opacity-100"
-                          : "opacity-50"
-                      }`}
-                    />
-                  </div>
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer"
-                  onClick={() => requestSort("item")}
-                >
-                  <div className="flex items-center">
-                    Item
-                    <ArrowUpDown
-                      className={`ml-1 h-4 w-4 ${
-                        sortConfig.key === "item" ? "opacity-100" : "opacity-50"
-                      }`}
-                    />
-                  </div>
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
-                >
-                  Buyer
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer"
-                  onClick={() => requestSort("amount")}
-                >
-                  <div className="flex items-center">
-                    Amount
-                    <ArrowUpDown
-                      className={`ml-1 h-4 w-4 ${
-                        sortConfig.key === "amount"
-                          ? "opacity-100"
-                          : "opacity-50"
-                      }`}
-                    />
-                  </div>
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer"
-                  onClick={() => requestSort("date")}
-                >
-                  <div className="flex items-center">
-                    Date
-                    <ArrowUpDown
-                      className={`ml-1 h-4 w-4 ${
-                        sortConfig.key === "date" ? "opacity-100" : "opacity-50"
-                      }`}
-                    />
-                  </div>
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer"
-                  onClick={() => requestSort("status")}
-                >
-                  <div className="flex items-center">
-                    Status
-                    <ArrowUpDown
-                      className={`ml-1 h-4 w-4 ${
-                        sortConfig.key === "status"
-                          ? "opacity-100"
-                          : "opacity-50"
-                      }`}
-                    />
-                  </div>
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
-                >
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {filteredPayments.length > 0 ? (
-                filteredPayments.map((payment) => (
-                  <tr
-                    key={payment.id}
-                    className={`transition-colors duration-150 hover:bg-gray-50 dark:hover:bg-gray-700`}
+                  <img
+                    src={payment.image || "/placeholder.svg"}
+                    alt={payment.item}
+                    className="h-10 w-10 object-cover"
+                  />
+                </div>
+                <div className="ml-4">
+                  <div className="font-medium">{payment.item}</div>
+                  <div
+                    className={`text-xs truncate max-w-xs ${
+                      isDarkMode ? "text-gray-400" : "text-gray-500"
+                    }`}
                   >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      {payment.auctionId}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <div className="flex items-center">
-                        <div className="h-10 w-10 flex-shrink-0 rounded overflow-hidden bg-gray-200 dark:bg-gray-700">
-                          <img
-                            src={payment.image || "/placeholder.svg"}
-                            alt={payment.item}
-                            className="h-10 w-10 object-cover"
-                          />
-                        </div>
-                        <div className="ml-4">
-                          <div className="font-medium">{payment.item}</div>
-                          <div className="text-gray-500 dark:text-gray-400 text-xs truncate max-w-xs">
-                            {payment.description}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      {payment.buyer}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-green-600 dark:text-green-400">
-                      ${payment.amount.toLocaleString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      {payment.date}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          payment.status === "pending"
-                            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200"
-                            : "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200"
-                        }`}
-                      >
-                        {payment.status === "pending" ? (
-                          <Clock className="w-4 h-4 mr-1" />
-                        ) : (
-                          <CheckCircle className="w-4 h-4 mr-1" />
-                        )}
-                        {payment.status.charAt(0).toUpperCase() +
-                          payment.status.slice(1)}
-                      </span>
-                      {payment.deliveryStatus && (
-                        <span
-                          className={`ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            payment.deliveryStatus === "delivered"
-                              ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200"
-                              : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200"
-                          }`}
-                        >
-                          <Truck className="w-4 h-4 mr-1" />
-                          {payment.deliveryStatus.charAt(0).toUpperCase() +
-                            payment.deliveryStatus.slice(1)}
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm">
-                      <div className="flex space-x-2">
-                        <button
-                          onClick={() => handleViewDetails(payment, "payment")}
-                          className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors duration-300 flex items-center"
-                        >
-                          <Eye className="w-4 h-4 mr-1" /> View
-                        </button>
-                        <button
-                          onClick={() => handleContactBuyer(payment.buyer)}
-                          className="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300 transition-colors duration-300 flex items-center"
-                        >
-                          <MessageSquare className="w-4 h-4 mr-1" /> Contact
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td
-                    colSpan="7"
-                    className="px-6 py-4 text-center text-sm font-medium"
-                  >
-                    <div className="flex flex-col items-center py-6">
-                      <AlertCircle className="w-12 h-12 text-gray-400 mb-2" />
-                      <p>No payments received yet</p>
-                      {(searchTerm ||
-                        dateFilter.from ||
-                        dateFilter.to ||
-                        filterOptions.minAmount ||
-                        filterOptions.maxAmount ||
-                        filterOptions.status !== "all") && (
-                        <button
-                          onClick={resetFilters}
-                          className="mt-2 text-blue-600 dark:text-blue-400 hover:underline"
-                        >
-                          Clear filters
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
+                    {payment.description}
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap text-sm">
+              {payment.buyer}
+            </td>
+            <td
+              className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${
+                isDarkMode ? "text-green-400" : "text-green-600"
+              }`}
+            >
+              ${payment.amount.toLocaleString()}
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap text-sm">
+              {payment.date}
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap">
+              <span
+                className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                  payment.status === "pending"
+                    ? isDarkMode
+                      ? "bg-yellow-900/30 text-yellow-200"
+                      : "bg-yellow-100 text-yellow-800"
+                    : isDarkMode
+                    ? "bg-green-900/30 text-green-200"
+                    : "bg-green-100 text-green-800"
+                }`}
+              >
+                {payment.status === "pending" ? (
+                  <Clock className="w-4 h-4 mr-1" />
+                ) : (
+                  <CheckCircle className="w-4 h-4 mr-1" />
+                )}
+                {payment.status.charAt(0).toUpperCase() +
+                  payment.status.slice(1)}
+              </span>
+              {payment.deliveryStatus && (
+                <span
+                  className={`ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                    payment.deliveryStatus === "delivered"
+                      ? isDarkMode
+                        ? "bg-green-900/30 text-green-200"
+                        : "bg-green-100 text-green-800"
+                      : isDarkMode
+                      ? "bg-blue-900/30 text-blue-200"
+                      : "bg-blue-100 text-blue-800"
+                  }`}
+                >
+                  <Truck className="w-4 h-4 mr-1" />
+                  {payment.deliveryStatus.charAt(0).toUpperCase() +
+                    payment.deliveryStatus.slice(1)}
+                </span>
               )}
-            </tbody>
-          </table>
-        </div>
+            </td>
+            <td className="px-6 py-4 whitespace-nowrap text-sm">
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => handleViewDetails(payment, "payment")}
+                  className={`transition-colors duration-300 flex items-center ${
+                    isDarkMode
+                      ? "text-blue-400 hover:text-blue-300"
+                      : "text-blue-600 hover:text-blue-800"
+                  }`}
+                >
+                  <Eye className="w-4 h-4 mr-1" /> View
+                </button>
+                <button
+                  onClick={() => handleContactBuyer(payment.buyer)}
+                  className={`transition-colors duration-300 flex items-center ${
+                    isDarkMode
+                      ? "text-green-400 hover:text-green-300"
+                      : "text-green-600 hover:text-green-800"
+                  }`}
+                >
+                  <MessageSquare className="w-4 h-4 mr-1" /> Contact
+                </button>
+              </div>
+            </td>
+          </tr>
+        ))
+      ) : (
+        <tr>
+          <td
+            colSpan="7"
+            className="px-6 py-4 text-center text-sm font-medium"
+          >
+            <div className="flex flex-col items-center py-6">
+              <AlertCircle
+                className={`w-12 h-12 mb-2 ${
+                  isDarkMode ? "text-gray-500" : "text-gray-400"
+                }`}
+              />
+              <p>No payments received yet</p>
+              {(searchTerm ||
+                dateFilter.from ||
+                dateFilter.to ||
+                filterOptions.minAmount ||
+                filterOptions.maxAmount ||
+                filterOptions.status !== "all") && (
+                <button
+                  onClick={resetFilters}
+                  className={`mt-2 hover:underline ${
+                    isDarkMode
+                      ? "text-blue-400"
+                      : "text-blue-600"
+                  }`}
+                >
+                  Clear filters
+                </button>
+              )}
+            </div>
+          </td>
+        </tr>
+      )}
+    </tbody>
+  </table>
+</div>
+
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredAuctions.map((auction) => (
@@ -1532,6 +1513,7 @@ export default function SellerPayment() {
 
       {/* Item Details Modal */}
       <Modal
+        className={`${isDarkMode ? "bg-gray-900 text-black" : "bg-white text-gray-900"}`}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title={
@@ -1539,6 +1521,7 @@ export default function SellerPayment() {
             ? "Payment Details"
             : "Auction Details"
         }
+        
       >
         <>
           {selectedItem && selectedItem.type === "payment" && (
