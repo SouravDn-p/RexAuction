@@ -1,27 +1,23 @@
 import React, { useContext, useEffect, useState } from "react";
 import { FaSearch } from "react-icons/fa";
 import ThemeContext from "../../Context/ThemeContext";
-import useAuth from "../../../hooks/useAuth";
-import useAxiosPublic from "../../../hooks/useAxiosPublic";
 import { useNavigate } from "react-router-dom";
-
+import useBidHistory from "../../../hooks/useBidHistory";
+import LoadingSpinner from "../../LoadingSpinner";
 export default function BidHistory() {
-  const [bidHistory, setBidHistory] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOrder, setSortOrder] = useState("desc");
   const { isDarkMode } = useContext(ThemeContext);
-  const { user } = useAuth();
-  const axiosPublic = useAxiosPublic();
   const navigate = useNavigate();
+  const [bidHistory, refetch, isLoading] = useBidHistory();
 
   useEffect(() => {
-    if (user?.email) {
-      axiosPublic
-        .get(`/bid-history/${user?.email}`)
-        .then((res) => setBidHistory(res.data))
-        .catch((err) => console.error("Failed to fetch bid history", err));
-    }
-  }, [user, axiosPublic]);
+    const interval = setInterval(() => {
+      refetch();
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [refetch]);
 
   const formatTime = (timeString) => {
     const date = new Date(timeString);
@@ -42,6 +38,8 @@ export default function BidHistory() {
         : a.bidAmount - b.bidAmount
     );
 
+  if (isLoading) return <LoadingSpinner />;
+
   return (
     <div
       className={`p-4 md:p-6 h-full ${
@@ -50,6 +48,7 @@ export default function BidHistory() {
           : "bg-gradient-to-b font-medium from-purple-100 via-white to-purple-50 placeholder-gray-500"
       }`}
     >
+      {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <h1
           className={`text-2xl md:text-3xl font-bold ${
@@ -61,6 +60,7 @@ export default function BidHistory() {
           Bid History
         </h1>
 
+        {/* Search */}
         <div className="relative w-full md:w-64">
           <input
             type="text"
@@ -74,12 +74,14 @@ export default function BidHistory() {
             } focus:outline-none focus:ring-2 focus:ring-purple-500`}
           />
           <FaSearch
-            className={`absolute left-3 top-1/2 transform -translate-y-1/2 
-           ${isDarkMode ? "text-gray-200" : "text-gray-500"} `}
+            className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${
+              isDarkMode ? "text-gray-200" : "text-gray-500"
+            }`}
           />
         </div>
       </div>
 
+      {/* Sort & Count */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
         <div className="flex flex-wrap gap-2">
           <button
@@ -117,6 +119,7 @@ export default function BidHistory() {
         </span>
       </div>
 
+      {/* Table */}
       <div
         className={`overflow-x-auto rounded-lg border ${
           isDarkMode ? "border-gray-700" : "border-gray-200"
@@ -169,37 +172,21 @@ export default function BidHistory() {
                 >
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10">
-                        <img
-                          src={bid?.auctionImage}
-                          alt="Bidder"
-                          className="w-10 h-10 rounded-full"
-                        />
-                      </div>
-                      <div className="ml-4">
-                        <div className="text-sm font-medium">
-                          {bid?.auctionTitle}
-                        </div>
+                      <img
+                        src={bid?.auctionImage}
+                        alt="Bidder"
+                        className="w-10 h-10 rounded-full"
+                      />
+                      <div className="ml-4 text-sm font-medium">
+                        {bid?.auctionTitle}
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div
-                      className={`text-sm font-medium ${
-                        isDarkMode ? "text-gray-300" : "text-purple-600"
-                      }`}
-                    >
-                      ${bid?.bidAmount.toFixed(2)}
-                    </div>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    ${bid?.bidAmount?.toFixed(2)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div
-                      className={`text-sm ${
-                        isDarkMode ? "text-gray-300" : "text-gray-600"
-                      }`}
-                    >
-                      {formatTime(bid?.time)}
-                    </div>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm">
+                    {formatTime(bid?.time)}
                   </td>
                   <td className="px-6 py-4 text-sm font-bold flex items-center gap-3">
                     <span
@@ -242,31 +229,18 @@ export default function BidHistory() {
         </table>
       </div>
 
+      {/* Pagination */}
       <div className="flex justify-between items-center mt-4 flex-wrap gap-4">
         <div
-          className={`text-sm ${
-            isDarkMode ? "text-white font-medium" : "text-gray-600 font-medium"
-          }`}
+          className={`text-sm ${isDarkMode ? "text-white" : "text-gray-600"}`}
         >
           Showing {filteredBids?.length} of bids
         </div>
         <div className="flex space-x-1">
-          <button
-            className={`px-3 py-1 rounded-md text-sm font-medium ${
-              isDarkMode
-                ? "bg-purple-600 text-white hover:bg-purple-800"
-                : "bg-purple-600 text-white hover:bg-purple-800"
-            }`}
-          >
+          <button className="px-3 py-1 rounded-md text-sm font-medium bg-purple-600 text-white hover:bg-purple-800">
             Previous
           </button>
-          <button
-            className={`px-3 py-1 rounded-md text-sm font-medium ${
-              isDarkMode
-                ? "bg-purple-600 text-white hover:bg-purple-800"
-                : "bg-purple-600 text-white hover:bg-purple-800"
-            }`}
-          >
+          <button className="px-3 py-1 rounded-md text-sm font-medium bg-purple-600 text-white hover:bg-purple-800">
             Next
           </button>
         </div>
