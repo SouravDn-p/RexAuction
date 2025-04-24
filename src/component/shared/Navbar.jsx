@@ -727,9 +727,7 @@ const Navbar = () => {
                   : "bg-indigo-100/50 text-indigo-700 hover:bg-indigo-200/70"
               } hover:scale-110 touch-p-3`}
               onClick={toggleTheme}
-              aria-label={
-                isDarkMode ? "Switch to light mode" : "Switch to dark mode"
-              }
+              aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
             >
               {isDarkMode ? (
                 <FaSun className="text-yellow-400 relative z-10 transition-transform duration-300 hover:rotate-12" />
@@ -942,7 +940,9 @@ const Navbar = () => {
                   isDarkMode ? "bg-yellow-400/10" : "bg-indigo-700/10"
                 }`}
               ></div>
+              
             </button>
+            
           </div>
         </div>
 
