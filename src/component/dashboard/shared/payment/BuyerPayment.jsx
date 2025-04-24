@@ -21,6 +21,7 @@ import {
   BarChart3,
 } from "lucide-react";
 import LoadingSpinner from "../../../LoadingSpinner";
+import ThemeContext from "../../../Context/ThemeContext";
 
 // Toast Component
 const Toast = ({ message, type, onClose }) => {
@@ -78,8 +79,8 @@ export default function BuyerPayment() {
     key: "date",
     direction: "descending",
   });
-  const { isDarkMode, toggleDarkMode } = useContext(AuthContexts);
-
+  const { isDarkMode  } = useContext(ThemeContext);
+  console.log(isDarkMode);
   // Modal Component
   const Modal = ({ isOpen, onClose, title, children }) => {
     if (!isOpen) return null;
@@ -274,7 +275,9 @@ export default function BuyerPayment() {
       status: "pending",
       auctionId: "A1001",
       paymentMethod: "Credit Card",
+      deliveryStatus: "delivered",
       description: "Rare 1960s chronograph in excellent condition",
+      estimatedDelivery: "2023-04-20",
       image: "https://via.placeholder.com/150",
     },
     {
@@ -289,6 +292,7 @@ export default function BuyerPayment() {
       auctionId: "A1002",
       paymentMethod: "PayPal",
       description: "Ming dynasty inspired ceramic vase with blue patterns",
+      estimatedDelivery: "2023-04-20",
       image: "https://via.placeholder.com/150",
     },
     {
@@ -301,8 +305,8 @@ export default function BuyerPayment() {
       status: "completed",
       deliveryStatus: "in transit",
       auctionId: "A1003",
-      paymentMethod: "Bank Transfer",
-      description: "Original oil painting by contemporary artist",
+      paymentMethod: "Bank Transfer", 
+      description: "Original oil painting by contemporary artist and nice and attractive",
       estimatedDelivery: "2023-04-20",
       image: "https://via.placeholder.com/150",
     },
@@ -316,7 +320,9 @@ export default function BuyerPayment() {
       status: "pending",
       auctionId: "A1004",
       paymentMethod: "Credit Card",
+      deliveryStatus: "in transit",
       description: "Set of 5 rare silver coins from the 19th century",
+      estimatedDelivery: "2023-04-20",
       image: "https://via.placeholder.com/150",
     },
     {
@@ -329,7 +335,9 @@ export default function BuyerPayment() {
       status: "pending",
       auctionId: "A1005",
       paymentMethod: "PayPal",
+      deliveryStatus: "in transit",
       description: "First edition of a classic novel in pristine condition",
+      estimatedDelivery: "2023-04-20",
       image: "https://via.placeholder.com/150",
     },
     {
@@ -343,6 +351,7 @@ export default function BuyerPayment() {
       deliveryStatus: "delivered",
       auctionId: "A1006",
       paymentMethod: "Credit Card",
+      estimatedDelivery: "2023-04-20",
       description: "Classic film camera from the 1970s, fully functional",
       image: "https://via.placeholder.com/150",
     },
@@ -700,307 +709,299 @@ export default function BuyerPayment() {
       {isLoading ? (
         <LoadingSpinner />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredPayments.length > 0 ? (
-            filteredPayments.map((payment) => (
-              <div
-                key={payment.id}
-                className={`rounded-lg shadow-md overflow-hidden ${
-                  isDarkMode ? "bg-gray-800" : "bg-white"
-                } transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1`}
-              >
-                <div
-                  className={`p-4 ${
-                    payment.status === "pending"
-                      ? isDarkMode
-                        ? "bg-yellow-900/50"
-                        : "bg-yellow-50"
-                      : isDarkMode
-                      ? "bg-green-900/50"
-                      : "bg-green-50"
-                  }`}
-                >
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium">{payment.auctionId}</span>
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-semibold flex items-center ${
-                        payment.status === "pending"
-                          ? "bg-yellow-200 text-yellow-800"
-                          : "bg-green-200 text-green-800"
-                      }`}
-                    >
-                      {payment.status === "pending" ? (
-                        <Clock className="w-3 h-3 mr-1" />
-                      ) : (
-                        <CheckCircle className="w-3 h-3 mr-1" />
-                      )}
-                      {payment.status.charAt(0).toUpperCase() +
-                        payment.status.slice(1)}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex p-4">
-                  <div className="w-16 h-16 rounded-md overflow-hidden flex-shrink-0 bg-gray-200 dark:bg-gray-700">
-                    <img
-                      src={payment.image || "/placeholder.svg"}
-                      alt={payment.item}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="ml-4 flex-1">
-                    <h3 className="font-bold text-lg mb-1 line-clamp-1">
-                      {payment.item}
-                    </h3>
-                    <p
-                      className={`text-sm ${
-                        isDarkMode ? "text-gray-400" : "text-gray-600"
-                      } line-clamp-2`}
-                    >
-                      {payment.description}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="p-4 space-y-2">
-                  <div className="flex justify-between">
-                    <span
-                      className={isDarkMode ? "text-gray-400" : "text-gray-600"}
-                    >
-                      Seller:
-                    </span>
-                    <span className="font-medium">{payment.seller}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span
-                      className={isDarkMode ? "text-gray-400" : "text-gray-600"}
-                    >
-                      Amount:
-                    </span>
-                    <span className="font-bold text-green-600 dark:text-green-400">
-                      ${payment.amount.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span
-                      className={isDarkMode ? "text-gray-400" : "text-gray-600"}
-                    >
-                      Date:
-                    </span>
-                    <span>{payment.date}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span
-                      className={isDarkMode ? "text-gray-400" : "text-gray-600"}
-                    >
-                      Payment:
-                    </span>
-                    <span>{payment.paymentMethod}</span>
-                  </div>
-                  {payment.deliveryStatus && (
-                    <div className="flex justify-between items-center mt-2 pt-2 border-t dark:border-gray-700">
-                      <span
-                        className={
-                          isDarkMode ? "text-gray-400" : "text-gray-600"
-                        }
-                      >
-                        Delivery:
-                      </span>
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-semibold flex items-center ${
-                          payment.deliveryStatus === "delivered"
-                            ? "bg-green-200 text-green-800 dark:bg-green-900/30 dark:text-green-200"
-                            : "bg-blue-200 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200"
-                        }`}
-                      >
-                        <Truck className="w-3 h-3 mr-1" />
-                        {payment.deliveryStatus.charAt(0).toUpperCase() +
-                          payment.deliveryStatus.slice(1)}
-                      </span>
-                    </div>
-                  )}
-                  {payment.estimatedDelivery && (
-                    <div className="flex justify-between items-center">
-                      <span
-                        className={
-                          isDarkMode ? "text-gray-400" : "text-gray-600"
-                        }
-                      >
-                        Est. Delivery:
-                      </span>
-                      <span className="text-sm">
-                        {payment.estimatedDelivery}
-                      </span>
-                    </div>
-                  )}
-                </div>
-                <div
-                  className={`p-4 border-t ${
-                    isDarkMode ? "border-gray-700" : "border-gray-200"
-                  }`}
-                >
-                  <button
-                    onClick={() => handleViewDetails(payment)}
-                    className="w-full py-2 text-center rounded-md bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors duration-300 flex items-center justify-center"
-                  >
-                    <Eye className="w-4 h-4 mr-2" /> View Details
-                  </button>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div
-              className={`col-span-full flex flex-col items-center justify-center py-12 ${
-                isDarkMode ? "bg-gray-800" : "bg-white"
-              } rounded-lg shadow-md`}
+   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+  {filteredPayments.length > 0 ? (
+    filteredPayments.map((payment) => (
+      <div
+        key={payment.id}
+        className={`rounded-lg shadow-md overflow-hidden ${
+          isDarkMode ? "bg-gray-800" : "bg-white"
+        } transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1`}
+      >
+        <div
+          className={`p-4 ${
+            payment.status === "pending"
+              ? isDarkMode
+                ? "bg-yellow-900/50"
+                : "bg-yellow-50"
+              : isDarkMode
+              ? "bg-green-900/50"
+              : "bg-green-50"
+          }`}
+        >
+          <div className="flex justify-between items-center">
+            <span className="font-medium">{payment.auctionId}</span>
+            <span
+              className={`h-6 min-w-[80px] px-2 py-1 rounded-full text-xs font-semibold flex items-center justify-center ${
+                payment.status === "pending"
+                  ? "bg-yellow-200 text-yellow-800"
+                  : "bg-green-200 text-green-800"
+              }`}
             >
-              <AlertCircle className="w-16 h-16 text-gray-400 mb-4" />
-              <h3 className="text-xl font-medium mb-2">No payments found</h3>
-              <p className={isDarkMode ? "text-gray-400" : "text-gray-600"}>
-                {searchTerm || dateFilter.from || dateFilter.to
-                  ? "Try adjusting your search or filters"
-                  : "You haven't made any payments in this category yet."}
-              </p>
-              {(searchTerm || dateFilter.from || dateFilter.to) && (
-                <button
-                  onClick={resetFilters}
-                  className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-300"
-                >
-                  Reset Filters
-                </button>
+              {payment.status === "pending" ? (
+                <Clock className="w-3 h-3 mr-1" />
+              ) : (
+                <CheckCircle className="w-3 h-3 mr-1" />
               )}
+              {payment.status.charAt(0).toUpperCase() + payment.status.slice(1)}
+            </span>
+          </div>
+        </div>
+
+        <div className="flex p-4">
+          <div className="w-16 h-16 rounded-md overflow-hidden flex-shrink-0 bg-gray-200 dark:bg-gray-700">
+            <img
+              src={payment.image || "/placeholder.svg"}
+              alt={payment.item}
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="ml-4 flex-1">
+            <h3
+              className={`font-bold text-lg mb-1 line-clamp-1 ${
+                isDarkMode ? "text-purple-300" : "text-black"
+              }`}
+            >
+              {payment.item}
+            </h3>
+            <p
+              className={`text-sm ${
+                isDarkMode ? "text-gray-400" : "text-gray-600"
+              } line-clamp-2`}
+            >
+              {payment.description}
+            </p>
+          </div>
+        </div>
+
+        <div className="p-4 space-y-2">
+          <div className="flex justify-between">
+            <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>
+              Seller:
+            </span>
+            <span className="font-medium">{payment.seller}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>
+              Amount:
+            </span>
+            <span className="font-bold text-green-600 dark:text-green-400">
+              ${payment.amount.toLocaleString()}
+            </span>
+          </div>
+          <div className="flex justify-between">
+            <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>
+              Date:
+            </span>
+            <span>{payment.date}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>
+              Payment:
+            </span>
+            <span>{payment.paymentMethod}</span>
+          </div>
+          {payment.deliveryStatus && (
+            <div className="flex justify-between items-center mt-2 pt-2 border-t dark:border-gray-700">
+              <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>
+                Delivery:
+              </span>
+              <span
+                className={`h-6 min-w-[80px] px-2 py-1 rounded-full text-xs font-semibold flex items-center justify-center ${
+                  payment.deliveryStatus === "delivered"
+                    ? "bg-green-200 text-green-800 dark:bg-green-900/30 dark:text-green-200"
+                    : "bg-blue-200 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200"
+                }`}
+              >
+                <Truck className="w-3 h-3 mr-1" />
+                {payment.deliveryStatus.charAt(0).toUpperCase() +
+                  payment.deliveryStatus.slice(1)}
+              </span>
+            </div>
+          )}
+          {payment.estimatedDelivery && (
+            <div className="flex justify-between items-center">
+              <span className={isDarkMode ? "text-gray-400" : "text-gray-600"}>
+                Est. Delivery:
+              </span>
+              <span className="text-sm">{payment.estimatedDelivery}</span>
             </div>
           )}
         </div>
+        <div
+          className={`p-4 border-t ${
+            isDarkMode ? "border-gray-700" : "border-gray-200"
+          }`}
+        >
+          <button
+            onClick={() => handleViewDetails(payment)}
+            className="w-full min-h-10 max-h-10 h-10 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors duration-300 flex items-center justify-center"
+            style={{
+              lineHeight: "1.5rem",
+              boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+            }}
+          >
+            <Eye className="w-4 h-4 mr-2" /> View Details
+          </button>
+        </div>
+      </div>
+    ))
+  ) : (
+    <div
+      className={`col-span-full flex flex-col items-center justify-center py-12 ${
+        isDarkMode ? "bg-gray-800" : "bg-white"
+      } rounded-lg shadow-md`}
+    >
+      <AlertCircle className="w-16 h-16 text-gray-400 mb-4" />
+      <h3 className="text-xl font-medium mb-2">No payments found</h3>
+      <p className={isDarkMode ? "text-gray-400" : "text-gray-600"}>
+        {searchTerm || dateFilter.from || dateFilter.to
+          ? "Try adjusting your search or filters"
+          : "You haven't made any payments in this category yet."}
+      </p>
+      {(searchTerm || dateFilter.from || dateFilter.to) && (
+        <button
+          onClick={resetFilters}
+          className="mt-4 w-40 min-h-10 max-h-10 h-10 rounded-md bg-blue-600 text-white font-medium hover:bg-blue-700 transition-colors duration-300 flex items-center justify-center"
+          style={{
+            lineHeight: "1.5rem",
+            boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+          }}
+        >
+          Reset Filters
+        </button>
+      )}
+    </div>
+  )}
+</div>
       )}
 
       {/* Payment Details Modal */}
       <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title="Payment Details"
-      >
-        {selectedPayment && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between mb-4">
-              <span
-                className={`px-2 py-1 rounded-full text-xs font-semibold flex items-center ${
-                  selectedPayment.status === "pending"
-                    ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200"
-                    : "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200"
-                }`}
-              >
-                {selectedPayment.status === "pending" ? (
-                  <Clock className="w-4 h-4 mr-1" />
-                ) : (
-                  <CheckCircle className="w-4 h-4 mr-1" />
-                )}
-                {selectedPayment.status.charAt(0).toUpperCase() +
-                  selectedPayment.status.slice(1)}
+  isOpen={isModalOpen}
+  onClose={() => setIsModalOpen(false)}
+  title="Payment Details"
+>
+  {selectedPayment && (
+    <div className={`space-y-4 p-4 rounded-lg ${isDarkMode ? "bg-gray-900 text-white" : "bg-white text-black"}`}>
+      <div className="flex items-center justify-between mb-4">
+        <span
+          className={`px-2 py-1 rounded-full text-xs font-semibold flex items-center ${
+            selectedPayment.status === "pending"
+              ? isDarkMode
+                ? "bg-red-500 text-yellow-200"
+                : "bg-yellow-100 text-yellow-800"
+              : isDarkMode
+                ? "bg-green-900/30 text-green-200"
+                : "bg-green-100 text-green-800"
+          }`}
+        >
+          {selectedPayment.status === "pending" ? (
+            <Clock className="w-4 h-4 mr-1" />
+          ) : (
+            <CheckCircle className="w-4 h-4 mr-1" />
+          )}
+          {selectedPayment.status.charAt(0).toUpperCase() + selectedPayment.status.slice(1)}
+        </span>
+        <span className="font-bold text-green-600 dark:text-green-400">
+          ${selectedPayment.amount.toLocaleString()}
+        </span>
+      </div>
+
+      <div className="flex items-center">
+        <div className="w-20 h-20 rounded-md overflow-hidden flex-shrink-0 bg-gray-200 dark:bg-gray-700">
+          <img
+            src={selectedPayment.image || "/placeholder.svg"}
+            alt={selectedPayment.item}
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <div className="ml-4">
+          <h3 className="font-bold text-lg">{selectedPayment.item}</h3>
+          <p className={`text-sm ${isDarkMode ? "text-red-400" : "text-black"}`}>
+            {selectedPayment.description}
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 mt-4">
+        <div>
+          <p className={`text-sm ${isDarkMode ? "text-purple-400" : "text-black"}`}>Auction ID</p>
+          <p className="font-medium">{selectedPayment.auctionId}</p>
+        </div>
+        <div>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Payment Method</p>
+          <p className="font-medium">{selectedPayment.paymentMethod}</p>
+        </div>
+        <div>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Seller</p>
+          <p className="font-medium">{selectedPayment.seller}</p>
+        </div>
+        <div>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Date</p>
+          <p className="font-medium">{selectedPayment.date}</p>
+        </div>
+      </div>
+
+      {selectedPayment.deliveryStatus && (
+        <div className={`mt-4 p-3 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-gray-50"}`}>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Delivery Status</p>
+          <div className="flex items-center">
+            <span
+              className={`px-2 py-1 inline-flex items-center text-xs leading-5 font-semibold rounded-full ${
+                selectedPayment.deliveryStatus === "delivered"
+                  ? isDarkMode
+                    ? "bg-green-900/30 text-green-200"
+                    : "bg-green-100 text-green-800"
+                  : isDarkMode
+                    ? "bg-blue-900/30 text-blue-200"
+                    : "bg-blue-100 text-blue-800"
+              }`}
+            >
+              <Truck className="w-4 h-4 mr-1" />
+              {selectedPayment.deliveryStatus.charAt(0).toUpperCase() + selectedPayment.deliveryStatus.slice(1)}
+            </span>
+
+            {selectedPayment.estimatedDelivery && (
+              <span className="ml-4 text-sm">
+                Est. Delivery: {selectedPayment.estimatedDelivery}
               </span>
-              <span className="font-bold text-green-600 dark:text-green-400">
-                ${selectedPayment.amount.toLocaleString()}
-              </span>
-            </div>
-
-            <div className="flex items-center">
-              <div className="w-20 h-20 rounded-md overflow-hidden flex-shrink-0 bg-gray-200 dark:bg-gray-700">
-                <img
-                  src={selectedPayment.image || "/placeholder.svg"}
-                  alt={selectedPayment.item}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div className="ml-4">
-                <h3 className="font-bold text-lg">{selectedPayment.item}</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {selectedPayment.description}
-                </p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4 mt-4">
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Auction ID
-                </p>
-                <p className="font-medium">{selectedPayment.auctionId}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Payment Method
-                </p>
-                <p className="font-medium">{selectedPayment.paymentMethod}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Seller
-                </p>
-                <p className="font-medium">{selectedPayment.seller}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Date</p>
-                <p className="font-medium">{selectedPayment.date}</p>
-              </div>
-            </div>
-
-            {selectedPayment.deliveryStatus && (
-              <div className="mt-4 p-3 rounded-lg bg-gray-50 dark:bg-gray-700">
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
-                  Delivery Status
-                </p>
-                <div className="flex items-center">
-                  <span
-                    className={`px-2 py-1 inline-flex items-center text-xs leading-5 font-semibold rounded-full ${
-                      selectedPayment.deliveryStatus === "delivered"
-                        ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-200"
-                        : "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200"
-                    }`}
-                  >
-                    <Truck className="w-4 h-4 mr-1" />
-                    {selectedPayment.deliveryStatus.charAt(0).toUpperCase() +
-                      selectedPayment.deliveryStatus.slice(1)}
-                  </span>
-
-                  {selectedPayment.estimatedDelivery && (
-                    <span className="ml-4 text-sm">
-                      Est. Delivery: {selectedPayment.estimatedDelivery}
-                    </span>
-                  )}
-                </div>
-              </div>
             )}
-
-            <div className="pt-4 border-t dark:border-gray-700">
-              <div className="flex flex-col sm:flex-row gap-2">
-                <button
-                  onClick={() => handleContactSupport(selectedPayment.id)}
-                  className="flex-1 py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm transition-colors duration-300 flex items-center justify-center"
-                >
-                  <MessageSquare className="w-4 h-4 mr-2" /> Contact Support
-                </button>
-
-                {selectedPayment.status === "completed" && (
-                  <button
-                    onClick={() => handleDownloadReceipt(selectedPayment.id)}
-                    className="flex-1 py-2 px-4 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-md text-sm transition-colors duration-300 flex items-center justify-center"
-                  >
-                    <FileText className="w-4 h-4 mr-2" /> Download Receipt
-                  </button>
-                )}
-              </div>
-
-              <div className="mt-4 flex items-center text-sm text-gray-500 dark:text-gray-400">
-                <HelpCircle className="w-4 h-4 mr-2" />
-                <span>
-                  Need help with this payment? Our support team is available
-                  24/7.
-                </span>
-              </div>
-            </div>
           </div>
-        )}
-      </Modal>
+        </div>
+      )}
+
+      <div className="pt-4 border-t dark:border-gray-700">
+        <div className="flex flex-col sm:flex-row gap-2">
+          <button
+            onClick={() => handleContactSupport(selectedPayment.id)}
+            className="flex-1 py-2 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm transition-colors duration-300 flex items-center justify-center"
+          >
+            <MessageSquare className="w-4 h-4 mr-2" /> Contact Support
+          </button>
+
+          {selectedPayment.status === "completed" && (
+            <button
+              onClick={() => handleDownloadReceipt(selectedPayment.id)}
+              className="flex-1 py-2 px-4 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 rounded-md text-sm transition-colors duration-300 flex items-center justify-center"
+            >
+              <FileText className="w-4 h-4 mr-2" /> Download Receipt
+            </button>
+          )}
+        </div>
+
+        <div className="mt-4 flex items-center text-sm text-gray-500 dark:text-gray-400">
+          <HelpCircle className="w-4 h-4 mr-2" />
+          <span>
+            Need help with this payment? Our support team is available 24/7.
+          </span>
+        </div>
+      </div>
+    </div>
+  )}
+</Modal>
+
+
 
       {/* Add CSS for animations */}
       <style jsx="true">{`

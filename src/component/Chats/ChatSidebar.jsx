@@ -7,7 +7,7 @@ import LoadingSpinner from "../LoadingSpinner";
 export default function ChatSidebar({
   isDarkMode,
   onSelectUser,
-  unreadMessages = {},
+  unreadMessages = {},  
   selectedUserEmail,
   recentMessages = {},
 }) {

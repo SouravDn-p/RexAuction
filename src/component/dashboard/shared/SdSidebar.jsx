@@ -332,6 +332,34 @@ const Sidebar = () => {
                   FeedBacks
                 </span>
               </NavLink>
+              <NavLink
+                to="/dashboard/sharedPayment"
+                className={({ isActive }) =>
+                  `flex items-center gap-3 py-2.5 px-3 rounded-lg transition-all duration-200 ${
+                    isActive
+                      ? isDarkMode
+                        ? "bg-indigo-700/60 text-white font-bold shadow-md"
+                        : "bg-indigo-200 text-indigo-900 font-bold shadow-md"
+                      : isDarkMode
+                      ? "hover:bg-indigo-800/40 text-indigo-100"
+                      : "hover:bg-indigo-100 text-indigo-800"
+                  }`
+                }
+              >
+                <CgProfile
+                  size={20}
+                  className={`${
+                    isDarkMode ? "text-indigo-300" : "text-indigo-700"
+                  }`}
+                />
+                <span
+                  className={`${
+                    isDarkMode ? "text-amber-100" : "text-amber-800"
+                  }`}
+                >
+                  Payment
+                </span>
+              </NavLink>
             </div>
           )}
 
@@ -488,7 +516,7 @@ const Sidebar = () => {
                 </span>
               </NavLink>
               <NavLink
-                to="/dashboard/payment"
+                to="/dashboard/sharedPayment"
                 className={({ isActive }) =>
                   `flex items-center gap-3 py-2.5 px-3 rounded-lg transition-all duration-200 ${
                     isActive
@@ -671,7 +699,7 @@ const Sidebar = () => {
                 </span>
               </NavLink>
               <NavLink
-                to="/dashboard/payment"
+                to="/dashboard/sharedPayment"
                 className={({ isActive }) =>
                   `flex items-center gap-3 py-2.5 px-3 rounded-lg transition-all duration-200 ${
                     isActive

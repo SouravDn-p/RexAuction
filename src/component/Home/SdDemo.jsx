@@ -49,15 +49,15 @@ const SdDemo = () => {
     >
       <div className="max-w-6xl mx-auto px-4">
         <div className="text-center mb-12">
-        <h2
-  className={`text-3xl md:text-4xl font-bold bg-clip-text text-transparent ${
-    isDarkMode
-      ? "bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400"
-      : "bg-gradient-to-r  from-cyan-400 via-purple-400 to-pink-400"
-  }`}
->
-  Our Amazing Features
-</h2>
+          <h2
+            className={`text-3xl md:text-4xl font-bold bg-clip-text text-transparent ${
+              isDarkMode
+                ? "bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400"
+                : "bg-gradient-to-r  from-cyan-400 via-purple-400 to-pink-400"
+            }`}
+          >
+            Our Amazing Features
+          </h2>
 
           <p
             className={`mt-4 max-w-2xl mx-auto ${
@@ -101,7 +101,11 @@ const SdDemo = () => {
                   {feature.title}
                 </h3>
 
-                <p className={`${isDarkMode ? "text-gray-300" : "text-gray-600"}`}>
+                <p
+                  className={`${
+                    isDarkMode ? "text-gray-300" : "text-gray-600"
+                  }`}
+                >
                   {feature.description}
                 </p>
 

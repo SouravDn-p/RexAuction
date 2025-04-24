@@ -8,9 +8,9 @@ function ManageTable() {
   const axiosSecure = useAxiosSecure();
   const [selectedAuction, setSelectedAuction] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [filterStatus, setFilterStatus] = useState("All");
+  const [filterStatus, setFilterStatus] = useState("pending");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const itemsPerPage = 10;
   const { isDarkMode } = useContext(ThemeContext);
 
   const { data: auctions = [], refetch } = useQuery({
