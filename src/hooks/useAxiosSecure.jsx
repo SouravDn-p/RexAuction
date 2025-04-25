@@ -5,7 +5,7 @@ import { AuthContexts } from "../providers/AuthProvider";
 
 export const axiosSecure = axios.create({
   baseURL: "http://localhost:5000",
-  withCredentials: true,
+  withCredentials: true, // This is essential for cookie-based auth
 });
 
 const useAxiosSecure = () => {
@@ -13,31 +13,38 @@ const useAxiosSecure = () => {
   const { logout } = useContext(AuthContexts);
 
   useEffect(() => {
+    // Request interceptor - no need to set Authorization header for cookie-based auth
     const requestInterceptor = axiosSecure.interceptors.request.use(
       (config) => {
-        const token = localStorage.getItem("access-token");
-        if (token) {
-          config.headers.authorization = `Bearer ${token}`;
-        }
+        // You might want to add other headers or request modifications here
         return config;
       },
-      (error) => Promise.reject(error)
+      (error) => {
+        return Promise.reject(error);
+      }
     );
 
+    // Response interceptor
     const responseInterceptor = axiosSecure.interceptors.response.use(
       (response) => response,
       async (error) => {
         const status = error.response?.status;
+        
+        // If unauthorized or forbidden, logout and redirect
         if (status === 401 || status === 403) {
-          await logout();
-          navigate("/login");
+          try {
+            await logout();
+            navigate("/login", { replace: true });
+          } catch (logoutError) {
+            console.error("Logout failed:", logoutError);
+          }
         }
         return Promise.reject(error);
       }
     );
 
-    // Cleanup interceptors on unmount
     return () => {
+      // Cleanup interceptors when component unmounts
       axiosSecure.interceptors.request.eject(requestInterceptor);
       axiosSecure.interceptors.response.eject(responseInterceptor);
     };

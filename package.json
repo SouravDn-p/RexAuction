@@ -60,7 +60,7 @@
     "slick-carousel": "^1.8.1",
     "socket.io-client": "^4.8.1",
     "sort-by": "^0.0.2",
-    "sweetalert2": "^11.17.2",
+    "sweetalert2": "^11.6.13",
     "sweetalert2-react-content": "^5.1.0",
     "swiper": "^11.2.5",
     "tailwind-merge": "^3.0.2",
