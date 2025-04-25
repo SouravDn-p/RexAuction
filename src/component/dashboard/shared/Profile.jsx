@@ -8,6 +8,7 @@ import coverPhoto from "../../../assets/bg/hammer.webp";
 import LoadingSpinner from "../../LoadingSpinner";
 import coverImg from "../../../assets/bg/hammer.webp";
 import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
 
 // Demo admin data
 const adminActivity = [
@@ -176,6 +177,7 @@ const Profile = () => {
   const [userReviews, setUserReviews] = useState([]);
   const [upcomingAuctions, setUpcomingAuctions] = useState([]);
 
+  const navigate = useNavigate();
   const isBuyer = dbUser?.role === "buyer";
   const isSeller = dbUser?.role === "seller";
   const isAdmin = dbUser?.role === "admin";
@@ -521,14 +523,25 @@ const Profile = () => {
                   >
                     Admin Controls
                   </h3>
+
                   <div className="flex flex-wrap gap-2">
-                    <button className="flex-1 min-w-[120px] bg-blue-600 hover:bg-blue-700 text-white text-xs py-1.5 px-2 rounded">
+                    <button
+                      onClick={() => navigate("/dashboard/userManagement")}
+                      className="flex-1 min-w-[120px] bg-blue-600 hover:bg-blue-700 text-white text-xs py-1.5 px-2 rounded"
+                    >
                       Manage Users
                     </button>
-                    <button className="flex-1 min-w-[120px] bg-purple-600 hover:bg-purple-700 text-white text-xs py-1.5 px-2 rounded">
-                      Review Complaints
+
+                    <button
+                      onClick={() => navigate("/dashboard/feedback")}
+                      className="flex-1 min-w-[120px] bg-purple-600 hover:bg-purple-700 text-white text-xs py-1.5 px-2 rounded"
+                    >
+                      Review Feedbacks
                     </button>
-                    <button className="flex-1 min-w-[120px] bg-green-600 hover:bg-green-700 text-white text-xs py-1.5 px-2 rounded">
+                    <button
+                      onClick={() => navigate("/dashboard/manageAuctions")}
+                      className="flex-1 min-w-[120px] bg-green-600 hover:bg-green-700 text-white text-xs py-1.5 px-2 rounded"
+                    >
                       Approve Auctions
                     </button>
                   </div>
