@@ -3,11 +3,12 @@ import axios from "axios";
 import auth from "../../firebase/firebase.init";
 import io from "socket.io-client";
 import LoadingSpinner from "../LoadingSpinner";
+import useAxiosSecure from "../../hooks/useAxiosSecure";
 
 export default function ChatSidebar({
   isDarkMode,
   onSelectUser,
-  unreadMessages = {},  
+  unreadMessages = {},
   selectedUserEmail,
   recentMessages = {},
 }) {
@@ -18,6 +19,7 @@ export default function ChatSidebar({
   const hasSelectedInitialUser = useRef(false);
   const [localRecentMessages, setLocalRecentMessages] = useState({});
   const [preloadedImages, setPreloadedImages] = useState({});
+  const axiosSecure = useAxiosSecure();
 
   useEffect(() => {
     if (Object.keys(recentMessages).length > 0) {
@@ -89,7 +91,7 @@ export default function ChatSidebar({
         setLoading(true);
 
         // Fetch users
-        const usersResponse = await axios.get("http://localhost:5000/users", {
+        const usersResponse = await axiosSecure.get("/users", {
           withCredentials: true,
         });
 
