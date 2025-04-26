@@ -356,10 +356,27 @@ function EndedAuctionsHistory() {
     <div
       className={`p-4 sm:p-6 ${themeStyles.background} ${themeStyles.text} min-h-screen`}
     >
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
-        <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-0">
-          Ended Auctions History
-        </h2>
+      <div className="max-w-7xl mx-auto">
+        {/* Header Section with animated gradient background */}
+        <div className="relative overflow-hidden rounded-2xl mb-12 p-8 md:p-12">
+          <div className="absolute inset-0 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 opacity-90"></div>
+
+          {/* Animated background shapes */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute -top-24 -left-24 w-64 h-64 rounded-full bg-white opacity-10 blur-xl"></div>
+            <div className="absolute top-1/2 -right-24 w-80 h-80 rounded-full bg-white opacity-10 blur-xl"></div>
+            <div className="absolute -bottom-24 left-1/3 w-72 h-72 rounded-full bg-white opacity-10 blur-xl"></div>
+          </div>
+
+          <div className="relative z-10 text-center">
+            <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4">
+              Ended Auctions History
+            </h1>
+            <p className="mt-3 text-xl text-purple-100 max-w-2xl mx-auto">
+              Browse through our past auctions and explore the results
+            </p>
+          </div>
+        </div>
       </div>
 
       <div className={`overflow-x-auto rounded-lg ${themeStyles.shadow}`}>

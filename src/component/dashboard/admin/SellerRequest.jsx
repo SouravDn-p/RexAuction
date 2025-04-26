@@ -197,21 +197,36 @@ const SellerRequest = () => {
         isDarkMode ? "bg-gray-900" : "bg-gray-50"
       }`}
     >
-      <div
-        className={`max-w-6xl mx-auto p-6 rounded-lg ${
-          isDarkMode ? "bg-gray-800" : "bg-white"
-        } shadow-md`}
-      >
-        <h1
-          className={`text-2xl md:text-3xl font-bold mb-6 text-center ${
-            isDarkMode ? "text-white" : "text-gray-800"
-          }`}
+      <div className="max-w-6xl mx-auto p-6 rounded-lg">
+        {/* Header Section with Animated Background */}
+        <div
+          className={`relative overflow-hidden rounded-2xl mb-10 p-8 md:p-12 transition-all duration-700 transform opacity-100 translate-y-0`}
         >
-          Seller Request Management
-        </h1>
+          {/* Gradient Background */}
+          <div className="absolute inset-0 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 opacity-90"></div>
 
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
-          <div className="flex flex-wrap gap-2">
+          {/* Animated Blur Shapes */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute -top-24 -left-24 w-64 h-64 rounded-full bg-white opacity-10 blur-2xl"></div>
+            <div className="absolute top-1/2 -right-24 w-80 h-80 rounded-full bg-white opacity-10 blur-2xl"></div>
+            <div className="absolute -bottom-24 left-1/3 w-72 h-72 rounded-full bg-white opacity-10 blur-2xl"></div>
+          </div>
+
+          {/* Main Content */}
+          <div className="relative z-10 text-center">
+            <h1 className="text-2xl md:text-3xl font-bold mb-2 text-white">
+              Seller Request Management
+            </h1>
+          </div>
+        </div>
+
+        {/* Filter Buttons */}
+        <div className="flex justify-center mb-10 transition-all duration-700 delay-200">
+          <div
+            className={`inline-flex p-1.5 gap-2 rounded-xl ${
+              isDarkMode ? "bg-gray-800" : "bg-gray-100"
+            } shadow-lg`}
+          >
             {["pending", "accepted", "rejected"].map((role) => (
               <button
                 key={role}
@@ -234,6 +249,7 @@ const SellerRequest = () => {
           </div>
         </div>
 
+        {/* Table with Seller Requests */}
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead className={isDarkMode ? "bg-gray-700" : "bg-gray-50"}>
@@ -357,6 +373,7 @@ const SellerRequest = () => {
           </table>
         </div>
 
+        {/* Pagination */}
         {totalPages > 1 && (
           <div
             className={`flex items-center justify-between px-4 py-3 sm:px-6 ${
