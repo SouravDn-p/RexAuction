@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import useAxiosPublic from "../../../hooks/useAxiosPublic";
 
 const image_hosting_key = import.meta.env.VITE_IMAGE_HOSTING_KEY;
 const image_hosting_api = `https://api.imgbb.com/1/upload?key=${image_hosting_key}`;
@@ -16,6 +17,7 @@ const EditAnnouncementModal = ({
   const [date, setDate] = useState("");
   const [image, setImage] = useState("");
   const [imageFile, setImageFile] = useState(null);
+  const axiosPublic = useAxiosPublic();
 
   useEffect(() => {
     if (announcementData) {
@@ -52,8 +54,8 @@ const EditAnnouncementModal = ({
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.put(
-        `http://localhost:5000/announcement/${announcementData._id}`,
+      const response = await axiosPublic.put(
+        `/announcement/${announcementData._id}`,
         {
           title,
           content,

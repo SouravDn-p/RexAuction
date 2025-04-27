@@ -4,8 +4,9 @@ import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import Swal from "sweetalert2";
 import ThemeContext from "../../Context/ThemeContext";
 import Header from "./Header/Header";
+import { MessageSquare } from "lucide-react";
 
-function ManageTable() {
+function SdManageTable() {
   const axiosSecure = useAxiosSecure();
   const [selectedAuction, setSelectedAuction] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -13,14 +14,38 @@ function ManageTable() {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const { isDarkMode } = useContext(ThemeContext);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   const { data: auctions = [], refetch } = useQuery({
     queryKey: ["auctionData", filterStatus],
     queryFn: async () => {
       const res = await axiosSecure.get("/auctions");
+      setIsLoaded(true);
       return res.data || [];
     },
   });
+
+  // Filter Button Component
+  const FilterButton = ({ label, isActive, onClick, isDarkMode }) => (
+    <button
+      onClick={onClick}
+      className={`px-6 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
+        isActive
+          ? `${
+              isDarkMode
+                ? "bg-gray-700 text-white shadow-lg shadow-purple-500/10"
+                : "bg-white text-purple-700 shadow-lg"
+            }`
+          : `${
+              isDarkMode
+                ? "text-gray-400 hover:text-white"
+                : "text-gray-500 hover:text-purple-700"
+            }`
+      }`}
+    >
+      {label}
+    </button>
+  );
 
   // Function to check if an auction has ended
   const isAuctionEnded = (endTime) => {
@@ -108,29 +133,51 @@ function ManageTable() {
         header="Auction Management"
         title="Manage your auctions effortlessly"
       />
-     
 
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
-        <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-0">
-          Manage Auctions
-        </h2>
-        <div className="flex flex-wrap gap-2">
-          {["All", "pending", "Accepted", "Rejected"].map((status) => (
-            <button
-              key={status}
-              onClick={() => {
-                setFilterStatus(status);
-                setCurrentPage(1);
-              }}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                filterStatus === status
-                  ? `${themeStyles.activeFilterBg} ${themeStyles.activeFilterText}`
-                  : `${themeStyles.buttonBg} ${themeStyles.buttonText} ${themeStyles.buttonHover}`
-              }`}
-            >
-              {status}
-            </button>
-          ))}
+      {/* Filter Tabs */}
+      <div
+        className={`flex justify-center mb-10 transition-all duration-700 delay-200 ${
+          isLoaded ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-10"
+        }`}
+      >
+        <div
+          className={`inline-flex p-1.5 rounded-xl ${
+            isDarkMode ? "bg-gray-800" : "bg-gray-100"
+          } shadow-lg`}
+        >
+          <FilterButton
+            label={`All`}
+            isActive={filterStatus === "All"}
+            onClick={() => {
+              setFilterStatus("All");
+              setCurrentPage(1);
+            }}
+            isDarkMode={isDarkMode}
+          />
+          <FilterButton
+            label={`Pending `}
+            isActive={filterStatus === "pending"}
+            onClick={() => {
+              setFilterStatus("pending");
+              setCurrentPage(1);
+            }}
+            isDarkMode={isDarkMode}
+          />
+          <FilterButton
+            label={`Accepted `}
+            isActive={filterStatus === "Accepted"}
+            onClick={() => {
+              setFilterStatus("Accepted");
+              setCurrentPage(1);
+            }}
+            isDarkMode={isDarkMode}
+          />
+          <FilterButton
+            label={`Rejected `}
+            isActive={filterStatus === "Rejected"}
+            onClick={() => setFilterStatus("Rejected")}
+            isDarkMode={isDarkMode}
+          />
         </div>
       </div>
 
@@ -215,7 +262,33 @@ function ManageTable() {
                   colSpan="6"
                   className={`py-4 px-6 text-center ${themeStyles.secondaryText}`}
                 >
-                  No auctions found for {filterStatus} status
+                  <div
+                    className={`text-center py-16 rounded-xl shadow-lg transition-all duration-300 ${
+                      isDarkMode
+                        ? "bg-gray-800 text-gray-300 border border-gray-700"
+                        : "bg-white text-gray-500 border border-gray-100"
+                    }`}
+                  >
+                    <div className="mx-auto w-24 h-24 rounded-full flex items-center justify-center mb-6 bg-gray-100 dark:bg-gray-700">
+                      <MessageSquare
+                        className={`w-12 h-12 ${
+                          isDarkMode ? "text-gray-500" : "text-gray-400"
+                        }`}
+                      />
+                    </div>
+                    <h3 className="text-xl font-semibold mb-2">
+                      No auctions found for {filterStatus} status
+                    </h3>
+                    <p
+                      className={`${
+                        isDarkMode ? "text-gray-400" : "text-gray-500"
+                      }`}
+                    >
+                      We couldn't find any{" "}
+                      {selectedAuction !== "all" ? selectedAuction : ""} Auction
+                      at the moment.
+                    </p>
+                  </div>
                 </td>
               </tr>
             )}
@@ -649,4 +722,4 @@ function ManageTable() {
   );
 }
 
-export default ManageTable;
+export default SdManageTable;

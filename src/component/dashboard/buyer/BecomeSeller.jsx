@@ -42,12 +42,9 @@ const BecomeSeller = () => {
     if (user?.email) {
       const fetchSellerStatus = async () => {
         try {
-          const res = await axiosPublic.get(
-            "http://localhost:5000/sellerRequest",
-            {
-              params: { email: user.email },
-            }
-          );
+          const res = await axiosPublic.get("/sellerRequest", {
+            params: { email: user.email },
+          });
           if (res.data && res.data.email) {
             setSellerStatus(res.data); // Set status if data exists
           } else {
@@ -170,12 +167,9 @@ const BecomeSeller = () => {
       if (res.data.success) {
         toast.success("Seller request submitted successfully!");
         // Refetch seller status instead of setting it locally
-        const updatedStatus = await axiosPublic.get(
-          "http://localhost:5000/sellerRequest",
-          {
-            params: { email: user.email },
-          }
-        );
+        const updatedStatus = await axiosPublic.get("/sellerRequest", {
+          params: { email: user.email },
+        });
         if (updatedStatus.data && updatedStatus.data.email) {
           setSellerStatus(updatedStatus.data);
         } else {

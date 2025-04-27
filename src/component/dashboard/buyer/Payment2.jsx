@@ -47,8 +47,8 @@ const Payment2 = () => {
   useEffect(() => {
     const fetchPayments = async () => {
       try {
-        const response = await fetch("http://localhost:5000/payments");
-        const result = await response.json();
+        const response = await axiosPublic.get("/payments");
+        const result = response.data;
         setPayments(result);
 
         if (auctionData?._id) {
@@ -56,7 +56,7 @@ const Payment2 = () => {
             (item) => item.auctionId === auctionData._id
           );
           setPayment(matched);
-          setIsPaid(matched?.PaymentStatus == "success");
+          setIsPaid(matched?.PaymentStatus === "success");
         }
       } catch (error) {
         console.error("Error fetching payments:", error);

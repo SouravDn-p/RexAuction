@@ -117,27 +117,30 @@ const AuthProvider = ({ children }) => {
 
   // This useEffect hook listens to authentication state changes using Firebase's onAuthStateChanged
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async currentUser => {
-      console.log('CurrentUser', currentUser)
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      console.log("CurrentUser", currentUser);
       if (currentUser?.email) {
-        setUser(currentUser)
+        setUser(currentUser);
         // generateToken
-        const { data } = await axios.post("http://localhost:5000/jwt", { email: currentUser?.email }, { withCredentials: true })
-        console.log(data)
+        const { data } = await axios.post(
+          "http://localhost:5000/jwt",
+          { email: currentUser?.email },
+          { withCredentials: true }
+        );
+        console.log(data);
       } else {
-
-        setUser(currentUser)
-        await axios.get(`http://localhost:5000/logout`, { withCredentials: true })
-
+        setUser(currentUser);
+        await axios.get(`http://localhost:5000/logout`, {
+          withCredentials: true,
+        });
       }
-      setLoading(false)
-
-    })
+      setLoading(false);
+    });
 
     return () => {
-      return unsubscribe()
-    }
-  }, [])
+      return unsubscribe();
+    };
+  }, []);
 
   const authInfo = {
     createUser,

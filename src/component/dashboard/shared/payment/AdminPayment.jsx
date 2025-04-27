@@ -21,7 +21,17 @@ import {
   Trash2,
   Settings,
   Bell,
+  Users,
 } from "lucide-react";
+import {
+  FaTrash,
+  FaEdit,
+  FaUserShield,
+  FaUserAlt,
+  FaSearch,
+  FaSortAmountDown,
+  FaSortAmountUp,
+} from "react-icons/fa";
 import LoadingSpinner from "../../../LoadingSpinner";
 import useAuth from "../../../../hooks/useAuth";
 import ThemeContext from "../../../Context/ThemeContext";
@@ -67,8 +77,46 @@ const Toast = ({ message, type, onClose }) => {
   );
 };
 
+// Stat Card Component
+const StatCard = ({ icon, title, value, color, isDarkMode }) => (
+  <div
+    className={`rounded-xl overflow-hidden shadow-lg transition-transform duration-300 hover:scale-105 ${
+      isDarkMode
+        ? "bg-gray-800 border border-gray-700"
+        : "bg-white border border-gray-100"
+    }`}
+  >
+    <div className="p-6">
+      <div className="flex items-center space-x-4">
+        <div
+          className={`h-12 w-12 rounded-lg bg-gradient-to-br ${color} flex items-center justify-center`}
+        >
+          <div className="text-white">{icon}</div>
+        </div>
+        <div>
+          <p
+            className={`text-sm ${
+              isDarkMode ? "text-gray-400" : "text-gray-500"
+            }`}
+          >
+            {title}
+          </p>
+          <p
+            className={`text-2xl font-bold ${
+              isDarkMode ? "text-white" : "text-gray-800"
+            }`}
+          >
+            {value}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
 export default function AdminPayment() {
   const [activeTab, setActiveTab] = useState("pending");
+  const [isLoaded, setIsLoaded] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [payments, setPayments] = useState([]);
@@ -152,80 +200,6 @@ export default function AdminPayment() {
           </div>
           <div className="p-4">{children}</div>
         </div>
-      </div>
-    );
-  };
-
-  const StatsCard = ({ title, value, icon: Icon, color, isDarkMode }) => {
-    return (
-      <div
-        className={`relative rounded-2xl p-6 border-l-[8px] ${color} transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_15px_30px_-5px_rgba(0,0,0,0.3)] backdrop-blur-lg ${
-          isDarkMode
-            ? "bg-gradient-to-br from-gray-900/80 to-gray-800/80 text-white"
-            : "bg-gradient-to-br from-white/90 to-blue-50/90 text-gray-900"
-        } overflow-hidden`}
-      >
-        <div className="flex items-center gap-5">
-          <div
-            className={`p-4 rounded-xl bg-opacity-20 shadow-lg ${color.replace(
-              "border-",
-              "bg-"
-            )} transform transition-transform duration-300 hover:scale-110`}
-          >
-            <Icon
-              className={`w-6 h-6 ${color.replace(
-                "border-",
-                "text-"
-              )} drop-shadow-lg animate-pulse-slow`}
-            />
-          </div>
-          <div className="relative z-10">
-            <p
-              className={`text-xs font-semibold tracking-wide uppercase ${
-                isDarkMode ? "text-gray-300/90" : "text-gray-600/90"
-              }`}
-            >
-              {title}
-            </p>
-            <h3
-              className={`text-2xl font-black tracking-tighter bg-clip-text ${
-                isDarkMode
-                  ? "text-transparent bg-gradient-to-r from-white to-gray-300"
-                  : "text-transparent bg-gradient-to-r from-gray-900 to-blue-600"
-              }`}
-            >
-              {value}
-            </h3>
-          </div>
-        </div>
-
-        {/* Enhanced shine effect */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
-          <div
-            className={`absolute -top-1/2 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent transform rotate-45 scale-x-200 animate-shine ${
-              isDarkMode ? "opacity-30" : "opacity-20"
-            }`}
-          />
-        </div>
-
-        {/* Subtle corner glow */}
-        <div
-          className={`absolute top-0 left-0 w-24 h-24 bg-${
-            color.split("-")[1]
-          }-500/30 blur-3xl rounded-full -z-10 animate-pulse-slow`}
-        />
-        <div
-          className={`absolute bottom-0 right-0 w-24 h-24 bg-${
-            color.split("-")[1]
-          }-500/30 blur-3xl rounded-full -z-10 animate-pulse-slow`}
-        />
-
-        {/* Hover sparkle effect */}
-        <div
-          className={`absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-300 bg-${
-            color.split("-")[1]
-          }-500/10 bg-[radial-gradient(circle_at_center,_rgba(255,255,255,0.3)_0%,_transparent_70%)] -z-10`}
-        />
       </div>
     );
   };
@@ -676,6 +650,45 @@ export default function AdminPayment() {
           </div>
         </div>
 
+        {/* Statistics Cards */}
+        <div
+          className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 transition-all duration-700 delay-100 ${
+            isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+          }`}
+        >
+          <StatCard
+            icon={<CreditCard className="w-6 h-6" />}
+            title="Total Payments"
+            value={stats.totalPayments}
+            color="from-amber-500 to-yellow-500"
+            isDarkMode={isDarkMode}
+          />
+
+          <StatCard
+            icon={<Clock className="w-6 h-6" />}
+            title="Pending Payments"
+            value={stats.pendingPayments}
+            color="from-violet-500 to-purple-500"
+            isDarkMode={isDarkMode}
+          />
+
+          <StatCard
+            icon={<CheckCircle className="w-6 h-6" />}
+            title="Completed "
+            value={stats.completedPayments}
+            color="from-blue-500 to-indigo-500"
+            isDarkMode={isDarkMode}
+          />
+
+          <StatCard
+            icon={<DollarSign className="w-6 h-6" />}
+            title="Total Amount"
+            value={`$${stats.totalAmount.toLocaleString()}`}
+            color="from-emerald-500 to-teal-500"
+            isDarkMode={isDarkMode}
+          />
+        </div>
+
         {/* Filters and actions */}
         <div className="flex flex-col md:flex-row justify-around items-start md:items-center mb-6">
           <div className="flex items-center space-x-2 mt-4 md:mt-0">
@@ -917,34 +930,6 @@ export default function AdminPayment() {
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <StatsCard
-          title="Total Payments"
-          value={stats.totalPayments}
-          icon={CreditCard}
-          color="border-blue-500"
-        />
-        <StatsCard
-          title="Pending Payments"
-          value={stats.pendingPayments}
-          icon={Clock}
-          color="border-yellow-500"
-        />
-        <StatsCard
-          title="Completed Payments"
-          value={stats.completedPayments}
-          icon={CheckCircle}
-          color="border-green-500"
-        />
-        <StatsCard
-          title="Total Amount"
-          value={`$${stats.totalAmount.toLocaleString()}`}
-          icon={DollarSign}
-          color="border-purple-500"
-        />
       </div>
 
       {/* Chart View */}

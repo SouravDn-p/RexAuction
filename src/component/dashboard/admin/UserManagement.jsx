@@ -38,12 +38,12 @@ const UserManagement = () => {
     const fetchUsers = async () => {
       try {
         setLoading(true);
-        const response = await fetch("http://localhost:5000/users");
-        const data = await response.json();
-        setUsers(data);
+        const response = await axiosPublic.get("/users");
+        setUsers(response.data);
         setLoading(false);
         setIsLoaded(true);
       } catch (err) {
+        console.error("Failed to fetch users:", err);
         setError("Failed to fetch users");
         setLoading(false);
       }
@@ -56,7 +56,6 @@ const UserManagement = () => {
     Swal.fire({
       title: "Are you sure?",
       text: `Do you want to change the role to ${role}?`,
-
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
@@ -64,17 +63,14 @@ const UserManagement = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const res = await axios.patch(
-            `http://localhost:5000/users/${userId}`,
-            { role }
-          );
+          const res = await axiosPublic.patch(`/users/${userId}`, { role });
 
           if (res.data.success) {
             Swal.fire("Updated!", "User role has been changed.", "success");
+
             // Refresh user list after update
-            const response = await fetch("http://localhost:5000/users");
-            const data = await response.json();
-            setUsers(data);
+            const response = await axiosPublic.get("/users");
+            setUsers(response.data);
           } else {
             Swal.fire("Failed!", "Could not update user role.", "error");
           }
@@ -95,48 +91,47 @@ const UserManagement = () => {
       confirmButtonColor: "#d33",
       cancelButtonColor: "#3085d6",
       confirmButtonText: "Yes, delete it!",
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        axios
-          .delete(`http://localhost:5000/users/${userId}`)
-          .then((response) => {
-            if (response.data.success) {
-              Swal.fire({
-                title: "Deleted!",
-                text: "User has been deleted.",
-                icon: "success",
-                customClass: {
-                  popup: isDarkMode ? "swal-dark-theme" : "",
-                },
-              });
-              // Remove the user from UI
-              setUsers((prevUsers) =>
-                prevUsers.filter((user) => user._id !== userId)
-              );
-            } else {
-              Swal.fire({
-                title: "Error!",
-                text: response.data.message,
-                icon: "error",
-                customClass: {
-                  popup: isDarkMode ? "swal-dark-theme" : "",
-                },
-              });
-            }
-          })
-          .catch((error) => {
+        try {
+          const response = await axiosPublic.delete(`/users/${userId}`);
+
+          if (response.data.success) {
             Swal.fire({
-              title: "Failed!",
-              text: "Something went wrong.",
+              title: "Deleted!",
+              text: "User has been deleted.",
+              icon: "success",
+              customClass: {
+                popup: isDarkMode ? "swal-dark-theme" : "",
+              },
+            });
+            // Remove the user from UI
+            setUsers((prevUsers) =>
+              prevUsers.filter((user) => user._id !== userId)
+            );
+          } else {
+            Swal.fire({
+              title: "Error!",
+              text: response.data.message,
               icon: "error",
               customClass: {
                 popup: isDarkMode ? "swal-dark-theme" : "",
               },
             });
+          }
+        } catch (error) {
+          Swal.fire({
+            title: "Failed!",
+            text: "Something went wrong.",
+            icon: "error",
+            customClass: {
+              popup: isDarkMode ? "swal-dark-theme" : "",
+            },
           });
+        }
       }
     });
-  };
+  };  
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
