@@ -312,7 +312,7 @@ const AddBalance = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div>  
     </div>
   );
 };

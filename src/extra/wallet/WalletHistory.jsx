@@ -7,6 +7,7 @@ import {
   ArrowUp,
   ChevronDown,
   Filter,
+  Search,
 } from "lucide-react";
 import { HiOutlinePlus, HiOutlineDocumentDownload } from "react-icons/hi";
 import { Link } from "react-router-dom";
@@ -41,24 +42,30 @@ export default function WalletHistory() {
   };
 
   const formatNumber = (number) => {
-    return number?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    return number?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") || "0";
   };
 
-  const filteredTransactions = dbUser?.transactions?.filter((transaction) => {
-    const matchesType =
-      filterType === "all" ||
-      (filterType === "deposit" && transaction.type === "Deposit") ||
-      (filterType === "withdrawal" && transaction.type === "Withdrawal");
+  const filteredTransactions =
+    dbUser?.transactions?.filter((transaction) => {
+      if (!transaction) return false;
 
-    const matchesSearch =
-      transaction?.description
-        ?.toLowerCase()
-        .includes(searchQuery.toLowerCase()) ||
-      transaction?.amount?.toString().includes(searchQuery) ||
-      transaction?.status?.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesType =
+        filterType === "all" ||
+        (filterType === "deposit" && transaction.type === "Deposit") ||
+        (filterType === "withdrawal" && transaction.type === "Withdrawal");
 
-    return matchesType && matchesSearch;
-  });
+      const matchesSearch =
+        (transaction.description
+          ?.toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+          transaction.amount?.toString().includes(searchQuery) ||
+          transaction.status
+            ?.toLowerCase()
+            .includes(searchQuery.toLowerCase())) ??
+        false;
+
+      return matchesType && matchesSearch;
+    }) || [];
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -156,7 +163,7 @@ export default function WalletHistory() {
       doc.setTextColor(0, 0, 0);
       doc.setFontSize(9);
 
-      const transactions = filteredTransactions || [];
+      const transactions = filteredTransactions;
 
       if (transactions.length === 0) {
         doc.text(
@@ -177,7 +184,7 @@ export default function WalletHistory() {
           const date = formatDate(transaction.date);
           doc.text(date, 16, yPos + 5);
 
-          let description = transaction.description;
+          let description = transaction.description || "N/A";
           if (description.length > 30) {
             description = description.substring(0, 27) + "...";
           }
@@ -237,6 +244,22 @@ export default function WalletHistory() {
       alert("Failed to generate PDF. Please try again.");
     }
   };
+
+  if (loading) {
+    return (
+      <div
+        className={`min-h-screen flex items-center justify-center ${
+          isDarkMode
+            ? "bg-gray-900"
+            : "bg-gradient-to-br from-purple-50 to-white"
+        }`}
+      >
+        <p className={isDarkMode ? "text-white" : "text-gray-800"}>
+          Loading...
+        </p>
+      </div>
+    );
+  }
 
   return (
     <section
@@ -306,6 +329,7 @@ export default function WalletHistory() {
                   <HiOutlinePlus className="h-4 w-4" />
                   Add Balance
                 </Link>
+                
 
                 <button
                   onClick={exportToPDF}
@@ -322,6 +346,25 @@ export default function WalletHistory() {
               </div>
 
               <div className="flex items-center gap-3 w-full md:w-auto">
+                <div className="relative flex-1">
+                  <input
+                    type="text"
+                    placeholder="Search transactions..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className={`w-full rounded-lg py-2.5 pl-10 pr-4 transition-all duration-300 transform hover:scale-105 ${
+                      isDarkMode
+                        ? "bg-gray-700 text-white border border-gray-600 placeholder-gray-400 focus:ring-gray-500"
+                        : "bg-white text-gray-700 border border-purple-200 placeholder-gray-500 focus:ring-purple-500"
+                    } focus:outline-none focus:ring-2`}
+                  />
+                  <Search
+                    className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 ${
+                      isDarkMode ? "text-gray-400" : "text-purple-500"
+                    }`}
+                  />
+                </div>
+
                 <div className="relative" ref={filterRef}>
                   <button
                     onClick={() => setIsFilterOpen(!isFilterOpen)}
@@ -435,8 +478,8 @@ export default function WalletHistory() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredTransactions?.length > 0 ? (
-                      filteredTransactions?.map((transaction, index) => (
+                    {filteredTransactions.length > 0 ? (
+                      filteredTransactions.map((transaction, index) => (
                         <tr
                           key={transaction.id}
                           className={`transform transition-all duration-200 hover:scale-[1.01] ${
@@ -465,7 +508,7 @@ export default function WalletHistory() {
                             </div>
                           </td>
                           <td className="py-4 px-6">
-                            {transaction.description}
+                            {transaction.description || "N/A"}
                           </td>
                           <td className="py-4 px-6">
                             <div
@@ -484,17 +527,7 @@ export default function WalletHistory() {
                             </div>
                           </td>
                           <td className="py-4 px-6 text-right">
-                            <span
-                              className={`inline-flex px-3 py-1 text-xs font-medium rounded-full ${
-                                transaction.status === "completed"
-                                  ? isDarkMode
-                                    ? "bg-emerald-900/30 text-emerald-300 border border-emerald-800"
-                                    : "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                                  : isDarkMode
-                                  ? "bg-amber-900/30 text-amber-300 border border-amber-800"
-                                  : "bg-amber-50 text-amber-700 border border-amber-200"
-                              }`}
-                            >
+                            <span 貿>
                               {transaction.status === "completed"
                                 ? "Completed"
                                 : "Pending"}
@@ -518,8 +551,8 @@ export default function WalletHistory() {
             </div>
 
             <div className="mt-4 text-center text-sm text-gray-500">
-              Showing {filteredTransactions?.length} of{" "}
-              {dbUser?.transactions?.length} transactions
+              Showing {filteredTransactions.length} of{" "}
+              {dbUser?.transactions?.length || 0} transactions
             </div>
           </div>
         </div>
