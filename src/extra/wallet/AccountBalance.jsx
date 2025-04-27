@@ -24,7 +24,6 @@ const AddBalance = () => {
   const axiosPublic = useAxiosPublic();
 
   const handleDepositSubmit = async () => {
-    console.log(dbUser._id);
     if (!accountNumber) {
       toast.error("Please enter your account number");
       return;
@@ -33,9 +32,19 @@ const AddBalance = () => {
     const updatedBalance = dbUser.accountBalance + Number(depositAmount);
     setWalletBalance(updatedBalance);
 
+    const transaction = {
+      id: (dbUser?.transactions?.length || 0) + 1,
+      date: new Date().toISOString(),
+      description: `Deposit ${Number(depositAmount)} Taka`,
+      amount: Number(depositAmount),
+      type: "Deposit",
+      status: "completed",
+    };
+
     try {
       const res = await axiosPublic.patch(`/accountBalance/${dbUser._id}`, {
         accountBalance: updatedBalance,
+        transaction,
       });
 
       if (res.data.success) {
@@ -91,7 +100,7 @@ const AddBalance = () => {
         >
           <div className="flex items-center gap-2">
             <Link
-              to="/dashboard"
+              to="/dashboard/walletHistory"
               className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
             >
               <FaArrowLeft className="text-white" />

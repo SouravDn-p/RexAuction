@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import Swal from "sweetalert2";
 import ThemeContext from "../../Context/ThemeContext";
+import Header from "./Header/Header";
 
 function ManageTable() {
   const axiosSecure = useAxiosSecure();
@@ -103,6 +104,12 @@ function ManageTable() {
     <div
       className={`p-4 sm:p-6 ${themeStyles.background} ${themeStyles.text} min-h-screen`}
     >
+      <Header
+        header="Auction Management"
+        title="Manage your auctions effortlessly"
+      />
+     
+
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
         <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-0">
           Manage Auctions

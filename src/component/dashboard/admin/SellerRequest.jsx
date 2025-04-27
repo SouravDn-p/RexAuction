@@ -6,6 +6,7 @@ import ThemeContext from "../../Context/ThemeContext";
 import Swal from "sweetalert2";
 import axios from "axios";
 import { AuthContexts } from "../../../providers/AuthProvider";
+import Header from "../shared/Header/Header";
 
 const SellerRequest = () => {
   const [users, setUsers] = useState([]);
@@ -199,27 +200,10 @@ const SellerRequest = () => {
     >
       <div className="max-w-6xl mx-auto p-6 rounded-lg">
         {/* Header Section with Animated Background */}
-        <div
-          className={`relative overflow-hidden rounded-2xl mb-10 p-8 md:p-12 transition-all duration-700 transform opacity-100 translate-y-0`}
-        >
-          {/* Gradient Background */}
-          <div className="absolute inset-0 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 opacity-90"></div>
-
-          {/* Animated Blur Shapes */}
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute -top-24 -left-24 w-64 h-64 rounded-full bg-white opacity-10 blur-2xl"></div>
-            <div className="absolute top-1/2 -right-24 w-80 h-80 rounded-full bg-white opacity-10 blur-2xl"></div>
-            <div className="absolute -bottom-24 left-1/3 w-72 h-72 rounded-full bg-white opacity-10 blur-2xl"></div>
-          </div>
-
-          {/* Main Content */}
-          <div className="relative z-10 text-center">
-            <h1 className="text-2xl md:text-3xl font-bold mb-2 text-white">
-              Seller Request Management
-            </h1>
-          </div>
-        </div>
-
+        <Header
+          header="Seller Requests"
+          title="Review and manage seller auction requests"
+        />
         {/* Filter Buttons */}
         <div className="flex justify-center mb-10 transition-all duration-700 delay-200">
           <div

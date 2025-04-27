@@ -35,6 +35,7 @@ import Swal from "sweetalert2";
 import toast from "react-hot-toast";
 import withReactContent from "sweetalert2-react-content";
 import { useAddAnnouncementMutation } from "../../../redux/features/api/announcementApi";
+import Header from "../shared/Header/Header";
 // import { useAddAnnouncementMutation } from "../../../api/announcementApi"; // Import the mutation hook
 
 const MySwal = withReactContent(Swal);
@@ -429,29 +430,12 @@ export default function CreateAnnouncement() {
     <div className={`min-h-screen p-4 md:p-8 ${bgMain} ${textColor}`}>
       <div className={`max-w-6xl mx-auto p-6 rounded-lg ${cardBg}`}>
         {/* heading */}
-        <div className="max-w-7xl mx-auto">
-          {/* Header Section with animated gradient background */}
-          <div className="relative overflow-hidden rounded-2xl mb-12 p-8 md:p-12">
-            <div className="absolute inset-0 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 opacity-90"></div>
-
-            {/* Animated background shapes */}
-            <div className="absolute inset-0 overflow-hidden">
-              <div className="absolute -top-24 -left-24 w-64 h-64 rounded-full bg-white opacity-10 blur-xl"></div>
-              <div className="absolute top-1/2 -right-24 w-80 h-80 rounded-full bg-white opacity-10 blur-xl"></div>
-              <div className="absolute -bottom-24 left-1/3 w-72 h-72 rounded-full bg-white opacity-10 blur-xl"></div>
-            </div>
-
-            <div className="relative z-10 text-center">
-              <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4">
-                Create New Announcement
-              </h1>
-              <p className="mt-3 text-xl text-purple-100 max-w-2xl mx-auto">
-                Easily create and publish announcements to your target audience.
-              </p>
-            </div>
-          </div>
-        </div>
-
+        <Header
+          header={"Create New Announcement"}
+          title={
+            "Easily create and publish announcements to your target audience."
+          }
+        />
         <div className="space-y-6">
           {/* Title */}
           <div>

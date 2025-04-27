@@ -15,10 +15,14 @@ import Swal from "sweetalert2";
 import ThemeContext from "../../Context/ThemeContext";
 import useAxiosPublic from "../../../hooks/useAxiosPublic";
 import LoadingSpinner from "../../LoadingSpinner";
+import Header from "../shared/Header/Header";
+import { Star, MessageSquare, Users, Award } from "lucide-react";
 
 const UserManagement = () => {
   const axiosPublic = useAxiosPublic();
   const { isDarkMode } = useContext(ThemeContext);
+  const [feedbacks, setFeedbacks] = useState([]);
+  const totalFeedbacks = 10;
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -28,6 +32,7 @@ const UserManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [usersPerPage] = useState(8);
   const [selectedRole, setSelectedRole] = useState("all");
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -37,6 +42,7 @@ const UserManagement = () => {
         const data = await response.json();
         setUsers(data);
         setLoading(false);
+        setIsLoaded(true);
       } catch (err) {
         setError("Failed to fetch users");
         setLoading(false);
@@ -168,6 +174,43 @@ const UserManagement = () => {
     return sortDirection === "asc" ? comparison : -comparison;
   });
 
+  // Stat Card Component
+  const StatCard = ({ icon, title, value, color, isDarkMode }) => (
+    <div
+      className={`rounded-xl overflow-hidden shadow-lg transition-transform duration-300 hover:scale-105 ${
+        isDarkMode
+          ? "bg-gray-800 border border-gray-700"
+          : "bg-white border border-gray-100"
+      }`}
+    >
+      <div className="p-6">
+        <div className="flex items-center space-x-4">
+          <div
+            className={`h-12 w-12 rounded-lg bg-gradient-to-br ${color} flex items-center justify-center`}
+          >
+            <div className="text-white">{icon}</div>
+          </div>
+          <div>
+            <p
+              className={`text-sm ${
+                isDarkMode ? "text-gray-400" : "text-gray-500"
+              }`}
+            >
+              {title}
+            </p>
+            <p
+              className={`text-2xl font-bold ${
+                isDarkMode ? "text-white" : "text-gray-800"
+              }`}
+            >
+              {value}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   // Pagination
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
@@ -212,140 +255,49 @@ const UserManagement = () => {
       }`}
     >
       {/* Header with Title and Search */}
-      <div className="max-w-7xl mx-auto w-full">
-        {/* Header Section with Animated Background */}
-        <div className="relative overflow-hidden rounded-2xl mb-10 p-8 md:p-12 transition-all duration-700 transform opacity-100 translate-y-0">
-          {/* Gradient Background */}
-          <div className="absolute inset-0 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 opacity-90"></div>
+      <Header
+        header={"User Management"}
+        title={
+          "Manage users, monitor activity, and keep your platform organized"
+        }
+      />
+      {/* Statistics Cards */}
+      <div
+        className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 transition-all duration-700 delay-100 ${
+          isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+        }`}
+      >
+        <StatCard
+          icon={<FaUserAlt className="w-6 h-6" />}
+          title="Total Users"
+          value={users?.length || 0}
+          color="from-amber-500 to-yellow-500"
+          isDarkMode={isDarkMode}
+        />
 
-          {/* Animated Blur Shapes */}
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute -top-24 -left-24 w-64 h-64 rounded-full bg-white opacity-10 blur-2xl"></div>
-            <div className="absolute top-1/2 -right-24 w-80 h-80 rounded-full bg-white opacity-10 blur-2xl"></div>
-            <div className="absolute -bottom-24 left-1/3 w-72 h-72 rounded-full bg-white opacity-10 blur-2xl"></div>
-          </div>
+        <StatCard
+          icon={<FaUserShield className="w-6 h-6" />}
+          title="Admins"
+          value={roleCounts.admin || 0}
+          color="from-violet-500 to-purple-500"
+          isDarkMode={isDarkMode}
+        />
 
-          {/* Main Content */}
-          <div className="relative z-10 text-center">
-            <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4">
-              User Management
-            </h1>
-            <p className="mt-3 text-xl text-purple-100 max-w-2xl mx-auto">
-              Manage users, monitor activity, and keep your platform organized
-            </p>
-          </div>
-        </div>
+        <StatCard
+          icon={<Users className="w-6 h-6" />}
+          title="Sellers"
+          value={roleCounts.seller || 0}
+          color="from-blue-500 to-indigo-500"
+          isDarkMode={isDarkMode}
+        />
 
-        {/* Search Bar */}
-        <div className="relative w-full mb-7 md:w-1/3 mx-auto transition-all duration-700 delay-200 opacity-100 translate-y-0">
-          <input
-            type="text"
-            placeholder="Search users..."
-            value={searchQuery}
-            onChange={handleSearchChange}
-            className={`w-full pl-10 pr-4 py-3 rounded-lg border shadow-md ${
-              isDarkMode
-                ? "bg-gray-800 border-gray-700 text-white placeholder-gray-400"
-                : "bg-white border-gray-300 text-gray-800 placeholder-gray-500"
-            } focus:outline-none focus:ring-2 focus:ring-purple-500`}
-          />
-          <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-        </div>
-      </div>
-
-      {/* Dashboard Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div
-          className={`rounded-lg shadow-sm p-4 border ${
-            isDarkMode
-              ? "bg-gray-800 border-gray-700"
-              : "bg-white border-gray-200"
-          }`}
-        >
-          <div className="flex items-center">
-            <div
-              className={`p-3 rounded-full ${
-                isDarkMode ? "bg-blue-900/30" : "bg-blue-100"
-              } mr-4`}
-            >
-              <FaUserAlt className="text-blue-500" size={20} />
-            </div>
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Total Users
-              </p>
-              <p className="text-2xl font-semibold">{users.length}</p>
-            </div>
-          </div>
-        </div>
-
-        <div
-          className={`rounded-lg shadow-sm p-4 border ${
-            isDarkMode
-              ? "bg-gray-800 border-gray-700"
-              : "bg-white border-gray-200"
-          }`}
-        >
-          <div className="flex items-center">
-            <div
-              className={`p-3 rounded-full ${
-                isDarkMode ? "bg-purple-900/30" : "bg-purple-100"
-              } mr-4`}
-            >
-              <FaUserShield className="text-purple-500" size={20} />
-            </div>
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Admins</p>
-              <p className="text-2xl font-semibold">{roleCounts.admin || 0}</p>
-            </div>
-          </div>
-        </div>
-
-        <div
-          className={`rounded-lg shadow-sm p-4 border ${
-            isDarkMode
-              ? "bg-gray-800 border-gray-700"
-              : "bg-white border-gray-200"
-          }`}
-        >
-          <div className="flex items-center">
-            <div
-              className={`p-3 rounded-full ${
-                isDarkMode ? "bg-amber-900/30" : "bg-amber-100"
-              } mr-4`}
-            >
-              <FaUserAlt className="text-amber-500" size={20} />
-            </div>
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Sellers
-              </p>
-              <p className="text-2xl font-semibold">{roleCounts.seller || 0}</p>
-            </div>
-          </div>
-        </div>
-
-        <div
-          className={`rounded-lg shadow-sm p-4 border ${
-            isDarkMode
-              ? "bg-gray-800 border-gray-700"
-              : "bg-white border-gray-200"
-          }`}
-        >
-          <div className="flex items-center">
-            <div
-              className={`p-3 rounded-full ${
-                isDarkMode ? "bg-green-900/30" : "bg-green-100"
-              } mr-4`}
-            >
-              <FaUserAlt className="text-green-500" size={20} />
-            </div>
-            <div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Buyers</p>
-              <p className="text-2xl font-semibold">{roleCounts.buyer || 0}</p>
-            </div>
-          </div>
-        </div>
+        <StatCard
+          icon={<FaUserAlt className="w-6 h-6" />}
+          title="5-Star Reviews"
+          value={roleCounts.buyer || 0}
+          color="from-emerald-500 to-teal-500"
+          isDarkMode={isDarkMode}
+        />
       </div>
 
       {/* Filters and Actions */}
