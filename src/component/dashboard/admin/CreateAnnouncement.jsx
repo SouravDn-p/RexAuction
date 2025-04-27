@@ -55,13 +55,13 @@ export default function CreateAnnouncement() {
   const editorRef = useRef(null);
   const linkInputRef = useRef(null);
 
-
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
   const [isRTL, setIsRTL] = useState(false);
 
-  const [addAnnouncement, { isLoading: isPublishing }] = useAddAnnouncementMutation();
+  const [addAnnouncement, { isLoading: isPublishing }] =
+    useAddAnnouncementMutation();
 
   // Theme classes
   const bgMain = isDarkMode ? "bg-gray-900" : "bg-gray-50";
@@ -95,7 +95,6 @@ export default function CreateAnnouncement() {
       editorRef.current.style.unicodeBidi = "normal";
     }
   };
-
 
   useEffect(() => {
     if (editorRef.current) {
@@ -131,7 +130,6 @@ export default function CreateAnnouncement() {
           type: file.type,
         });
 
-     
         if (newPreviews.length === imageFiles.length) {
           setPreviews(newPreviews);
         }
@@ -430,10 +428,29 @@ export default function CreateAnnouncement() {
   return (
     <div className={`min-h-screen p-4 md:p-8 ${bgMain} ${textColor}`}>
       <div className={`max-w-6xl mx-auto p-6 rounded-lg ${cardBg}`}>
-        <h1 className="text-2xl font-bold mb-1">Create Announcement</h1>
-        <p className={`mb-8 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-          Create and publish announcements to your target audience
-        </p>
+        {/* heading */}
+        <div className="max-w-7xl mx-auto">
+          {/* Header Section with animated gradient background */}
+          <div className="relative overflow-hidden rounded-2xl mb-12 p-8 md:p-12">
+            <div className="absolute inset-0 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 opacity-90"></div>
+
+            {/* Animated background shapes */}
+            <div className="absolute inset-0 overflow-hidden">
+              <div className="absolute -top-24 -left-24 w-64 h-64 rounded-full bg-white opacity-10 blur-xl"></div>
+              <div className="absolute top-1/2 -right-24 w-80 h-80 rounded-full bg-white opacity-10 blur-xl"></div>
+              <div className="absolute -bottom-24 left-1/3 w-72 h-72 rounded-full bg-white opacity-10 blur-xl"></div>
+            </div>
+
+            <div className="relative z-10 text-center">
+              <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4">
+                Create New Announcement
+              </h1>
+              <p className="mt-3 text-xl text-purple-100 max-w-2xl mx-auto">
+                Easily create and publish announcements to your target audience.
+              </p>
+            </div>
+          </div>
+        </div>
 
         <div className="space-y-6">
           {/* Title */}

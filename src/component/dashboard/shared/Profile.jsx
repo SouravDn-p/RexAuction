@@ -465,6 +465,7 @@ const Profile = () => {
             <div className="mt-4 space-y-3">
               <div className="flex items-center gap-3 flex-wrap">
                 <button
+                  onClick={() => navigate("/dashboard/settings")}
                   className={`px-3 py-1 text-sm border rounded-md ${
                     isDarkMode
                       ? "border-gray-600 bg-gray-700 text-white hover:bg-gray-600"

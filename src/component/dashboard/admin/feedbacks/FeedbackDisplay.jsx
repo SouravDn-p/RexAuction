@@ -115,7 +115,7 @@ const FeedbackDisplay = () => {
 
           <div className="relative z-10 text-center">
             <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4">
-              Customer Testimonials
+              Customer Feedbacks
             </h1>
             <p className="mt-3 text-xl text-purple-100 max-w-2xl mx-auto">
               Discover what our community is saying about their experiences

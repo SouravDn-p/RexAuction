@@ -212,26 +212,40 @@ const UserManagement = () => {
       }`}
     >
       {/* Header with Title and Search */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-        <h1
-          className={`text-2xl md:text-3xl font-bold ${
-            isDarkMode
-              ? "text-transparent bg-clip-text bg-gradient-to-r from-white via-violet-100 to-violet-100"
-              : "text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-500 to-indigo-600"
-          }`}
-        >
-          User Management
-        </h1>
+      <div className="max-w-7xl mx-auto w-full">
+        {/* Header Section with Animated Background */}
+        <div className="relative overflow-hidden rounded-2xl mb-10 p-8 md:p-12 transition-all duration-700 transform opacity-100 translate-y-0">
+          {/* Gradient Background */}
+          <div className="absolute inset-0 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 opacity-90"></div>
 
-        <div className="relative w-full md:w-64">
+          {/* Animated Blur Shapes */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute -top-24 -left-24 w-64 h-64 rounded-full bg-white opacity-10 blur-2xl"></div>
+            <div className="absolute top-1/2 -right-24 w-80 h-80 rounded-full bg-white opacity-10 blur-2xl"></div>
+            <div className="absolute -bottom-24 left-1/3 w-72 h-72 rounded-full bg-white opacity-10 blur-2xl"></div>
+          </div>
+
+          {/* Main Content */}
+          <div className="relative z-10 text-center">
+            <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4">
+              User Management
+            </h1>
+            <p className="mt-3 text-xl text-purple-100 max-w-2xl mx-auto">
+              Manage users, monitor activity, and keep your platform organized
+            </p>
+          </div>
+        </div>
+
+        {/* Search Bar */}
+        <div className="relative w-full mb-7 md:w-1/3 mx-auto transition-all duration-700 delay-200 opacity-100 translate-y-0">
           <input
             type="text"
             placeholder="Search users..."
             value={searchQuery}
             onChange={handleSearchChange}
-            className={`w-full pl-10 pr-4 py-2 rounded-lg border ${
+            className={`w-full pl-10 pr-4 py-3 rounded-lg border shadow-md ${
               isDarkMode
-                ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                ? "bg-gray-800 border-gray-700 text-white placeholder-gray-400"
                 : "bg-white border-gray-300 text-gray-800 placeholder-gray-500"
             } focus:outline-none focus:ring-2 focus:ring-purple-500`}
           />
