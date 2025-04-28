@@ -35,6 +35,7 @@ import Swal from "sweetalert2";
 import toast from "react-hot-toast";
 import withReactContent from "sweetalert2-react-content";
 import { useAddAnnouncementMutation } from "../../../redux/features/api/announcementApi";
+import Header from "../shared/Header/Header";
 // import { useAddAnnouncementMutation } from "../../../api/announcementApi"; // Import the mutation hook
 
 const MySwal = withReactContent(Swal);
@@ -55,13 +56,13 @@ export default function CreateAnnouncement() {
   const editorRef = useRef(null);
   const linkInputRef = useRef(null);
 
-
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
   const [isRTL, setIsRTL] = useState(false);
 
-  const [addAnnouncement, { isLoading: isPublishing }] = useAddAnnouncementMutation();
+  const [addAnnouncement, { isLoading: isPublishing }] =
+    useAddAnnouncementMutation();
 
   // Theme classes
   const bgMain = isDarkMode ? "bg-gray-900" : "bg-gray-50";
@@ -95,7 +96,6 @@ export default function CreateAnnouncement() {
       editorRef.current.style.unicodeBidi = "normal";
     }
   };
-
 
   useEffect(() => {
     if (editorRef.current) {
@@ -131,7 +131,6 @@ export default function CreateAnnouncement() {
           type: file.type,
         });
 
-     
         if (newPreviews.length === imageFiles.length) {
           setPreviews(newPreviews);
         }
@@ -430,11 +429,13 @@ export default function CreateAnnouncement() {
   return (
     <div className={`min-h-screen p-4 md:p-8 ${bgMain} ${textColor}`}>
       <div className={`max-w-6xl mx-auto p-6 rounded-lg ${cardBg}`}>
-        <h1 className="text-2xl font-bold mb-1">Create Announcement</h1>
-        <p className={`mb-8 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-          Create and publish announcements to your target audience
-        </p>
-
+        {/* heading */}
+        <Header
+          header={"Create New Announcement"}
+          title={
+            "Easily create and publish announcements to your target audience."
+          }
+        />
         <div className="space-y-6">
           {/* Title */}
           <div>

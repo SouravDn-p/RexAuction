@@ -6,6 +6,8 @@ import ThemeContext from "../../Context/ThemeContext";
 import Swal from "sweetalert2";
 import axios from "axios";
 import { AuthContexts } from "../../../providers/AuthProvider";
+import Header from "../shared/Header/Header";
+import useAxiosPublic from "../../../hooks/useAxiosPublic";
 
 const SellerRequest = () => {
   const [users, setUsers] = useState([]);
@@ -19,28 +21,29 @@ const SellerRequest = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [rejectionReason, setRejectionReason] = useState("");
+  const axiosPublic = useAxiosPublic();
 
-  const handleRoleFilter = (role) => {
+  const handleRoleFilter = async (role) => {
     setSelectedRole(role);
     setCurrentPage(1);
-    fetch("http://localhost:5000/sellerRequest")
-      .then((res) => res.json())
-      .then((data) => {
-        const filtered = data.filter(
-          (user) => user.becomeSellerStatus === role
-        );
-        setUsers(filtered);
-      })
-      .catch((error) =>
-        console.error("Error fetching seller requests:", error)
-      );
+
+    try {
+      const response = await axiosPublic.get("/sellerRequest");
+      const data = response.data;
+
+      const filtered = data.filter((user) => user.becomeSellerStatus === role);
+      setUsers(filtered);
+    } catch (error) {
+      console.error("Error fetching seller requests:", error);
+    }
   };
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch("http://localhost:5000/sellerRequest");
-        const data = await response.json();
+        const response = await axiosPublic.get("/sellerRequest");
+        const data = response.data;
+
         const pendingUsers = data.filter(
           (user) => user.becomeSellerStatus === "pending"
         );
@@ -49,12 +52,14 @@ const SellerRequest = () => {
         console.error("Error fetching users:", error);
       }
     };
+
     fetchUsers();
-  }, []);
+  }, [axiosPublic]);
 
   const handleApprove = async (userId, dbUserId) => {
     console.log("userId", userId);
     console.log("dbUserId", dbUserId);
+
     Swal.fire({
       title: "Are you sure?",
       text: "Do you want to approve this seller request?",
@@ -67,17 +72,16 @@ const SellerRequest = () => {
 
       try {
         // Step 1: Update seller request status
-        const sellerReqRes = await axios.patch(
-          `http://localhost:5000/sellerRequest/${userId}`,
+        const sellerReqRes = await axiosPublic.patch(
+          `/sellerRequest/${userId}`,
           { becomeSellerStatus: "accepted" }
         );
 
         if (sellerReqRes.data.success) {
           // Step 2: Update user role to "seller"
-          const roleUpdateRes = await axios.patch(
-            `http://localhost:5000/users/${dbUserId}`,
-            { role: "seller" }
-          );
+          const roleUpdateRes = await axiosPublic.patch(`/users/${dbUserId}`, {
+            role: "seller",
+          });
 
           if (roleUpdateRes.data.success) {
             Swal.fire(
@@ -88,8 +92,9 @@ const SellerRequest = () => {
 
             // Step 3: Refresh UI
             setIsModalOpen(false);
-            const response = await fetch("http://localhost:5000/sellerRequest");
-            const data = await response.json();
+
+            const response = await axiosPublic.get("/sellerRequest");
+            const data = response.data;
             const pendingUsers = data.filter(
               (user) => user.becomeSellerStatus === "pending"
             );
@@ -126,8 +131,8 @@ const SellerRequest = () => {
 
     if (reason) {
       try {
-        const sellerReqRes = await axios.patch(
-          `http://localhost:5000/sellerRequest/${userId}`,
+        const sellerReqRes = await axiosPublic.patch(
+          `/sellerRequest/${userId}`,
           { becomeSellerStatus: "rejected", rejectionReason: reason }
         );
 
@@ -146,10 +151,12 @@ const SellerRequest = () => {
           Swal.fire("Error!", "Failed to reject seller request.", "error");
         }
       } catch (error) {
+        console.error("Rejection error:", error);
         Swal.fire("Failed!", "Something went wrong.", "error");
       }
     }
   };
+
   const handleSort = (field) => {
     if (sortField === field) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
@@ -197,21 +204,19 @@ const SellerRequest = () => {
         isDarkMode ? "bg-gray-900" : "bg-gray-50"
       }`}
     >
-      <div
-        className={`max-w-6xl mx-auto p-6 rounded-lg ${
-          isDarkMode ? "bg-gray-800" : "bg-white"
-        } shadow-md`}
-      >
-        <h1
-          className={`text-2xl md:text-3xl font-bold mb-6 text-center ${
-            isDarkMode ? "text-white" : "text-gray-800"
-          }`}
-        >
-          Seller Request Management
-        </h1>
-
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
-          <div className="flex flex-wrap gap-2">
+      <div className="max-w-6xl mx-auto p-6 rounded-lg">
+        {/* Header Section with Animated Background */}
+        <Header
+          header="Seller Requests"
+          title="Review and manage seller auction requests"
+        />
+        {/* Filter Buttons */}
+        <div className="flex justify-center mb-10 transition-all duration-700 delay-200">
+          <div
+            className={`inline-flex p-1.5 gap-2 rounded-xl ${
+              isDarkMode ? "bg-gray-800" : "bg-gray-100"
+            } shadow-lg`}
+          >
             {["pending", "accepted", "rejected"].map((role) => (
               <button
                 key={role}
@@ -234,6 +239,7 @@ const SellerRequest = () => {
           </div>
         </div>
 
+        {/* Table with Seller Requests */}
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
             <thead className={isDarkMode ? "bg-gray-700" : "bg-gray-50"}>
@@ -357,6 +363,7 @@ const SellerRequest = () => {
           </table>
         </div>
 
+        {/* Pagination */}
         {totalPages > 1 && (
           <div
             className={`flex items-center justify-between px-4 py-3 sm:px-6 ${

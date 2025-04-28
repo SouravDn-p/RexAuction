@@ -21,6 +21,7 @@ import { signOut } from "firebase/auth";
 import LoadingSpinner from "../LoadingSpinner";
 import io from "socket.io-client";
 import axios from "axios";
+import useAxiosPublic from "../../hooks/useAxiosPublic";
 
 const MainContent = () => {
   const {
@@ -47,6 +48,7 @@ const MainContent = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const chatPath = location.pathname.includes("chat");
+  const axiosPublic = useAxiosPublic();
 
   // Initialize socket connection
   useEffect(() => {
@@ -83,13 +85,18 @@ const MainContent = () => {
     if (user) {
       const fetchNotifications = async () => {
         try {
-          const response = await axios.get(`http://localhost:5000/notifications/${user.email}`, {
-            withCredentials: true,
-          });
+          const response = await axiosPublic.get(
+            `/notifications/${user.email}`,
+            {
+              withCredentials: true,
+            }
+          );
 
           if (response.data) {
             setNotifications(response.data);
-            const unreadCount = response.data.filter((notif) => !notif.read).length;
+            const unreadCount = response.data.filter(
+              (notif) => !notif.read
+            ).length;
             setNotificationCount(unreadCount);
           }
         } catch (error) {
@@ -104,7 +111,10 @@ const MainContent = () => {
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (notificationsRef.current && !notificationsRef.current.contains(event.target)) {
+      if (
+        notificationsRef.current &&
+        !notificationsRef.current.contains(event.target)
+      ) {
         setIsNotificationsOpen(false);
       }
       if (profileRef.current && !profileRef.current.contains(event.target)) {
@@ -126,16 +136,18 @@ const MainContent = () => {
     if (notifications.length === 0) return;
 
     try {
-      setNotifications((prev) => prev.map((notif) => ({ ...notif, read: true })));
+      setNotifications((prev) =>
+        prev.map((notif) => ({ ...notif, read: true }))
+      );
       setNotificationCount(0);
 
       if (user) {
-        await axios.put(
-          `http://localhost:5000/notifications/mark-read/${user.email}`,
+        await axiosPublic.put(
+          `/notifications/mark-read/${user.email}`,
           {},
           {
             withCredentials: true,
-          },
+          }
         );
       }
     } catch (error) {
@@ -152,11 +164,11 @@ const MainContent = () => {
     }
 
     if (user) {
-      axios
+      axiosPublic
         .put(
-          `http://localhost:5000/notifications/mark-read/${user.email}`,
+          `/notifications/mark-read/${user.email}`,
           { notificationId: notification._id },
-          { withCredentials: true },
+          { withCredentials: true }
         )
         .catch((error) => {
           console.error("Error marking notification as read:", error);
@@ -216,7 +228,9 @@ const MainContent = () => {
         <header
           className={`sticky top-0 z-10 mx-auto ${
             chatPath && selectedUser ? "hidden" : "block"
-          } ${isDarkMode ? "bg-gray-800/90" : "bg-white"} backdrop-blur-md shadow-sm border-b ${
+          } ${
+            isDarkMode ? "bg-gray-800/90" : "bg-white"
+          } backdrop-blur-md shadow-sm border-b ${
             isDarkMode ? "border-gray-700" : "border-gray-200"
           }`}
         >
@@ -236,10 +250,18 @@ const MainContent = () => {
                 </label>
 
                 <div className="hidden md:block">
-                  <h1 className={`text-xl font-semibold ${isDarkMode ? "text-white" : "text-black"}`}>
+                  <h1
+                    className={`text-xl font-semibold ${
+                      isDarkMode ? "text-white" : "text-black"
+                    }`}
+                  >
                     {getPageName()}
                   </h1>
-                  <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                  <p
+                    className={`text-sm ${
+                      isDarkMode ? "text-gray-400" : "text-gray-500"
+                    }`}
+                  >
                     Welcome back to your dashboard
                   </p>
                 </div>
@@ -252,7 +274,9 @@ const MainContent = () => {
                   {isSearchOpen && (
                     <div
                       className={`absolute right-0 mt-2 w-72 p-2 rounded-lg shadow-lg ${
-                        isDarkMode ? "bg-gray-800 border border-gray-700" : "bg-white border border-gray-200"
+                        isDarkMode
+                          ? "bg-gray-800 border border-gray-700"
+                          : "bg-white border border-gray-200"
                       }`}
                     >
                       <div className="relative">
@@ -280,7 +304,9 @@ const MainContent = () => {
                 <div className="relative" ref={notificationsRef}>
                   <button
                     className={`relative p-2 rounded-full ${
-                      isDarkMode ? "hover:bg-gray-700 text-white" : "hover:bg-gray-100 text-black"
+                      isDarkMode
+                        ? "hover:bg-gray-700 text-white"
+                        : "hover:bg-gray-100 text-black"
                     } transition-colors duration-200`}
                     onClick={handleNotificationClick}
                   >
@@ -325,13 +351,27 @@ const MainContent = () => {
                           notifications.map((notification, index) => (
                             <div
                               key={notification._id || index}
-                              onClick={() => viewNotificationDetails(notification)}
+                              onClick={() =>
+                                viewNotificationDetails(notification)
+                              }
                               className={`px-4 py-3 border-b last:border-b-0 cursor-pointer ${
-                                isDarkMode ? "border-gray-700 hover:bg-gray-700" : "border-gray-100 hover:bg-gray-50"
-                              } ${!notification.read ? (isDarkMode ? "bg-gray-700/50" : "bg-blue-50") : ""}`}
+                                isDarkMode
+                                  ? "border-gray-700 hover:bg-gray-700"
+                                  : "border-gray-100 hover:bg-gray-50"
+                              } ${
+                                !notification.read
+                                  ? isDarkMode
+                                    ? "bg-gray-700/50"
+                                    : "bg-blue-50"
+                                  : ""
+                              }`}
                             >
                               <div className="flex items-start">
-                                <div className={`p-2 rounded-full mr-3 ${isDarkMode ? "bg-gray-700" : "bg-blue-100"}`}>
+                                <div
+                                  className={`p-2 rounded-full mr-3 ${
+                                    isDarkMode ? "bg-gray-700" : "bg-blue-100"
+                                  }`}
+                                >
                                   {notification.type === "auction" ? (
                                     <svg
                                       xmlns="http://www.w3.org/2000/svg"
@@ -350,22 +390,46 @@ const MainContent = () => {
                                   )}
                                 </div>
                                 <div className="flex-1">
-                                  <p className={`font-medium text-sm ${!notification.read ? "font-bold" : ""}`}>
+                                  <p
+                                    className={`font-medium text-sm ${
+                                      !notification.read ? "font-bold" : ""
+                                    }`}
+                                  >
                                     {notification.title}
                                   </p>
-                                  <p className={`text-xs mt-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                                  <p
+                                    className={`text-xs mt-1 ${
+                                      isDarkMode
+                                        ? "text-gray-400"
+                                        : "text-gray-500"
+                                    }`}
+                                  >
                                     {notification.message}
                                   </p>
-                                  <p className={`text-xs mt-1 ${isDarkMode ? "text-gray-500" : "text-gray-400"}`}>
-                                    {new Date(notification.timestamp).toLocaleString()}
+                                  <p
+                                    className={`text-xs mt-1 ${
+                                      isDarkMode
+                                        ? "text-gray-500"
+                                        : "text-gray-400"
+                                    }`}
+                                  >
+                                    {new Date(
+                                      notification.timestamp
+                                    ).toLocaleString()}
                                   </p>
                                 </div>
-                                {!notification.read && <div className="h-2 w-2 rounded-full bg-blue-500 mt-1"></div>}
+                                {!notification.read && (
+                                  <div className="h-2 w-2 rounded-full bg-blue-500 mt-1"></div>
+                                )}
                               </div>
                             </div>
                           ))
                         ) : (
-                          <div className={`px-4 py-6 text-center ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                          <div
+                            className={`px-4 py-6 text-center ${
+                              isDarkMode ? "text-gray-400" : "text-gray-500"
+                            }`}
+                          >
                             <p>No notifications yet</p>
                           </div>
                         )}
@@ -377,10 +441,14 @@ const MainContent = () => {
                 {/* Dark Mode Toggle */}
                 <button
                   className={`p-2 rounded-full ${
-                    isDarkMode ? "hover:bg-gray-700 text-yellow-400" : "hover:bg-gray-100 text-gray-700"
+                    isDarkMode
+                      ? "hover:bg-gray-700 text-yellow-400"
+                      : "hover:bg-gray-100 text-gray-700"
                   } transition-colors duration-200`}
                   onClick={toggleTheme}
-                  aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+                  aria-label={
+                    isDarkMode ? "Switch to light mode" : "Switch to dark mode"
+                  }
                 >
                   {isDarkMode ? <FaSun size={18} /> : <FaMoon size={18} />}
                 </button>
@@ -393,7 +461,9 @@ const MainContent = () => {
                   >
                     <div
                       className={`h-10 w-10 rounded-full border-2 overflow-hidden ${
-                        isDarkMode ? "border-purple-600" : "border-purple-400 text-black"
+                        isDarkMode
+                          ? "border-purple-600"
+                          : "border-purple-400 text-black"
                       }`}
                     >
                       {user?.photoURL ? (
@@ -414,7 +484,13 @@ const MainContent = () => {
                     </div>
                     <div className="hidden md:block text-left">
                       <p className="font-medium text-sm">{user?.name}</p>
-                      <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{dbUser?.role}</p>
+                      <p
+                        className={`text-xs ${
+                          isDarkMode ? "text-gray-400" : "text-gray-500"
+                        }`}
+                      >
+                        {dbUser?.role}
+                      </p>
                     </div>
                     <ChevronDown
                       className={`h-4 w-4 transition-transform duration-200 ${
@@ -426,7 +502,9 @@ const MainContent = () => {
                   {isProfileOpen && (
                     <div
                       className={`absolute right-0 mt-2 w-56 rounded-md shadow-lg overflow-hidden ${
-                        isDarkMode ? "bg-gray-800 border border-gray-700" : "bg-white border border-gray-200"
+                        isDarkMode
+                          ? "bg-gray-800 border border-gray-700"
+                          : "bg-white border border-gray-200"
                       }`}
                     >
                       <div
@@ -435,13 +513,21 @@ const MainContent = () => {
                         }`}
                       >
                         <p className="text-sm font-medium">{user?.name}</p>
-                        <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>{user?.email}</p>
+                        <p
+                          className={`text-xs ${
+                            isDarkMode ? "text-gray-400" : "text-gray-500"
+                          }`}
+                        >
+                          {user?.email}
+                        </p>
                       </div>
                       <div className="py-1">
                         <Link
                           to={`/dashboard/profile`}
                           className={`w-full flex items-center px-4 py-2 text-sm ${
-                            isDarkMode ? "hover:bg-gray-700 text-white" : "hover:bg-gray-100 text-black"
+                            isDarkMode
+                              ? "hover:bg-gray-700 text-white"
+                              : "hover:bg-gray-100 text-black"
                           }`}
                         >
                           <User className="h-4 w-4 mr-2" />
@@ -461,7 +547,9 @@ const MainContent = () => {
                         <Link
                           to={`/dashboard/settings`}
                           className={`w-full flex items-center px-4 py-2 text-sm ${
-                            isDarkMode ? "hover:bg-gray-700 text-white" : "hover:bg-gray-100 text-black"
+                            isDarkMode
+                              ? "hover:bg-gray-700 text-white"
+                              : "hover:bg-gray-100 text-black"
                           }`}
                         >
                           <Settings className="h-4 w-4 mr-2" />
@@ -469,7 +557,9 @@ const MainContent = () => {
                         </Link>
                         <button
                           className={`w-full flex items-center px-4 py-2 text-sm ${
-                            isDarkMode ? "text-red-400 hover:bg-gray-700" : "text-red-600 hover:bg-gray-100"
+                            isDarkMode
+                              ? "text-red-400 hover:bg-gray-700"
+                              : "text-red-600 hover:bg-gray-100"
                           }`}
                           onClick={handleLogout}
                         >
@@ -516,4 +606,3 @@ const MainContent = () => {
 };
 
 export default MainContent;
-  

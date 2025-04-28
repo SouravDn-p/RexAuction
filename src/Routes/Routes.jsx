@@ -41,6 +41,7 @@ import FeedbackDisplay from "../component/dashboard/admin/feedbacks/FeedbackDisp
 import PaymentSuccess from "../component/dashboard/buyer/PaymentSuccess";
 import PaymentFailed from "../component/dashboard/buyer/PaymentFailed";
 import SharedPayment from "../component/dashboard/shared/payment/SharedPayment";
+import Blog from "../component/dashboard/shared/Blog/Blog";
 // import AdminFeedback from "../component/dashboard/admin/AdminFeedback";
 
 // import TeamSettings from "../component/Settings/TeamSettings";
@@ -244,6 +245,10 @@ export const router = createBrowserRouter([
       {
         path: "sharedPayment",
         element: <SharedPayment />,
+      },
+      {
+        path: "blog",
+        element: <Blog />,
       },
     ],
   },

@@ -7,6 +7,7 @@ import { FaEnvelope, FaBell, FaChevronDown } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import image from "../../../assets/LiveBidAuctionDetails.jpg"; // Ensure this path is correct
 import toast from "react-hot-toast";
+import Header from "./Header/Header";
 
 function EndedAuctionsHistory() {
   const axiosSecure = useAxiosSecure();
@@ -356,11 +357,10 @@ function EndedAuctionsHistory() {
     <div
       className={`p-4 sm:p-6 ${themeStyles.background} ${themeStyles.text} min-h-screen`}
     >
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
-        <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-0">
-          Ended Auctions History
-        </h2>
-      </div>
+      <Header
+        header="Ended Auctions History"
+        title="Browse through our past auctions and explore the results"
+      />
 
       <div className={`overflow-x-auto rounded-lg ${themeStyles.shadow}`}>
         <table

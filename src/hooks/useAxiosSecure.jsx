@@ -29,7 +29,7 @@ const useAxiosSecure = () => {
       (response) => response,
       async (error) => {
         const status = error.response?.status;
-        
+
         // If unauthorized or forbidden, logout and redirect
         if (status === 401 || status === 403) {
           try {
