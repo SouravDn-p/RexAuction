@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { AuthContexts } from "../../../../providers/AuthProvider";
 import axios from "axios"; // Import axios
 import LoadingSpinner from "../../../LoadingSpinner";
+import Swal from "sweetalert2";
 
 export default function Blog() {
   const { isDarkMode } = useContext(ThemeContext);
@@ -29,23 +30,53 @@ export default function Blog() {
         console.error("Error fetching blogs:", error);
       }
     };
-  
+
     if (email) {
       fetchBlogPosts();
     }
   }, [email]);
-  // / Fetch data when the email changes
+  // Fetch data when the email changes
+
+  const deleteBlogPost = async (id) => {
+    try {
+      // Show confirmation dialog
+      const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!',
+      });
+
+      if (result.isConfirmed) {
+        // If user confirmed, proceed with deletion
+        const response = await axios.delete(`http://localhost:5000/delete/${id}`);
+        // Remove the deleted blog from the state
+        setBlogPosts(blogPosts.filter(post => post._id !== id));
+        Swal.fire('Deleted!', 'Your blog has been deleted.', 'success');
+      } else {
+        // If user canceled, show a cancellation message
+        Swal.fire('Cancelled', 'Your blog is safe :)', 'info');
+      }
+    } catch (error) {
+      console.error("Error deleting blog:", error);
+      Swal.fire('Failed to delete blog', 'There was an error deleting the blog post.', 'error');
+    }
+  };
+
+
 
   if (isLoading) return <LoadingSpinner />; // Show spinner while loading
   if (isError) return <p>Error fetching data.</p>; // Show error message if fetch fails
 
   return (
     <div
-      className={`min-h-screen p-6 md:p-8 ${
-        isDarkMode
-          ? "bg-gray-900 text-white"
-          : "bg-gradient-to-b from-purple-100 via-white to-purple-50 text-gray-800"
-      }`}
+      className={`min-h-screen p-6 md:p-8 ${isDarkMode
+        ? "bg-gray-900 text-white"
+        : "bg-gradient-to-b from-purple-100 via-white to-purple-50 text-gray-800"
+        }`}
     >
       {/* Top Section */}
       <div className="flex justify-between items-center mb-8">
@@ -68,9 +99,8 @@ export default function Blog() {
         {blogPosts.map((post) => (
           <div
             key={post._id} // Assuming MongoDB uses '_id' as the identifier
-            className={`rounded-xl overflow-hidden shadow-md hover:shadow-xl transition duration-300 border ${
-              isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
-            }`}
+            className={`rounded-xl overflow-hidden shadow-md hover:shadow-xl transition duration-300 border ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+              }`}
           >
             <img
               src={post.imageUrls[0]} // Assuming imageUrls is an array and the first image is displayed
@@ -80,28 +110,26 @@ export default function Blog() {
             <div className="p-4 flex flex-col h-52 justify-between">
               <div>
                 <h2 className="text-lg font-semibold mb-2">{post.title}</h2>
-                <p className="text-sm">{post.description}</p>
+                <p className="text-sm">
+                  {post.fullContent.length > 50 ? post.fullContent.slice(0, 50) + "..." : post.fullContent}
+                </p>
               </div>
               <div className="flex justify-between items-center mt-4">
+
+
                 <button
-                  className="text-purple-600 hover:text-purple-800 font-medium text-sm"
+                  className="bg-purple-100 text-purple-600 hover:bg-purple-200 p-2 rounded-full transition"
+                  title="Edit Blog"
                 >
-                  Read More
+                  <FaEdit size={18} />
                 </button>
-                <div className="flex gap-2">
-                  <button
-                    className="bg-purple-100 text-purple-600 hover:bg-purple-200 p-2 rounded-full transition"
-                    title="Edit Blog"
-                  >
-                    <FaEdit size={18} />
-                  </button>
-                  <button
-                    className="bg-red-100 text-red-600 hover:bg-red-200 p-2 rounded-full transition"
-                    title="Delete Blog"
-                  >
-                    <FaTrash size={18} />
-                  </button>
-                </div>
+                <button
+                  className="bg-red-100 text-red-600 hover:bg-red-200 p-2 rounded-full transition"
+                  onClick={() => deleteBlogPost(post._id)}
+                >
+                  <FaTrash size={18} />
+                </button>
+
               </div>
             </div>
           </div>
