@@ -304,8 +304,6 @@ export default function BuyerPayment() {
     fetchPayments();
   }, [dbUser, user, axiosPublic]);
 
-
-
   // Refresh data
   const refreshData = async () => {
     if (!user || !user.uid || !dbUser || !dbUser._id) {
@@ -576,7 +574,7 @@ export default function BuyerPayment() {
               isDarkMode
                 ? "bg-gray-800 border-gray-700 hover:bg-gray-700"
                 : "bg-white border-gray-200 hover:bg-gray-100"
-            } transition-colors duration-300 shadow-sm ${
+              } transition-colors duration-300 shadow-sm ${
               isRefreshing ? "animate-spin" : ""
             }`}
             title="Refresh data"
@@ -709,108 +707,84 @@ export default function BuyerPayment() {
               Complete these payments to secure your auction wins
             </p>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {notifiedAuctions.map((auction) => (
-              <div
-                key={auction.id}
-                className={`rounded-2xl shadow-lg overflow-hidden ${
-                  isDarkMode
-                    ? "bg-gradient-to-br from-gray-800 to-gray-900 border border-red-700/50"
-                    : "bg-white border border-red-200"
-                } transition-all duration-300 hover:shadow-xl hover:-translate-y-1`}
-              >
-                <div
-                  className={`p-4 ${
-                    isDarkMode ? "bg-red-900/20" : "bg-red-50"
+          <div className="overflow-x-auto">
+            <table
+              className={`min-w-full rounded-xl ${
+                isDarkMode
+                  ? "bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700/50"
+                  : "bg-white border border-gray-200"
+              } shadow-lg`}
+            >
+              <thead>
+                <tr
+                  className={`${
+                    isDarkMode ? "bg-gray-900/80" : "bg-gray-50"
+                  } text-left text-sm font-semibold ${
+                    isDarkMode ? "text-gray-200" : "text-gray-800"
                   }`}
                 >
-                  <div className="flex justify-between items-center">
-                    <span className="font-semibold text-sm sm:text-base">
-                      {auction.id.substring(0, 10)}...
-                    </span>
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center ${
-                        isDarkMode
-                          ? "bg-red-900/50 text-red-300"
-                          : "bg-red-200 text-red-800"
-                      }`}
-                    >
-                      <Clock className="w-4 h-4 mr-1" />
-                      Payment Pending
-                    </span>
-                  </div>
-                </div>
-                <div className="flex p-4">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden flex-shrink-0 bg-gray-200 dark:bg-gray-700">
-                    <img
-                      src={auction.image}
-                      alt={auction.name}
-                      className="w-full h-full object-cover"
-                      onError={handleImageError}
-                    />
-                  </div>
-                  <div className="ml-4 flex-1">
-                    <h3
-                      className={`font-bold text-base sm:text-lg line-clamp-1 ${
-                        isDarkMode ? "text-purple-300" : "text-gray-800"
-                      }`}
-                    >
-                      {auction.name}
-                    </h3>
-                    <p
-                      className={`text-xs sm:text-sm line-clamp-2 ${
-                        isDarkMode ? "text-gray-400" : "text-gray-600"
-                      }`}
-                    >
-                      Notified on {auction.notificationDate}
-                    </p>
-                  </div>
-                </div>
-                <div className="p-4 space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span
-                      className={isDarkMode ? "text-gray-400" : "text-gray-600"}
-                    >
-                      Seller:
-                    </span>
-                    <span className="font-medium">{auction.seller}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span
-                      className={isDarkMode ? "text-gray-400" : "text-gray-600"}
-                    >
-                      Bid Amount:
-                    </span>
-                    <span className="font-bold text-green-500">
-                      ৳{auction.currentBid.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span
-                      className={isDarkMode ? "text-gray-400" : "text-gray-600"}
-                    >
-                      Total Due:
-                    </span>
-                    <span className="font-bold text-red-500">
-                      ৳{(auction.currentBid + Math.round(auction.currentBid * 0.01)).toLocaleString()}
-                    </span>
-                  </div>
-                </div>
-                <div
-                  className={`p-4 border-t ${
-                    isDarkMode ? "border-gray-700" : "border-gray-200"
-                  }`}
-                >
-                  <button
-                    onClick={() => handlePayNow(auction)}
-                    className="w-full py-2 rounded-full bg-gradient-to-r from-red-500 to-purple-500 text-white font-medium hover:from-red-600 hover:to-purple-600 transition-all duration-300 shadow-md flex items-center justify-center"
-                    aria-label={`Pay for auction ${auction.name}`}
+                  <th className="p-4">Product</th>
+                  <th className="p-4">Item</th>
+                  <th className="p-4">Seller</th>
+                  <th className="p-4">Bid Amount</th>
+                  <th className="p-4">Total Due</th>
+                  <th className="p-4">Status</th>
+                  <th className="p-4">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {notifiedAuctions.map((auction) => (
+                  <tr
+                    key={auction.id}
+                    className={`border-t ${
+                      isDarkMode ? "border-gray-700" : "border-gray-200"
+                    } hover:bg-opacity-50 ${
+                      isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"
+                    } transition-colors duration-200`}
                   >
-                    <Eye className="w-4 h-4 mr-2" /> Pay Now
-                  </button>
-                </div>
-              </div>
-            ))}
+                    <td className="p-4">
+                      <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-700">
+                        <img
+                          src={auction.image}
+                          alt={auction.name}
+                          className="w-full h-full object-cover"
+                          onError={handleImageError}
+                        />
+                      </div>
+                    </td>
+                    <td className="p-4">{auction.name}</td>
+                    <td className="p-4">{auction.seller}</td>
+                    <td className="p-4 text-green-500">
+                      ৳{auction.currentBid.toLocaleString()}
+                    </td>
+                    <td className="p-4 text-red-500">
+                      ৳{(auction.currentBid + Math.round(auction.currentBid * 0.01)).toLocaleString()}
+                    </td>
+                    <td className="p-4">
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center ${
+                          isDarkMode
+                            ? "bg-red-900/50 text-red-300"
+                            : "bg-red-200 text-red-800"
+                        }`}
+                      >
+                        <Clock className="w-4 h-4 mr-1" />
+                        Payment Pending
+                      </span>
+                    </td>
+                    <td className="p-4">
+                      <button
+                        onClick={() => handlePayNow(auction)}
+                        className="py-1 px-3 rounded-full bg-gradient-to-r from-red-500 to-purple-500 text-white font-medium hover:from-red-600 hover:to-purple-600 transition-all duration-300 shadow-md flex items-center"
+                        aria-label={`Pay for auction ${auction.name}`}
+                      >
+                        <Eye className="w-4 h-4 mr-2" /> Pay Now
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       )}
@@ -839,192 +813,148 @@ export default function BuyerPayment() {
       {isLoading ? (
         <LoadingSpinner />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {filteredPayments.length > 0 ? (
-            filteredPayments.map((payment) => (
-              <div
-                key={payment.id}
-                className={`rounded-2xl shadow-lg overflow-hidden ${
-                  isDarkMode
-                    ? "bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700/50"
-                    : "bg-white border border-gray-200"
-                } transition-all duration-300 hover:shadow-xl hover:-translate-y-1`}
+        <div className="overflow-x-auto">
+          <table
+            className={`min-w-full rounded-xl ${
+              isDarkMode
+                ? "bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700/50"
+                : "bg-white border border-gray-200"
+            } shadow-lg`}
+          >
+            <thead>
+              <tr
+                className={`${
+                  isDarkMode ? "bg-gray-900/80" : "bg-gray-50"
+                } text-left text-sm font-semibold ${
+                  isDarkMode ? "text-gray-200" : "text-gray-800"
+                }`}
               >
-                <div
-                  className={`p-4 ${
-                    payment.status === "pending"
-                      ? isDarkMode
-                        ? "bg-yellow-900/20"
-                        : "bg-yellow-50"
-                      : isDarkMode
-                      ? "bg-green-900/20"
-                      : "bg-green-50"
-                  }`}
-                >
-                  <div className="flex justify-between items-center">
-                    <span className="font-semibold text-sm sm:text-base">
-                      {payment.auctionId.substring(0, 10)}...
-                    </span>
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center ${
-                        payment.status === "pending"
-                          ? isDarkMode
-                            ? "bg-yellow-900/50 text-yellow-300"
-                            : "bg-yellow-200 text-yellow-800"
-                          : isDarkMode
-                          ? "bg-green-900/50 text-green-300"
-                          : "bg-green-200 text-green-800"
-                      }`}
-                    >
-                      {payment.status === "pending" ? (
-                        <Clock className="w-4 h-4 mr-1" />
-                      ) : (
-                        <CheckCircle className="w-4 h-4 mr-1" />
-                      )}
-                      {payment.status.charAt(0).toUpperCase() +
-                        payment.status.slice(1)}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex p-4">
-                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden flex-shrink-0 bg-gray-200 dark:bg-gray-700">
-                    <img
-                      src={payment.image}
-                      alt={payment.item}
-                      className="w-full h-full object-cover"
-                      onError={handleImageError}
-                    />
-                  </div>
-                  <div className="ml-4 flex-1">
-                    <h3
-                      className={`font-bold text-base sm:text-lg line-clamp-1 ${
-                        isDarkMode ? "text-purple-300" : "text-gray-800"
-                      }`}
-                    >
-                      {payment.item}
-                    </h3>
-                    <p
-                      className={`text-xs sm:text-sm line-clamp-2 ${
-                        isDarkMode ? "text-gray-400" : "text-gray-600"
-                      }`}
-                    >
-                      {payment.description}
-                    </p>
-                  </div>
-                </div>
-                <div className="p-4 space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span
-                      className={isDarkMode ? "text-gray-400" : "text-gray-600"}
-                    >
-                      Seller:
-                    </span>
-                    <span className="font-medium">{payment.seller}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span
-                      className={isDarkMode ? "text-gray-400" : "text-gray-600"}
-                    >
-                      Amount:
-                    </span>
-                    <span className="font-bold text-green-500">
+                <th className="p-4">Product</th>
+                <th className="p-4">Item</th>
+                <th className="p-4">Seller</th>
+                <th className="p-4">Amount</th>
+                <th className="p-4">Date</th>
+                <th className="p-4">Payment Method</th>
+                <th className="p-4">Status</th>
+                <th className="p-4">Delivery</th>
+                <th className="p-4">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredPayments.length > 0 ? (
+                filteredPayments.map((payment) => (
+                  <tr
+                    key={payment.id}
+                    className={`border-t ${
+                      isDarkMode ? "border-gray-700" : "border-gray-200"
+                    } hover:bg-opacity-50 ${
+                      isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"
+                    } transition-colors duration-200`}
+                  >
+                    <td className="p-4">
+                      <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-700">
+                        <img
+                          src={payment.image}
+                          alt={payment.item}
+                          className="w-full h-full object-cover"
+                          onError={handleImageError}
+                        />
+                      </div>
+                    </td>
+                    <td className="p-4">{payment.item}</td>
+                    <td className="p-4">{payment.seller}</td>
+                    <td className="p-4 text-green-500">
                       ৳{payment.amount.toLocaleString()}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span
-                      className={isDarkMode ? "text-gray-400" : "text-gray-600"}
-                    >
-                      Date:
-                    </span>
-                    <span>{payment.date}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span
-                      className={isDarkMode ? "text-gray-400" : "text-gray-600"}
-                    >
-                      Payment:
-                    </span>
-                    <span>{payment.paymentMethod}</span>
-                  </div>
-                  {payment.deliveryStatus && (
-                    <div className="flex justify-between items-center pt-2 border-t dark:border-gray-700">
-                      <span
-                        className={
-                          isDarkMode ? "text-gray-400" : "text-gray-600"
-                        }
-                      >
-                        Delivery:
-                      </span>
+                    </td>
+                    <td className="p-4">{payment.date}</td>
+                    <td className="p-4">{payment.paymentMethod}</td>
+                    <td className="p-4">
                       <span
                         className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center ${
-                          payment.deliveryStatus === "delivered"
+                          payment.status === "pending"
                             ? isDarkMode
-                              ? "bg-green-900/50 text-green-300"
-                              : "bg-green-200 text-green-800"
+                              ? "bg-yellow-900/50 text-yellow-300"
+                              : "bg-yellow-200 text-yellow-800"
                             : isDarkMode
-                            ? "bg-blue-900/50 text-blue-300"
-                            : "bg-blue-200 text-blue-800"
+                            ? "bg-green-900/50 text-green-300"
+                            : "bg-green-200 text-green-800"
                         }`}
                       >
-                        <Truck className="w-4 h-4 mr-1" />
-                        {payment.deliveryStatus.charAt(0).toUpperCase() +
-                          payment.deliveryStatus.slice(1)}
+                        {payment.status === "pending" ? (
+                          <Clock className="w-4 h-4 mr-1" />
+                        ) : (
+                          <CheckCircle className="w-4 h-4 mr-1" />
+                        )}
+                        {payment.status.charAt(0).toUpperCase() + payment.status.slice(1)}
                       </span>
-                    </div>
-                  )}
-                </div>
-                <div
-                  className={`p-4 border-t ${
-                    isDarkMode ? "border-gray-700" : "border-gray-200"
-                  }`}
-                >
-                  <button
-                    onClick={() => handleViewDetails(payment)}
-                    className="w-full py-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium hover:from-blue-600 hover:to-purple-600 transition-all duration-300 shadow-md flex items-center justify-center"
-                    aria-label={`View details for payment ${payment.id}`}
+                    </td>
+                    <td className="p-4">
+                      {payment.deliveryStatus && (
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-semibold flex items-center ${
+                            payment.deliveryStatus === "delivered"
+                              ? isDarkMode
+                                ? "bg-green-900/50 text-green-300"
+                                : "bg-green-200 text-green-800"
+                              : isDarkMode
+                              ? "bg-blue-900/50 text-blue-300"
+                              : "bg-blue-200 text-blue-800"
+                          }`}
+                        >
+                          <Truck className="w-4 h-4 mr-1" />
+                          {payment.deliveryStatus.charAt(0).toUpperCase() +
+                            payment.deliveryStatus.slice(1)}
+                        </span>
+                      )}
+                    </td>
+                    <td className="p-4">
+                      <button
+                        onClick={() => handleViewDetails(payment)}
+                        className="py-1 px-3 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium hover:from-blue-600 hover:to-purple-600 transition-all duration-300 shadow-md flex items-center"
+                        aria-label={`View details for payment ${payment.id}`}
+                      >
+                        <Eye className="w-4 h-4 mr-2" /> View
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan={8}
+                    className={`p-12 text-center ${
+                      isDarkMode ? "text-gray-400" : "text-gray-600"
+                    }`}
                   >
-                    <Eye className="w-4 h-4 mr-2" /> View Details
-                  </button>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div
-              className={`col-span-full flex flex-col items-center justify-center py-12 rounded-2xl ${
-                isDarkMode
-                  ? "bg-gray-800/50 border-gray-700/50"
-                  : "bg-white border-gray-200"
-              } border shadow-lg`}
-            >
-              <AlertCircle className="w-16 h-16 text-gray-400 mb-4" />
-              <h3
-                className={`text-xl font-semibold ${
-                  isDarkMode ? "text-white" : "text-gray-800"
-                } mb-2`}
-              >
-                No payments found
-              </h3>
-              <p
-                className={`text-sm ${
-                  isDarkMode ? "text-gray-400" : "text-gray-600"
-                } text-center max-w-md`}
-              >
-                {searchTerm || dateFilter.from || dateFilter.to
-                  ? "Try adjusting your search or filters to find your payments."
-                  : "You haven't made any payments yet. Start bidding to see your transactions here!"}
-              </p>
-              {(searchTerm || dateFilter.from || dateFilter.to) && (
-                <button
-                  onClick={resetFilters}
-                  className="mt-4 py-2 px-6 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium hover:from-blue-600 hover:to-purple-600 transition-all duration-300 shadow-md"
-                  aria-label="Reset all filters"
-                >
-                  Reset Filters
-                </button>
+                    <div className="flex flex-col items-center">
+                      <AlertCircle className="w-16 h-16 text-gray-400 mb-4" />
+                      <h3
+                        className={`text-xl font-semibold ${
+                          isDarkMode ? "text-white" : "text-gray-800"
+                        } mb-2`}
+                      >
+                        No payments found
+                      </h3>
+                      <p className="text-sm text-center max-w-md">
+                        {searchTerm || dateFilter.from || dateFilter.to
+                          ? "Try adjusting your search or filters to find your payments."
+                          : "You haven't made any payments yet. Start bidding to see your transactions here!"}
+                      </p>
+                      {(searchTerm || dateFilter.from || dateFilter.to) && (
+                        <button
+                          onClick={resetFilters}
+                          className="mt-4 py-2 px-6 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 text-white font-medium hover:from-blue-600 hover:to-purple-600 transition-all duration-300 shadow-md"
+                          aria-label="Reset all filters"
+                        >
+                          Reset Filters
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
               )}
-            </div>
-          )}
+            </tbody>
+          </table>
         </div>
       )}
 
@@ -1060,7 +990,7 @@ export default function BuyerPayment() {
               </span>
             </div>
             <div className="flex items-start gap-4">
-              <div className="w-24 h-24 rounded-lg overflow-hidden flex-shrink-0 bg-gray-200 dark:bg-gray-700 shadow-md">
+              <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-gray-200 dark:bg-gray-700 shadow-md">
                 <img
                   src={selectedPayment.image}
                   alt={selectedPayment.item}
@@ -1091,7 +1021,6 @@ export default function BuyerPayment() {
               }`}
             >
               {[
-                { label: "Auction ID", value: selectedPayment.auctionId || "N/A" },
                 { label: "Payment Method", value: selectedPayment.paymentMethod || "N/A" },
                 { label: "Seller", value: selectedPayment.seller || "Unknown" },
                 { label: "Date", value: selectedPayment.date || "N/A" },
@@ -1212,7 +1141,7 @@ export default function BuyerPayment() {
               No payment details available.
             </p>
           </div>
-        )}
+          )}
       </Modal>
     </div>
   );

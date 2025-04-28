@@ -44,7 +44,7 @@ import SharedPayment from "../component/dashboard/shared/payment/SharedPayment";
 import Blog from "../component/dashboard/shared/Blog/Blog";
 import AddBlog from "../component/dashboard/shared/Blog/AddBlog";
 import UpdateBlog from "../component/dashboard/shared/Blog/UpdateBlog";
-import Blogs from "../component/Blogs/Blogs";
+// import Blogs from "../component/Blogs/Blogs";
 // import AdminFeedback from "../component/dashboard/admin/AdminFeedback";
 
 // import TeamSettings from "../component/Settings/TeamSettings";

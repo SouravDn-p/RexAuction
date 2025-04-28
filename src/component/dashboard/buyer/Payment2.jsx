@@ -40,7 +40,7 @@ const Payment2 = () => {
     useState(true);
   const axiosPublic = useAxiosPublic();
   const [payment, setPayment] = useState("");
-
+console.log(auctionData);
   // const [id ,setId] = useState([])
 
   // auction id get
@@ -177,7 +177,7 @@ const Payment2 = () => {
         },
         paymentDate: new Date(),
         PaymentStatus: "pending",
-        PaymentMethod: "sslcommerz",
+        PaymentMethod: "SSlcommerz",
       };
 
       const updatedBalance = dbUser.accountBalance - calculateTotal();

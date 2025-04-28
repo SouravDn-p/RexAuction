@@ -120,7 +120,6 @@ export default function SellerPayment() {
           payment.PaymentStatus === "success"
             ? "completed"
             : payment.PaymentStatus,
-        auctionId: payment.auctionId,
         paymentMethod: payment.PaymentMethod,
         description: `${
           payment.itemInfo.name
@@ -189,8 +188,7 @@ export default function SellerPayment() {
       result = result.filter(
         (item) =>
           item.item?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.buyer?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.auctionId?.toLowerCase().includes(searchTerm.toLowerCase())
+          item.buyer?.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
@@ -985,22 +983,6 @@ export default function SellerPayment() {
                 <th
                   scope="col"
                   className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer"
-                  onClick={() => requestSort("auctionId")}
-                >
-                  <div className="flex items-center">
-                    Auction ID
-                    <ArrowUpDown
-                      className={`ml-1 h-4 w-4 ${
-                        sortConfig.key === "auctionId"
-                          ? "opacity-100"
-                          : "opacity-50"
-                      }`}
-                    />
-                  </div>
-                </th>
-                <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer"
                   onClick={() => requestSort("item")}
                 >
                   <div className="flex items-center">
@@ -1085,9 +1067,6 @@ export default function SellerPayment() {
                       isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-50"
                     }`}
                   >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      {payment.auctionId}
-                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm">
                       <div className="flex items-center">
                         <div
@@ -1176,7 +1155,7 @@ export default function SellerPayment() {
               ) : (
                 <tr>
                   <td
-                    colSpan="7"
+                    colSpan="6"
                     className="px-6 py-4 text-center text-sm font-medium"
                   >
                     <div className="flex flex-col items-center py-6">
@@ -1281,12 +1260,6 @@ export default function SellerPayment() {
               <div className="grid grid-cols-2 gap-4 mt-4">
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Auction ID
-                  </p>
-                  <p className="font-medium">{selectedItem.auctionId}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     Payment Method
                   </p>
                   <p className="font-medium">{selectedItem.paymentMethod}</p>
@@ -1349,13 +1322,6 @@ export default function SellerPayment() {
                   {selectedItem.status.charAt(0).toUpperCase() +
                     selectedItem.status.slice(1)}
                 </span>
-
-                <div className="flex items-center">
-                  <Tag className="w-4 h-4 mr-1 text-gray-500 dark:text-gray-400" />
-                  <span className="text-sm text-gray-500 dark:text-gray-400">
-                    {selectedItem.id}
-                  </span>
-                </div>
               </div>
 
               <div className="flex items-center">
