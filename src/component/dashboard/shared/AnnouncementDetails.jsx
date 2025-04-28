@@ -1,85 +1,10 @@
-// import { useParams } from "react-router-dom";
-// import useAnnouncement from "../../../hooks/useAnnouncement";
-// import LoadingSpinner from "../../LoadingSpinner";
-// import { useContext } from "react";
-// import ThemeContext from "../../Context/ThemeContext";
-
-// const AnnouncementDetails = () => {
-//   const { id } = useParams();
-//   const [announcements, refetch, isLoading] = useAnnouncement();
-//   const { isDarkMode } = useContext(ThemeContext);
-
-//   if (isLoading) return <LoadingSpinner />;
-
-//   const announcement = announcements.find((item) => item._id === id);
-//   if (!announcement) {
-//     return (
-//       <div className="h-screen flex items-center justify-center px-4">
-//         <h1 className="text-2xl font-bold text-red-600 text-center">
-//           Announcement Not Found!
-//         </h1>
-//       </div>
-//     );
-//   }
-
-//   return (
-//     <div
-//       className={`w-full h-full min-h-screen flex items-center justify-center px-4 py-10 ${
-//         isDarkMode ? "bg-gray-900 text-white" : "bg-purple-50 text-gray-800"
-//       }`}
-//     >
-//       <div className="w-full mt-[100px] max-w-xl bg-white dark:bg-gray-800 shadow-xl rounded-2xl overflow-hidden transition-all duration-300 border border-purple-100 dark:border-gray-700">
-
-//         {/* Flash Image Container */}
-//         <div className="relative group overflow-hidden rounded-t-2xl">
-//           <img
-//             src={announcement.image}
-//             alt={announcement.title}
-//             className="w-full h-[300px] object-cover rounded-t-2xl transition-transform duration-500 group-hover:scale-105"
-//           />
-
-//           {/* Flash Overlay on Hover */}
-//           <div className="absolute top-0 left-[-75%] w-[33%] h-full bg-white opacity-20 transform rotate-[12deg] pointer-events-none group-hover:left-[125%] transition-all duration-1000"></div>
-
-//           {/* Floating Status Badge */}
-//           <span
-//             className={`absolute top-4 left-4 px-3 py-1 text-xs font-semibold uppercase tracking-wide rounded-full shadow-md ${
-//               announcement.status === "published"
-//                 ? "bg-gradient-to-r from-green-400 to-green-600 text-white"
-//                 : "bg-gradient-to-r from-yellow-400 to-yellow-600 text-white"
-//             }`}
-//           >
-//             {announcement.status === "published" ? "Published" : "Draft"}
-//           </span>
-//         </div>
-
-//         {/* Announcement Content */}
-//         <div className="px-6 py-5 space-y-3">
-//           <p className="text-xs text-gray-500 dark:text-gray-400">{announcement.date}</p>
-//           <h2 className="text-xl border-b font-bold text-purple-800 dark:text-purple-300 leading-snug">
-//             {announcement.title}
-//           </h2>
-//           <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-300">
-//             {announcement.content.length > 200
-//               ? `${announcement.content.slice(0, 200)}...`
-//               : announcement.content}
-//           </p>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default AnnouncementDetails;
-
-"use client";
 
 import { useContext, useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { FiArrowLeft, FiCalendar, FiShare2 } from "react-icons/fi";
-import ThemeContext from "../../Context/ThemeContext";
-import LoadingSpinner from "../../LoadingSpinner";
+import ThemeContext from "../../../component/Context/ThemeContext";
+import LoadingSpinner from "../../../component/LoadingSpinner";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -106,29 +31,37 @@ const AnnouncementDetails = () => {
       }
     }
 
-    const fetchAnnouncementDetails = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get(
-          `http://localhost:5000/announcement/${id}`
-        );
-        setAnnouncement(response.data);
-        setLoading(false);
-      } catch (err) {
-        console.error("Error fetching announcement details:", err);
-        setError(
-          "Failed to load announcement details. Please try again later."
-        );
-        setLoading(false);
-      }
-    };
+    // Fetch announcement by ID if no announcementData is provided
+    if (id) {
+      const fetchAnnouncementDetails = async () => {
+        try {
+          setLoading(true);
+          const response = await axios.get(
+            `http://localhost:5000/announcement/${id}`,
+            { withCredentials: true }
+          );
+          setAnnouncement(response.data);
+          setLoading(false);
+        } catch (err) {
+          console.error("Error fetching announcement details:", err);
+          setError(
+            "Failed to load announcement details. Please try again later."
+          );
+          setLoading(false);
+        }
+      };
 
-    fetchAnnouncementDetails();
+      fetchAnnouncementDetails();
+    } else {
+      // No ID and no announcementData, show error
+      setError("No announcement data provided.");
+      setLoading(false);
+    }
   }, [id, location.state]);
 
   if (loading) return <LoadingSpinner />;
 
-  if (error) {
+  if (error || !announcement) {
     return (
       <div
         className={`min-h-screen ${
@@ -148,43 +81,13 @@ const AnnouncementDetails = () => {
           </button>
           <div className="text-center py-12">
             <h2 className="text-2xl font-bold text-red-500 mb-4">Error</h2>
-            <p>{error}</p>
+            <p>{error || "Announcement not found."}</p>
             <button
               onClick={() => window.location.reload()}
               className="mt-4 px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
             >
               Try Again
             </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!announcement) {
-    return (
-      <div
-        className={`min-h-screen ${
-          isDarkMode ? "bg-gray-900 text-white" : "bg-purple-50 text-gray-800"
-        } p-6`}
-      >
-        <div className="max-w-4xl mx-auto">
-          <button
-            onClick={() => navigate(-1)}
-            className={`flex items-center gap-2 mb-6 px-4 py-2 rounded-lg ${
-              isDarkMode
-                ? "bg-gray-800 hover:bg-gray-700"
-                : "bg-white hover:bg-gray-100"
-            } transition-colors`}
-          >
-            <FiArrowLeft /> Back
-          </button>
-          <div className="text-center py-12">
-            <h2 className="text-2xl font-bold mb-4">Announcement Not Found</h2>
-            <p>
-              The announcement you're looking for doesn't exist or has been
-              removed.
-            </p>
           </div>
         </div>
       </div>
@@ -224,11 +127,11 @@ const AnnouncementDetails = () => {
               <div>
                 <p className="text-sm">
                   <span className="font-medium">From:</span>{" "}
-                  {notificationData.sender}
+                  {notificationData.sender || "System"}
                 </p>
                 <p className="text-sm">
                   <span className="font-medium">Sent:</span>{" "}
-                  {new Date(notificationData.timestamp).toLocaleString()}
+                  {new Date(notificationData.createdAt).toLocaleString()}
                 </p>
               </div>
               <div>
@@ -260,11 +163,14 @@ const AnnouncementDetails = () => {
             <div className="flex items-center gap-2">
               <FiCalendar className="text-purple-500" />
               <span className={isDarkMode ? "text-gray-300" : "text-gray-600"}>
-                {new Date(announcement.date).toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}
+                {new Date(announcement.date || announcement.createdAt).toLocaleDateString(
+                  "en-US",
+                  {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  }
+                )}
               </span>
             </div>
             <button
@@ -280,13 +186,15 @@ const AnnouncementDetails = () => {
         </div>
 
         {/* Featured Image */}
-        <div className="mb-8 rounded-xl overflow-hidden shadow-lg">
-          <img
-            src={announcement.image || "/placeholder.svg"}
-            alt={announcement.title}
-            className="w-full h-auto object-cover"
-          />
-        </div>
+        {announcement.image && (
+          <div className="mb-8 rounded-xl overflow-hidden shadow-lg">
+            <img
+              src={announcement.image}
+              alt={announcement.title}
+              className="w-full h-auto object-cover"
+            />
+          </div>
+        )}
 
         {/* Content */}
         <div
@@ -303,7 +211,6 @@ const AnnouncementDetails = () => {
         <div className="mt-12">
           <h3 className="text-xl font-bold mb-4">Related Announcements</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* This would be populated with actual related announcements */}
             <div
               className={`p-4 rounded-lg ${
                 isDarkMode ? "bg-gray-800" : "bg-white"

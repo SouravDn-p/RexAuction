@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { GiCancel } from "react-icons/gi";
 import { FcCheckmark } from "react-icons/fc";
-import { FaSortAmountUp, FaSortAmountDown } from "react-icons/fa";
+import { FaSortAmountUp, FaSortAmountDown, FaEye } from "react-icons/fa";
 import ThemeContext from "../../Context/ThemeContext";
 import Swal from "sweetalert2";
 import axios from "axios";
@@ -57,57 +57,68 @@ const SellerRequest = () => {
   }, [axiosPublic]);
 
   const handleApprove = async (userId, dbUserId) => {
-    console.log("userId", userId);
-    console.log("dbUserId", dbUserId);
-
     Swal.fire({
       title: "Are you sure?",
       text: "Do you want to approve this seller request?",
+      icon: "question",
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
+      confirmButtonColor: "#10B981",
+      cancelButtonColor: "#EF4444",
       confirmButtonText: "Yes, approve it!",
     }).then(async (result) => {
       if (!result.isConfirmed) return;
 
       try {
-        // Step 1: Update seller request status
         const sellerReqRes = await axiosPublic.patch(
           `/sellerRequest/${userId}`,
           { becomeSellerStatus: "accepted" }
         );
 
         if (sellerReqRes.data.success) {
-          // Step 2: Update user role to "seller"
           const roleUpdateRes = await axiosPublic.patch(`/users/${dbUserId}`, {
             role: "seller",
           });
 
           if (roleUpdateRes.data.success) {
-            Swal.fire(
-              "Approved!",
-              "Seller request has been approved and role updated.",
-              "success"
-            );
+            Swal.fire({
+              title: "Approved!",
+              text: "Seller request has been approved and role updated.",
+              icon: "success",
+              confirmButtonColor: "#10B981",
+            });
 
-            // Step 3: Refresh UI
             setIsModalOpen(false);
 
             const response = await axiosPublic.get("/sellerRequest");
             const data = response.data;
-            const pendingUsers = data.filter(
-              (user) => user.becomeSellerStatus === "pending"
+            const filteredUsers = data.filter(
+              (user) => user.becomeSellerStatus === selectedRole
             );
-            setUsers(pendingUsers);
+            setUsers(filteredUsers);
           } else {
-            Swal.fire("Error!", "Failed to update user role.", "error");
+            Swal.fire({
+              title: "Error!",
+              text: "Failed to update user role.",
+              icon: "error",
+              confirmButtonColor: "#EF4444",
+            });
           }
         } else {
-          Swal.fire("Error!", "Failed to approve seller request.", "error");
+          Swal.fire({
+            title: "Error!",
+            text: "Failed to approve seller request.",
+            icon: "error",
+            confirmButtonColor: "#EF4444",
+          });
         }
       } catch (error) {
         console.error("Approval error:", error);
-        Swal.fire("Error!", "Something went wrong!", "error");
+        Swal.fire({
+          title: "Error!",
+          text: "Something went wrong!",
+          icon: "error",
+          confirmButtonColor: "#EF4444",
+        });
       }
     });
   };
@@ -119,8 +130,8 @@ const SellerRequest = () => {
       inputLabel: "Why are you rejecting this seller request?",
       inputPlaceholder: "Enter rejection reason...",
       showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
+      confirmButtonColor: "#EF4444",
+      cancelButtonColor: "#6B7280",
       confirmButtonText: "Reject",
       inputValidator: (value) => {
         if (!value) {
@@ -137,22 +148,33 @@ const SellerRequest = () => {
         );
 
         if (sellerReqRes.data.success) {
-          Swal.fire(
-            "Rejected!",
-            "Seller request has been rejected.",
-            "success"
-          );
+          Swal.fire({
+            title: "Rejected!",
+            text: "Seller request has been rejected.",
+            icon: "success",
+            confirmButtonColor: "#10B981",
+          });
           setUsers((prevUsers) =>
             prevUsers.filter((user) => user._id !== userId)
           );
           setIsModalOpen(false);
           setRejectionReason("");
         } else {
-          Swal.fire("Error!", "Failed to reject seller request.", "error");
+          Swal.fire({
+            title: "Error!",
+            text: "Failed to reject seller request.",
+            icon: "error",
+            confirmButtonColor: "#EF4444",
+          });
         }
       } catch (error) {
         console.error("Rejection error:", error);
-        Swal.fire("Failed!", "Something went wrong.", "error");
+        Swal.fire({
+          title: "Error!",
+          text: "Something went wrong.",
+          icon: "error",
+          confirmButtonColor: "#EF4444",
+        });
       }
     }
   };
@@ -202,28 +224,28 @@ const SellerRequest = () => {
     <div
       className={`p-4 min-h-screen ${
         isDarkMode ? "bg-gray-900" : "bg-gray-50"
-      }`}
+      } transition-colors duration-300`}
     >
       <div className="max-w-6xl mx-auto p-6 rounded-lg">
-        {/* Header Section with Animated Background */}
+        {/* Header Section */}
         <Header
           header="Seller Requests"
           title="Review and manage seller auction requests"
         />
         {/* Filter Buttons */}
-        <div className="flex justify-center mb-10 transition-all duration-700 delay-200">
+        <div className="flex justify-center mb-10">
           <div
             className={`inline-flex p-1.5 gap-2 rounded-xl ${
               isDarkMode ? "bg-gray-800" : "bg-gray-100"
-            } shadow-lg`}
+            } shadow-lg transition-all duration-300`}
           >
             {["pending", "accepted", "rejected"].map((role) => (
               <button
                 key={role}
                 onClick={() => handleRoleFilter(role)}
-                className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 transform hover:scale-105 ${
                   selectedRole === role
-                    ? "bg-purple-600 text-white"
+                    ? "bg-gradient-to-r from-purple-500 to-indigo-600 text-white shadow-md"
                     : isDarkMode
                     ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
                     : "bg-gray-200 text-gray-700 hover:bg-gray-300"
@@ -240,9 +262,9 @@ const SellerRequest = () => {
         </div>
 
         {/* Table with Seller Requests */}
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto rounded-lg shadow-lg">
           <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className={isDarkMode ? "bg-gray-700" : "bg-gray-50"}>
+            <thead className={isDarkMode ? "bg-gray-800" : "bg-gray-100"}>
               <tr>
                 {["name", "email", "requestDate"].map((field) => (
                   <th
@@ -253,7 +275,7 @@ const SellerRequest = () => {
                     } uppercase tracking-wider`}
                   >
                     <div
-                      className="flex items-center cursor-pointer hover:text-blue-500 transition-colors"
+                      className="flex items-center cursor-pointer hover:text-indigo-500 transition-colors duration-200"
                       onClick={() => handleSort(field)}
                     >
                       <span>
@@ -292,18 +314,18 @@ const SellerRequest = () => {
                     key={user._id}
                     className={`hover:${
                       isDarkMode ? "bg-gray-700" : "bg-gray-50"
-                    } transition-colors`}
+                    } transition-colors duration-200`}
                   >
                     <td className="px-4 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div
                           className={`h-10 w-10 flex items-center justify-center rounded-full ${
-                            isDarkMode ? "bg-purple-900" : "bg-purple-100"
-                          }`}
+                            isDarkMode ? "bg-indigo-900" : "bg-indigo-100"
+                          } transition-colors duration-200`}
                         >
                           <span
                             className={
-                              isDarkMode ? "text-purple-300" : "text-purple-700"
+                              isDarkMode ? "text-indigo-300" : "text-indigo-700"
                             }
                           >
                             {user.name?.charAt(0).toUpperCase() || "?"}
@@ -335,14 +357,14 @@ const SellerRequest = () => {
                       {formatDate(user.requestDate)}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex justify-end space-x-2">
-                        <button
-                          onClick={() => openDetailsModal(user)}
-                          className="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded transition-colors"
-                        >
-                          Details
-                        </button>
-                      </div>
+                      <button
+                        onClick={() => openDetailsModal(user)}
+                        className="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md transition-all duration-200 flex items-center gap-2"
+                        aria-label="View seller request details"
+                      >
+                        <FaEye />
+                        Details
+                      </button>
                     </td>
                   </tr>
                 ))
@@ -367,8 +389,8 @@ const SellerRequest = () => {
         {totalPages > 1 && (
           <div
             className={`flex items-center justify-between px-4 py-3 sm:px-6 ${
-              isDarkMode ? "bg-gray-700" : "bg-gray-50"
-            } rounded-b-lg`}
+              isDarkMode ? "bg-gray-800" : "bg-gray-100"
+            } rounded-b-lg shadow-lg mt-4`}
           >
             <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
               <div>
@@ -402,7 +424,7 @@ const SellerRequest = () => {
                         : "border-gray-300 bg-white text-gray-500 hover:bg-gray-50"
                     } text-sm font-medium ${
                       currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""
-                    }`}
+                    } transition-all duration-200`}
                   >
                     ← Previous
                   </button>
@@ -414,12 +436,12 @@ const SellerRequest = () => {
                         className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
                           currentPage === page
                             ? isDarkMode
-                              ? "bg-blue-600 text-white border-blue-600"
-                              : "bg-blue-50 text-blue-600 border-blue-500"
+                              ? "bg-indigo-600 text-white border-indigo-600"
+                              : "bg-indigo-100 text-indigo-600 border-indigo-500"
                             : isDarkMode
                             ? "border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600"
                             : "border-gray-300 bg-white text-gray-500 hover:bg-gray-50"
-                        }`}
+                        } transition-all duration-200`}
                       >
                         {page}
                       </button>
@@ -438,7 +460,7 @@ const SellerRequest = () => {
                       currentPage === totalPages
                         ? "opacity-50 cursor-not-allowed"
                         : ""
-                    }`}
+                    } transition-all duration-200`}
                   >
                     Next →
                   </button>
@@ -451,177 +473,295 @@ const SellerRequest = () => {
 
       {/* Modal for User Details */}
       {isModalOpen && selectedUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white dark:bg-gray-900 w-full max-w-3xl rounded-2xl shadow-lg p-6 mx-4 overflow-y-auto max-h-[90vh]">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 transition-opacity duration-300"
+          role="dialog"
+          aria-labelledby="modal-title"
+          aria-modal="true"
+        >
+          <div
+            className={`w-full max-w-4xl rounded-2xl shadow-2xl p-8 mx-4 transform transition-all duration-300 scale-95 animate-modal-open ${
+              isDarkMode
+                ? "bg-gradient-to-b from-gray-900 to-gray-800 border border-gray-700"
+                : "bg-gradient-to-b from-white to-gray-50 border border-gray-200"
+            } max-h-[90vh] overflow-y-auto scrollbar-thin scrollbar-thumb-indigo-500 scrollbar-track-transparent`}
+          >
             {/* Header */}
             <div className="flex items-center gap-4 mb-6">
               <div
                 className={`w-16 h-16 flex items-center justify-center rounded-full ${
-                  isDarkMode ? "bg-purple-900" : "bg-purple-100"
-                }`}
+                  isDarkMode ? "bg-indigo-900" : "bg-indigo-100"
+                } shadow-md transition-colors duration-200`}
               >
                 <span
                   className={`text-2xl font-bold ${
-                    isDarkMode ? "text-purple-300" : "text-purple-700"
+                    isDarkMode ? "text-indigo-300" : "text-indigo-700"
                   }`}
                 >
                   {selectedUser.name?.charAt(0).toUpperCase() || "?"}
                 </span>
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                <h2
+                  id="modal-title"
+                  className={`text-2xl font-bold ${
+                    isDarkMode ? "text-white" : "text-gray-900"
+                  }`}
+                >
                   {selectedUser.name}
                 </h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p
+                  className={`text-sm ${
+                    isDarkMode ? "text-gray-400" : "text-gray-500"
+                  }`}
+                >
                   {selectedUser.email}
                 </p>
-              </div>
-            </div>
-
-            {/* User Info */}
-            <div className="space-y-3 text-sm text-gray-800 dark:text-gray-200 mb-6">
-              <p>
-                <strong>Name:</strong> {selectedUser.name}
-              </p>
-              <p>
-                <strong>Email:</strong> {selectedUser.email}
-              </p>
-              <p>
-                <strong>Phone Number:</strong>{" "}
-                {selectedUser.phoneNumber || "N/A"}
-              </p>
-              <p>
-                <strong>Address:</strong> {selectedUser.address || "N/A"}
-              </p>
-              <p>
-                <strong>Request Date:</strong>{" "}
-                {formatDate(selectedUser.requestDate)}
-              </p>
-              <p>
-                <strong>Document Type:</strong>{" "}
-                {selectedUser.documentType || "N/A"}
-              </p>
-              <p>
-                <strong>Status:</strong>{" "}
                 <span
-                  className={`ml-1 px-2 py-1 rounded text-xs font-medium ${
+                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mt-2 capitalize ${
                     selectedUser.becomeSellerStatus === "accepted"
-                      ? "bg-green-100 text-green-800"
+                      ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300"
                       : selectedUser.becomeSellerStatus === "rejected"
-                      ? "bg-red-100 text-red-700"
-                      : "bg-yellow-100 text-yellow-800"
+                      ? "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300"
+                      : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300"
                   }`}
                 >
                   {selectedUser.becomeSellerStatus}
                 </span>
-              </p>
-              {selectedUser.sellerRequestMessage && (
-                <p>
-                  <strong>Request Message:</strong>{" "}
-                  <span className="block mt-1 p-2 bg-gray-100 dark:bg-gray-800 rounded-md text-gray-700 dark:text-gray-300">
-                    {selectedUser.sellerRequestMessage}
-                  </span>
+              </div>
+            </div>
+
+            {/* User Info */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div className="space-y-3 text-sm">
+                <p
+                  className={`${
+                    isDarkMode ? "text-gray-200" : "text-gray-800"
+                  }`}
+                >
+                  <strong>Name:</strong> {selectedUser.name}
                 </p>
-              )}
+                <p
+                  className={`${
+                    isDarkMode ? "text-gray-200" : "text-gray-800"
+                  }`}
+                >
+                  <strong>Email:</strong> {selectedUser.email}
+                </p>
+                <p
+                  className={`${
+                    isDarkMode ? "text-gray-200" : "text-gray-800"
+                  }`}
+                >
+                  <strong>Phone Number:</strong>{" "}
+                  {selectedUser.phoneNumber || "N/A"}
+                </p>
+                <p
+                  className={`${
+                    isDarkMode ? "text-gray-200" : "text-gray-800"
+                  }`}
+                >
+                  <strong>Address:</strong> {selectedUser.address || "N/A"}
+                </p>
+              </div>
+              <div className="space-y-3 text-sm">
+                <p
+                  className={`${
+                    isDarkMode ? "text-gray-200" : "text-gray-800"
+                  }`}
+                >
+                  <strong>Request Date:</strong>{" "}
+                  {formatDate(selectedUser.requestDate)}
+                </p>
+                <p
+                  className={`${
+                    isDarkMode ? "text-gray-200" : "text-gray-800"
+                  }`}
+                >
+                  <strong>Document Type:</strong>{" "}
+                  {selectedUser.documentType || "N/A"}
+                </p>
+                {selectedUser.sellerRequestMessage && (
+                  <p>
+                    <strong>Request Message:</strong>
+                    <span
+                      className={`block mt-1 p-3 rounded-md text-sm ${
+                        isDarkMode
+                          ? "bg-gray-800 text-gray-300"
+                          : "bg-gray-100 text-gray-700"
+                      }`}
+                    >
+                      {selectedUser.sellerRequestMessage}
+                    </span>
+                  </p>
+                )}
+              </div>
             </div>
 
             {/* Document Previews */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
               {selectedUser.frontDocument && (
-                <div className="border p-3 rounded-lg dark:border-gray-700">
-                  <p className="font-medium text-gray-800 dark:text-gray-100 mb-2">
+                <div
+                  className={`border rounded-lg p-4 ${
+                    isDarkMode
+                      ? "border-gray-700 bg-gray-800"
+                      : "border-gray-200 bg-white"
+                  } shadow-md hover:shadow-lg transition-shadow duration-200`}
+                >
+                  <p
+                    className={`font-medium mb-2 ${
+                      isDarkMode ? "text-gray-100" : "text-gray-800"
+                    }`}
+                  >
                     Front Document
                   </p>
-                  <img
-                    src={selectedUser.frontDocument}
-                    alt="Front Document"
-                    className="w-full h-48 object-cover rounded-md border border-gray-300 dark:border-gray-600"
-                  />
-                  <a
-                    href={selectedUser.frontDocument}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline mt-2 inline-block text-sm"
-                  >
-                    View Full Image
-                  </a>
+                  <div className="relative group">
+                    <img
+                      src={selectedUser.frontDocument}
+                      alt="Front Document"
+                      className="w-full h-48 object-cover rounded-md border border-gray-300 dark:border-gray-600 transition-transform duration-200 group-hover:scale-105"
+                    />
+                    <a
+                      href={selectedUser.frontDocument}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-white text-sm rounded-md`}
+                      aria-label="View front document in new tab"
+                    >
+                      View Full Image
+                    </a>
+                  </div>
                 </div>
               )}
-
               {selectedUser.backDocument && (
-                <div className="border p-3 rounded-lg dark:border-gray-700">
-                  <p className="font-medium text-gray-800 dark:text-gray-100 mb-2">
+                <div
+                  className={`border rounded-lg p-4 ${
+                    isDarkMode
+                      ? "border-gray-700 bg-gray-800"
+                      : "border-gray-200 bg-white"
+                  } shadow-md hover:shadow-lg transition-shadow duration-200`}
+                >
+                  <p
+                    className={`font-medium mb-2 ${
+                      isDarkMode ? "text-gray-100" : "text-gray-800"
+                    }`}
+                  >
                     Back Document
                   </p>
-                  <img
-                    src={selectedUser.backDocument}
-                    alt="Back Document"
-                    className="w-full h-48 object-cover rounded-md border border-gray-300 dark:border-gray-600"
-                  />
-                  <a
-                    href={selectedUser.backDocument}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline mt-2 inline-block text-sm"
-                  >
-                    View Full Image
-                  </a>
+                  <div className="relative group">
+                    <img
+                      src={selectedUser.backDocument}
+                      alt="Back Document"
+                      className="w-full h-48 object-cover rounded-md border border-gray-300 dark:border-gray-600 transition-transform duration-200 group-hover:scale-105"
+                    />
+                    <a
+                      href={selectedUser.backDocument}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-white text-sm rounded-md`}
+                      aria-label="View back document in new tab"
+                    >
+                      View Full Image
+                    </a>
+                  </div>
                 </div>
               )}
             </div>
 
             {/* Rejection Reason */}
             {selectedUser.becomeSellerStatus === "rejected" && (
-              <div className="mb-5">
-                <label className="block text-sm font-medium text-red-600 dark:text-red-400 mb-1">
+              <div className="mb-6">
+                <label
+                  className={`block text-sm font-medium ${
+                    isDarkMode ? "text-red-400" : "text-red-600"
+                  } mb-2`}
+                >
                   Rejection Reason
                 </label>
-                <div className="p-3 bg-red-50 dark:bg-gray-800 border border-red-300 dark:border-red-600 text-sm text-red-800 dark:text-red-300 rounded-md">
+                <div
+                  className={`p-4 rounded-md text-sm ${
+                    isDarkMode
+                      ? "bg-red-900/30 text-red-300 border-red-600"
+                      : "bg-red-50 text-red-800 border-red-300"
+                  } border`}
+                >
                   {selectedUser.rejectionReason || "No reason provided."}
                 </div>
               </div>
             )}
 
-            {/* Action Buttons at Bottom */}
-            {selectedRole === "pending" && (
-              <div className="flex justify-end gap-3 pt-4 border-t dark:border-gray-700">
-                <button
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white transition"
-                >
-                  Close
-                </button>
-                <button
-                  onClick={() =>
-                    handleApprove(selectedUser._id, selectedUser.dbUserId)
-                  }
-                  className="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white transition"
-                >
-                  Accept
-                </button>
-                <button
-                  onClick={() =>
-                    handleReject(selectedUser._id, selectedUser.dbUserId)
-                  }
-                  className="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white transition"
-                >
-                  Reject
-                </button>
-              </div>
-            )}
-            {selectedRole !== "pending" && (
-              <div className="flex justify-end pt-4 border-t dark:border-gray-700">
-                <button
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-white transition"
-                >
-                  Close
-                </button>
-              </div>
-            )}
+            {/* Action Buttons */}
+            <div
+              className={`flex justify-end gap-3 pt-4 border-t ${
+                isDarkMode ? "border-gray-700" : "border-gray-200"
+              }`}
+            >
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 transform hover:scale-105 ${
+                  isDarkMode
+                    ? "bg-gray-700 text-gray-200 hover:bg-gray-600"
+                    : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                }`}
+                aria-label="Close modal"
+              >
+                Close
+              </button>
+              {selectedRole === "pending" && (
+                <>
+                  <button
+                    onClick={() =>
+                      handleApprove(selectedUser._id, selectedUser.dbUserId)
+                    }
+                    className="px-4 py-2 rounded-lg bg-gradient-to-r from-green-500 to-green-600 text-white font-medium hover:from-green-600 hover:to-green-700 transition-all duration-200 transform hover:scale-105 flex items-center gap-2"
+                    aria-label="Approve seller request"
+                  >
+                    <FcCheckmark size={18} />
+                    Accept
+                  </button>
+                  <button
+                    onClick={() =>
+                      handleReject(selectedUser._id, selectedUser.dbUserId)
+                    }
+                    className="px-4 py-2 rounded-lg bg-gradient-to-r from-red-500 to-red-600 text-white font-medium hover:from-red-600 hover:to-red-700 transition-all duration-200 transform hover:scale-105 flex items-center gap-2"
+                    aria-label="Reject seller request"
+                  >
+                    <GiCancel size={18} />
+                    Reject
+                  </button>
+                </>
+              )}
+            </div>
           </div>
         </div>
       )}
+
+      {/* Inline Styles for Animations */}
+      <style jsx>{`
+        @keyframes modal-open {
+          from {
+            opacity: 0;
+            transform: scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+        .animate-modal-open {
+          animation: modal-open 0.3s ease-out forwards;
+        }
+        .scrollbar-thin::-webkit-scrollbar {
+          width: 6px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+          background-color: #6366f1;
+          border-radius: 9999px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-track {
+          background: transparent;
+        }
+      `}</style>
     </div>
   );
 };
