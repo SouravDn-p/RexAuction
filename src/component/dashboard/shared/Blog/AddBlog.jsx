@@ -2,6 +2,8 @@ import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
 import ThemeContext from "../../../Context/ThemeContext";
+import axios from "axios";
+import Swal from "sweetalert2"; // Import SweetAlert
 
 export default function AddBlog() {
   const { isDarkMode } = useContext(ThemeContext);
@@ -9,44 +11,114 @@ export default function AddBlog() {
 
   const [blogData, setBlogData] = useState({
     title: "",
-    image: null,
+    imageFiles: [],
     fullContent: "",
   });
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (name === "image") {
-      setBlogData({ ...blogData, image: files[0] });
+      setBlogData({ ...blogData, imageFiles: [...files] });
     } else {
       setBlogData({ ...blogData, [name]: value });
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log(blogData);
-    // Handle blog submission here (send to backend etc.)
+
+    const imageHostingApi = `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_IMAGE_HOSTING_KEY}`;
+    const uploadedImageUrls = [];
+
+    try {
+      // Upload images first
+      for (const file of blogData.imageFiles) {
+        const formDataImage = new FormData();
+        formDataImage.append("image", file);
+
+        // Send the request to ImgBB
+        const res = await fetch(imageHostingApi, {
+          method: "POST",
+          body: formDataImage,
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          uploadedImageUrls.push(data.data.display_url);
+        } else {
+          throw new Error("Failed to upload image to ImgBB");
+        }
+      }
+
+      console.log("Uploaded Image URLs:", uploadedImageUrls);
+
+      // Send blog data to the backend with image URLs
+      const blogDataWithImages = {
+        title: blogData.title,
+        imageUrls: uploadedImageUrls,
+        fullContent: blogData.fullContent,
+      };
+
+      const response = await axios.post("http://localhost:5000/add-blogs", blogDataWithImages, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true
+      });
+
+      if (response.status === 201) {
+        // Handle success response
+        console.log("Blog added successfully:", response.data);
+        Swal.fire({
+          icon: 'success',
+          title: 'Blog Posted Successfully',
+          text: 'Your blog has been published.',
+        });
+        // navigate("/blogs"); // Navigate to the blog list page after success
+      } else {
+        // Handle error response
+        console.error("Failed to add blog:", response.data.message);
+        Swal.fire({
+          icon: 'error',
+          title: 'Failed to Post Blog',
+          text: response.data.message || 'Unknown error occurred.',
+        });
+      }
+
+    } catch (err) {
+      console.error("Error uploading images:", err);
+      if (err.message.includes("ImgBB")) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Image Upload Failed',
+          text: 'Please try again.',
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error Occurred',
+          text: 'An error occurred while submitting the blog. Please try again later.',
+        });
+      }
+    }
   };
 
   const handleReset = () => {
     setBlogData({
       title: "",
-      image: null,
+      imageFiles: [],
       fullContent: "",
     });
   };
 
   const handleBack = () => {
-    navigate(-1); // Go back to the previous page
+    navigate(-1);
   };
 
   return (
     <div
-      className={`min-h-screen p-6 md:p-8 ${
-        isDarkMode
-          ? "bg-gray-900 text-white"
-          : "bg-gradient-to-b from-purple-100 via-white to-purple-50 text-gray-800"
-      }`}
+      className={`min-h-screen p-6 md:p-8 ${isDarkMode ? "bg-gray-900 text-white" : "bg-gradient-to-b from-purple-100 via-white to-purple-50 text-gray-800"}`}
     >
       <div className="max-w-4xl mx-auto bg-white dark:bg-gray-800 p-8 rounded-xl shadow-md relative">
         
@@ -79,27 +151,21 @@ export default function AddBlog() {
                 value={blogData.title}
                 onChange={handleChange}
                 placeholder="Enter blog title"
-                className={`w-full p-3 rounded-md border ${
-                  isDarkMode
-                    ? "border-gray-700 bg-gray-700 text-white placeholder-gray-400 focus:ring-purple-600"
-                    : "border-gray-300 bg-white text-gray-800 placeholder-gray-500 focus:ring-purple-400"
-                } focus:outline-none focus:ring-2 transition`}
+                className={`w-full p-3 rounded-md border ${isDarkMode ? "border-gray-700 bg-gray-700 text-white placeholder-gray-400 focus:ring-purple-600" : "border-gray-300 bg-white text-gray-800 placeholder-gray-500 focus:ring-purple-400"} focus:outline-none focus:ring-2 transition`}
                 required
               />
             </div>
 
             <div className="flex-1">
               <label className="block text-sm font-medium mb-2">
-                Upload Blog Image
+                Upload Blog Images
               </label>
               <input
                 type="file"
                 name="image"
                 accept="image/*"
                 onChange={handleChange}
-                className={`block w-full text-sm ${
-                  isDarkMode ? "text-gray-300" : "text-gray-700"
-                }
+                className={`block w-full text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}
                   file:mr-4 file:py-2 file:px-4
                   file:rounded-md file:border-0
                   file:text-sm file:font-semibold
@@ -107,11 +173,12 @@ export default function AddBlog() {
                   file:text-purple-700 dark:file:text-white
                   hover:file:bg-purple-200 dark:hover:file:bg-gray-500
                   transition`}
+                multiple
                 required
               />
-              {blogData.image && (
+              {blogData.imageFiles.length > 0 && (
                 <p className="text-xs mt-1 text-green-500">
-                  Selected: {blogData.image.name}
+                  Selected {blogData.imageFiles.length} {blogData.imageFiles.length > 1 ? "images" : "image"}
                 </p>
               )}
             </div>
@@ -127,11 +194,7 @@ export default function AddBlog() {
               value={blogData.fullContent}
               onChange={handleChange}
               placeholder="Write your full blog content here..."
-              className={`w-full p-3 rounded-md border ${
-                isDarkMode
-                  ? "border-gray-700 bg-gray-700 text-white placeholder-gray-400 focus:ring-purple-600"
-                  : "border-gray-300 bg-white text-gray-800 placeholder-gray-500 focus:ring-purple-400"
-              } focus:outline-none focus:ring-2 transition`}
+              className={`w-full p-3 rounded-md border ${isDarkMode ? "border-gray-700 bg-gray-700 text-white placeholder-gray-400 focus:ring-purple-600" : "border-gray-300 bg-white text-gray-800 placeholder-gray-500 focus:ring-purple-400"} focus:outline-none focus:ring-2 transition`}
               rows="6"
               required
             ></textarea>
