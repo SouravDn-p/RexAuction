@@ -4,6 +4,7 @@ import auth from "../../firebase/firebase.init";
 import io from "socket.io-client";
 import LoadingSpinner from "../LoadingSpinner";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
+import useAxiosPublic from "../../hooks/useAxiosPublic";
 
 export default function ChatSidebar({
   isDarkMode,
@@ -20,6 +21,7 @@ export default function ChatSidebar({
   const [localRecentMessages, setLocalRecentMessages] = useState({});
   const [preloadedImages, setPreloadedImages] = useState({});
   const axiosSecure = useAxiosSecure();
+  const axiosPublic = useAxiosPublic();
 
   useEffect(() => {
     if (Object.keys(recentMessages).length > 0) {
@@ -106,8 +108,8 @@ export default function ChatSidebar({
         // Fetch recent messages if they're not already available
         if (Object.keys(localRecentMessages).length === 0) {
           try {
-            const messagesResponse = await axios.get(
-              `http://localhost:5000/recent-messages/${currentUser.email}`,
+            const messagesResponse = await axiosPublic.get(
+              `/recent-messages/${currentUser.email}`,
               {
                 withCredentials: true,
               }

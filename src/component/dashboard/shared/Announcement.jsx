@@ -19,6 +19,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import ThemeContext from "../../Context/ThemeContext";
 import io from "socket.io-client";
 import useAuth from "../../../hooks/useAuth";
+import useAxiosPublic from "../../../hooks/useAxiosPublic";
 
 const Announcement = () => {
   const isAdmin = true;
@@ -36,6 +37,7 @@ const Announcement = () => {
   const [notificationUsers, setNotificationUsers] = useState({});
   const [notificationFilter, setNotificationFilter] = useState("all"); // all, unread, announcement, auction-win
   const [notificationCount, setNotificationCount] = useState(0);
+  const axiosPublic = useAxiosPublic();
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -166,12 +168,9 @@ const Announcement = () => {
 
   const fetchNotifications = async () => {
     try {
-      const response = await axios.get(
-        `http://localhost:5000/notifications/${user.email}`,
-        {
-          withCredentials: true,
-        }
-      );
+      const response = await axiosPublic.get(`/notifications/${user.email}`, {
+        withCredentials: true,
+      });
 
       if (response.data) {
         setAllNotifications(response.data);
@@ -187,9 +186,7 @@ const Announcement = () => {
   // Fetch user data for notifications
   const fetchUsers = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/users", {
-        withCredentials: true,
-      });
+      const response = await axiosPublic.get("/users");
 
       if (response.data) {
         // Create a map of email to user data for quick lookup

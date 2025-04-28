@@ -183,7 +183,7 @@ const AboutUs = () => {
       {/* 🔹 Hero Section with Gradient Background */}
       <div className={`relative overflow-hidden ${isDarkMode ? "bg-gray-900" : "bg-gradient-to-r from-purple-900 to-purple-900"}`}>
         
-        <div className="container mx-auto px-4 py-16 md:py-24 flex flex-col md:flex-row items-center gap-8">
+        <div className="container min-h-screen mx-auto px-4 py-16 md:py-24 flex flex-col md:flex-row items-center gap-8">
           {/* Text Content */}
           <motion.div
             initial="hidden"

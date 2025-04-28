@@ -21,7 +21,17 @@ import {
   Trash2,
   Settings,
   Bell,
+  Users,
 } from "lucide-react";
+import {
+  FaTrash,
+  FaEdit,
+  FaUserShield,
+  FaUserAlt,
+  FaSearch,
+  FaSortAmountDown,
+  FaSortAmountUp,
+} from "react-icons/fa";
 import LoadingSpinner from "../../../LoadingSpinner";
 import useAuth from "../../../../hooks/useAuth";
 import ThemeContext from "../../../Context/ThemeContext";
@@ -67,8 +77,46 @@ const Toast = ({ message, type, onClose }) => {
   );
 };
 
+// Stat Card Component
+const StatCard = ({ icon, title, value, color, isDarkMode }) => (
+  <div
+    className={`rounded-xl overflow-hidden shadow-lg transition-transform duration-300 hover:scale-105 ${
+      isDarkMode
+        ? "bg-gray-800 border border-gray-700"
+        : "bg-white border border-gray-100"
+    }`}
+  >
+    <div className="p-6">
+      <div className="flex items-center space-x-4">
+        <div
+          className={`h-12 w-12 rounded-lg bg-gradient-to-br ${color} flex items-center justify-center`}
+        >
+          <div className="text-white">{icon}</div>
+        </div>
+        <div>
+          <p
+            className={`text-sm ${
+              isDarkMode ? "text-gray-400" : "text-gray-500"
+            }`}
+          >
+            {title}
+          </p>
+          <p
+            className={`text-2xl font-bold ${
+              isDarkMode ? "text-white" : "text-gray-800"
+            }`}
+          >
+            {value}
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
 export default function AdminPayment() {
   const [activeTab, setActiveTab] = useState("pending");
+  const [isLoaded, setIsLoaded] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [payments, setPayments] = useState([]);
@@ -152,80 +200,6 @@ export default function AdminPayment() {
           </div>
           <div className="p-4">{children}</div>
         </div>
-      </div>
-    );
-  };
-
-  const StatsCard = ({ title, value, icon: Icon, color, isDarkMode }) => {
-    return (
-      <div
-        className={`relative rounded-2xl p-6 border-l-[8px] ${color} transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_15px_30px_-5px_rgba(0,0,0,0.3)] backdrop-blur-lg ${
-          isDarkMode
-            ? "bg-gradient-to-br from-gray-900/80 to-gray-800/80 text-white"
-            : "bg-gradient-to-br from-white/90 to-blue-50/90 text-gray-900"
-        } overflow-hidden`}
-      >
-        <div className="flex items-center gap-5">
-          <div
-            className={`p-4 rounded-xl bg-opacity-20 shadow-lg ${color.replace(
-              "border-",
-              "bg-"
-            )} transform transition-transform duration-300 hover:scale-110`}
-          >
-            <Icon
-              className={`w-6 h-6 ${color.replace(
-                "border-",
-                "text-"
-              )} drop-shadow-lg animate-pulse-slow`}
-            />
-          </div>
-          <div className="relative z-10">
-            <p
-              className={`text-xs font-semibold tracking-wide uppercase ${
-                isDarkMode ? "text-gray-300/90" : "text-gray-600/90"
-              }`}
-            >
-              {title}
-            </p>
-            <h3
-              className={`text-2xl font-black tracking-tighter bg-clip-text ${
-                isDarkMode
-                  ? "text-transparent bg-gradient-to-r from-white to-gray-300"
-                  : "text-transparent bg-gradient-to-r from-gray-900 to-blue-600"
-              }`}
-            >
-              {value}
-            </h3>
-          </div>
-        </div>
-
-        {/* Enhanced shine effect */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
-          <div
-            className={`absolute -top-1/2 left-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent transform rotate-45 scale-x-200 animate-shine ${
-              isDarkMode ? "opacity-30" : "opacity-20"
-            }`}
-          />
-        </div>
-
-        {/* Subtle corner glow */}
-        <div
-          className={`absolute top-0 left-0 w-24 h-24 bg-${
-            color.split("-")[1]
-          }-500/30 blur-3xl rounded-full -z-10 animate-pulse-slow`}
-        />
-        <div
-          className={`absolute bottom-0 right-0 w-24 h-24 bg-${
-            color.split("-")[1]
-          }-500/30 blur-3xl rounded-full -z-10 animate-pulse-slow`}
-        />
-
-        {/* Hover sparkle effect */}
-        <div
-          className={`absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-300 bg-${
-            color.split("-")[1]
-          }-500/10 bg-[radial-gradient(circle_at_center,_rgba(255,255,255,0.3)_0%,_transparent_70%)] -z-10`}
-        />
       </div>
     );
   };
@@ -654,255 +628,308 @@ export default function AdminPayment() {
       }`}
     >
       {toast && <Toast {...toast} onClose={() => setToast(null)} />}
+      <div className="max-w-7xl mx-auto">
+        {/* Header Section with animated gradient background */}
+        <div className="relative overflow-hidden rounded-2xl mb-12 p-8 md:p-12">
+          <div className="absolute inset-0 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 opacity-90"></div>
 
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-        <h2 className="text-2xl font-bold flex items-center">
-          <CreditCard className="mr-2" /> Payment Management
-        </h2>
-        <div className="flex items-center space-x-2 mt-4 md:mt-0">
-          <div className="relative">
-            <Search
-              className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-              size={18}
-            />
-            <input
-              type="text"
-              placeholder="Search payments..."
-              className={`pl-10 pr-4 py-2 rounded-lg ${
-                isDarkMode
-                  ? "border-gray-700 bg-gray-800 hover:bg-gray-700"
-                  : "border-gray-300 bg-white hover:bg-gray-100"
-              } focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 w-full md:w-auto`}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+          {/* Animated background shapes */}
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute -top-24 -left-24 w-64 h-64 rounded-full bg-white opacity-10 blur-xl"></div>
+            <div className="absolute top-1/2 -right-24 w-80 h-80 rounded-full bg-white opacity-10 blur-xl"></div>
+            <div className="absolute -bottom-24 left-1/3 w-72 h-72 rounded-full bg-white opacity-10 blur-xl"></div>
           </div>
 
-          <div className="relative" ref={dateFilterRef}>
-            <button
-              onClick={() => setIsDateFilterOpen(!isDateFilterOpen)}
-              className={`p-2 rounded-lg  ${
-                isDarkMode
-                  ? "border-gray-700 bg-gray-800 hover:bg-gray-700"
-                  : "border-gray-300 bg-white hover:bg-gray-100"
-              }   transition-colors duration-300 flex items-center`}
-              title="Date filter"
-            >
-              <Calendar className="w-5 h-5" />
-              {(dateFilter.from || dateFilter.to) && (
-                <span className="ml-1 w-2 h-2 bg-blue-500 rounded-full"></span>
-              )}
-            </button>
-
-            {isDateFilterOpen && (
-              <div className="absolute right-0 mt-2 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-10 border border-gray-200 dark:border-gray-700 animate-fadeIn">
-                <h4 className="font-medium mb-2">Date Range</h4>
-                <div className="space-y-2">
-                  <div>
-                    <label className="block text-sm mb-1">From</label>
-                    <input
-                      type="date"
-                      className={`w-full p-2 rounded border 
-  ${isDarkMode ? "border-gray-700 bg-gray-800" : "border-gray-300 bg-white"}`}
-                      value={dateFilter.from || ""}
-                      onChange={(e) =>
-                        setDateFilter({ ...dateFilter, from: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm mb-1">To</label>
-                    <input
-                      type="date"
-                      className={`w-full p-2 rounded border 
-  ${isDarkMode ? "border-gray-700 bg-gray-800" : "border-gray-300 bg-white"}`}
-                      value={dateFilter.to || ""}
-                      onChange={(e) =>
-                        setDateFilter({ ...dateFilter, to: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="flex justify-between pt-2">
-                    <button
-                      onClick={() => {
-                        setDateFilter({ from: null, to: null });
-                        setIsDateFilterOpen(false);
-                      }}
-                      className={`text-sm hover:text-gray-800 dark:hover:text-gray-200 ${
-                        isDarkMode ? "text-gray-400" : "text-gray-600"
-                      }`}
-                    >
-                      Clear
-                    </button>
-                    <button
-                      onClick={() => setIsDateFilterOpen(false)}
-                      className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
-                    >
-                      Apply
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
+          <div className="relative z-10 text-center">
+            <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4">
+              Payment Management
+            </h1>
+            <p className="mt-3 text-xl text-purple-100 max-w-2xl mx-auto">
+              Manage and track all payments seamlessly and efficiently.
+            </p>
           </div>
-
-          <div className="relative" ref={filterRef}>
-            <button
-              onClick={() => setIsFilterOpen(!isFilterOpen)}
-              className={`p-2 rounded-lg  ${
-                isDarkMode
-                  ? "border-gray-700 bg-gray-800 hover:bg-gray-700"
-                  : "border-gray-300 bg-white hover:bg-gray-100"
-              }   transition-colors duration-300 flex items-center`}
-              title="More filters"
-            >
-              <Filter className="w-5 h-5" />
-              {(filterOptions.minAmount || filterOptions.maxAmount) && (
-                <span className="ml-1 w-2 h-2 bg-blue-500 rounded-full"></span>
-              )}
-            </button>
-
-            {isFilterOpen && (
-              <div className="absolute right-0 mt-2 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-10 border border-gray-200 dark:border-gray-700 w-64 animate-fadeIn">
-                <h4 className="font-medium mb-2">Filters</h4>
-                <div className="space-y-3">
-                  <div>
-                    <label className="block text-sm mb-1">Min Amount ($)</label>
-                    <input
-                      type="number"
-                      className={`w-full p-2 rounded border 
-  ${isDarkMode ? "border-gray-700 bg-gray-800" : "border-gray-300 bg-white"}`}
-                      value={filterOptions.minAmount}
-                      onChange={(e) =>
-                        setFilterOptions({
-                          ...filterOptions,
-                          minAmount: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm mb-1">Max Amount ($)</label>
-                    <input
-                      type="number"
-                      className={`w-full p-2 rounded border 
-  ${isDarkMode ? "border-gray-700 bg-gray-800" : "border-gray-300 bg-white"}`}
-                      value={filterOptions.maxAmount}
-                      onChange={(e) =>
-                        setFilterOptions({
-                          ...filterOptions,
-                          maxAmount: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div className="flex justify-between pt-2">
-                    <button
-                      onClick={() => {
-                        setFilterOptions({
-                          minAmount: "",
-                          maxAmount: "",
-                          status: "all",
-                        });
-                        setIsFilterOpen(false);
-                      }}
-                      className={`text-sm hover:text-gray-800 dark:hover:text-gray-200 ${
-                        isDarkMode ? "text-gray-400" : "text-gray-600"
-                      }`}
-                    >
-                      Clear
-                    </button>
-                    <button
-                      onClick={() => setIsFilterOpen(false)}
-                      className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
-                    >
-                      Apply
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          <button
-            onClick={exportData}
-            className={`p-2 rounded-lg border transition-colors duration-300 ${
-              isDarkMode
-                ? "bg-gray-800 text-white border-gray-700 hover:bg-gray-700"
-                : "bg-white text-gray-900 border-gray-300 hover:bg-gray-100"
-            }`}
-            title="Export data"
-          >
-            <Download className="w-5 h-5" />
-          </button>
-
-          <button
-            onClick={printData}
-            className={`p-2 rounded-lg border transition-colors duration-300 ${
-              isDarkMode
-                ? "bg-gray-800 text-white border-gray-700 hover:bg-gray-700"
-                : "bg-white text-gray-900 border-gray-300 hover:bg-gray-100"
-            }`}
-            title="Print"
-          >
-            <Printer className="w-5 h-5" />
-          </button>
-
-          <button
-            onClick={() => setShowChart(!showChart)}
-            className={`p-2 rounded-lg border transition-colors duration-300 ${
-              showChart
-                ? "bg-blue-500 text-white border-blue-500 hover:bg-blue-600"
-                : isDarkMode
-                ? "bg-gray-800 text-white border-gray-700 hover:bg-gray-700"
-                : "bg-white text-gray-900 border-gray-300 hover:bg-gray-100"
-            }`}
-            title="Toggle chart view"
-          >
-            <BarChart3 className="w-5 h-5" />
-          </button>
-
-          <button
-            onClick={refreshData}
-            className={`p-2 rounded-lg border transition-colors duration-300 ${
-              isDarkMode
-                ? "bg-gray-800 border-gray-700 hover:bg-gray-700 text-white"
-                : "bg-white border-gray-300 hover:bg-gray-100 text-gray-900"
-            } ${isRefreshing ? "animate-spin" : ""}`}
-            title="Refresh data"
-            disabled={isRefreshing}
-          >
-            <RefreshCw className="w-5 h-5" />
-          </button>
         </div>
-      </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <StatsCard
-          title="Total Payments"
-          value={stats.totalPayments}
-          icon={CreditCard}
-          color="border-blue-500"
-        />
-        <StatsCard
-          title="Pending Payments"
-          value={stats.pendingPayments}
-          icon={Clock}
-          color="border-yellow-500"
-        />
-        <StatsCard
-          title="Completed Payments"
-          value={stats.completedPayments}
-          icon={CheckCircle}
-          color="border-green-500"
-        />
-        <StatsCard
-          title="Total Amount"
-          value={`$${stats.totalAmount.toLocaleString()}`}
-          icon={DollarSign}
-          color="border-purple-500"
-        />
+        {/* Statistics Cards */}
+        <div
+          className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 transition-all duration-700 delay-100 ${
+            isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+          }`}
+        >
+          <StatCard
+            icon={<CreditCard className="w-6 h-6" />}
+            title="Total Payments"
+            value={stats.totalPayments}
+            color="from-amber-500 to-yellow-500"
+            isDarkMode={isDarkMode}
+          />
+
+          <StatCard
+            icon={<Clock className="w-6 h-6" />}
+            title="Pending Payments"
+            value={stats.pendingPayments}
+            color="from-violet-500 to-purple-500"
+            isDarkMode={isDarkMode}
+          />
+
+          <StatCard
+            icon={<CheckCircle className="w-6 h-6" />}
+            title="Completed "
+            value={stats.completedPayments}
+            color="from-blue-500 to-indigo-500"
+            isDarkMode={isDarkMode}
+          />
+
+          <StatCard
+            icon={<DollarSign className="w-6 h-6" />}
+            title="Total Amount"
+            value={`$${stats.totalAmount.toLocaleString()}`}
+            color="from-emerald-500 to-teal-500"
+            isDarkMode={isDarkMode}
+          />
+        </div>
+
+        {/* Filters and actions */}
+        <div className="flex flex-col md:flex-row justify-around items-start md:items-center mb-6">
+          <div className="flex items-center space-x-2 mt-4 md:mt-0">
+            {/* Search Input */}
+            <div className="relative">
+              <Search
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                size={18}
+              />
+              <input
+                type="text"
+                placeholder="Search payments..."
+                className={`pl-10 pr-4 py-2 rounded-lg ${
+                  isDarkMode
+                    ? "border-gray-700 bg-gray-800 hover:bg-gray-700"
+                    : "border-gray-300 bg-white hover:bg-gray-100"
+                } focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 w-full md:w-auto`}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+
+            {/* Date Filter */}
+            <div className="relative" ref={dateFilterRef}>
+              <button
+                onClick={() => setIsDateFilterOpen(!isDateFilterOpen)}
+                className={`p-2 rounded-lg ${
+                  isDarkMode
+                    ? "border-gray-700 bg-gray-800 hover:bg-gray-700"
+                    : "border-gray-300 bg-white hover:bg-gray-100"
+                } transition-colors duration-300 flex items-center`}
+                title="Date filter"
+              >
+                <Calendar className="w-5 h-5" />
+                {(dateFilter.from || dateFilter.to) && (
+                  <span className="ml-1 w-2 h-2 bg-blue-500 rounded-full"></span>
+                )}
+              </button>
+
+              {isDateFilterOpen && (
+                <div className="absolute right-0 mt-2 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-10 border border-gray-200 dark:border-gray-700 animate-fadeIn">
+                  <h4 className="font-medium mb-2">Date Range</h4>
+                  <div className="space-y-2">
+                    <div>
+                      <label className="block text-sm mb-1">From</label>
+                      <input
+                        type="date"
+                        className={`w-full p-2 rounded border ${
+                          isDarkMode
+                            ? "border-gray-700 bg-gray-800"
+                            : "border-gray-300 bg-white"
+                        }`}
+                        value={dateFilter.from || ""}
+                        onChange={(e) =>
+                          setDateFilter({ ...dateFilter, from: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm mb-1">To</label>
+                      <input
+                        type="date"
+                        className={`w-full p-2 rounded border ${
+                          isDarkMode
+                            ? "border-gray-700 bg-gray-800"
+                            : "border-gray-300 bg-white"
+                        }`}
+                        value={dateFilter.to || ""}
+                        onChange={(e) =>
+                          setDateFilter({ ...dateFilter, to: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div className="flex justify-between pt-2">
+                      <button
+                        onClick={() => {
+                          setDateFilter({ from: null, to: null });
+                          setIsDateFilterOpen(false);
+                        }}
+                        className={`text-sm hover:text-gray-800 dark:hover:text-gray-200 ${
+                          isDarkMode ? "text-gray-400" : "text-gray-600"
+                        }`}
+                      >
+                        Clear
+                      </button>
+                      <button
+                        onClick={() => setIsDateFilterOpen(false)}
+                        className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
+                      >
+                        Apply
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* More Filters */}
+            <div className="relative" ref={filterRef}>
+              <button
+                onClick={() => setIsFilterOpen(!isFilterOpen)}
+                className={`p-2 rounded-lg ${
+                  isDarkMode
+                    ? "border-gray-700 bg-gray-800 hover:bg-gray-700"
+                    : "border-gray-300 bg-white hover:bg-gray-100"
+                } transition-colors duration-300 flex items-center`}
+                title="More filters"
+              >
+                <Filter className="w-5 h-5" />
+                {(filterOptions.minAmount || filterOptions.maxAmount) && (
+                  <span className="ml-1 w-2 h-2 bg-blue-500 rounded-full"></span>
+                )}
+              </button>
+
+              {isFilterOpen && (
+                <div className="absolute right-0 mt-2 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg z-10 border border-gray-200 dark:border-gray-700 w-64 animate-fadeIn">
+                  <h4 className="font-medium mb-2">Filters</h4>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm mb-1">
+                        Min Amount ($)
+                      </label>
+                      <input
+                        type="number"
+                        className={`w-full p-2 rounded border ${
+                          isDarkMode
+                            ? "border-gray-700 bg-gray-800"
+                            : "border-gray-300 bg-white"
+                        }`}
+                        value={filterOptions.minAmount}
+                        onChange={(e) =>
+                          setFilterOptions({
+                            ...filterOptions,
+                            minAmount: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm mb-1">
+                        Max Amount ($)
+                      </label>
+                      <input
+                        type="number"
+                        className={`w-full p-2 rounded border ${
+                          isDarkMode
+                            ? "border-gray-700 bg-gray-800"
+                            : "border-gray-300 bg-white"
+                        }`}
+                        value={filterOptions.maxAmount}
+                        onChange={(e) =>
+                          setFilterOptions({
+                            ...filterOptions,
+                            maxAmount: e.target.value,
+                          })
+                        }
+                      />
+                    </div>
+                    <div className="flex justify-between pt-2">
+                      <button
+                        onClick={() => {
+                          setFilterOptions({
+                            minAmount: "",
+                            maxAmount: "",
+                            status: "all",
+                          });
+                          setIsFilterOpen(false);
+                        }}
+                        className={`text-sm hover:text-gray-800 dark:hover:text-gray-200 ${
+                          isDarkMode ? "text-gray-400" : "text-gray-600"
+                        }`}
+                      >
+                        Clear
+                      </button>
+                      <button
+                        onClick={() => setIsFilterOpen(false)}
+                        className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
+                      >
+                        Apply
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex space-x-2 justify-end md:flex-none">
+              <button
+                onClick={exportData}
+                className={`p-2 rounded-lg border transition-colors duration-300 ${
+                  isDarkMode
+                    ? "bg-gray-800 text-white border-gray-700 hover:bg-gray-700"
+                    : "bg-white text-gray-900 border-gray-300 hover:bg-gray-100"
+                }`}
+                title="Export data"
+              >
+                <Download className="w-5 h-5" />
+              </button>
+
+              <button
+                onClick={printData}
+                className={`p-2 rounded-lg border transition-colors duration-300 ${
+                  isDarkMode
+                    ? "bg-gray-800 text-white border-gray-700 hover:bg-gray-700"
+                    : "bg-white text-gray-900 border-gray-300 hover:bg-gray-100"
+                }`}
+                title="Print"
+              >
+                <Printer className="w-5 h-5" />
+              </button>
+
+              <button
+                onClick={() => setShowChart(!showChart)}
+                className={`p-2 rounded-lg border transition-colors duration-300 ${
+                  showChart
+                    ? "bg-blue-500 text-white border-blue-500 hover:bg-blue-600"
+                    : isDarkMode
+                    ? "bg-gray-800 text-white border-gray-700 hover:bg-gray-700"
+                    : "bg-white text-gray-900 border-gray-300 hover:bg-gray-100"
+                }`}
+                title="Toggle chart view"
+              >
+                <BarChart3 className="w-5 h-5" />
+              </button>
+
+              <button
+                onClick={refreshData}
+                className={`p-2 rounded-lg border transition-colors duration-300 ${
+                  isDarkMode
+                    ? "bg-gray-800 border-gray-700 hover:bg-gray-700 text-white"
+                    : "bg-white border-gray-300 hover:bg-gray-100 text-gray-900"
+                } ${isRefreshing ? "animate-spin" : ""}`}
+                title="Refresh data"
+                disabled={isRefreshing}
+              >
+                <RefreshCw className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Chart View */}

@@ -1,7 +1,104 @@
 import { useLoaderData } from "react-router-dom";
+import { jsPDF } from "jspdf";
 
 const PaymentSuccess = () => {
   const payment = useLoaderData();
+
+  const handleDownloadInvoice = () => {
+    const doc = new jsPDF();
+    const shipping = 0; // ekhane shipping free dhore nilam
+    const total = payment.bidAmount + shipping; // bidAmount + shipping = total
+
+    // Title
+    doc.setFontSize(22);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(36, 66, 120);
+    doc.text("Invoice", 105, 20, null, null, "center");
+
+    // Line under title
+    doc.setLineWidth(0.5);
+    doc.setDrawColor(36, 66, 120);
+    doc.line(14, 25, 200, 25);
+
+    // Order Summary
+  // Order Summary
+doc.setFontSize(14);
+doc.setFont("helvetica", "normal");
+doc.setTextColor(0, 0, 0);
+doc.text("Order Summary", 14, 35);
+
+doc.setFontSize(12);
+doc.text("Auction Item:", 14, 45);
+doc.text(payment.itemInfo?.name || "Auction Item", 100, 45);
+
+doc.text("Winning Bid:", 14, 55);
+doc.text(`${payment.bidAmount?.toLocaleString() || "0.00"} BDT`, 100, 55);
+
+doc.text("Shipping:", 14, 65);
+doc.text(`${shipping.toLocaleString()} BDT`, 100, 65);
+
+doc.text("Total:", 14, 75);
+doc.text(`${total.toLocaleString()} BDT`, 100, 75);
+
+    // Line under order summary
+    doc.setLineWidth(0.5);
+    doc.setDrawColor(200, 200, 200);
+    doc.line(14, 80, 200, 80);
+
+    // Auction Details
+    doc.setFontSize(14);
+    doc.text("Auction Details", 14, 90);
+
+    doc.setFontSize(12);
+    doc.text("Auction ID:", 14, 100);
+    doc.text(payment.auctionId || "N/A", 100, 100);
+
+    doc.text("Category:", 14, 110);
+    doc.text(payment.itemInfo?.category || "N/A", 100, 110);
+
+    doc.text("Condition:", 14, 120);
+    doc.text(payment.itemInfo?.condition || "N/A", 100, 120);
+
+    doc.text("Seller:", 14, 130);
+    doc.text(payment.sellerInfo?.name || "N/A", 100, 130);
+
+    // Line under auction details
+    doc.setLineWidth(0.5);
+    doc.setDrawColor(200, 200, 200);
+    doc.line(14, 135, 200, 135);
+
+    // Shipping Info
+    doc.setFontSize(14);
+    doc.text("Buyer Information", 14, 145);
+
+    doc.setFontSize(12);
+    doc.text(payment.buyerInfo?.name || "User", 14, 155);
+    doc.text(payment.buyerInfo?.email || "user@example.com", 14, 165);
+
+    // Line under shipping info
+    doc.setLineWidth(0.5);
+    doc.setDrawColor(200, 200, 200);
+    doc.line(14, 175, 200, 175);
+
+    // Footer
+    doc.setFontSize(10);
+    doc.setTextColor(150, 150, 150);
+    doc.text("RexAuction", 14, 185);
+    doc.text("support@rexauction.com", 14, 190);
+    doc.text("1-800-REX-HELP", 14, 195);
+
+    // Footer Line
+    doc.setLineWidth(0.5);
+    doc.setDrawColor(36, 66, 120);
+    doc.line(14, 200, 200, 200);
+
+    // Save PDF
+    const filename = payment.itemInfo?.name
+      ? `invoice-${payment.itemInfo.name.replace(/\s+/g, "-").toLowerCase()}.pdf`
+      : "invoice.pdf";
+
+    doc.save(filename);
+  };
 
   if (!payment) {
     return (
@@ -49,6 +146,15 @@ const PaymentSuccess = () => {
             <p><strong>Category:</strong> {payment.itemInfo?.category}</p>
             <p><strong>Condition:</strong> {payment.itemInfo?.condition}</p>
           </div>
+        </div>
+
+        <div className="text-center mt-6">
+          <button
+            onClick={handleDownloadInvoice}
+            className="px-6 py-3 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600"
+          >
+            Download Invoice
+          </button>
         </div>
       </div>
     </div>

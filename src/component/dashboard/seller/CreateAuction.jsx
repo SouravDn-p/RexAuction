@@ -90,7 +90,7 @@ export default function CreateAuction() {
     const condition = form.get("condition")
     const itemYear = form.get("itemYear")
     const history = form.get("history")
-    const payment = "pending";
+    // const payment = "pending";
 
 
     if (
@@ -140,7 +140,7 @@ export default function CreateAuction() {
       history,
       sellerDisplayName: user?.displayName,
       sellerEmail: user?.email,
-      payment
+      // payment
     };
   }
 
