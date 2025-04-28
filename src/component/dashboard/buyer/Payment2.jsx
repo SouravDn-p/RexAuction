@@ -37,10 +37,10 @@ const Payment2 = () => {
   const modalRef = useRef(null);
   const [isPaid, setIsPaid] = useState(false);
   const [hasWalletSufficientBalance, setHasWalletSufficientBalance] =
-    useState(true);
+    useState(false);
   const axiosPublic = useAxiosPublic();
   const [payment, setPayment] = useState("");
-console.log(auctionData);
+  console.log(auctionData);
   // const [id ,setId] = useState([])
 
   // auction id get
@@ -57,6 +57,9 @@ console.log(auctionData);
           );
           setPayment(matched);
           setIsPaid(matched?.PaymentStatus === "success");
+          if (dbUser?.accountBalance >= calculateTotal()) {
+            setHasWalletSufficientBalance(true);
+          }
         }
       } catch (error) {
         console.error("Error fetching payments:", error);
@@ -298,6 +301,16 @@ console.log(auctionData);
   };
   // Update the handleRexPayment function to update the database
   const handleRexPayment = async () => {
+    if (dbUser?.accountBalance < calculateTotal()) {
+      Swal.fire({
+        icon: "error",
+        title: "Not Enough Money",
+        text: "You do not have sufficient balance to complete this action.",
+        confirmButtonColor: "#6366f1",
+      });
+      return;
+    }
+
     if (!auctionData) return;
     setProcessingPayment(true);
 
@@ -312,12 +325,12 @@ console.log(auctionData);
         buyerId: dbUser?._id || user?.uid || "unknown",
         sellerId: auctionData.sellerId || "unknown",
         buyerInfo: {
-          name: user?.name || "User",
+          name: user?.displayName || "User",
           email: user?.email || "user@example.com",
           photoUrl: user?.photoURL || null,
         },
         sellerInfo: {
-          name: auctionData.sellerDisplayName,
+          name: auctionData?.sellerDisplayName,
           email: auctionData.sellerEmail,
           photoUrl: auctionData.sellerPhotoUrl || null,
         },
@@ -344,77 +357,96 @@ console.log(auctionData);
         status: "completed",
       };
 
-      const response = await axiosPublic.post("/rexPayment", paymentData);
-      const res = await axiosPublic.patch(`/accountBalance/${dbUser._id}`, {
-        accountBalance: updatedBalance,
-        transaction,
-      });
-      setProcessingPayment(false);
+      // First: Send payment data
+      const paymentResponse = await axiosPublic.post(
+        "/rexPayment",
+        paymentData
+      );
 
-      if (res.data.success && response.status == 201) {
-        setIsPaid(true);
-        Swal.fire(
-          "Updated!",
-          "User accountBalance has been updated.",
-          "success"
+      if (paymentResponse?.data?.success) {
+        // Then: Update account balance
+        const balanceResponse = await axiosPublic.patch(
+          `/accountBalance/${dbUser._id}`,
+          {
+            accountBalance: updatedBalance,
+            transaction,
+          }
         );
-        if (user?.email) {
-          setLoading(true);
-          axiosPublic
-            .get(`/user/${user.email}`)
-            .then((res) => {
-              setDbUser(res.data);
-              setLoading(false);
-            })
-            .catch((error) => {
-              console.error("Error fetching user data:", error);
-              setLoading(false);
-            });
+
+        if (balanceResponse?.data?.success) {
+          setIsPaid(true);
+          Swal.fire(
+            "Success!",
+            "Payment and balance updated successfully.",
+            "success"
+          );
+
+          // Refresh user data
+          if (user?.email) {
+            setLoading(true);
+            axiosPublic
+              .get(`/user/${user.email}`)
+              .then((res) => {
+                setDbUser(res.data);
+                setLoading(false);
+              })
+              .catch((error) => {
+                console.error("Error fetching user data:", error);
+                setLoading(false);
+              });
+          }
+        } else {
+          Swal.fire(
+            "Failed!",
+            "Payment done but balance update failed.",
+            "warning"
+          );
         }
+
+        // Create notifications
+        await Promise.all([
+          axiosPublic.post("/notifications", {
+            title: "Payment Received",
+            message: `Payment for ${auctionData.name} has been completed.`,
+            type: "payment",
+            recipient: auctionData.sellerEmail,
+            auctionData: {
+              _id: auctionData._id,
+              name: auctionData.name,
+              image: auctionData.images?.[0] || null,
+            },
+            read: false,
+          }),
+          axiosPublic.post("/notifications", {
+            title: "New Payment Completed",
+            message: `Payment of ৳ ${calculateTotal()} for ${
+              auctionData.name
+            } has been completed by ${user?.name || "User"}.`,
+            type: "payment",
+            recipient: "admin",
+            paymentData: {
+              transactionId: paymentData.transactionId,
+              price: calculateTotal(),
+              buyerEmail: user?.email,
+              sellerEmail: auctionData.sellerEmail,
+              auctionId: auctionData._id,
+              auctionName: auctionData.name,
+              paymentMethod: paymentData.PaymentMethod,
+              paymentDate: new Date(),
+            },
+            read: false,
+          }),
+        ]);
       } else {
-        Swal.fire("Failed!", "Could not update user role.", "error");
+        Swal.fire("Payment Failed", "Could not process the payment.", "error");
       }
-
-      // Create notification for seller
-      await axiosPublic.post("/notifications", {
-        title: "Payment Received",
-        message: `Payment for ${auctionData.name} has been completed`,
-        type: "payment",
-        recipient: auctionData.sellerEmail,
-        auctionData: {
-          _id: auctionData._id,
-          name: auctionData.name,
-          image: auctionData.images?.[0] || null,
-        },
-        read: false,
-      });
-
-      // Create notification for admin
-      await axiosPublic.post("/notifications", {
-        title: "New Payment Completed",
-        message: `Payment of ৳ ${calculateTotal()} for ${
-          auctionData.name
-        } has been completed by ${user?.name || "User"}`,
-        type: "payment",
-        recipient: "admin",
-        paymentData: {
-          transactionId: paymentData.transactionId,
-          price: calculateTotal(),
-          buyerEmail: user?.email,
-          sellerEmail: auctionData.sellerEmail,
-          auctionId: auctionData._id,
-          auctionName: auctionData.name,
-          paymentMethod: paymentMethod,
-          paymentDate: new Date(),
-        },
-        read: false,
-      });
     } catch (error) {
       console.error("Payment error:", error);
-      setProcessingPayment(false);
       toast.error(
         "An error occurred during payment processing. Please try again."
       );
+    } finally {
+      setProcessingPayment(false);
     }
   };
 
