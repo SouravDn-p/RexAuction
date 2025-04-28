@@ -9,7 +9,7 @@ function Profile() {
   const { dbUser } = useAuth();
   return (
     <div>
-      {/* {dbUser.role === "admin" && <ManageTable />} */}
+ 
       {dbUser.role === "admin" && <AdminProfile />}
       {dbUser.role === "seller" && <SellerProfile />}
       
