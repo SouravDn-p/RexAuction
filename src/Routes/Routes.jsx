@@ -211,10 +211,7 @@ export const router = createBrowserRouter([
             path: "plan",
             element: <Plan />,
           },
-          {
-            path:'allBlogs',
-            element:<Blogs></Blogs>
-          },
+          
         ],
       },
       {
