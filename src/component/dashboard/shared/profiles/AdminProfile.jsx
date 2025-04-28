@@ -398,7 +398,8 @@ const AdminProfile = () => {
                 Total Revenue
               </p>
               <h3 className="text-3xl font-bold mt-2">
-                $<CountUp
+                $
+                <CountUp
                   end={adminData.totalRevenue}
                   duration={2}
                   separator=","
@@ -505,42 +506,41 @@ const AdminProfile = () => {
           ></div>
         </motion.div>
       </motion.div>
-<div>
-  
-          {/* Auction Status Chart */}
+      <div>
+        {/* Auction Status Chart */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.6 }}
+          className={`${boxStyle}`}
+        >
+          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+            <h2 className="text-xl font-bold flex items-center gap-2">
+              <FaChartLine className="text-purple-500" />
+              Auction Status Overview
+            </h2>
+          </div>
+          <div className="p-6">
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={auctionChartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: isDarkMode ? "#1F2937" : "#FFFFFF",
+                    border: `1px solid ${isDarkMode ? "#374151" : "#E5E7EB"}`,
+                  }}
+                />
+                <Legend />
+                <Bar dataKey="count" fill="#6D28D9" name="Auctions" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </motion.div>
+        <div className="mt-7">
+          {/* Active Auctions */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.6 }}
-            className={`${boxStyle}`}
-          >
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-xl font-bold flex items-center gap-2">
-                <FaChartLine className="text-purple-500" />
-                Auction Status Overview
-              </h2>
-            </div>
-            <div className="p-6">
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={auctionChartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis />
-                  <Tooltip
-                    contentStyle={{
-                      backgroundColor: isDarkMode ? "#1F2937" : "#FFFFFF",
-                      border: `1px solid ${isDarkMode ? "#374151" : "#E5E7EB"}`,
-                    }}
-                  />
-                  <Legend />
-                  <Bar dataKey="count" fill="#6D28D9" name="Auctions" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </motion.div>
-             <div className="mt-7">
-               {/* Active Auctions */}
-               <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.5 }}
@@ -613,7 +613,6 @@ const AdminProfile = () => {
                             >
                               {auction.status}
                             </span>
-                          
                           </div>
                         </div>
                       </div>
@@ -623,8 +622,8 @@ const AdminProfile = () => {
               )}
             </div>
           </motion.div>
-             </div>
-</div>
+        </div>
+      </div>
       {/* Main Dashboard Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 max-w-7xl mx-auto">
         {/* Left Column - Recent Activity and Quick Actions */}
@@ -737,7 +736,7 @@ const AdminProfile = () => {
 
               <motion.button
                 whileHover={{ scale: 1.05 }}
-                whileTap={{ scale:  0.95 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => navigate("/dashboard/settings")}
                 className={`p-4 rounded-lg flex flex-col items-center justify-center ${
                   isDarkMode
@@ -874,7 +873,6 @@ const AdminProfile = () => {
                       <th className="pb-3 font-medium">User</th>
                       <th className="pb-3 font-medium">Role</th>
                       <th className="pb-3 font-medium">Status</th>
-                    
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -893,9 +891,7 @@ const AdminProfile = () => {
                         <td className="py-3">
                           <div className="flex items-center gap-3">
                             <img
-                              src={
-                                user.photo
-                              }
+                              src={user.photo}
                               alt={user.name}
                               className="w-8 h-8 rounded-full object-cover"
                             />
@@ -917,7 +913,6 @@ const AdminProfile = () => {
                             {user.status || "active"}
                           </span>
                         </td>
-                      
                       </motion.tr>
                     ))}
                   </tbody>
@@ -925,9 +920,6 @@ const AdminProfile = () => {
               </div>
             </div>
           </motion.div>
-
-      
-
         </div>
       </div>
 

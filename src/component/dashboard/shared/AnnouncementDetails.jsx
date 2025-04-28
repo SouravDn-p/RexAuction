@@ -1,4 +1,3 @@
-
 import { useContext, useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
@@ -163,14 +162,13 @@ const AnnouncementDetails = () => {
             <div className="flex items-center gap-2">
               <FiCalendar className="text-purple-500" />
               <span className={isDarkMode ? "text-gray-300" : "text-gray-600"}>
-                {new Date(announcement.date || announcement.createdAt).toLocaleDateString(
-                  "en-US",
-                  {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                  }
-                )}
+                {new Date(
+                  announcement.date || announcement.createdAt
+                ).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
               </span>
             </div>
             <button

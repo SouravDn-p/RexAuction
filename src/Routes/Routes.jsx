@@ -211,7 +211,6 @@ export const router = createBrowserRouter([
             path: "plan",
             element: <Plan />,
           },
-          
         ],
       },
       {
@@ -255,12 +254,12 @@ export const router = createBrowserRouter([
         element: <Blog />,
       },
       {
-        path: 'create-blog',
-        element: <AddBlog></AddBlog>
+        path: "create-blog",
+        element: <AddBlog></AddBlog>,
       },
       {
-        path:'updateBlog/:id',
-        element:<UpdateBlog></UpdateBlog>
+        path: "updateBlog/:id",
+        element: <UpdateBlog></UpdateBlog>,
       },
     ],
   },

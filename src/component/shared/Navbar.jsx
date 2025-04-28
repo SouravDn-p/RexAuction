@@ -238,7 +238,7 @@ const Navbar = () => {
     if (notificationCount > 0) {
       setNotificationCount((prev) => prev - 1);
     }
-  
+
     if (user) {
       axiosPublic
         .put(
@@ -250,11 +250,14 @@ const Navbar = () => {
           console.error("Error marking notification as read:", error);
         });
     }
-  
+
     // Navigate based on notification type
     if (notification.type === "auction" && notification.auctionData?._id) {
       navigate(`/dashboard/auction-details/${notification.auctionData._id}`);
-    } else if (notification.type === "announcement" && notification.announcementData?._id) {
+    } else if (
+      notification.type === "announcement" &&
+      notification.announcementData?._id
+    ) {
       // Navigate to announcement details with ID
       navigate(`/dashboard/announcement/${notification.announcementData._id}`, {
         state: { notificationDetails: notification },
@@ -265,7 +268,7 @@ const Navbar = () => {
         state: { notificationDetails: notification },
       });
     }
-  
+
     setIsNotificationsOpen(false);
   };
 
@@ -451,93 +454,95 @@ const Navbar = () => {
                       </div>
 
                       <div className="py-1">
-                      {notifications.length > 0 ? (
-                        notifications.map((notification) => (
-                          <div
-                            key={notification._id}
-                            onClick={() =>
-                              viewNotificationDetails(notification)
-                            }
-                            className={`px-4 py-3 border-b last:border-b-0 cursor-pointer transition-all duration-200 ${
-                              isDarkMode
-                                ? "border-indigo-700/50 hover:bg-indigo-700/70"
-                                : "border-indigo-200/50 hover:bg-indigo-100"
-                            } ${
-                              !notification.read
-                                ? isDarkMode
-                                  ? "bg-indigo-700/50"
-                                  : "bg-blue-50"
-                                : ""
-                            }`}
-                          >
-                            <div className="flex items-start">
-                              <div
-                                className={`p-2 rounded-full mr-3 ${
-                                  isDarkMode ? "bg-indigo-700" : "bg-blue-100"
-                                }`}
-                              >
-                                {notification.type === "auction" ? (
-                                  <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="h-5 w-5 text-blue-500"
-                                    viewBox="0 0 20 20"
-                                    fill="currentColor"
+                        {notifications.length > 0 ? (
+                          notifications.map((notification) => (
+                            <div
+                              key={notification._id}
+                              onClick={() =>
+                                viewNotificationDetails(notification)
+                              }
+                              className={`px-4 py-3 border-b last:border-b-0 cursor-pointer transition-all duration-200 ${
+                                isDarkMode
+                                  ? "border-indigo-700/50 hover:bg-indigo-700/70"
+                                  : "border-indigo-200/50 hover:bg-indigo-100"
+                              } ${
+                                !notification.read
+                                  ? isDarkMode
+                                    ? "bg-indigo-700/50"
+                                    : "bg-blue-50"
+                                  : ""
+                              }`}
+                            >
+                              <div className="flex items-start">
+                                <div
+                                  className={`p-2 rounded-full mr-3 ${
+                                    isDarkMode ? "bg-indigo-700" : "bg-blue-100"
+                                  }`}
+                                >
+                                  {notification.type === "auction" ? (
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      className="h-5 w-5 text-blue-500"
+                                      viewBox="0 0 20 20"
+                                      fill="currentColor"
+                                    >
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                        clipRule="evenodd"
+                                      />
+                                    </svg>
+                                  ) : (
+                                    <Bell className="h-5 w-5 text-blue-500" />
+                                  )}
+                                </div>
+                                <div className="flex-1">
+                                  <p
+                                    className={`font-medium text-sm ${
+                                      isDarkMode
+                                        ? "text-white"
+                                        : "text-gray-800"
+                                    } ${!notification.read ? "font-bold" : ""}`}
                                   >
-                                    <path
-                                      fillRule="evenodd"
-                                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                                      clipRule="evenodd"
-                                    />
-                                  </svg>
-                                ) : (
-                                  <Bell className="h-5 w-5 text-blue-500" />
+                                    {notification.title}
+                                  </p>
+                                  <p
+                                    className={`text-xs mt-1 ${
+                                      isDarkMode
+                                        ? "text-indigo-200"
+                                        : "text-gray-500"
+                                    }`}
+                                  >
+                                    {notification.message}
+                                  </p>
+                                  <p
+                                    className={`text-xs mt-1 ${
+                                      isDarkMode
+                                        ? "text-indigo-300"
+                                        : "text-gray-400"
+                                    }`}
+                                  >
+                                    {new Date(
+                                      notification.timestamp
+                                    ).toLocaleString()}
+                                  </p>
+                                </div>
+                                {!notification.read && (
+                                  <div className="h-2 w-2 rounded-full bg-blue-500 mt-1"></div>
                                 )}
                               </div>
-                              <div className="flex-1">
-                                <p
-                                  className={`font-medium text-sm ${
-                                    isDarkMode ? "text-white" : "text-gray-800"
-                                  } ${!notification.read ? "font-bold" : ""}`}
-                                >
-                                  {notification.title}
-                                </p>
-                                <p
-                                  className={`text-xs mt-1 ${
-                                    isDarkMode
-                                      ? "text-indigo-200"
-                                      : "text-gray-500"
-                                  }`}
-                                >
-                                  {notification.message}
-                                </p>
-                                <p
-                                  className={`text-xs mt-1 ${
-                                    isDarkMode
-                                      ? "text-indigo-300"
-                                      : "text-gray-400"
-                                  }`}
-                                >
-                                  {new Date(
-                                    notification.timestamp
-                                  ).toLocaleString()}
-                                </p>
-                              </div>
-                              {!notification.read && (
-                                <div className="h-2 w-2 rounded-full bg-blue-500 mt-1"></div>
-                              )}
                             </div>
+                          ))
+                        ) : (
+                          <div
+                            className={`px-4 py-6 text-center ${
+                              isDarkMode ? "text-indigo-200" : "text-gray-500"
+                            }`}
+                          >
+                            <p>No notifications yet</p>
                           </div>
-                        ))
-                      ) : (
-                        <div
-                          className={`px-4 py-6 text-center ${
-                            isDarkMode ? "text-indigo-200" : "text-gray-500"
-                          }`}
-                        >
-                          <p>No notifications yet</p>
-                        </div>
-                      )}
-                    </div>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
