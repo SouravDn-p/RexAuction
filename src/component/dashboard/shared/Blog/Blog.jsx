@@ -117,12 +117,14 @@ export default function Blog() {
               <div className="flex justify-between items-center mt-4">
 
 
-                <button
+                <Link
+                  to={`/dashboard/updateBlog/${post._id}`}
                   className="bg-purple-100 text-purple-600 hover:bg-purple-200 p-2 rounded-full transition"
                   title="Edit Blog"
                 >
                   <FaEdit size={18} />
-                </button>
+                </Link>
+
                 <button
                   className="bg-red-100 text-red-600 hover:bg-red-200 p-2 rounded-full transition"
                   onClick={() => deleteBlogPost(post._id)}

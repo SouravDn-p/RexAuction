@@ -217,9 +217,10 @@ export default function AddBlog() {
                         </button>
                         <button
                             type="submit"
+                            disabled={loading}
                             className="px-6 py-2 rounded-md bg-purple-600 hover:bg-purple-700 text-white font-semibold shadow transition"
                         >
-                            Publish Blog
+                            {loading ? "Publishing..." : "Publish Blog"}
                         </button>
                     </div>
                 </form>

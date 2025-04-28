@@ -43,6 +43,7 @@ import PaymentFailed from "../component/dashboard/buyer/PaymentFailed";
 import SharedPayment from "../component/dashboard/shared/payment/SharedPayment";
 import Blog from "../component/dashboard/shared/Blog/Blog";
 import AddBlog from "../component/dashboard/shared/Blog/AddBlog";
+import UpdateBlog from "../component/dashboard/shared/Blog/UpdateBlog";
 // import AdminFeedback from "../component/dashboard/admin/AdminFeedback";
 
 // import TeamSettings from "../component/Settings/TeamSettings";
@@ -254,6 +255,10 @@ export const router = createBrowserRouter([
       {
         path: 'create-blog',
         element: <AddBlog></AddBlog>
+      },
+      {
+        path:'updateBlog/:id',
+        element:<UpdateBlog></UpdateBlog>
       },
     ],
   },
