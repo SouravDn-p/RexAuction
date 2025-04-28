@@ -344,7 +344,7 @@ const Navbar = () => {
                   <span className="relative z-10 transition-transform duration-300 group-hover:transform group-hover:translate-y-[-2px]">
                     {item.label}
                   </span>
-                  <span className="absolute inset-0 bg-gradient-to-r from-pink-500/0 to-yellow-400/0 group-hover:from-pink-500/5 group-hover:to-yellow-400/5 rounded-lg transition-all duration-300 opacity-0 group-hover:opacity-100"></span>
+                  <span className="absolute inset-0 bg-gradient-to-r from-pink-500/0 to-purple-400/0 group-hover:from-pink-500/5 group-hover:to-purple-400/5 rounded-lg transition-all duration-300 opacity-0 group-hover:opacity-100"></span>
                 </Link>
               ))}
             </div>
@@ -362,13 +362,12 @@ const Navbar = () => {
                   onClick={() => setShowWalletModal(true)}
                 >
                   <FaWallet
-                    className={`${
-                      isDarkMode ? "text-yellow-400" : "text-indigo-200"
-                    } transition-transform duration-300 group-hover:scale-110`}
+                    className={`text-purple-400"
+                     transition-transform duration-300 group-hover:scale-110`}
                   />
                   <span
                     className={`${
-                      isDarkMode ? "text-indigo-100" : "text-indigo-200"
+                      isDarkMode ? "text-indigo-100" : "text-white"
                     } relative z-10`}
                   >
                     $ {dbUser?.accountBalance}
@@ -382,7 +381,7 @@ const Navbar = () => {
                   <button
                     className={`p-2 rounded-full transition-all duration-300 relative overflow-hidden ${
                       isDarkMode
-                        ? "bg-indigo-800/50 text-yellow-400 hover:bg-indigo-700/70"
+                        ? "bg-indigo-800/50 text-purple-400 hover:bg-indigo-700/70"
                         : "bg-indigo-100/50 text-indigo-700 hover:bg-indigo-200/70"
                     } hover:scale-110`}
                     onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
@@ -396,7 +395,7 @@ const Navbar = () => {
                     )}
                     <div
                       className={`absolute inset-0 rounded-full transition-all duration-300 opacity-0 hover:opacity-100 ${
-                        isDarkMode ? "bg-yellow-400/10" : "bg-indigo-700/10"
+                        isDarkMode ? "bg-purple-400/10" : "bg-indigo-700/10"
                       }`}
                     ></div>
                   </button>
@@ -535,7 +534,7 @@ const Navbar = () => {
                 <button
                   className={`p-2 lg:p-2 rounded-full transition-all duration-300 relative overflow-hidden ${
                     isDarkMode
-                      ? "bg-indigo-800/50 text-yellow-400 hover:bg-indigo-700/70"
+                      ? "bg-indigo-800/50 text-purple-400 hover:bg-indigo-700/70"
                       : "bg-indigo-100/50 text-indigo-700 hover:bg-indigo-200/70"
                   } hover:scale-110`}
                   onClick={toggleTheme}
@@ -544,13 +543,13 @@ const Navbar = () => {
                   }
                 >
                   {isDarkMode ? (
-                    <FaSun className="text-yellow-400 relative z-10 transition-transform duration-300 hover:rotate-12" />
+                    <FaSun className="text-purple-400 relative z-10 transition-transform duration-300 hover:rotate-12" />
                   ) : (
                     <FaMoon className="text-indigo-700 relative z-10 transition-transform duration-300 hover:rotate-12" />
                   )}
                   <div
                     className={`absolute inset-0 rounded-full transition-all duration-300 opacity-0 hover:opacity-100 ${
-                      isDarkMode ? "bg-yellow-400/10" : "bg-indigo-700/10"
+                      isDarkMode ? "bg-purple-400/10" : "bg-indigo-700/10"
                     }`}
                   ></div>
                 </button>
@@ -567,9 +566,9 @@ const Navbar = () => {
                         "/placeholder.svg"
                       }
                       alt="Profile"
-                      className="w-9 h-9 rounded-full border-2 border-pink-400 transition-all duration-300 hover:border-yellow-400"
+                      className="w-9 h-9 rounded-full border-2 border-pink-400 transition-all duration-300 hover:border-purple-400"
                     />
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-pink-500/0 to-yellow-400/0 hover:from-pink-500/20 hover:to-yellow-400/20 transition-all duration-300 opacity-0 hover:opacity-100 blur-sm"></div>
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-pink-500/0 to-purple-400/0 hover:from-pink-500/20 hover:to-purple-400/20 transition-all duration-300 opacity-0 hover:opacity-100 blur-sm"></div>
                   </button>
 
                   {showProfileMenu && (
@@ -640,7 +639,7 @@ const Navbar = () => {
                             {item.icon}
                           </span>
                           <span className="relative z-10">{item.label}</span>
-                          <div className="absolute inset-0 bg-gradient-to-r from-transparent to-transparent hover:from-pink-500/5 hover:to-yellow-400/5 transition-all duration-200 opacity-0 hover:opacity-100"></div>
+                          <div className="absolute inset-0 bg-gradient-to-r from-transparent to-transparent hover:from-pink-500/5 hover:to-purple-400/5 transition-all duration-200 opacity-0 hover:opacity-100"></div>
                         </Link>
                       ))}
 
@@ -687,7 +686,7 @@ const Navbar = () => {
                 <span className="relative z-10 transition-transform duration-300 group-hover:transform group-hover:translate-y-[-2px]">
                   Login
                 </span>
-                <span className="absolute inset-0 bg-gradient-to-r from-pink-500/0 to-yellow-400/0 group-hover:from-pink-500/5 group-hover:to-yellow-400/5 rounded-lg transition-all duration-300 opacity-0 group-hover:opacity-100"></span>
+                <span className="absolute inset-0 bg-gradient-to-r from-pink-500/0 to-purple-400/0 group-hover:from-pink-500/5 group-hover:to-purple-400/5 rounded-lg transition-all duration-300 opacity-0 group-hover:opacity-100"></span>
               </Link>
             )}
           </div>
@@ -705,7 +704,7 @@ const Navbar = () => {
                 >
                   <FaWallet
                     className={`${
-                      isDarkMode ? "text-yellow-400" : "text-indigo-700"
+                      isDarkMode ? "text-purple-400" : "text-indigo-700"
                     } text-sm`}
                   />
                   <span className="relative z-10 text-sm">
@@ -723,20 +722,20 @@ const Navbar = () => {
             <button
               className={`p-2 lg:p-2 rounded-full transition-all duration-300 relative overflow-hidden ${
                 isDarkMode
-                  ? "bg-indigo-800/50 text-yellow-400 hover:bg-indigo-700/70"
+                  ? "bg-indigo-800/50 text-purple-400 hover:bg-indigo-700/70"
                   : "bg-indigo-100/50 text-indigo-700 hover:bg-indigo-200/70"
               } hover:scale-110 touch-p-3`}
               onClick={toggleTheme}
               aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
             >
               {isDarkMode ? (
-                <FaSun className="text-yellow-400 relative z-10 transition-transform duration-300 hover:rotate-12" />
+                <FaSun className="text-purple-400 relative z-10 transition-transform duration-300 hover:rotate-12" />
               ) : (
                 <FaMoon className="text-indigo-700 relative z-10 transition-transform duration-300 hover:rotate-12" />
               )}
               <div
                 className={`absolute inset-0 rounded-full transition-all duration-300 opacity-0 hover:opacity-100 ${
-                  isDarkMode ? "bg-yellow-400/10" : "bg-indigo-700/10"
+                  isDarkMode ? "bg-purple-400/10" : "bg-indigo-700/10"
                 }`}
               ></div>
             </button>
@@ -746,7 +745,7 @@ const Navbar = () => {
                 <button
                   className={`p-2 rounded-full transition-all duration-300 relative overflow-hidden ${
                     isDarkMode
-                      ? "bg-indigo-800/50 text-yellow-400 hover:bg-indigo-700/70"
+                      ? "bg-indigo-800/50 text-purple-400 hover:bg-indigo-700/70"
                       : "bg-indigo-100/50 text-indigo-700 hover:bg-indigo-200/70"
                   } hover:scale-110`}
                   onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
@@ -760,7 +759,7 @@ const Navbar = () => {
                   )}
                   <div
                     className={`absolute inset-0 rounded-full transition-all duration-300 opacity-0 hover:opacity-100 ${
-                      isDarkMode ? "bg-yellow-400/10" : "bg-indigo-700/10"
+                      isDarkMode ? "bg-purple-400/10" : "bg-indigo-700/10"
                     }`}
                   ></div>
                 </button>
@@ -897,10 +896,10 @@ const Navbar = () => {
               className={`p-2 rounded-full transition-all duration-300 relative overflow-hidden ${
                 mobileMenuOpen
                   ? isDarkMode
-                    ? "bg-indigo-700/70 text-yellow-400 border border-yellow-400/40"
+                    ? "bg-indigo-700/70 text-purple-400 border border-purple-400/40"
                     : "bg-indigo-200/70 text-indigo-900 border border-indigo-400/40"
                   : isDarkMode
-                  ? "bg-indigo-800/50 text-yellow-400 hover:bg-indigo-700/70"
+                  ? "bg-indigo-800/50 text-purple-400 hover:bg-indigo-700/70"
                   : "bg-indigo-100/50 text-indigo-700 hover:bg-indigo-200/70"
               } hover:scale-110`}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -937,7 +936,7 @@ const Navbar = () => {
               )}
               <div
                 className={`absolute inset-0 rounded-full transition-all duration-300 opacity-0 hover:opacity-100 ${
-                  isDarkMode ? "bg-yellow-400/10" : "bg-indigo-700/10"
+                  isDarkMode ? "bg-purple-400/10" : "bg-indigo-700/10"
                 }`}
               ></div>
               
@@ -991,7 +990,7 @@ const Navbar = () => {
                     alt="Rex Auction Logo"
                   />
                 </div>
-                <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-yellow-400">
+                <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-pink-500 to-purple-400">
                   Rex Auction
                 </h1>
               </div>
@@ -1109,7 +1108,7 @@ const Navbar = () => {
                     >
                       <FaWallet
                         className={`w-4 h-4 ${
-                          isDarkMode ? "text-yellow-400" : "text-indigo-700"
+                          isDarkMode ? "text-purple-400" : "text-indigo-700"
                         }`}
                       />
                       <span>${dbUser?.accountBalance}</span>
