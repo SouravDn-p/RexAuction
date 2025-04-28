@@ -1,44 +1,51 @@
-import React, { useContext } from "react";
+import { useContext, useState, useEffect } from "react";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import ThemeContext from "../../../Context/ThemeContext";
 import { Link } from "react-router-dom";
+import { AuthContexts } from "../../../../providers/AuthProvider";
+import axios from "axios"; // Import axios
+import LoadingSpinner from "../../../LoadingSpinner";
 
 export default function Blog() {
   const { isDarkMode } = useContext(ThemeContext);
+  const { dbUser } = useContext(AuthContexts);
+  const email = dbUser?.email;
 
-  const blogPosts = [
-    {
-      id: 1,
-      title: "Mastering Live Auctions: Tips & Tricks",
-      description: "Learn how to win auctions by mastering strategies and bidding smartly in real-time.",
-      image: "https://source.unsplash.com/random/300x200?auction",
-    },
-    {
-      id: 2,
-      title: "Understanding Auction Pricing",
-      description: "A deep dive into how pricing works in auctions and how to find the best deals.",
-      image: "https://source.unsplash.com/random/300x200?money",
-    },
-    {
-      id: 3,
-      title: "How to Spot a Good Deal",
-      description: "Recognize real opportunities and avoid common auction mistakes with our expert guide.",
-      image: "https://source.unsplash.com/random/300x200?deal",
-    },
-    {
-      id: 4,
-      title: "Bidding Psychology 101",
-      description: "Understand how psychology affects bidding and how you can use it to your advantage.",
-      image: "https://source.unsplash.com/random/300x200?psychology",
-    },
-  ];
+  // State to store blog posts and loading/error states
+  const [blogPosts, setBlogPosts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
+
+  useEffect(() => {
+    // Fetch blog posts based on the user's email
+    const fetchBlogPosts = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5000/blogs/${email}`); // Pass email in URL
+        setBlogPosts(response.data); // Store the fetched posts in state
+        setIsLoading(false); // Set loading to false after fetching data
+      } catch (error) {
+        setIsError(true); // Set error state if there's an error
+        setIsLoading(false); // Set loading to false
+        console.error("Error fetching blogs:", error);
+      }
+    };
+  
+    if (email) {
+      fetchBlogPosts();
+    }
+  }, [email]);
+  // / Fetch data when the email changes
+
+  if (isLoading) return <LoadingSpinner />; // Show spinner while loading
+  if (isError) return <p>Error fetching data.</p>; // Show error message if fetch fails
 
   return (
     <div
-      className={`min-h-screen p-6 md:p-8 ${isDarkMode
+      className={`min-h-screen p-6 md:p-8 ${
+        isDarkMode
           ? "bg-gray-900 text-white"
           : "bg-gradient-to-b from-purple-100 via-white to-purple-50 text-gray-800"
-        }`}
+      }`}
     >
       {/* Top Section */}
       <div className="flex justify-between items-center mb-8">
@@ -60,12 +67,13 @@ export default function Blog() {
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {blogPosts.map((post) => (
           <div
-            key={post.id}
-            className={`rounded-xl overflow-hidden shadow-md hover:shadow-xl transition duration-300 border ${isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
-              }`}
+            key={post._id} // Assuming MongoDB uses '_id' as the identifier
+            className={`rounded-xl overflow-hidden shadow-md hover:shadow-xl transition duration-300 border ${
+              isDarkMode ? "bg-gray-800 border-gray-700" : "bg-white border-gray-200"
+            }`}
           >
             <img
-              src={post.image}
+              src={post.imageUrls[0]} // Assuming imageUrls is an array and the first image is displayed
               alt={post.title}
               className="w-full h-40 object-cover"
             />
