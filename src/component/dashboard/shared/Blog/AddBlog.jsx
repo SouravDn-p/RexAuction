@@ -10,7 +10,9 @@ export default function AddBlog() {
     const { isDarkMode } = useContext(ThemeContext);
     const navigate = useNavigate();
     const { dbUser } = useContext(AuthContexts)
-    console.log(dbUser?.name)
+    // console.log(dbUser?.name)
+    const [loading, setLoading] = useState(false);
+
 
     const [blogData, setBlogData] = useState({
         title: "",
@@ -29,6 +31,7 @@ export default function AddBlog() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
         console.log(blogData);
 
         const imageHostingApi = `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_IMAGE_HOSTING_KEY}`;
@@ -107,7 +110,13 @@ export default function AddBlog() {
                     text: 'An error occurred while submitting the blog. Please try again later.',
                 });
             }
+
+        } finally {
+            setLoading(false); // End loading no matter success or failure
         }
+
+
+
     };
 
     const handleReset = () => {
