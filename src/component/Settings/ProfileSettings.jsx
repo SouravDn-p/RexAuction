@@ -8,6 +8,7 @@ import { Fragment } from "react";
 import ThemeContext from "../../component/Context/ThemeContext";
 import { toast } from "react-hot-toast";
 import LoadingSpinner from "../LoadingSpinner";
+import axios from "axios";
 
 const ProfileSettings = () => {
   const { user, dbUser, setDbUser } = useAuth();
@@ -18,17 +19,42 @@ const ProfileSettings = () => {
   const [error, setError] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("");
-  const [formData, setFormData] = useState({});
+  // const [formData, setFormData] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    bio: "",
+    country: "",
+    city: "",
+    postalCode: "",
+    taxId: "",
+    photoURL: "",
+    photoFile: null,
+  });
 
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
         if (user?.email) {
           setLoading(true);
-          const response = await axiosSecure.get(`/user/${user.email}`);
+          const response = await axios.get(
+            `http://localhost:5000/user/${user.email}`
+          );
           setProfileData(response.data);
-          setFormData(response.data || {});
+          setFormData({
+            name: response.data?.name || "",
+            email: response.data?.email || "",
+            phone: response.data?.phone || "",
+            bio: response.data?.bio || "",
+            country: response.data?.country || "",
+            city: response.data?.city || "",
+            postalCode: response.data?.postalCode || "",
+            taxId: response.data?.taxId || "",
+            photoURL: response.data?.photoURL || "",
+            photoFile: null,
+          });
         }
       } catch (err) {
         setError(err.message || "Failed to fetch user data");
@@ -39,7 +65,7 @@ const ProfileSettings = () => {
     };
 
     fetchUserProfile();
-  }, [user, axiosSecure]);
+  }, [user]);
 
   const openModal = (section) => {
     setActiveSection(section);
@@ -48,8 +74,19 @@ const ProfileSettings = () => {
 
   const closeModal = () => {
     setIsOpen(false);
-    // Reset form data to current profile data to discard unsaved changes
-    setFormData(profileData || {});
+    // Reset form data to current profile data
+    setFormData({
+      name: profileData?.name || "",
+      email: profileData?.email || "",
+      phone: profileData?.phone || "",
+      bio: profileData?.bio || "",
+      country: profileData?.country || "",
+      city: profileData?.city || "",
+      postalCode: profileData?.postalCode || "",
+      taxId: profileData?.taxId || "",
+      photoURL: profileData?.photoURL || "",
+      photoFile: null,
+    });
   };
 
   const handleChange = (e) => {
@@ -64,27 +101,44 @@ const ProfileSettings = () => {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const dataToUpdate = { ...formData };
-      delete dataToUpdate.photoFile; // Remove photoFile from dataToUpdate
-  
+      let dataToUpdate = {};
+
       if (activeSection === "photo" && formData.photoFile) {
         const formDataPhoto = new FormData();
         formDataPhoto.append("photo", formData.photoFile);
-        const photoResponse = await axiosSecure.post("/upload-photo", formDataPhoto, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
-        dataToUpdate.photo = photoResponse.data.url;
+        const photoResponse = await axios.post(
+          "http://localhost:5000/upload-photo",
+          formDataPhoto,
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+          }
+        );
+        dataToUpdate.photoURL = photoResponse.data.url;
+      } else if (activeSection === "personal") {
+        dataToUpdate = {
+          name: formData.name,
+          phone: formData.phone,
+          bio: formData.bio,
+        };
+      } else if (activeSection === "address") {
+        dataToUpdate = {
+          country: formData.country,
+          city: formData.city,
+          postalCode: formData.postalCode,
+          taxId: formData.taxId,
+        };
       }
-  
-      // Send update request for all allowed fields
-      const response = await axiosSecure.patch(`/user/${user.email}`, dataToUpdate);
-  
+
+      const response = await axios.patch(
+        `http://localhost:5000/user/${user.email}`,
+        dataToUpdate
+      );
+
       setProfileData(response.data);
-  
       if (setDbUser) {
         setDbUser(response.data);
       }
-  
+
       toast.success("Profile updated successfully!");
       closeModal();
     } catch (err) {
@@ -144,7 +198,6 @@ const ProfileSettings = () => {
                   className="h-32 w-32 rounded-full object-cover border-4 border-white shadow-md"
                   onError={(e) => {
                     e.target.onerror = null;
-                    e.target.src = "https://via.placeholder.com/150";
                   }}
                 />
               ) : (
@@ -301,17 +354,6 @@ const ProfileSettings = () => {
             </label>
             <p className="font-medium">{userData?.phone || "Not provided"}</p>
           </div>
-        </div>
-
-        <div>
-          <label
-            className={`block text-sm font-medium mb-1 ${
-              isDarkMode ? "text-gray-400" : "text-gray-500"
-            }`}
-          >
-            Bio
-          </label>
-          <p className="font-medium">{userData?.bio || "Not provided"}</p>
         </div>
       </div>
 
