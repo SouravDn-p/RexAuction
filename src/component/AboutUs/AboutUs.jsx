@@ -769,7 +769,7 @@ const AboutUs = () => {
               <div
                 key={index}
                 style={{ animationDelay: `${index * 0.4}s` }}
-                className={`relative group rounded-xl p-6 transition-transform duration-500 ease-in-out animate-floating hover:scale-105 scale-100 ${
+                className={`relative group rounded-xl p-6 transition-transform duration-500 ease-in-out  hover:scale-105 scale-100 ${
                   isDarkMode
                     ? "bg-gray-900 shadow-[0_0_15px_rgba(139,92,246,0.95)]"
                     : "bg-slate-200 shadow-[0_0_30px_rgba(139,92,246,1)]"

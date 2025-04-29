@@ -1,22 +1,19 @@
 import { useContext, useEffect, useState } from "react";
+import { FaFire, FaSearch, FaClock, FaSadTear } from "react-icons/fa";
 import axios from "axios";
-import { motion } from "framer-motion";
-import {
-  FaFire,
-  FaSearch,
-  FaSadTear,
-  FaClock,
-  FaGavel,
-} from "react-icons/fa";
 import ThemeContext from "../Context/ThemeContext";
+import { motion } from "framer-motion";
 
 export default function UpcomingAuction() {
-  const { isDarkMode } = useContext(ThemeContext); // use your context or toggle hook
+  const { isDarkMode } = useContext(ThemeContext);
   const [upcomingAuctions, setUpcomingAuctions] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
+  const [viewDetails, setViewDetails] = useState(null); // Track which auction to show in the modal
 
+  const fallbackImage = "https://via.placeholder.com/100"; // ✅ Default image
   const itemsPerPage = 5;
+
   useEffect(() => {
     axios
       .get("http://localhost:5000/upcoming-auctions")
@@ -49,11 +46,7 @@ export default function UpcomingAuction() {
   };
 
   const getPaginationItems = () => {
-    let pages = [];
-    for (let i = 0; i < pageCount; i++) {
-      pages.push(i);
-    }
-    return pages;
+    return Array.from({ length: pageCount }, (_, i) => i);
   };
 
   const formatTime = (time) => {
@@ -65,12 +58,19 @@ export default function UpcomingAuction() {
     return `${hours}h ${minutes}m`;
   };
 
+  // Handle opening modal with specific auction details
+  const handleViewDetails = (item) => {
+    setViewDetails(item);
+  };
+
+  // Close the modal
+  const handleCloseModal = () => {
+    setViewDetails(null);
+  };
+
   return (
-    <div
-      className={`min-h-screen ${isDarkMode ? "bg-gray-950" : "bg-gray-50"}`}
-    >
+    <div className={` ${isDarkMode ? "bg-gray-950" : "bg-gray-50"}`}>
       <section className="container mx-auto px-4 py-12">
-        {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
           <div className="flex items-center">
             <FaFire className="text-orange-500 mr-3 text-3xl" />
@@ -85,7 +85,6 @@ export default function UpcomingAuction() {
             </h2>
           </div>
 
-          {/* Search Input */}
           <div className="relative w-full md:w-96">
             <input
               type="text"
@@ -106,7 +105,6 @@ export default function UpcomingAuction() {
           </div>
         </div>
 
-        {/* No Auctions */}
         {!filteredAuctions.length && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -137,162 +135,202 @@ export default function UpcomingAuction() {
           </motion.div>
         )}
 
-        {/* Cards Section */}
         {filteredAuctions.length > 0 && (
-          <div className="mb-12">
-            <div className="flex overflow-x-auto space-x-6 pb-4 snap-x snap-mandatory">
-              {displayedAuctions.map((item) => (
-                <motion.div
-                  key={item._id}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.3 }}
-                  whileHover={{ y: -5 }}
-                  className={`flex-shrink-0 w-72 rounded-xl overflow-hidden transition-all duration-300 snap-start ${
-                    isDarkMode
-                      ? "bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700"
-                      : "bg-white border border-gray-200"
-                  } shadow-lg hover:shadow-xl`}
-                >
-                  {/* Image */}
-                  <div className="relative h-56 w-full overflow-hidden">
-                    <img
-                      src={item.images?.[0] || image}
-                      alt={item.name}
-                      className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
-                      onError={(e) => {
-                        e.target.src = image;
-                      }}
-                    />
-                    <div className="absolute bottom-3 left-3 bg-gradient-to-r from-purple-500 to-purple-500 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center">
-                      <FaClock className="mr-1" />
-                      {formatTime(item.startTime)}
-                    </div>
-                  </div>
+          <div className="overflow-x-auto rounded-lg shadow-md">
+            <table
+              className={`min-w-full divide-y ${
+                isDarkMode ? "divide-gray-700" : "divide-gray-200"
+              }`}
+            >
+              <thead
+                className={
+                  isDarkMode
+                    ? "bg-gray-800 text-white"
+                    : "bg-gray-200 text-gray-700"
+                }
+              >
+                <tr>
+                  <th className="px-4 py-3  text-center text-sm font-semibold">
+                    Rounds
+                  </th>
+                  <th className="px-4 py-3 text-center text-sm font-semibold">
+                    Name
+                  </th>
+                  <th className="px-4 py-3 text-center text-sm font-semibold">
+                    Item
+                  </th>
+                  <th className="px-4 py-3 text-left text-sm font-semibold">
+                    Starting Price
+                  </th>
+                  <th className="px-4 py-3 text-center text-sm font-semibold">
+                    Seller
+                  </th>
+                  <th className="px-4 py-3 text-center text-sm font-semibold">
+                    Time
+                  </th>
+                  <th className="px-4 py-3 text-center text-sm font-semibold">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody
+                className={
+                  isDarkMode
+                    ? "bg-gray-900 text-white"
+                    : "bg-white text-gray-800"
+                }
+              >
+                {displayedAuctions.map((item, index) => (
+                  <tr key={item._id} className=" dark:bg-gray-800 transition">
+                    <td className="px-4 py-4">
+                      <div className="w-9 h-9 rounded-full bg-gray-800 text-white flex items-center justify-center text-sm font-bold">
+                        {index + 1}
+                      </div>
+                    </td>
 
-                  {/* Card Body */}
-                  <div
-                    className={`p-5 ${
-                      isDarkMode ? "text-gray-100" : "text-gray-800"
-                    }`}
-                  >
-                    <div className="flex justify-between items-start mb-3">
-                      <h3 className="text-lg h-12 font-bold line-clamp-2">
-                        {item.name}
-                      </h3>
-                      <span
-                        className={`text-xs px-2 py-1 rounded-full ${
-                          isDarkMode
-                            ? "bg-purple-900/50 text-purple-300"
-                            : "bg-purple-100 text-purple-800"
-                        }`}
-                      >
-                        {item.category}
+                    <td className="px-4 py-4 text-center truncate">
+                      {item.name?.split(".")[0] || item.name}
+                    </td>
+
+                    <td className="px-4 py-4">
+                      <div className="flex gap-2 overflow-x-auto">
+                        {(item.images || []).slice(0, 4).map((img, idx) => (
+                          <img
+                            key={idx}
+                            src={img || fallbackImage}
+                            alt="Item"
+                            className="w-10 h-10 rounded-full border object-cover"
+                            onError={(e) => (e.target.src = fallbackImage)}
+                          />
+                        ))}
+                      </div>
+                    </td>
+
+                    <td className="px-4 py-4">
+                      <span className="text-purple-600 font-semibold">
+                        ${item.startingPrice?.toLocaleString()}
                       </span>
-                    </div>
+                    </td>
 
-                    <p
-                      className={`text-sm mb-4 line-clamp-2 ${
-                        isDarkMode ? "text-gray-400" : "text-gray-600"
-                      }`}
-                    >
-                      {item.description || "No description available"}
-                    </p>
+                    <td className="px-4 py-4 text-center">
+                      {item.sellerDisplayName}
+                    </td>
 
-                    <div className="flex justify-between items-center mb-4">
-                      <div>
-                        <p
-                          className={`text-xs ${
-                            isDarkMode ? "text-gray-400" : "text-gray-500"
-                          }`}
-                        >
-                          Starting Price:
-                        </p>
-                        <p className="text-xl font-bold text-purple-600">
-                          ${item.startingPrice?.toLocaleString()}
-                        </p>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <FaGavel
-                          className={`mr-1 ${
-                            isDarkMode ? "text-purple-400" : "text-purple-600"
-                          }`}
-                        />
-                        <span className="text-sm">{item.bids || 0} bids</span>
-                      </div>
-                    </div>
+                    <td className="px-4 py-4 text-right text-purple-500 flex justify-end items-center gap-2">
+                      <FaClock className="text-xs" />
+                      <span>{formatTime(item.startTime)}</span>
+                    </td>
 
-                    <div className="flex space-x-2">
-                      <button className="flex-1 text-center bg-gradient-to-r  from-purple-600 to-purple-500 text-white py-2 px-4 rounded-lg hover:from-purple-700 hover:to-purple-600 transition shadow-md">
-                        Upcoming
-                      </button>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Pagination */}
-            {pageCount > 1 && (
-              <div className="flex justify-center mt-12">
-                <nav className="flex items-center space-x-1 sm:space-x-2">
-                  <button
-                    onClick={handlePrev}
-                    disabled={currentPage === 0}
-                    className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ${
-                      isDarkMode
-                        ? "bg-gray-800 text-gray-300 hover:bg-gray-700"
-                        : "bg-white text-gray-700 hover:bg-gray-100"
-                    } shadow-md transition ${
-                      currentPage === 0 ? "opacity-50 cursor-not-allowed" : ""
-                    }`}
-                  >
-                    {"<"}
-                  </button>
-                  {getPaginationItems().map((page, index) =>
-                    typeof page === "number" ? (
+                    <td className="px-4 py-4 text-center">
                       <button
-                        key={page}
-                        onClick={() => setCurrentPage(page)}
-                        className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ${
-                          currentPage === page
-                            ? "bg-gradient-to-r from-purple-600 to-purple-500 text-white shadow-lg"
-                            : isDarkMode
-                            ? "bg-gray-800 text-gray-300 hover:bg-gray-700"
-                            : "bg-white text-gray-700 hover:bg-gray-100"
-                        } transition shadow-md`}
+                        onClick={() => handleViewDetails(item)}
+                        className="px-4 py-2 bg-purple-500 text-white rounded-full hover:bg-purple-600"
                       >
-                        {page + 1}
+                        View Details
                       </button>
-                    ) : (
-                      <span
-                        key={`ellipsis-${index}`}
-                        className={`text-sm sm:text-base ${
-                          isDarkMode ? "text-gray-400" : "text-gray-500"
-                        }`}
-                      >
-                        ...
-                      </span>
-                    )
-                  )}
-                  <button
-                    onClick={handleNext}
-                    disabled={currentPage === pageCount - 1}
-                    className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ${
-                      isDarkMode
-                        ? "bg-gray-800 text-gray-300 hover:bg-gray-700"
-                        : "bg-white text-gray-700 hover:bg-gray-100"
-                    } shadow-md transition ${
-                      currentPage === pageCount - 1
-                        ? "opacity-50 cursor-not-allowed"
-                        : ""
-                    }`}
-                  >
-                    {">"}
-                  </button>
-                </nav>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {viewDetails && (
+          <div
+            className="fixed inset-0 bg-gray-700 bg-opacity-50 flex justify-center items-center z-50"
+            onClick={handleCloseModal}
+          >
+            <div
+              className={`bg-white rounded-lg p-6 w-1/2 max-w-lg relative ${
+                isDarkMode ? "bg-gray-800 text-white" : "bg-white text-black"
+              }`}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={handleCloseModal}
+                className="absolute top-2 right-2 text-gray-600"
+              >
+                X
+              </button>
+              <h3 className="text-2xl font-bold mb-4">{viewDetails.name}</h3>
+              <div className="flex gap-4 items-center mb-4">
+                <img
+                  src={viewDetails.sellerPhotoUrl || fallbackImage}
+                  alt={viewDetails.sellerDisplayName}
+                  className="w-16 h-16 rounded-full"
+                />
+                <div>
+                  <h4 className="text-xl">{viewDetails.sellerDisplayName}</h4>
+                  <p className="text-sm text-gray-600">
+                    {viewDetails.sellerEmail}
+                  </p>
+                </div>
               </div>
-            )}
+
+              <h4 className="font-semibold mb-2">Item History:</h4>
+              <p className="mb-4">{viewDetails.history}</p>
+              <div className="grid grid-cols-2 gap-2">
+                {viewDetails.images.map((image, index) => (
+                  <img
+                    key={index}
+                    src={image}
+                    alt={`auction-img-${index}`}
+                    className="w-full h-32 object-cover rounded-lg"
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {pageCount > 1 && (
+          <div className="flex justify-center mt-12">
+            <nav className="flex items-center space-x-1 sm:space-x-2">
+              <button
+                onClick={handlePrev}
+                disabled={currentPage === 0}
+                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ${
+                  isDarkMode
+                    ? "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                    : "bg-white text-gray-700 hover:bg-gray-100"
+                } shadow-md transition ${
+                  currentPage === 0 ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+              >
+                {"<"}
+              </button>
+              {getPaginationItems().map((page) => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ${
+                    currentPage === page
+                      ? "bg-gradient-to-r from-purple-600 to-purple-500 text-white shadow-lg"
+                      : isDarkMode
+                      ? "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                      : "bg-white text-gray-700 hover:bg-gray-100"
+                  } transition shadow-md`}
+                >
+                  {page + 1}
+                </button>
+              ))}
+              <button
+                onClick={handleNext}
+                disabled={currentPage === pageCount - 1}
+                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center ${
+                  isDarkMode
+                    ? "bg-gray-800 text-gray-300 hover:bg-gray-700"
+                    : "bg-white text-gray-700 hover:bg-gray-100"
+                } shadow-md transition ${
+                  currentPage === pageCount - 1
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
+                }`}
+              >
+                {">"}
+              </button>
+            </nav>
           </div>
         )}
       </section>
