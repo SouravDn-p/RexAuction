@@ -6,9 +6,11 @@ import {
   FaPlus,
   FaUserCircle,
   FaGavel,
+  FaBloggerB,
 } from "react-icons/fa";
+import { IoMdContact } from "react-icons/io";
 import { MdOutlineDashboard, MdOutlineLogout } from "react-icons/md";
-import { FiHome, FiInfo } from "react-icons/fi";
+import {  FiInfo } from "react-icons/fi";
 import { BiMoney } from "react-icons/bi";
 import { Bell } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -282,7 +284,7 @@ const Navbar = () => {
       : "flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-indigo-100 text-indigo-800";
 
   const navRoutes = [
-    { path: "/", label: "Home", icon: <FiHome className="w-5 h-5" /> },
+    // { path: "/", label: "Home", icon: <FiHome className="w-5 h-5" /> },
     ...(user?.email
       ? [
           {
@@ -292,10 +294,20 @@ const Navbar = () => {
           },
         ]
       : []),
+      {
+        path: "/aboutUs",
+        label: "About Us",
+        icon: <FiInfo className="w-5 h-5" />,
+      },
+      {
+        path: "/blogs",
+        label: "Blog",
+        icon:<FaBloggerB className="w-5 h-5" />,
+      },
     {
-      path: "/aboutUs",
-      label: "About Us",
-      icon: <FiInfo className="w-5 h-5" />,
+      path: "/contactUs",
+      label: "Contact Us",
+      icon:<IoMdContact className="w-5 h-5" />,
     },
   ];
 
