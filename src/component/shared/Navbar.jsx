@@ -314,14 +314,14 @@ const Navbar = () => {
   return (
     <div>
       <nav
-        className={`fixed top-0 w-full z-50 shadow-lg transition-all duration-300 ${
+        className={`fixed  top-0 w-full z-50 shadow-lg transition-all duration-300 ${
           isScrolled
             ? isDarkMode
               ? "backdrop-blur-md bg-gray-900/30 shadow-lg"
-              : "backdrop-blur-md bg-purple-900/30 shadow-lg"
+              : "backdrop-blur-md bg-purple-800/80 shadow-lg "
             : isDarkMode
-            ? "bg-transparent"
-            : "bg-transparent"
+            ? "bg-gray-900/90"
+            : "bg-purple-800/70 "
         }`}
       >
         <div className="container mx-auto flex justify-between items-center px-4">
@@ -382,7 +382,7 @@ const Navbar = () => {
           <div className="hidden lg:flex items-center space-x-3">
             {user?.email ? (
               <>
-                <button
+                {/* <button
                   className={`flex items-center gap-2 py-1 px-2 rounded-lg transition-all duration-300 relative overflow-hidden ${
                     isDarkMode
                       ? "border-2 text-white hover:border-b-purple-600/90 hover:bg-purple-100/20"
@@ -403,7 +403,7 @@ const Navbar = () => {
                   </span>
                   <FaPlus className="text-green-400 text-xs animate-pulse" />
                   <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/0 to-indigo-400/0 hover:from-indigo-600/20 hover:to-indigo-400/20 transition-all duration-300 opacity-0 hover:opacity-100"></div>
-                </button>
+                </button> */}
 
                 {/* Notifications Button and Dropdown (Desktop) */}
                 <div className="relative" ref={notificationsRef}>

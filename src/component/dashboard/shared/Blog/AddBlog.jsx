@@ -79,7 +79,7 @@ export default function AddBlog() {
           background: isDarkMode ? "#1f2937" : "#ffffff",
           color: isDarkMode ? "#ffffff" : "#000000",
         });
-        navigate("/dashboard/blogs");
+        navigate("/dashboard/blog");
       }
     } catch (err) {
       console.error("Error uploading images:", err);

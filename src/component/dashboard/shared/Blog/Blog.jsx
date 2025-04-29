@@ -236,13 +236,7 @@ export default function Blog() {
             whileTap={{ scale: 0.95 }}
             className="flex gap-2"
           >
-            <button
-              onClick={toggleTheme}
-              className={`p-2 md:p-3 rounded-xl ${isDarkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-200 hover:bg-gray-300"} transition-colors`}
-              aria-label="Toggle dark mode"
-            >
-              {isDarkMode ? <FaSun className="text-yellow-400" /> : <FaMoon className="text-gray-700" />}
-            </button>
+       
 
             <Link
               to="/dashboard/create-blog"
