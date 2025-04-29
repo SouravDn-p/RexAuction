@@ -19,6 +19,7 @@ import { motion } from "framer-motion";
 import useAxiosPublic from "../../../hooks/useAxiosPublic";
 import Swal from "sweetalert2";
 import LoadingSpinner from "../../LoadingSpinner";
+import toast from "react-hot-toast";
 
 const Payment2 = () => {
   const [paymentMethod, setPaymentMethod] = useState("card");

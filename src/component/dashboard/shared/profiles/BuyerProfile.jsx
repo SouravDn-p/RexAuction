@@ -12,6 +12,9 @@ import {
   FaFilter,
   FaSort,
   FaArrowRight,
+  FaEdit,
+  FaShoppingBag,
+  FaMoneyCheckAlt,
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -28,12 +31,9 @@ import {
 import ThemeContext from "../../../Context/ThemeContext";
 import SharedPayment from "../payment/SharedPayment";
 
-// Demo images for auction status
-import antique from "/DemoAuctionImg/antique.jpg";
-import antique2 from "/DemoAuctionImg/antique2.jpg";
-import antique3 from "/DemoAuctionImg/antique3.jpg";
-import antique4 from "/DemoAuctionImg/antique4.jpeg";
-
+const formatNumber = (number) => {
+  return number?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") || "0";
+};
 const profileData = {
   totalBids: 25,
   auctionsWon: 5,
@@ -43,66 +43,32 @@ const biddingTips = [
   {
     id: 1,
     title: "Set a Budget",
-    description:
-      "Determine your maximum bid before the auction starts to avoid overspending.",
+    description: "Determine your maximum bid to avoid overspending.",
     icon: <FaWallet />,
   },
   {
     id: 2,
     title: "Research Items",
-    description:
-      "Study the auction items to understand their value and condition.",
+    description: "Understand the value and condition of auction items.",
     icon: <FaStar />,
   },
   {
     id: 3,
     title: "Bid Strategically",
-    description:
-      "Place bids late in the auction to increase your chances of winning.",
+    description: "Place bids late to increase your chances of winning.",
     icon: <FaGavel />,
   },
 ];
 
 // Demo data for auction status fallback
 const demoAuctionData = [
-  {
-    id: "1",
-    product: "Antique Vase",
-    image: antique,
-    position: "1",
-    totalBidders: 5,
-    isWinning: true,
-  },
-  {
-    id: "2",
-    product: "Old Painting",
-    image: antique2,
-    position: "2",
-    totalBidders: 8,
-    isWinning: false,
-  },
-  {
-    id: "3",
-    product: "Vintage Car",
-    image: antique3,
-    position: "1",
-    totalBidders: 6,
-    isWinning: true,
-  },
-  {
-    id: "4",
-    product: "Gold Watch",
-    image: antique4,
-    position: "3",
-    totalBidders: 4,
-    isWinning: false,
-  },
+ 
 ];
 
 const BuyerProfile = () => {
   const { user, loading: authLoading, dbUser } = useAuth();
-  const [activeTab, setActiveTab] = useState("overview");
   const { isDarkMode } = useContext(ThemeContext);
+  const [activeTab, setActiveTab] = useState("overview");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [coverOptions, setCoverOptions] = useState([]);
   const [currentCover, setCurrentCover] = useState(coverPhoto);
@@ -177,9 +143,6 @@ const BuyerProfile = () => {
       axios
         .get("http://localhost:5000/auctions")
         .then((res) => {
-          console.log("Auction status response:", res.data);
-
-          // Handle non-array response
           const auctions = Array.isArray(res.data)
             ? res.data
             : Array.isArray(res.data?.auctions)
@@ -285,7 +248,9 @@ const BuyerProfile = () => {
     return (
       <span
         className={`px-2 py-1 rounded-full text-xs font-semibold ${
-          status ? "bg-green-200 text-green-800" : "bg-red-200 text-red-800"
+          status
+            ? "bg-green-200 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+            : "bg-red-200 text-red-800 dark:bg-red-900/30 dark:text-red-300"
         }`}
       >
         {status ? "Won" : "Lost"}
@@ -293,19 +258,39 @@ const BuyerProfile = () => {
     );
   };
 
-  const boxStyle = `border rounded-xl shadow-lg ${
+  const boxStyle = `rounded-2xl shadow-lg ${
     isDarkMode
-      ? "bg-gray-800 border-gray-700 hover:bg-gray-700"
+      ? "bg-gray-800/80 border-gray-700 hover:bg-gray-700"
       : "bg-white border-gray-200 hover:bg-gray-50"
   } transition-all duration-300`;
 
-  const titleStyle = `text-2xl font-bold ${
-    isDarkMode ? "text-white" : "text-gray-900"
-  }`;
-
-  const labelStyle = `text-sm ${
-    isDarkMode ? "text-gray-300" : "text-gray-600"
-  }`;
+  const chartData = biddingHistory.length
+    ? biddingHistory
+        .reduce((acc, bid) => {
+          const date = new Date(
+            bid.createdAt || Date.now()
+          ).toLocaleDateString();
+          const existing = acc.find((item) => item.date === date);
+          if (existing) {
+            existing.count += 1;
+            existing.amount += typeof bid.amount === "number" ? bid.amount : 0;
+          } else {
+            acc.push({
+              date,
+              count: 1,
+              amount: typeof bid.amount === "number" ? bid.amount : 0,
+            });
+          }
+          return acc;
+        }, [])
+        .slice(-5)
+    : [
+        { date: "2025-04-23", count: 2, amount: 100 },
+        { date: "2025-04-24", count: 3, amount: 150 },
+        { date: "2025-04-25", count: 1, amount: 200 },
+        { date: "2025-04-26", count: 4, amount: 180 },
+        { date: "2025-04-27", count: 2, amount: 250 },
+      ];
 
   // Filter and sort bidding history
   const filteredBiddingHistory = biddingHistory.filter((bid) => {
@@ -334,80 +319,45 @@ const BuyerProfile = () => {
     return true;
   });
 
-  // Prepare chart data for bidding activity
-  const chartData = biddingHistory.length
-    ? biddingHistory
-        .reduce((acc, bid) => {
-          const date = new Date(
-            bid.createdAt || Date.now()
-          ).toLocaleDateString();
-          const existing = acc.find((item) => item.date === date);
-          if (existing) {
-            existing.count += 1; // Count bids
-            existing.amount += typeof bid.amount === "number" ? bid.amount : 0; // Sum bid amounts (optional)
-          } else {
-            acc.push({
-              date,
-              count: 1,
-              amount: typeof bid.amount === "number" ? bid.amount : 0,
-            });
-          }
-          return acc;
-        }, [])
-        .slice(-5) // Show last 5 days for brevity
-    : [
-        { date: "2025-04-23", count: 2, amount: 100 },
-        { date: "2025-04-24", count: 3, amount: 150 },
-        { date: "2025-04-25", count: 1, amount: 200 },
-        { date: "2025-04-26", count: 4, amount: 180 },
-        { date: "2025-04-27", count: 2, amount: 250 },
-      ];
-
   if (authLoading) return <LoadingSpinner />;
 
   return (
     <div
       className={`min-h-screen ${
-        isDarkMode
-          ? "bg-gradient-to-b from-gray-900 to-gray-800 text-white"
-          : "bg-gradient-to-b from-purple-50 to-indigo-50 text-gray-800"
-      } transition-all duration-300 p-4 md:p-8`}
+        isDarkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-800"
+      } p-4 md:p-8 font-sans`}
     >
       {/* Profile Banner */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="relative h-[350px] bg-cover bg-center rounded-2xl overflow-hidden shadow-xl"
+        transition={{ duration: 0.7 }}
+        className="relative h-64 md:h-80 bg-cover bg-center rounded-2xl overflow-hidden shadow-xl"
         style={{
-          backgroundImage: `url(${currentCover})`,
+          backgroundImage: `linear-gradient(rgba(101, 33, 168, 0.7), rgba(11, 15, 14, 0.7)), url(${currentCover})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
       >
-        <div className="absolute inset-0 bg-black opacity-40"></div>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="absolute right-4 top-4 bg-white text-gray-800 hover:bg-gray-100 px-4 py-2 rounded-full border border-gray-200 text-sm font-semibold flex items-center shadow-md"
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className="mr-2"
-          >
-            <path
-              d="M15.2322 5.23223L18.7677 8.76777M16.7322 3.73223C17.7085 2.75592 19.2914 2.75592 20.2677 3.73223C21.244 4.70854 21.244 6.29146 20.2677 7.26777L6.5 21.0355H3V17.4644L16.7322 3.73223Z"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="text-center p-6 flex flex-col items-center gap-4">
+            <motion.img
+              src={user?.photoURL || "https://i.imgur.com/8Km9tLL.png"}
+              alt={user?.displayName || "Buyer"}
+              className="w-20 h-20 rounded-full object-cover border-4 border-white shadow-lg"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
             />
-          </svg>
-          Edit Cover
-        </button>
+            <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">
+              Welcome Back, {user?.displayName?.split(" ")[0] || "Buyer"}!
+            </h1>
+            <p className="text-purple-100 max-w-2xl mx-auto text-sm md:text-base">
+              Track your bids and manage your purchases with ease.
+            </p>
+          </div>
+        </div>
+      
       </motion.div>
 
       {/* Cover Image Modal */}
@@ -415,36 +365,48 @@ const BuyerProfile = () => {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="fixed inset-0 z-50 bg-black bg-opacity-75 flex justify-center items-center"
+          className="fixed inset-0 z-50 bg-black/70 flex justify-center items-center p-4"
         >
-          <div
+          <motion.div
+            initial={{ scale: 0.95 }}
+            animate={{ scale: 1 }}
             className={`${
               isDarkMode ? "bg-gray-800" : "bg-white"
-            } p-8 rounded-2xl w-full max-w-5xl shadow-2xl`}
+            } p-6 rounded-2xl w-full max-w-4xl shadow-2xl`}
           >
-            <h2
-              className={`text-2xl font-bold text-center mb-6 ${
-                isDarkMode ? "text-white" : "text-gray-900"
-              }`}
-            >
-              Choose Your Cover Image
-            </h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="flex justify-between items-center mb-6">
+              <h2
+                className={`text-2xl font-semibold tracking-tight ${
+                  isDarkMode ? "text-white" : "text-gray-900"
+                }`}
+              >
+                Choose Your Cover Image
+              </h2>
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                onClick={() => setIsModalOpen(false)}
+                className="text-gray-500 hover:text-gray-700 text-2xl"
+              >
+                ×
+              </motion.button>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-6">
               {coverOptions.map((cover) => (
                 <motion.div
                   key={cover.id}
                   whileHover={{ scale: 1.05 }}
-                  className={`cursor-pointer border-4 rounded-lg transition-all ${
+                  className={`cursor-pointer rounded-lg overflow-hidden transition-all ${
                     selectedCover === cover.image
-                      ? "border-purple-500"
-                      : "border-transparent"
+                      ? "ring-4 ring-purple-500"
+                      : "ring-1 ring-gray-300 dark:ring-gray-600"
                   }`}
                   onClick={() => setSelectedCover(cover.image)}
                 >
                   <img
                     src={cover.image}
                     alt={`Cover ${cover.id}`}
-                    className="w-full h-40 object-cover rounded-lg"
+                    className="w-full h-40 object-cover"
+                    loading="lazy"
                     onError={(e) => {
                       e.target.src = coverPhoto;
                     }}
@@ -452,31 +414,50 @@ const BuyerProfile = () => {
                 </motion.div>
               ))}
             </div>
-            <div className="flex justify-end mt-8 space-x-4">
-              <button
+            <div className="flex justify-end gap-3">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
                 onClick={() => setIsModalOpen(false)}
-                className={`px-6 py-2 rounded-full ${
-                  isDarkMode
-                    ? "bg-gray-700 text-white hover:bg-gray-600"
-                    : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-                } font-semibold`}
-                disabled={isSaving}
+                className="px-5 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-medium"
               >
                 Cancel
-              </button>
-              <button
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
                 onClick={saveCoverImage}
-                className={`px-6 py-2 rounded-full ${
-                  isSaving
-                    ? "bg-purple-400 cursor-not-allowed"
-                    : "bg-purple-600 hover:bg-purple-700"
-                } text-white font-semibold`}
-                disabled={isSaving || !selectedCover}
+                disabled={!selectedCover || isSaving}
+                className="px-5 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-medium disabled:opacity-50 flex items-center gap-2"
               >
-                {isSaving ? "Saving..." : "Save Cover"}
-              </button>
+                {isSaving ? (
+                  <>
+                    <svg
+                      className="animate-spin h-4 w-4 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Saving...
+                  </>
+                ) : (
+                  "Save Changes"
+                )}
+              </motion.button>
             </div>
-          </div>
+          </motion.div>
         </motion.div>
       )}
 
@@ -485,39 +466,16 @@ const BuyerProfile = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
-        className="px-6 -mt-20 mb-8"
+        className="px-6 -mt-20 mb-8 max-w-7xl mx-auto"
       >
         <div
           className={`flex flex-col md:flex-row items-center gap-6 ${
             isDarkMode ? "text-white" : "text-gray-900"
           }`}
         >
-          <div className="relative flex-shrink-0">
-            <motion.div
-              whileHover={{ scale: 1.1 }}
-              className={`w-32 h-32 rounded-full border-4 ${
-                isDarkMode
-                  ? "border-gray-700 bg-gray-800"
-                  : "border-white bg-gray-200"
-              } overflow-hidden shadow-lg`}
-            >
-              <img
-                src={
-                  user?.photoURL ||
-                  "https://img.freepik.com/premium-vector/flat-businessman-character_33040-132.jpg?ga=GA1.1.960511258.1740671009&semt=ais_hybrid&w=740"
-                }
-                alt="Profile picture"
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.target.src =
-                    "https://img.freepik.com/premium-vector/flat-businessman-character_33040-132.jpg?ga=GA1.1.960511258.1740671009&semt=ais_hybrid&w=740";
-                }}
-              />
-            </motion.div>
-          </div>
           <div className="lg:text-left text-center w-full">
             <h1
-              className={`text-3xl font-bold ${
+              className={`text-3xl font-bold tracking-tight ${
                 isDarkMode ? "text-white" : "text-gray-900"
               }`}
             >
@@ -526,7 +484,7 @@ const BuyerProfile = () => {
             <p
               className={`text-gray-400 ${
                 isDarkMode ? "text-gray-300" : "text-gray-600"
-              } mt-2`}
+              } mt-2 text-sm md:text-base`}
             >
               Email: {user?.email || "No email"}
               {dbUser?.location ? (
@@ -541,28 +499,17 @@ const BuyerProfile = () => {
               )}
             </p>
             <div className="mt-6 space-y-4">
-              <div className="flex items-center gap-4 flex-wrap">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  className={`px-4 py-2 text-sm border rounded-full font-semibold ${
-                    isDarkMode
-                      ? "border-gray-600 bg-gray-700 text-white hover:bg-gray-600"
-                      : "border-gray-300 bg-white text-gray-800 hover:bg-gray-100"
-                  } shadow-md`}
-                >
-                  Edit Profile
-                </motion.button>
+              <div className="flex items-center gap-4 flex-wrap justify-center lg:justify-start">
+             
                 {dbUser?.role && (
                   <span
-                    className={`text-xs font-semibold px-4 py-1 rounded-full capitalize ${
-                      dbUser.role === "buyer" ? "bg-green-600 text-white" : ""
-                    }`}
+                    className={`text-xs font-semibold px-4 py-1 rounded-full capitalize bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300`}
                   >
                     {dbUser.role}
                   </span>
                 )}
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 justify-center lg:justify-start">
                 <FaStar className="text-yellow-400" />
                 <span className="text-sm">4.5 Buyer Rating</span>
               </div>
@@ -571,94 +518,136 @@ const BuyerProfile = () => {
         </div>
       </motion.div>
 
-      {/* Bidding Stats */}
+      {/* Bidding Stats Cards */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.3 }}
-        className={`${boxStyle} mb-8`}
+        className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 my-8 max-w-7xl mx-auto"
       >
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-          <h2 className={titleStyle}>Bidding Dashboard</h2>
-        </div>
-        <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            className={`p-6 rounded-xl shadow-md ${
-              isDarkMode
-                ? "bg-gradient-to-r from-blue-900 to-blue-700"
-                : "bg-gradient-to-r from-blue-100 to-blue-200"
-            } flex items-center gap-4`}
-          >
-            <FaGavel className="text-3xl text-blue-500" />
+        <motion.div
+          whileHover={{ y: -5, rotate: 1 }}
+          className={`relative rounded-2xl shadow-lg overflow-hidden ${
+            isDarkMode ? "bg-gray-800" : "bg-white"
+          } flex flex-col h-48 justify-between border-l-4 border-purple-500 bg-gradient-to-br ${
+            isDarkMode ? "from-gray-800 to-gray-700" : "from-purple-50 to-white"
+          }`}
+        >
+          <div className="p-6 flex items-start justify-between">
             <div>
-              <h3 className="text-lg font-semibold">Total Bids</h3>
-              <p className="text-2xl font-bold">
+              <p className="text-sm font-medium text-purple-600 dark:text-purple-400 tracking-wide">
+                Total Bids
+              </p>
+              <h3 className="text-3xl font-bold mt-2">
                 <CountUp end={profileData.totalBids} duration={2} />
+              </h3>
+              <p className="text-xs mt-1 text-gray-500 dark:text-gray-400">
+                Your bidding activity
               </p>
             </div>
-          </motion.div>
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            className={`p-6 rounded-xl shadow-md ${
-              isDarkMode
-                ? "bg-gradient-to-r from-green-900 to-green-700"
-                : "bg-gradient-to-r from-green-100 to-green-200"
-            } flex items-center gap-4`}
-          >
-            <FaStar className="text-3xl text-green-500" />
+            <motion.div
+              className="p-3 rounded-full bg-purple-50 dark:bg-purple-900/50"
+              whileHover={{ rotate: 360 }}
+              transition={{ duration: 0.5 }}
+            >
+              <FaGavel className="text-2xl text-purple-500" />
+            </motion.div>
+          </div>
+          <div className="h-1 bg-purple-500"></div>
+          <div className="absolute top-0 right-0 w-16 h-16 bg-purple-500/10 rounded-bl-full"></div>
+        </motion.div>
+        <motion.div
+          whileHover={{ y: -5, rotate: -1 }}
+          className={`relative rounded-2xl shadow-lg overflow-hidden ${
+            isDarkMode ? "bg-gray-800" : "bg-white"
+          } flex flex-col h-48 justify-between border-t-4 border-green-500 bg-gradient-to-br ${
+            isDarkMode ? "from-gray-800 to-gray-700" : "from-green-50 to-white"
+          }`}
+        >
+          <div className="p-6 flex items-start justify-between">
             <div>
-              <h3 className="text-lg font-semibold">Auctions Won</h3>
-              <p className="text-2xl font-bold">
+              <p className="text-sm font-medium text-green-600 dark:text-green-400 tracking-wide">
+                Auctions Won
+              </p>
+              <h3 className="text-3xl font-bold mt-2">
                 <CountUp end={profileData.auctionsWon} duration={2} />
+              </h3>
+              <p className="text-xs mt-1 text-gray-500 dark:text-gray-400">
+                Successful wins
               </p>
             </div>
-          </motion.div>
-          <motion.div
-            whileHover={{ scale: 1.05 }}
-            className={`p-6 rounded-xl shadow-md ${
-              isDarkMode
-                ? "bg-gradient-to-r from-purple-900 to-purple-700"
-                : "bg-gradient-to-r from-purple-100 to-purple-200"
-            } flex items-center gap-4`}
-          >
-            <FaWallet className="text-3xl text-purple-500" />
+            <motion.div
+              className="p-3 rounded-full bg-green-50 dark:bg-green-900/50"
+              whileHover={{ rotate: 360 }}
+              transition={{ duration: 0.5 }}
+            >
+              <FaStar className="text-2xl text-green-500" />
+            </motion.div>
+          </div>
+          <div className="h-1 bg-green-500"></div>
+          <div className="absolute bottom-0 left-0 w-16 h-16 bg-green-500/10 rounded-tr-full"></div>
+        </motion.div>
+        <motion.div
+          whileHover={{ y: -5, rotate: 1 }}
+          className={`relative rounded-2xl shadow-lg overflow-hidden ${
+            isDarkMode ? "bg-gray-800" : "bg-white"
+          } flex flex-col h-48 justify-between border-r-4 border-blue-500 bg-gradient-to-br ${
+            isDarkMode ? "from-gray-800 to-gray-700" : "from-blue-50 to-white"
+          }`}
+        >
+          <div className="p-6 flex items-start justify-between">
             <div>
-              <h3 className="text-lg font-semibold">Account Balance</h3>
+              <p className="text-sm font-medium text-blue-600 dark:text-blue-400 tracking-wide">
+                Account Balance
+              </p>
               {balanceLoading ? (
-                <p className="text-gray-500 text-sm">Loading balance...</p>
+                <p className="text-gray-500 text-sm">Loading...</p>
               ) : balanceError ? (
-                <p className="text-red-500 text-sm">{balanceError}</p>
+                <p className="text-red-400 text-sm">Error loading balance</p>
               ) : (
-                <p className="text-2xl font-bold">
-                  $<CountUp end={accountBalance} decimals={2} duration={2} />
+                <p className="text-3xl font-bold text-white">
+                  {formatNumber(dbUser?.accountBalance)}{" "}
+                  <span className="text-lg">Taka</span>
                 </p>
               )}
+              <p className="text-xs mt-1 text-gray-500 dark:text-gray-400">
+                Available for bidding
+              </p>
             </div>
-          </motion.div>
-        </div>
+            <motion.div
+              className="p-3 rounded-full bg-blue-50 dark:bg-blue-900/50"
+              whileHover={{ rotate: 360 }}
+              transition={{ duration: 0.5 }}
+            >
+              <FaWallet className="text-2xl text-blue-500" />
+            </motion.div>
+          </div>
+          <div className="h-1 bg-blue-500"></div>
+          <div className="absolute top-0 left-0 w-16 h-16 bg-blue-500/10 rounded-br-full"></div>
+        </motion.div>
       </motion.div>
 
-      {/* Buyer Tools */}
+      {/* Buyer Tools Section */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.4 }}
-        className={`${boxStyle} mb-8`}
+        className={`${boxStyle} mb-8 max-w-7xl mx-auto`}
       >
         <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-          <h2 className={titleStyle}>Your Activity</h2>
+          <h2 className="text-xl font-semibold flex items-center gap-2 tracking-tight">
+            <FaGavel className="text-purple-500" />
+            Your Activity
+          </h2>
           <div className="flex flex-wrap gap-2 mt-4">
             {["overview", "bidding", "payments", "status"].map((tab) => (
               <motion.button
                 key={tab}
                 whileHover={{ scale: 1.05 }}
                 onClick={() => setActiveTab(tab)}
-                className={`px-4 py-2 rounded-full text-sm font-semibold ${
+                className={`px-4 py-2 rounded-lg text-sm font-semibold ${
                   activeTab === tab
-                    ? isDarkMode
-                      ? "bg-purple-600 text-white"
-                      : "bg-purple-600 text-white"
+                    ? "bg-purple-600 text-white"
                     : isDarkMode
                     ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
                     : "bg-gray-200 text-gray-700 hover:bg-gray-300"
@@ -758,7 +747,7 @@ const BuyerProfile = () => {
                       />
                       <Bar
                         dataKey="count"
-                        name="Bids"
+                        name="Bids Placed"
                         fill="url(#colorBar)"
                         radius={[4, 4, 0, 0]}
                         animationDuration={2000}
@@ -768,27 +757,26 @@ const BuyerProfile = () => {
                             key={`cell-${index}`}
                             fill={
                               index % 3 === 0
-                                ? "#F59E0B" // Yellow
+                                ? "#F59E0B"
                                 : index % 3 === 1
-                                ? "#10B981" // Green
-                                : "#EF4444" // Red
+                                ? "#10B981"
+                                : "#EF4444"
                             }
                           />
                         ))}
                       </Bar>
                     </BarChart>
                   </ResponsiveContainer>
-
-                  {/* Additional stats summary */}
-                  <div className="mt-4 grid grid-cols-3 gap-4">
+                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {chartData.slice(0, 3).map((entry, index) => (
-                      <div
+                      <motion.div
                         key={entry.date}
+                        whileHover={{ scale: 1.02 }}
                         className={`p-3 rounded-lg text-center ${
                           isDarkMode ? "bg-gray-700" : "bg-gray-50"
-                        }`}
+                        } shadow-sm`}
                       >
-                        <p className="text-sm font-medium">{entry.date}</p>
+                        <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{entry.date}</p>
                         <p className="text-2xl font-bold mt-1">{entry.count}</p>
                         <div
                           className={`h-1 mt-2 ${
@@ -799,7 +787,7 @@ const BuyerProfile = () => {
                               : "bg-red-500"
                           }`}
                         ></div>
-                      </div>
+                      </motion.div>
                     ))}
                   </div>
                 </div>
@@ -819,7 +807,7 @@ const BuyerProfile = () => {
                     <select
                       value={biddingFilter}
                       onChange={(e) => setBiddingFilter(e.target.value)}
-                      className={`p-2 rounded-full ${
+                      className={`p-2 rounded-lg ${
                         isDarkMode
                           ? "bg-gray-700 text-white border-gray-600"
                           : "bg-white text-gray-800 border-gray-200"
@@ -836,7 +824,7 @@ const BuyerProfile = () => {
                     <select
                       value={biddingSort}
                       onChange={(e) => setBiddingSort(e.target.value)}
-                      className={`p-2 rounded-full ${
+                      className={`p-2 rounded-lg ${
                         isDarkMode
                           ? "bg-gray-700 text-white border-gray-600"
                           : "bg-white text-gray-800 border-gray-200"
@@ -850,50 +838,50 @@ const BuyerProfile = () => {
                   </div>
                 </div>
                 {sortedBiddingHistory.length === 0 ? (
-                  <p className="text-center text-gray-500">No bids found.</p>
+                  <div className="text-center py-8">
+                    <FaGavel className="mx-auto text-4xl text-purple-300 mb-4" />
+                    <h3 className="text-lg font-medium text-gray-500 dark:text-gray-400">
+                      No bids found
+                    </h3>
+                    <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
+                      Start bidding to see your history here!
+                    </p>
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      onClick={() => navigate("/auctions")}
+                      className="mt-4 bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg text-sm"
+                    >
+                      Start Bidding
+                    </motion.button>
+                  </div>
                 ) : (
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
-                        <tr
-                          className={`${
-                            isDarkMode ? "text-gray-300" : "text-gray-600"
-                          } border-b ${
-                            isDarkMode ? "border-gray-700" : "border-gray-200"
-                          }`}
-                        >
-                          <th className="text-left py-3 px-4">Auction</th>
-                          <th className="text-left py-3 px-4">Your Bid</th>
-                          <th className="text-left py-3 px-4">Status</th>
-                          <th className="text-left py-3 px-4">Date</th>
+                        <tr className="text-left text-gray-600 dark:text-gray-300">
+                          <th className="pb-3 font-medium">Auction</th>
+                          <th className="pb-3 font-medium">Your Bid</th>
+                          <th className="pb-3 font-medium">Status</th>
+                          <th className="pb-3 font-medium">Date</th>
                         </tr>
                       </thead>
-                      <tbody>
+                      <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                         {sortedBiddingHistory.map((bid) => (
                           <motion.tr
                             key={bid._id}
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ duration: 0.3 }}
-                            className={`border-t ${
-                              isDarkMode ? "border-gray-700" : "border-gray-200"
-                            } hover:${
-                              isDarkMode ? "bg-gray-700" : "bg-gray-50"
-                            } transition-colors`}
+                            whileHover={{
+                              backgroundColor: isDarkMode
+                                ? "rgba(139, 92, 246, 0.1)"
+                                : "rgba(221, 214, 254, 0.3)",
+                            }}
+                            className="text-gray-700 dark:text-gray-300"
                           >
-                            <td className="py-3 px-4">
-                              {bid.auctionName || "N/A"}
+                            <td className="py-3">{bid.auctionName || "N/A"}</td>
+                            <td className="py-3 text-green-500">
+                              ${typeof bid.amount === "number" ? bid.amount.toFixed(2) : "0.00"}
                             </td>
-                            <td className="py-3 px-4">
-                              $
-                              {typeof bid.amount === "number"
-                                ? bid.amount.toFixed(2)
-                                : "0.00"}
-                            </td>
-                            <td className="py-3 px-4">
-                              {renderStatusBadge(bid.status)}
-                            </td>
-                            <td className="py-3 px-4">
+                            <td className="py-3">{renderStatusBadge(bid.status)}</td>
+                            <td className="py-3">
                               {bid.createdAt
                                 ? new Date(bid.createdAt).toLocaleDateString()
                                 : "N/A"}
@@ -915,74 +903,68 @@ const BuyerProfile = () => {
                 transition={{ duration: 0.3 }}
               >
                 {paymentsLoading ? (
-                  <p className="text-center text-gray-500">
-                    Loading payments...
-                  </p>
+                  <p className="text-center text-gray-500">Loading payments...</p>
                 ) : paymentsError ? (
                   <p className="text-center text-red-500">{paymentsError}</p>
                 ) : payments.length === 0 ? (
-                  <p className="text-center text-gray-500">
-                    No payments found.
-                  </p>
+                  <div className="text-center py-8">
+                    <FaShoppingBag className="mx-auto text-4xl text-purple-300 mb-4" />
+                    <h3 className="text-lg font-medium text-gray-500 dark:text-gray-400">
+                      No payments found
+                    </h3>
+                    <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
+                      Start bidding to win items and make payments!
+                    </p>
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      onClick={() => navigate("/auctions")}
+                      className="mt-4 bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg text-sm"
+                    >
+                      Start Bidding
+                    </motion.button>
+                  </div>
                 ) : (
                   <>
                     <SharedPayment />
                     <div className="overflow-x-auto mt-6">
                       <table className="w-full text-sm">
                         <thead>
-                          <tr
-                            className={`${
-                              isDarkMode ? "text-gray-300" : "text-gray-600"
-                            } border-b ${
-                              isDarkMode ? "border-gray-700" : "border-gray-200"
-                            }`}
-                          >
-                            <th className="text-left py-3 px-4">Auction</th>
-                            <th className="text-left py-3 px-4">Amount</th>
-                            <th className="text-left py-3 px-4">Status</th>
-                            <th className="text-left py-3 px-4">Date</th>
+                          <tr className="text-left text-gray-600 dark:text-gray-300">
+                            <th className="pb-3 font-medium">Auction</th>
+                            <th className="pb-3 font-medium">Amount</th>
+                            <th className="pb-3 font-medium">Status</th>
+                            <th className="pb-3 font-medium">Date</th>
                           </tr>
                         </thead>
-                        <tbody>
+                        <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                           {payments.map((payment) => (
                             <motion.tr
                               key={payment._id}
-                              initial={{ opacity: 0 }}
-                              animate={{ opacity: 1 }}
-                              transition={{ duration: 0.3 }}
-                              className={`border-t ${
-                                isDarkMode
-                                  ? "border-gray-700"
-                                  : "border-gray-200"
-                              } hover:${
-                                isDarkMode ? "bg-gray-700" : "bg-gray-50"
-                              } transition-colors`}
+                              whileHover={{
+                                backgroundColor: isDarkMode
+                                  ? "rgba(139, 92, 246, 0.1)"
+                                  : "rgba(221, 214, 254, 0.3)",
+                              }}
+                              className="text-gray-700 dark:text-gray-300"
                             >
-                              <td className="py-3 px-4">
-                                {payment.auctionName || "N/A"}
+                              <td className="py-3">{payment.auctionName || "N/A"}</td>
+                              <td className="py-3 text-green-500">
+                                ${typeof payment.amount === "number" ? payment.amount.toFixed(2) : "0.00"}
                               </td>
-                              <td className="py-3 px-4">
-                                $
-                                {typeof payment.amount === "number"
-                                  ? payment.amount.toFixed(2)
-                                  : "0.00"}
-                              </td>
-                              <td className="py-3 px-4">
+                              <td className="py-3">
                                 <span
-                                  className={`text-xs px-2 py-0.5 rounded-md ${
+                                  className={`px-2 py-1 rounded-full text-xs font-medium ${
                                     payment.status === "completed"
-                                      ? "bg-green-500 text-white"
-                                      : "bg-yellow-500 text-white"
+                                      ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+                                      : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
                                   }`}
                                 >
                                   {payment.status || "Pending"}
                                 </span>
                               </td>
-                              <td className="py-3 px-4">
+                              <td className="py-3">
                                 {payment.createdAt
-                                  ? new Date(
-                                      payment.createdAt
-                                    ).toLocaleDateString()
+                                  ? new Date(payment.createdAt).toLocaleDateString()
                                   : "N/A"}
                               </td>
                             </motion.tr>
@@ -1002,9 +984,7 @@ const BuyerProfile = () => {
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
               >
-                <h3 className="text-xl font-semibold mb-4">
-                  Recent Auction Status
-                </h3>
+                <h3 className="text-xl font-semibold mb-4">Recent Auction Status</h3>
                 <div className="flex justify-start gap-3 mb-6">
                   {["All", "Won", "Lost"].map((status) => (
                     <motion.button
@@ -1015,8 +995,8 @@ const BuyerProfile = () => {
                         statusFilter === status
                           ? "bg-purple-600 text-white"
                           : isDarkMode
-                          ? "bg-gray-600 text-white hover:bg-gray-500"
-                          : "bg-gray-300 text-gray-700 hover:bg-gray-400"
+                          ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
+                          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                       }`}
                     >
                       {status}
@@ -1024,19 +1004,15 @@ const BuyerProfile = () => {
                   ))}
                 </div>
                 {auctionStatusLoading ? (
-                  <p className="text-center text-gray-500">
-                    Loading auction status...
-                  </p>
+                  <p className="text-center text-gray-500">Loading auction status...</p>
                 ) : auctionStatusError ? (
-                  <p className="text-center text-red-500">
-                    {auctionStatusError}
-                  </p>
+                  <p className="text-center text-red-500">{auctionStatusError}</p>
                 ) : filteredAuctionStatus.length === 0 ? (
                   <>
                     <p className="text-center text-gray-500 mb-4">
                       No auction status found.
                     </p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                       {demoAuctionData
                         .filter((bid) => {
                           if (statusFilter === "All") return true;
@@ -1051,25 +1027,20 @@ const BuyerProfile = () => {
                             whileHover={{ scale: 1.02 }}
                             className={`p-4 rounded-lg shadow-md ${
                               isDarkMode ? "bg-gray-700" : "bg-gray-100"
-                            } flex items-center gap-4`}
+                            } flex flex-col gap-2`}
                           >
                             <img
                               src={status.image}
                               alt={status.product}
-                              className="w-16 h-16 object-cover rounded"
+                              className="w-full h-32 object-cover rounded"
                               onError={(e) => (e.target.src = coverPhoto)}
                             />
                             <div>
-                              <h4 className="font-semibold">
-                                {status.product}
-                              </h4>
+                              <h4 className="font-semibold">{status.product}</h4>
                               <p className="text-sm">
-                                Position: #{status.position} /{" "}
-                                {status.totalBidders}
+                                Position: #{status.position} / {status.totalBidders}
                               </p>
-                              <p className="text-sm">
-                                {renderStatusBadge(status.isWinning)}
-                              </p>
+                              <p className="text-sm">{renderStatusBadge(status.isWinning)}</p>
                             </div>
                           </motion.div>
                         ))}
@@ -1077,30 +1048,27 @@ const BuyerProfile = () => {
                   </>
                 ) : (
                   <>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                       {filteredAuctionStatus.map((status) => (
                         <motion.div
                           key={status.id}
                           whileHover={{ scale: 1.02 }}
                           className={`p-4 rounded-lg shadow-md ${
                             isDarkMode ? "bg-gray-700" : "bg-gray-100"
-                          } flex items-center gap-4`}
+                          } flex flex-col gap-2`}
                         >
                           <img
                             src={status.image}
                             alt={status.product}
-                            className="w-16 h-16 object-cover rounded"
+                            className="w-full h-32 object-cover rounded"
                             onError={(e) => (e.target.src = coverPhoto)}
                           />
                           <div>
                             <h4 className="font-semibold">{status.product}</h4>
                             <p className="text-sm">
-                              Position: #{status.position} /{" "}
-                              {status.totalBidders}
+                              Position: #{status.position} / {status.totalBidders}
                             </p>
-                            <p className="text-sm">
-                              {renderStatusBadge(status.isWinning)}
-                            </p>
+                            <p className="text-sm">{renderStatusBadge(status.isWinning)}</p>
                           </div>
                         </motion.div>
                       ))}
@@ -1109,9 +1077,9 @@ const BuyerProfile = () => {
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         onClick={() => navigate("/dashboard/auction-status")}
-                        className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-2 rounded-full font-semibold flex items-center justify-center mx-auto"
+                        className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-6 py-2 rounded-lg font-semibold flex items-center justify-center mx-auto gap-2"
                       >
-                        View All Status <FaArrowRight className="ml-2" />
+                        View All Status <FaArrowRight />
                       </motion.button>
                     </div>
                   </>
@@ -1122,96 +1090,113 @@ const BuyerProfile = () => {
         </div>
       </motion.div>
 
-      {/* Bidding Tips */}
+      {/* Bidding Tips Section */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.5 }}
-        className={`${boxStyle} mb-8`}
+        className={`${boxStyle} mb-8 max-w-7xl mx-auto`}
       >
         <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-          <h2 className={titleStyle}>Bidding Tips</h2>
+          <h2 className="text-xl font-semibold flex items-center gap-2 tracking-tight">
+            <FaStar className="text-purple-500" />
+            Bidding Tips
+          </h2>
         </div>
         <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
           {biddingTips.map((tip) => (
             <motion.div
               key={tip.id}
-              whileHover={{ scale: 1.05 }}
-              className={`p-6 rounded-xl shadow-md ${
+              whileHover={{ y: -5 }}
+              className={`p-6 rounded-xl shadow-lg flex flex-col items-center text-center bg-gradient-to-br ${
                 isDarkMode
-                  ? "bg-gradient-to-r from-gray-700 to-gray-600"
-                  : "bg-gradient-to-r from-gray-100 to-gray-200"
-              } flex flex-col items-center text-center`}
+                  ? "from-gray-700 to-gray-600"
+                  : "from-purple-50 to-indigo-50"
+              } border-t-4 ${
+                tip.id === 1
+                  ? "border-purple-500"
+                  : tip.id === 2
+                  ? "border-green-500"
+                  : "border-blue-500"
+              }`}
             >
-              <div className="text-3xl text-purple-500 mb-4">{tip.icon}</div>
+              <div className={`text-3xl mb-4 ${
+                tip.id === 1
+                  ? "text-purple-500"
+                  : tip.id === 2
+                  ? "text-green-500"
+                  : "text-blue-500"
+              }`}>{tip.icon}</div>
               <h3 className="text-lg font-semibold">{tip.title}</h3>
-              <p className="text-sm text-gray-500 mt-2">{tip.description}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">{tip.description}</p>
             </motion.div>
           ))}
         </div>
         <div className="p-6 text-center">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            onClick={() => navigate("/bidding-strategies")}
-            className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white px-6 py-2 rounded-full font-semibold shadow-md"
-          >
-            Learn More Strategies
-          </motion.button>
+         
         </div>
       </motion.div>
 
       {/* Footer Sections */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.7 }}
-          className="space-y-6"
+          className={`${boxStyle}`}
         >
-          <div className={`${boxStyle}`}>
-            <div className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Account Balance</h3>
-              {balanceLoading ? (
-                <p className="text-gray-500">Loading balance...</p>
-              ) : balanceError ? (
-                <p className="text-red-500">{balanceError}</p>
-              ) : (
-                <>
-                  <p className="text-3xl font-bold">
-                    $<CountUp end={accountBalance} decimals={2} duration={2} />
-                  </p>
-                  <p className={labelStyle}>Available for bidding</p>
-                </>
-              )}
-            </div>
+          <div className="p-6">
+            <h3 className="text-lg font-semibold mb-4 tracking-tight flex items-center gap-2">
+              <FaWallet className="text-purple-500" />
+              Account Balance
+            </h3>
+            {balanceLoading ? (
+              <p className="text-gray-500">Loading...</p>
+            ) : balanceError ? (
+              <p className="text-red-400">Error loading balance</p>
+            ) : (
+              <>
+                 <p className="text-3xl font-bold text-white">
+                  {formatNumber(dbUser?.accountBalance)}{" "}
+                  <span className="text-lg">Taka</span>
+                </p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  Available for bidding
+                </p>
+              </>
+            )}
           </div>
         </motion.div>
-
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.8 }}
-          className="space-y-6"
+          className={`${boxStyle}`}
         >
-          <div className={`${boxStyle}`}>
-            <div className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
-              <p className={labelStyle}>No recent activity available.</p>
-            </div>
+          <div className="p-6">
+            <h3 className="text-lg font-semibold mb-4 tracking-tight flex items-center gap-2">
+              <FaMoneyCheckAlt className="text-purple-500" />
+              Recent Activity
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              No recent activity available.
+            </p>
           </div>
         </motion.div>
-
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.9 }}
-          className="space-y-6"
+          className={`${boxStyle}`}
         >
-          <div className={`${boxStyle}`}>
-            <div className="p-6">
-              <h3 className="text-lg font-semibold mb-4">Watching Now</h3>
-              <p className={labelStyle}>No items currently watched.</p>
-            </div>
+          <div className="p-6">
+            <h3 className="text-lg font-semibold mb-4 tracking-tight flex items-center gap-2">
+              <FaShoppingBag className="text-purple-500" />
+              Watching Now
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              No items currently watched.
+            </p>
           </div>
         </motion.div>
       </div>

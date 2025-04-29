@@ -26,7 +26,7 @@ import {
 import { RiUserStarFill } from "react-icons/ri";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+const COLORS = ["#10B981", "#3B82F6", "#F59E0B", "#EF4444"];
 
 const AdminProfile = () => {
   const { user, loading: authLoading } = useAuth();
@@ -49,7 +49,6 @@ const AdminProfile = () => {
   const [quickActions, setQuickActions] = useState([]);
   const navigate = useNavigate();
 
-  // Chart data from the image
   const [colorChartData] = useState([
     { name: "Green", value: 8 },
     { name: "Blue", value: 45 },
@@ -57,7 +56,6 @@ const AdminProfile = () => {
     { name: "Red", value: 16 },
   ]);
 
-  // Fetch data
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -67,12 +65,8 @@ const AdminProfile = () => {
           axios.get("http://localhost:5000/sellerRequest"),
         ]);
 
-        const totalSellers = usersRes.data.filter(
-          (u) => u.role === "seller"
-        ).length;
-        const totalBuyers = usersRes.data.filter(
-          (u) => u.role === "buyer"
-        ).length;
+        const totalSellers = usersRes.data.filter((u) => u.role === "seller").length;
+        const totalBuyers = usersRes.data.filter((u) => u.role === "buyer").length;
 
         setAdminData({
           totalUsers: usersRes.data.length,
@@ -88,44 +82,40 @@ const AdminProfile = () => {
           .slice(0, 5);
         setAuctions(activeAuctions);
         setSellerRequests(
-          requestsRes.data
-            .filter((r) => r.becomeSellerStatus === "pending")
-            .slice(0, 5)
+          requestsRes.data.filter((r) => r.becomeSellerStatus === "pending").slice(0, 5)
         );
 
-        // Set quick actions
         setQuickActions([
           {
             id: 1,
-            icon: <FaUsers className="text-2xl text-purple-500 mb-2" />,
+            icon: <FaUsers className="text-2xl text-emerald-500 mb-2" />,
             label: "Manage Users",
-            path: "/dashboard/users",
-            bgColor: "bg-gradient-to-br from-purple-100 to-blue-50",
+            path: "/dashboard/userManagement",
+            bgColor: "bg-gradient-to-br from-emerald-50 to-teal-50",
           },
           {
             id: 2,
-            icon: <FaGavel className="text-2xl text-purple-500 mb-2" />,
+            icon: <FaGavel className="text-2xl text-emerald-500 mb-2" />,
             label: "Manage Auctions",
-            path: "/dashboard/auctions",
-            bgColor: "bg-gradient-to-br from-blue-100 to-cyan-50",
+            path: "/dashboard/manageAuctions",
+            bgColor: "bg-gradient-to-br from-teal-50 to-cyan-50",
           },
           {
             id: 3,
-            icon: <RiUserStarFill className="text-2xl text-purple-500 mb-2" />,
+            icon: <RiUserStarFill className="text-2xl text-emerald-500 mb-2" />,
             label: "Seller Requests",
-            path: "/dashboard/seller-requests",
-            bgColor: "bg-gradient-to-br from-cyan-100 to-teal-50",
+            path: "/dashboard/sellerRequest",
+            bgColor: "bg-gradient-to-br from-cyan-50 to-sky-50",
           },
           {
             id: 4,
-            icon: <FaShieldAlt className="text-2xl text-purple-500 mb-2" />,
+            icon: <FaShieldAlt className="text-2xl text-emerald-500 mb-2" />,
             label: "Security",
-            path: "/dashboard/security",
-            bgColor: "bg-gradient-to-br from-teal-100 to-emerald-50",
+            path: "/dashboard/settings",
+            bgColor: "bg-gradient-to-br from-sky-50 to-blue-50",
           },
         ]);
 
-        // Mock cover options
         setCoverOptions([
           { id: 1, image: coverPhoto },
           { id: 2, image: "https://i.ibb.co/KSCtW5n/download-2.jpg" },
@@ -136,7 +126,6 @@ const AdminProfile = () => {
         setCurrentCover(coverPhoto);
       } catch (error) {
         console.error("Error fetching data:", error);
-        // Fallback data
         setAdminData({
           totalUsers: 1243,
           totalSellers: 342,
@@ -164,9 +153,9 @@ const AdminProfile = () => {
     }
   };
 
-  const boxStyle = `rounded-xl shadow-lg ${
+  const boxStyle = `rounded-2xl shadow-lg ${
     isDarkMode
-      ? "bg-gray-800 border-gray-700 hover:bg-gray-700"
+      ? "bg-gray-800/80 border-gray-700 hover:bg-gray-700"
       : "bg-white border-gray-200 hover:bg-gray-50"
   } transition-all duration-300`;
 
@@ -175,17 +164,17 @@ const AdminProfile = () => {
   return (
     <div
       className={`min-h-screen ${
-        isDarkMode ? "bg-gray-900 text-white" : "bg-purple-50 text-gray-800"
-      } transition-all duration-300 p-4 md:p-8`}
+        isDarkMode ? "bg-gray-900 text-white" : "bg-gray-50 text-gray-800"
+      } p-4 md:p-8 font-sans`}
     >
-      {/* Profile Banner with Purple Overlay */}
+      {/* Profile Banner */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="relative h-[300px] md:h-[350px] bg-cover bg-center rounded-2xl overflow-hidden shadow-xl"
+        transition={{ duration: 0.7 }}
+        className="relative h-64 md:h-80 bg-cover bg-center rounded-2xl overflow-hidden shadow-xl"
         style={{
-          backgroundImage: `linear-gradient(rgba(109, 40, 217, 0.7), rgba(76, 29, 149, 0.7)), url(${currentCover})`,
+          backgroundImage: `linear-gradient(rgba(76, 35, 126, 0.7), rgba(7, 10, 25, 0.7)), url(${currentCover})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
@@ -200,22 +189,22 @@ const AdminProfile = () => {
               animate={{ scale: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
             />
-            <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
+            <h1 className="text-3xl md:text-4xl font-bold text-white tracking-tight">
               Welcome Back, {user?.displayName?.split(" ")[0] || "Admin"}!
             </h1>
-            <p className="text-purple-100 max-w-2xl mx-auto">
-              Here's what's happening with your marketplace today.
+            <p className="text-emerald-100 max-w-2xl mx-auto text-sm md:text-base">
+              Manage your marketplace with ease and efficiency.
             </p>
           </div>
         </div>
-
-        <button
+        <motion.button
+          whileHover={{ scale: 1.05 }}
           onClick={() => setIsModalOpen(true)}
-          className="absolute right-4 top-4 bg-white/90 text-purple-800 hover:bg-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2"
+          className="absolute right-4 top-4 bg-white/90 text-emerald-800 hover:bg-white px-4 py-2 rounded-lg shadow-lg flex items-center gap-2"
         >
-          <FaEdit className="text-purple-600" />
-          <span className="font-medium">Edit Cover</span>
-        </button>
+          <FaEdit className="text-emerald-600" />
+          <span className="font-medium text-sm">Edit Cover</span>
+        </motion.button>
       </motion.div>
 
       {/* Cover Image Modal */}
@@ -234,29 +223,29 @@ const AdminProfile = () => {
           >
             <div className="flex justify-between items-center mb-6">
               <h2
-                className={`text-2xl font-bold ${
+                className={`text-2xl font-semibold tracking-tight ${
                   isDarkMode ? "text-white" : "text-gray-900"
                 }`}
               >
                 Choose Your Cover Image
               </h2>
-              <button
+              <motion.button
+                whileHover={{ scale: 1.1 }}
                 onClick={() => setIsModalOpen(false)}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-gray-500 hover:text-gray-700 text-2xl"
               >
                 ×
-              </button>
+              </motion.button>
             </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-6">
               {coverOptions.map((cover) => (
                 <motion.div
                   key={cover.id}
-                  whileHover={{ scale: 1.03 }}
+                  whileHover={{ scale: 1.05 }}
                   className={`cursor-pointer rounded-lg overflow-hidden transition-all ${
                     selectedCover === cover.image
-                      ? "ring-4 ring-purple-500"
-                      : "ring-1 ring-gray-300"
+                      ? "ring-4 ring-emerald-500"
+                      : "ring-1 ring-gray-300 dark:ring-gray-600"
                   }`}
                   onClick={() => setSelectedCover(cover.image)}
                 >
@@ -272,18 +261,19 @@ const AdminProfile = () => {
                 </motion.div>
               ))}
             </div>
-
             <div className="flex justify-end gap-3">
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
                 onClick={() => setIsModalOpen(false)}
-                className="px-5 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium"
+                className="px-5 py-2 rounded-lg bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 font-medium"
               >
                 Cancel
-              </button>
-              <button
+              </motion.button>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
                 onClick={saveCoverImage}
                 disabled={!selectedCover || isSaving}
-                className="px-5 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-medium disabled:opacity-50 flex items-center gap-2"
+                className="px-5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-medium disabled:opacity-50 flex items-center gap-2"
               >
                 {isSaving ? (
                   <>
@@ -312,7 +302,7 @@ const AdminProfile = () => {
                 ) : (
                   "Save Changes"
                 )}
-              </button>
+              </motion.button>
             </div>
           </motion.div>
         </motion.div>
@@ -327,186 +317,143 @@ const AdminProfile = () => {
       >
         {/* Total Users */}
         <motion.div
-          whileHover={{ y: -5 }}
-          className={`rounded-xl shadow-md overflow-hidden ${
+          whileHover={{ y: -5, rotate: 1 }}
+          className={`relative rounded-2xl shadow-lg overflow-hidden ${
             isDarkMode ? "bg-gray-800" : "bg-white"
-          } flex flex-col h-40 justify-between`}
+          } flex flex-col h-48 justify-between border-l-4 border-emerald-500`}
         >
           <div className="p-6 flex items-start justify-between">
             <div>
-              <p
-                className={`text-sm font-medium ${
-                  isDarkMode ? "text-purple-300" : "text-purple-600"
-                }`}
-              >
+              <p className="text-sm font-medium text-emerald-600 dark:text-emerald-400 tracking-wide">
                 Total Users
               </p>
               <h3 className="text-3xl font-bold mt-2">
                 <CountUp end={adminData.totalUsers} duration={2} />
               </h3>
-              <p
-                className={`text-xs mt-1 ${
-                  isDarkMode ? "text-gray-400" : "text-gray-500"
-                }`}
-              >
+              <p className="text-xs mt-1 text-gray-500 dark:text-gray-400">
                 +12% from last month
               </p>
             </div>
-            <div
-              className={`p-3 rounded-lg ${
-                isDarkMode ? "bg-purple-900/50" : "bg-purple-100"
-              }`}
+            <motion.div
+              className="p-3 rounded-full bg-emerald-50 dark:bg-emerald-900/50"
+              whileHover={{ rotate: 360 }}
+              transition={{ duration: 0.5 }}
             >
-              <FaUsers className="text-2xl text-purple-500" />
-            </div>
+              <FaUsers className="text-2xl text-emerald-500" />
+            </motion.div>
           </div>
-          <div
-            className={`h-1 bg-gradient-to-r from-purple-500 to-blue-500 ${
-              isDarkMode ? "opacity-70" : "opacity-90"
-            }`}
-          ></div>
+          <div className="h-1 bg-emerald-500"></div>
+          <div className="absolute top-0 right-0 w-16 h-16 bg-emerald-500/10 rounded-bl-full"></div>
         </motion.div>
 
         {/* Total Revenue */}
         <motion.div
-          whileHover={{ y: -5 }}
-          className={`rounded-xl shadow-md overflow-hidden ${
+          whileHover={{ y: -5, rotate: -1 }}
+          className={`relative rounded-2xl shadow-lg overflow-hidden ${
             isDarkMode ? "bg-gray-800" : "bg-white"
-          } flex flex-col h-40 justify-between`}
+          } flex flex-col h-48 justify-between border-t-4 border-blue-500`}
         >
           <div className="p-6 flex items-start justify-between">
             <div>
-              <p
-                className={`text-sm font-medium ${
-                  isDarkMode ? "text-purple-300" : "text-purple-600"
-                }`}
-              >
+              <p className="text-sm font-medium text-blue-600 dark:text-blue-400 tracking-wide">
                 Total Revenue
               </p>
               <h3 className="text-3xl font-bold mt-2">
-                $<CountUp
-                  end={adminData.totalRevenue}
-                  duration={2}
-                  separator=","
-                />
+                $<CountUp end={adminData.totalRevenue} duration={2} separator="," />
               </h3>
-              <p
-                className={`text-xs mt-1 ${
-                  isDarkMode ? "text-gray-400" : "text-gray-500"
-                }`}
-              >
+              <p className="text-xs mt-1 text-gray-500 dark:text-gray-400">
                 +24% from last month
               </p>
             </div>
-            <div
-              className={`p-3 rounded-lg ${
-                isDarkMode ? "bg-purple-900/50" : "bg-purple-100"
-              }`}
+            <motion.div
+              className="p-3 rounded-full bg-blue-50 dark:bg-blue-900/50"
+              whileHover={{ rotate: 360 }}
+              transition={{ duration: 0.5 }}
             >
-              <FaDollarSign className="text-2xl text-purple-500" />
-            </div>
+              <FaDollarSign className="text-2xl text-blue-500" />
+            </motion.div>
           </div>
-          <div
-            className={`h-1 bg-gradient-to-r from-green-500 to-teal-500 ${
-              isDarkMode ? "opacity-70" : "opacity-90"
-            }`}
-          ></div>
+          <div className="h-1 bg-blue-500"></div>
+          <div className="absolute bottom-0 left-0 w-16 h-16 bg-blue-500/10 rounded-tr-full"></div>
         </motion.div>
 
         {/* Active Auctions */}
         <motion.div
-          whileHover={{ y: -5 }}
-          className={`rounded-xl shadow-md overflow-hidden ${
+          whileHover={{ y: -5, rotate: 1 }}
+          className={`relative rounded-2xl shadow-lg overflow-hidden ${
             isDarkMode ? "bg-gray-800" : "bg-white"
-          } flex flex-col h-40 justify-between`}
+          } flex flex-col h-48 justify-between border-r-4 border-amber-500`}
         >
           <div className="p-6 flex items-start justify-between">
             <div>
-              <p
-                className={`text-sm font-medium ${
-                  isDarkMode ? "text-purple-300" : "text-purple-600"
-                }`}
-              >
+              <p className="text-sm font-medium text-amber-600 dark:text-amber-400 tracking-wide">
                 Active Auctions
               </p>
               <h3 className="text-3xl font-bold mt-2">
                 <CountUp end={adminData.totalAuctions} duration={2} />
               </h3>
-              <p
-                className={`text-xs mt-1 ${
-                  isDarkMode ? "text-gray-400" : "text-gray-500"
-                }`}
-              >
+              <p className="text-xs mt-1 text-gray-500 dark:text-gray-400">
                 15 ending today
               </p>
             </div>
-            <div
-              className={`p-3 rounded-lg ${
-                isDarkMode ? "bg-purple-900/50" : "bg-purple-100"
-              }`}
+            <motion.div
+              className="p-3 rounded-full bg-amber-50 dark:bg-amber-900/50"
+              whileHover={{ rotate: 360 }}
+              transition={{ duration: 0.5 }}
             >
-              <FaGavel className="text-2xl text-purple-500" />
-            </div>
+              <FaGavel className="text-2xl text-amber-500" />
+            </motion.div>
           </div>
-          <div
-            className={`h-1 bg-gradient-to-r from-yellow-500 to-orange-500 ${
-              isDarkMode ? "opacity-70" : "opacity-90"
-            }`}
-          ></div>
+          <div className="h-1 bg-amber-500"></div>
+          <div className="absolute top-0 left-0 w-16 h-16 bg-amber-500/10 rounded-br-full"></div>
         </motion.div>
 
         {/* Pending Requests */}
         <motion.div
-          whileHover={{ y: -5 }}
-          className={`rounded-xl shadow-md overflow-hidden ${
+          whileHover={{ y: -5, rotate: -1 }}
+          className={`relative rounded-2xl shadow-lg overflow-hidden ${
             isDarkMode ? "bg-gray-800" : "bg-white"
-          } flex flex-col h-40 justify-between`}
+          } flex flex-col h-48 justify-between border-b-4 border-red-500`}
         >
           <div className="p-6 flex items-start justify-between">
             <div>
-              <p
-                className={`text-sm font-medium ${
-                  isDarkMode ? "text-purple-300" : "text-purple-600"
-                }`}
-              >
+              <p className="text-sm font-medium text-red-600 dark:text-red-400 tracking-wide">
                 Pending Requests
               </p>
               <h3 className="text-3xl font-bold mt-2">
                 <CountUp end={sellerRequests.length} duration={2} />
               </h3>
-              <p
-                className={`text-xs mt-1 ${
-                  isDarkMode ? "text-gray-400" : "text-gray-500"
-                }`}
-              >
+              <p className="text-xs mt-1 text-gray-500 dark:text-gray-400">
                 Requires your attention
               </p>
             </div>
-            <div
-              className={`p-3 rounded-lg ${
-                isDarkMode ? "bg-purple-900/50" : "bg-purple-100"
-              }`}
+            <motion.div
+              className="p-3 rounded-full bg-red-50 dark:bg-red-900/50"
+              whileHover={{ rotate: 360 }}
+              transition={{ duration: 0.5 }}
             >
-              <RiUserStarFill className="text-2xl text-purple-500" />
-            </div>
+              <RiUserStarFill className="text-2xl text-red-500" />
+            </motion.div>
           </div>
-          <div
-            className={`h-1 bg-gradient-to-r from-red-500 to-pink-500 ${
-              isDarkMode ? "opacity-70" : "opacity-90"
-            }`}
-          ></div>
+          <div className="h-1 bg-red-500"></div>
+          <div className="absolute bottom-0 right-0 w-16 h-16 bg-red-500/10 rounded-tl-full"></div>
         </motion.div>
       </motion.div>
-  {/* Favorite Colors Chart */}
-  <motion.div
+
+      {/* Main Dashboard Content */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+        {/* Left Column - Quick Actions and Chart */}
+        <div className="space-y-6 lg:col-span-1">
+          {/* Favorite Colors Chart */}
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.6 }}
             className={`${boxStyle}`}
           >
             <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-xl font-bold flex items-center gap-2">
-                <FaChartPie className="text-purple-500" />
+              <h2 className="text-xl font-semibold flex items-center gap-2 tracking-tight">
+                <FaChartPie className="text-emerald-500" />
                 Favorite Colors Survey
               </h2>
             </div>
@@ -536,34 +483,35 @@ const AdminProfile = () => {
                       contentStyle={{
                         backgroundColor: isDarkMode ? "#1F2937" : "#FFFFFF",
                         border: `1px solid ${isDarkMode ? "#374151" : "#E5E7EB"}`,
+                        borderRadius: "0.5rem",
+                        boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
                       }}
+                      itemStyle={{ color: isDarkMode ? "#E5E7EB" : "#111827", fontSize: 12 }}
+                      labelStyle={{ fontWeight: "bold", color: isDarkMode ? "#E5E7EB" : "#111827" }}
                     />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
               <div className="mt-4 grid grid-cols-2 gap-2">
                 {colorChartData.map((entry, index) => (
-                  <div
+                  <motion.div
                     key={`legend-${index}`}
                     className="flex items-center text-sm"
+                    whileHover={{ x: 5 }}
                   >
                     <div
-                      className="w-3 h-3 rounded-full mr-2"
+                      className="w-4 h-4 rounded-full mr-2"
                       style={{ backgroundColor: COLORS[index % COLORS.length] }}
                     />
-                    <span className="font-medium">{entry.name}</span>
-                    <span className="ml-auto font-bold">
+                    <span className="font-medium text-gray-700 dark:text-gray-300">{entry.name}</span>
+                    <span className="ml-auto font-semibold text-gray-800 dark:text-gray-200">
                       {entry.value}%
                     </span>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </div>
           </motion.div>
-      {/* Main Dashboard Content */}
-      <div className="mx-auto">
-        {/* Left Column - Quick Actions and Chart */}
-        <div className="space-y-6 mt-10 lg:col-span-1">
           {/* Quick Actions */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -572,8 +520,8 @@ const AdminProfile = () => {
             className={`${boxStyle}`}
           >
             <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-xl font-bold flex items-center gap-2">
-                <FaCog className="text-purple-500" />
+              <h2 className="text-xl font-semibold flex items-center gap-2 tracking-tight">
+                <FaCog className="text-emerald-500" />
                 Quick Actions
               </h2>
             </div>
@@ -581,13 +529,15 @@ const AdminProfile = () => {
               {quickActions.map((action) => (
                 <motion.button
                   key={action.id}
-                  whileHover={{ scale: 1.05 }}
+                  whileHover={{ scale: 1.05, boxShadow: "0 8px 15px rgba(0, 0, 0, 0.1)" }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => navigate(action.path)}
-                  className={`p-4 rounded-lg flex flex-col items-center justify-center ${action.bgColor} transition-colors`}
+                  className={`p-4 rounded-lg flex flex-col items-center justify-center ${action.bgColor} transition-all shadow-md hover:shadow-lg`}
                 >
                   {action.icon}
-                  <span className="text-sm font-medium">{action.label}</span>
+                  <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
+                    {action.label}
+                  </span>
                 </motion.button>
               ))}
             </div>
@@ -597,7 +547,7 @@ const AdminProfile = () => {
         </div>
 
         {/* Right Column - Main Content */}
-        <div className="space-y-6 mt-10 lg:col-span-2">
+        <div className="space-y-6 lg:col-span-2">
           {/* Pending Seller Requests */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -606,30 +556,31 @@ const AdminProfile = () => {
             className={`${boxStyle}`}
           >
             <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-              <h2 className="text-xl font-bold flex items-center gap-2">
-                <RiUserStarFill className="text-purple-500" />
+              <h2 className="text-xl font-semibold flex items-center gap-2 tracking-tight">
+                <RiUserStarFill className="text-emerald-500" />
                 Pending Seller Requests
                 {sellerRequests.length > 0 && (
-                  <span className="ml-2 px-2 py-1 bg-purple-100 text-purple-800 text-xs font-bold rounded-full">
+                  <span className="ml-2 px-2 py-1 bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-full">
                     {sellerRequests.length} New
                   </span>
                 )}
               </h2>
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
                 onClick={() => navigate("/dashboard/sellerRequest")}
-                className="text-sm text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300"
+                className="text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300"
               >
                 View All
-              </button>
+              </motion.button>
             </div>
             <div className="p-6">
               {sellerRequests.length === 0 ? (
                 <div className="text-center py-8">
-                  <RiUserStarFill className="mx-auto text-4xl text-purple-300 mb-4" />
-                  <h3 className="text-lg font-medium text-gray-500">
+                  <RiUserStarFill className="mx-auto text-4xl text-emerald-300 mb-4" />
+                  <h3 className="text-lg font-medium text-gray-500 dark:text-gray-400">
                     No pending seller requests
                   </h3>
-                  <p className="text-sm text-gray-400 mt-1">
+                  <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
                     All requests have been processed
                   </p>
                 </div>
@@ -638,35 +589,25 @@ const AdminProfile = () => {
                   {sellerRequests.map((request) => (
                     <motion.div
                       key={request._id}
-                      whileHover={{ scale: 1.01 }}
+                      whileHover={{ scale: 1.01, backgroundColor: isDarkMode ? "#2D3748" : "#F1F5F9" }}
                       className={`p-4 rounded-lg flex items-center justify-between ${
-                        isDarkMode ? "bg-gray-700" : "bg-purple-50"
-                      }`}
+                        isDarkMode ? "bg-gray-700" : "bg-emerald-50"
+                      } shadow-sm`}
                     >
                       <div className="flex items-center gap-3">
-                        <div
-                          className={`p-3 rounded-full ${
-                            isDarkMode ? "bg-gray-600" : "bg-purple-100"
-                          }`}
-                        >
-                          <RiUserStarFill className="text-purple-500" />
+                        <div className="p-3 rounded-full bg-emerald-100 dark:bg-emerald-900/50">
+                          <RiUserStarFill className="text-emerald-500" />
                         </div>
                         <div>
-                          <h4 className="font-medium">{request.name}</h4>
-                          <p
-                            className={`text-xs ${
-                              isDarkMode ? "text-gray-400" : "text-gray-500"
-                            }`}
-                          >
-                            {request.email}
-                          </p>
+                          <h4 className="font-medium text-gray-800 dark:text-gray-200">{request.name}</h4>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{request.email}</p>
                         </div>
                       </div>
                       <div className="flex gap-2">
                         <motion.button
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.9 }}
-                          className="p-2 rounded-full bg-green-100 text-green-600 hover:bg-green-200"
+                          className="p-2 rounded-full bg-green-100 text-green-600 hover:bg-green-200 dark:bg-green-900/50 dark:text-green-400"
                           title="Approve"
                         >
                           <FaCheckCircle />
@@ -674,7 +615,7 @@ const AdminProfile = () => {
                         <motion.button
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.9 }}
-                          className="p-2 rounded-full bg-red-100 text-red-600 hover:bg-red-200"
+                          className="p-2 rounded-full bg-red-100 text-red-600 hover:bg-red-200 dark:bg-red-900/50 dark:text-red-400"
                           title="Reject"
                         >
                           <FaTimesCircle />
@@ -695,26 +636,23 @@ const AdminProfile = () => {
             className={`${boxStyle}`}
           >
             <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-              <h2 className="text-xl font-bold flex items-center gap-2">
-                <FaUsers className="text-purple-500" />
+              <h2 className="text-xl font-semibold flex items-center gap-2 tracking-tight">
+                <FaUsers className="text-emerald-500" />
                 Recent Users
               </h2>
-              <button
+              <motion.button
+                whileHover={{ scale: 1.05 }}
                 onClick={() => navigate("/dashboard/userManagement")}
-                className="text-sm text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300"
+                className="text-sm text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300"
               >
                 View All
-              </button>
+              </motion.button>
             </div>
             <div className="p-6">
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr
-                      className={`text-left ${
-                        isDarkMode ? "text-gray-300" : "text-gray-600"
-                      }`}
-                    >
+                    <tr className="text-left text-gray-600 dark:text-gray-300">
                       <th className="pb-3 font-medium">User</th>
                       <th className="pb-3 font-medium">Role</th>
                       <th className="pb-3 font-medium">Status</th>
@@ -725,13 +663,9 @@ const AdminProfile = () => {
                       <motion.tr
                         key={user._id}
                         whileHover={{
-                          backgroundColor: isDarkMode
-                            ? "rgba(76, 29, 149, 0.1)"
-                            : "rgba(216, 180, 254, 0.2)",
+                          backgroundColor: isDarkMode ? "rgba(16, 185, 129, 0.1)" : "rgba(209, 250, 229, 0.3)",
                         }}
-                        className={`${
-                          isDarkMode ? "text-gray-300" : "text-gray-700"
-                        }`}
+                        className="text-gray-700 dark:text-gray-300"
                       >
                         <td className="py-3">
                           <div className="flex items-center gap-3">
@@ -773,11 +707,11 @@ const AdminProfile = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.6 }}
-        className={`${boxStyle} mb-8 max-w-7xl mx-auto`}
+        className={`${boxStyle} mb-8 max-w-7xl mx-auto mt-6`}
       >
         <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-          <h2 className="text-xl font-bold flex items-center gap-2">
-            <FaShieldAlt className="text-purple-500" />
+          <h2 className="text-xl font-semibold flex items-center gap-2 tracking-tight">
+            <FaShieldAlt className="text-emerald-500" />
             System Status
           </h2>
           <span className="px-3 py-1 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 text-sm font-medium rounded-full">
@@ -785,65 +719,48 @@ const AdminProfile = () => {
           </span>
         </div>
         <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="flex items-center gap-4">
-            <div
-              className={`p-3 rounded-full ${
-                isDarkMode ? "bg-purple-900/50" : "bg-purple-100"
-              }`}
-            >
-              <FaChartLine className="text-purple-500 text-xl" />
+          <motion.div
+            whileHover={{ scale: 1.02 }}
+            className="flex items-center gap-4"
+          >
+            <div className="p-3 rounded-full bg-emerald-100 dark:bg-emerald-900/50">
+              <FaChartLine className="text-emerald-500 text-xl" />
             </div>
             <div>
-              <h4 className="font-medium">Performance</h4>
-              <p
-                className={`text-sm ${
-                  isDarkMode ? "text-gray-400" : "text-gray-500"
-                }`}
-              >
+              <h4 className="font-medium text-gray-800 dark:text-gray-200">Performance</h4>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 Excellent (99.9% uptime)
               </p>
             </div>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <div
-              className={`p-3 rounded-full ${
-                isDarkMode ? "bg-purple-900/50" : "bg-purple-100"
-              }`}
-            >
-              <FaTicketAlt className="text-purple-500 text-xl" />
+          </motion.div>
+          <motion.div
+            whileHover={{ scale: 1.02 }}
+            className="flex items-center gap-4"
+          >
+            <div className="p-3 rounded-full bg-emerald-100 dark:bg-emerald-900/50">
+              <FaTicketAlt className="text-emerald-500 text-xl" />
             </div>
             <div>
-              <h4 className="font-medium">Support Tickets</h4>
-              <p
-                className={`text-sm ${
-                  isDarkMode ? "text-gray-400" : "text-gray-500"
-                }`}
-              >
+              <h4 className="font-medium text-gray-800 dark:text-gray-200">Support Tickets</h4>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 5 open tickets
               </p>
             </div>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <div
-              className={`p-3 rounded-full ${
-                isDarkMode ? "bg-purple-900/50" : "bg-purple-100"
-              }`}
-            >
-              <FaHourglassHalf className="text-purple-500 text-xl" />
+          </motion.div>
+          <motion.div
+            whileHover={{ scale: 1.02 }}
+            className="flex items-center gap-4"
+          >
+            <div className="p-3 rounded-full bg-emerald-100 dark:bg-emerald-900/50">
+              <FaHourglassHalf className="text-emerald-500 text-xl" />
             </div>
             <div>
-              <h4 className="font-medium">Pending Tasks</h4>
-              <p
-                className={`text-sm ${
-                  isDarkMode ? "text-gray-400" : "text-gray-500"
-                }`}
-              >
+              <h4 className="font-medium text-gray-800 dark:text-gray-200">Pending Tasks</h4>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 {sellerRequests.length} requests to review
               </p>
             </div>
-          </div>
+          </motion.div>
         </div>
       </motion.div>
     </div>
