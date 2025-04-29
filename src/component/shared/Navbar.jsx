@@ -283,34 +283,66 @@ const Navbar = () => {
       ? "flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-indigo-800/40 text-indigo-100"
       : "flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-indigo-100 text-indigo-800";
 
-  const navRoutes = [
-    // { path: "/", label: "Home", icon: <FiHome className="w-5 h-5" /> },
-    ...(user?.email
-      ? [
-          {
-            path: "/auction",
-            label: "Auction",
-            icon: <FaGavel className="w-5 h-5" />,
-          },
-        ]
-      : []),
-      {
-        path: "/aboutUs",
-        label: "About Us",
-        icon: <FiInfo className="w-5 h-5" />,
-      },
-      {
-        path: "/blogs",
-        label: "Blog",
-        icon:<FaBloggerB className="w-5 h-5" />,
-      },
-    {
-      path: "/contactUs",
-      label: "Contact Us",
-      icon:<IoMdContact className="w-5 h-5" />,
-    },
-  ];
-
+      const navRoutes = [
+        ...(user?.email
+          ? [
+              {
+                path: "/auction",
+                label: "Auction",
+                icon: (
+                  <FaGavel
+                    className={`w-5 h-5 ${
+                      isDarkMode
+                        ? "text-purple-400 hover:text-purple-300"
+                        : "text-indigo-500 hover:text-indigo-500"
+                    }`}
+                  />
+                ),
+              },
+            ]
+          : []),
+        {
+          path: "/aboutUs",
+          label: "About Us",
+          icon: (
+            <FiInfo
+              className={`w-5 h-5 ${
+                isDarkMode
+                  ? "text-purple-400 hover:text-purple-300"
+                  : "text-indigo-500 hover:text-indigo-500"
+              }`}
+            />
+          ),
+        },
+        {
+          path: "/blogs",
+          label: "Blog",
+          icon: (
+            <FaBloggerB
+              className={`w-5 h-5 ${
+                isDarkMode
+                  ? "text-purple-400 hover:text-purple-300"
+                  : "text-indigo-500 hover:text-indigo-500"
+              }`}
+            />
+          ),
+        },
+        {
+          path: "/contactUs",
+          label: "Contact Us",
+          icon: (
+            <IoMdContact
+              className={`w-5 h-5 ${
+                isDarkMode
+                  ? "text-purple-400 hover:text-purple-300"
+                  : "text-indigo-500 hover:text-indigo-500"
+              }`}
+            />
+          ),
+        },
+      ];
+      
+      
   return (
     <div>
       <nav
@@ -382,7 +414,7 @@ const Navbar = () => {
           <div className="hidden lg:flex items-center space-x-3">
             {user?.email ? (
               <>
-                <button
+                {/* <button
                   className={`flex items-center gap-2 py-1 px-2 rounded-lg transition-all duration-300 relative overflow-hidden ${
                     isDarkMode
                       ? "border-2 text-white hover:border-b-purple-600/90 hover:bg-purple-100/20"
@@ -403,7 +435,7 @@ const Navbar = () => {
                   </span>
                   <FaPlus className="text-green-400 text-xs animate-pulse" />
                   <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/0 to-indigo-400/0 hover:from-indigo-600/20 hover:to-indigo-400/20 transition-all duration-300 opacity-0 hover:opacity-100"></div>
-                </button>
+                </button> */}
 
                 {/* Notifications Button and Dropdown (Desktop) */}
                 <div className="relative" ref={notificationsRef}>
