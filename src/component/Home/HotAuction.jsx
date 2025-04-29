@@ -387,13 +387,13 @@ const HotAuction = () => {
                       >
                         Bid Now
                       </Link>
-                      <button className="p-2 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                      {/* <button className="p-2 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
                         <FaEye
                           className={
                             isDarkMode ? "text-gray-300" : "text-gray-600"
                           }
                         />
-                      </button>
+                      </button> */}
                     </div>
                   </div>
                 </motion.div>
