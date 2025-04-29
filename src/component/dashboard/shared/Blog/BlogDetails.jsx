@@ -262,3 +262,5 @@ const BlogDetails = () => {
 };
 
 export default BlogDetails;
+
+// note blog 
