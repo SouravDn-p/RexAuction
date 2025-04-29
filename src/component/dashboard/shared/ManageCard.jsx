@@ -16,6 +16,7 @@ import LoadingSpinner from "../../LoadingSpinner";
 // Add jsPDF import at the top of the file
 import { jsPDF } from "jspdf";
 import { FileDown } from "lucide-react";
+import Header from "./Header/Header";
 
 const MySwal = withReactContent(Swal);
 
@@ -376,6 +377,10 @@ export default function ManageCard() {
     <div
       className={`p-4 sm:p-6 ${themeStyles.background} ${themeStyles.text} min-h-screen`}
     >
+      <Header
+        header="Auction Management"
+        title="Manage your auctions effortlessly"
+      />
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
         <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-0">
           Manage Your Auctions
