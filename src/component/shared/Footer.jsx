@@ -30,11 +30,10 @@ const Footer = () => {
   return (
     <footer
       // className="bg-no-repeat bg-cover bg-center py-12 relative" bg-no-repeat bg-cover bg-center
-      className={` relative opacity-90 py-10  ${
-        isDarkMode
+      className={` relative opacity-90 py-10  ${isDarkMode
           ? "bg-gray-900 bg-opacity-100 backdrop-blur-md"
           : "bg-gradient-to-r from-purple-600 to-purple-400 bg-opacity-90 backdrop-blur-md"
-      }`}
+        }`}
     >
       {/* particles */}
       <Particles
@@ -76,9 +75,9 @@ const Footer = () => {
             data-aos="fade-up"
             data-aos-delay="100"
           >
-            <div className="flex gap-3 items-center ">
+            <div className="flex  items-center ">
               <img
-                className="text-xl border-2 border-violet-500 ring-2 ring-violet-500/60 rounded-full text-white w-[60px] lg:w-[70px] animate-pulse"
+                className="text-xl pt-3 text-white w-[60px] lg:w-[70px] animate-pulse"
                 src="https://i.ibb.co.com/TDRpg4tS/Screenshot-2025-03-20-174700-removebg-preview.png"
                 alt="rexauction"
               />

@@ -283,77 +283,45 @@ const Navbar = () => {
       ? "flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-indigo-800/40 text-indigo-100"
       : "flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-indigo-100 text-indigo-800";
 
-      const navRoutes = [
-        ...(user?.email
-          ? [
-              {
-                path: "/auction",
-                label: "Auction",
-                icon: (
-                  <FaGavel
-                    className={`w-5 h-5 ${
-                      isDarkMode
-                        ? "text-purple-400 hover:text-purple-300"
-                        : "text-indigo-500 hover:text-indigo-500"
-                    }`}
-                  />
-                ),
-              },
-            ]
-          : []),
-        {
-          path: "/aboutUs",
-          label: "About Us",
-          icon: (
-            <FiInfo
-              className={`w-5 h-5 ${
-                isDarkMode
-                  ? "text-purple-400 hover:text-purple-300"
-                  : "text-indigo-500 hover:text-indigo-500"
-              }`}
-            />
-          ),
-        },
-        {
-          path: "/blogs",
-          label: "Blog",
-          icon: (
-            <FaBloggerB
-              className={`w-5 h-5 ${
-                isDarkMode
-                  ? "text-purple-400 hover:text-purple-300"
-                  : "text-indigo-500 hover:text-indigo-500"
-              }`}
-            />
-          ),
-        },
-        {
-          path: "/contactUs",
-          label: "Contact Us",
-          icon: (
-            <IoMdContact
-              className={`w-5 h-5 ${
-                isDarkMode
-                  ? "text-purple-400 hover:text-purple-300"
-                  : "text-indigo-500 hover:text-indigo-500"
-              }`}
-            />
-          ),
-        },
-      ];
-      
-      
+  const navRoutes = [
+    // { path: "/", label: "Home", icon: <FiHome className="w-5 h-5" /> },
+    ...(user?.email
+      ? [
+          {
+            path: "/auction",
+            label: "Auction",
+            icon: <FaGavel className="w-5 h-5" />,
+          },
+        ]
+      : []),
+      {
+        path: "/aboutUs",
+        label: "About Us",
+        icon: <FiInfo className="w-5 h-5" />,
+      },
+      {
+        path: "/blogs",
+        label: "Blog",
+        icon:<FaBloggerB className="w-5 h-5" />,
+      },
+    {
+      path: "/contactUs",
+      label: "Contact Us",
+      icon:<IoMdContact className="w-5 h-5" />,
+    },
+  ];
+
   return (
     <div>
       <nav
-        className={`fixed top-0 w-full z-50 shadow-lg transition-all duration-300 ${
+        className={`fixed  top-0 w-full z-50 shadow-lg transition-all duration-300 ${
           isScrolled
             ? isDarkMode
               ? "backdrop-blur-md bg-gray-900/30 shadow-lg"
-              : "backdrop-blur-md bg-purple-900/30 shadow-lg"
+              : "backdrop-blur-md bg-purple-800/80 shadow-lg "
             : isDarkMode
-            ? "bg-transparent"
-            : "bg-transparent"
+            ? "bg-gray-900/90"
+            : "bg-purple-800/70 "
         }`}
       >
         <div className="container mx-auto flex justify-between items-center px-4">

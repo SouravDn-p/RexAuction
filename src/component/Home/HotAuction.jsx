@@ -283,8 +283,6 @@ const HotAuction = () => {
                       : "bg-white border border-gray-200"
                   } shadow-lg hover:shadow-xl`}
                 >
-                
-
                   <div className="relative h-56 w-full overflow-hidden">
                     <img
                       src={item.images?.[0] || image}
@@ -294,7 +292,7 @@ const HotAuction = () => {
                         e.target.src = image;
                       }}
                     />
-                    <div className="absolute bottom-3 left-3 bg-gradient-to-r from-purple-500 to-purple-500 text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center">
+                    <div className="absolute bottom-3 left-3 px-3 py-1 rounded-full text-xs font-semibold flex items-center text-white backdrop-blur-md bg-gradient-to-r from-purple-500/60 to-purple-700/60 border border-white/20 shadow-md">
                       <FaClock className="mr-1" />
                       {formatTime(countdowns[item._id])}
                     </div>
@@ -387,13 +385,13 @@ const HotAuction = () => {
                       >
                         Bid Now
                       </Link>
-                      <button className="p-2 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
+                      {/* <button className="p-2 bg-gray-200 dark:bg-gray-700 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition">
                         <FaEye
                           className={
                             isDarkMode ? "text-gray-300" : "text-gray-600"
                           }
                         />
-                      </button>
+                      </button> */}
                     </div>
                   </div>
                 </motion.div>

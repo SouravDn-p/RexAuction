@@ -513,13 +513,19 @@ const Auction = () => {
                           <div
                             className={`absolute top-4 left-4 z-10 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 ${
                               timeStatus === "ending-soon"
-                                ? "bg-red-500 text-white"
+                                ? "bg-purple-800 text-white" // Purple color for "ending-soon"
                                 : timeStatus === "starting"
                                 ? "bg-blue-500 text-white"
                                 : timeStatus === "ended"
                                 ? "bg-gray-500 text-white"
-                                : "bg-green-500 text-white"
+                                : "bg-purple-800 text-white"
                             }`}
+                            style={{
+                              backgroundColor: "rgba(128, 0, 128, 0.15)", // Purple background with opacity
+                              backdropFilter: "blur(8px)", // Glass effect
+                              borderRadius: "9999px", // Fully rounded corners (pill shape)
+                              boxShadow: "0 4px 15px rgba(0, 0, 0, 0.1)", // Subtle shadow
+                            }}
                           >
                             {timeStatus === "ending-soon" ? (
                               <>
@@ -593,14 +599,14 @@ const Auction = () => {
                             {/* Time Countdown */}
                             <div className="absolute bottom-4 left-0 right-0 flex justify-center">
                               <div
-                                className={`px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 transition-all duration-300 ${
+                                className={`px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 transition-all duration-300 backdrop-blur-md ${
                                   timeStatus === "ending-soon"
-                                    ? "bg-red-500/90 text-white"
+                                    ? "bg-purple-800/40 text-white border border-purple-800/50"
                                     : timeStatus === "starting"
-                                    ? "bg-blue-500/90 text-white"
+                                    ? "bg-purple-500/40 text-white border border-purple-500/50"
                                     : timeStatus === "ended"
-                                    ? "bg-gray-700/90 text-white"
-                                    : "bg-green-500/90 text-white"
+                                    ? "bg-gray-700/40 text-white border border-gray-700/50"
+                                    : "bg-purple-300/40 text-white border border-purple-300/50"
                                 } ${
                                   hoveredCard === item._id
                                     ? "opacity-100 transform translate-y-0"
@@ -665,7 +671,10 @@ const Auction = () => {
                                   ${item.startingPrice?.toLocaleString()}
                                 </p>
                               </div>
-                              <div className="flex items-center space-x-2 bg-gray-100 dark:bg-gray-800 px-3 py-1.5 rounded-full">
+                              <div
+                                className={`flex items-center space-x-2 px-3 py-1.5 rounded-full 
+  ${isDarkMode ? "bg-gray-800 text-white" : "bg-gray-100 text-black"}`}
+                              >
                                 <FaGavel
                                   className={`${
                                     isDarkMode
@@ -673,7 +682,10 @@ const Auction = () => {
                                       : "text-purple-600"
                                   }`}
                                 />
-                                <span className="text-sm font-medium">
+                                <span
+                                  className={`text-sm font-medium 
+    `}
+                                >
                                   {item.bids || 0} bids
                                 </span>
                               </div>
@@ -718,22 +730,31 @@ const Auction = () => {
                             <div className="flex space-x-3 mt-auto">
                               <Link
                                 to={`/liveBid/${item._id}`}
-                                className="flex-1 text-center bg-gradient-to-r from-purple-800 to-purple-700 text-white py-3 px-4 rounded-xl hover:from-purple-700 hover:to-purple-600 transition shadow-md font-medium"
+                                className={`flex-1 text-center py-2 px-4 rounded-lg transition shadow-md ${
+                                  new Date(item.startTime) > new Date()
+                                    ? "bg-gray-400 text-gray-200 cursor-not-allowed"
+                                    : "bg-gradient-to-r from-purple-600 to-purple-500 text-white hover:from-purple-700 hover:to-purple-600"
+                                }`}
+                                onClick={(e) => {
+                                  if (new Date(item.startTime) > new Date()) {
+                                    e.preventDefault(); // Prevent navigation if the auction hasn't started
+                                  }
+                                }}
                               >
                                 Bid Now
                               </Link>
-                              <Link
-                                to={`/auctionDetails/${item._id}`}
-                                className="p-3 bg-gray-100 dark:bg-gray-800 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition flex items-center justify-center"
-                              >
-                                <FaEye
-                                  className={
-                                    isDarkMode
-                                      ? "text-gray-400"
-                                      : "text-gray-600"
-                                  }
-                                />
-                              </Link>
+                              {/* <Link
+                                  to={`/auctionDetails/${item._id}`}
+                                  className="p-3 bg-gray-100 dark:bg-gray-800 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition flex items-center justify-center"
+                                >
+                                  <FaEye
+                                    className={
+                                      isDarkMode
+                                        ? "text-gray-400"
+                                        : "text-gray-600"
+                                    }
+                                  />
+                                </Link> */}
                             </div>
                           </div>
                         </motion.div>
