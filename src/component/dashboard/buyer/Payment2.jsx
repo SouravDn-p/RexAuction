@@ -195,15 +195,24 @@ const Payment2 = () => {
         status: "completed",
       };
       const response = await axiosPublic.post("/paymentsWithSSL", paymentData);
+      // const res = await axiosPublic.post("/paymentConfirmation", auctionData._id);
 
-      console.log("Payment response:", response.data);
+// With this:
+      const res = await axiosPublic.post("/paymentConfirmation", {
+  auctionId: auctionData._id,
+});
 
-      if (response.data?.gatewayURL) {
+      if (response.data?.gatewayURL && res.data?.success) {
         window.location.replace(response.data.gatewayURL);
       } else {
         // Payment failed
         setProcessingPayment(false);
-        toast.error("Payment processing failed. Please try again.");
+        Swal.fire({
+          icon: "error",
+          title: "Payment Failed",
+          text: "Payment processing failed. Please try again.",
+        });
+        
         return;
       }
 
