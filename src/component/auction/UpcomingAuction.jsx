@@ -1,5 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import axios from "axios";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   FaFire,
@@ -7,6 +8,7 @@ import {
   FaSadTear,
   FaClock,
   FaGavel,
+  FaEye,
 } from "react-icons/fa";
 import ThemeContext from "../Context/ThemeContext";
 
