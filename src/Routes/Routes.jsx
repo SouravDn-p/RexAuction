@@ -68,6 +68,14 @@ export const router = createBrowserRouter([
         element: <AboutUs />,
       },
       {
+        path: "blogs",
+        element: <Blogs />,
+      },
+      {
+        path: "blogsDetails",
+        element: <BlogDetails />,
+      },
+      {
         path: "/auction",
         element: <Auction />,
       },
@@ -251,14 +259,7 @@ export const router = createBrowserRouter([
         path: "sharedPayment",
         element: <SharedPayment />,
       },
-      {
-          path:"blogs",
-          element:<Blogs/>,
-      },
-      {
-        path:"blogsDetails",
-        element:<BlogDetails/>,
-      },
+
       {
         path: "blog",
         element: <Blog />,
