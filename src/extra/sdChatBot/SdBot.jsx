@@ -232,6 +232,7 @@ const SdBot = () => {
         </div>
 
         {/* Chatbot Footer */}
+        {/* Chatbot Footer */}
         <form
           onSubmit={handleSubmit}
           className={`p-3 border-t border-base-300 flex gap-2 ${
