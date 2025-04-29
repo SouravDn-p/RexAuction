@@ -44,6 +44,8 @@ import SharedPayment from "../component/dashboard/shared/payment/SharedPayment";
 import Blog from "../component/dashboard/shared/Blog/Blog";
 import AddBlog from "../component/dashboard/shared/Blog/AddBlog";
 import UpdateBlog from "../component/dashboard/shared/Blog/UpdateBlog";
+import Blogs from "../component/dashboard/shared/Blog/Blogs";
+import BlogDetails from "../component/dashboard/shared/Blog/BlogDetails";
 // import Blogs from "../component/Blogs/Blogs";
 // import AdminFeedback from "../component/dashboard/admin/AdminFeedback";
 
@@ -248,6 +250,14 @@ export const router = createBrowserRouter([
       {
         path: "sharedPayment",
         element: <SharedPayment />,
+      },
+      {
+          path:"blogs",
+          element:<Blogs/>,
+      },
+      {
+        path:"blogsDetails",
+        element:<BlogDetails/>,
       },
       {
         path: "blog",
