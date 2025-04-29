@@ -11,29 +11,22 @@ import {
   FaUsers,
   FaGavel,
   FaDollarSign,
-  FaClock,
   FaUserCheck,
   FaChartLine,
   FaTicketAlt,
   FaShieldAlt,
   FaCog,
   FaEdit,
-  FaEllipsisH,
   FaCheckCircle,
   FaTimesCircle,
   FaHourglassHalf,
+  FaBoxOpen,
+  FaChartPie,
 } from "react-icons/fa";
 import { RiUserStarFill } from "react-icons/ri";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
 const AdminProfile = () => {
   const { user, loading: authLoading } = useAuth();
@@ -53,9 +46,16 @@ const AdminProfile = () => {
   const [users, setUsers] = useState([]);
   const [auctions, setAuctions] = useState([]);
   const [sellerRequests, setSellerRequests] = useState([]);
-  const [recentActivity, setRecentActivity] = useState([]);
-  const [auctionChartData, setAuctionChartData] = useState([]);
+  const [quickActions, setQuickActions] = useState([]);
   const navigate = useNavigate();
+
+  // Chart data from the image
+  const [colorChartData] = useState([
+    { name: "Green", value: 8 },
+    { name: "Blue", value: 45 },
+    { name: "Yellow", value: 31 },
+    { name: "Red", value: 16 },
+  ]);
 
   // Fetch data
   useEffect(() => {
@@ -79,7 +79,7 @@ const AdminProfile = () => {
           totalSellers,
           totalBuyers,
           totalAuctions: auctionsRes.data.length,
-          totalRevenue: 32500, // Mock data
+          totalRevenue: 32500,
         });
 
         setUsers(usersRes.data.slice(0, 5));
@@ -93,45 +93,35 @@ const AdminProfile = () => {
             .slice(0, 5)
         );
 
-        // Prepare chart data
-        const statusCounts = auctionsRes.data.reduce(
-          (acc, auction) => {
-            acc[auction.status] = (acc[auction.status] || 0) + 1;
-            return acc;
-          },
-          { pending: 0, accepted: 0, rejected: 0 }
-        );
-        setAuctionChartData([
-          { name: "Pending", count: statusCounts.pending },
-          { name: "Accepted", count: statusCounts.accepted },
-          { name: "Rejected", count: statusCounts.rejected },
-        ]);
-
-        // Mock recent activity
-        setRecentActivity([
+        // Set quick actions
+        setQuickActions([
           {
             id: 1,
-            action: "Approved seller request for Jane Smith",
-            timestamp: "2025-04-27 14:30",
-            icon: <RiUserStarFill className="text-purple-400" />,
+            icon: <FaUsers className="text-2xl text-purple-500 mb-2" />,
+            label: "Manage Users",
+            path: "/dashboard/users",
+            bgColor: "bg-gradient-to-br from-purple-100 to-blue-50",
           },
           {
             id: 2,
-            action: "Updated system security settings",
-            timestamp: "2025-04-27 12:15",
-            icon: <FaShieldAlt className="text-purple-400" />,
+            icon: <FaGavel className="text-2xl text-purple-500 mb-2" />,
+            label: "Manage Auctions",
+            path: "/dashboard/auctions",
+            bgColor: "bg-gradient-to-br from-blue-100 to-cyan-50",
           },
           {
             id: 3,
-            action: "Suspended user: John Doe (violation)",
-            timestamp: "2025-04-27 10:45",
-            icon: <FaUserCheck className="text-purple-400" />,
+            icon: <RiUserStarFill className="text-2xl text-purple-500 mb-2" />,
+            label: "Seller Requests",
+            path: "/dashboard/seller-requests",
+            bgColor: "bg-gradient-to-br from-cyan-100 to-teal-50",
           },
           {
             id: 4,
-            action: "Added new admin dashboard widget",
-            timestamp: "2025-04-26 18:20",
-            icon: <FaCog className="text-purple-400" />,
+            icon: <FaShieldAlt className="text-2xl text-purple-500 mb-2" />,
+            label: "Security",
+            path: "/dashboard/security",
+            bgColor: "bg-gradient-to-br from-teal-100 to-emerald-50",
           },
         ]);
 
@@ -154,11 +144,6 @@ const AdminProfile = () => {
           totalAuctions: 567,
           totalRevenue: 32500,
         });
-        setAuctionChartData([
-          { name: "Pending", count: 200 },
-          { name: "Accepted", count: 300 },
-          { name: "Rejected", count: 67 },
-        ]);
       }
     };
 
@@ -169,7 +154,6 @@ const AdminProfile = () => {
     if (!selectedCover || !user?.uid) return;
     setIsSaving(true);
     try {
-      // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
       setCurrentCover(selectedCover);
       setIsModalOpen(false);
@@ -180,7 +164,7 @@ const AdminProfile = () => {
     }
   };
 
-  const boxStyle = `border rounded-xl shadow-lg ${
+  const boxStyle = `rounded-xl shadow-lg ${
     isDarkMode
       ? "bg-gray-800 border-gray-700 hover:bg-gray-700"
       : "bg-white border-gray-200 hover:bg-gray-50"
@@ -377,7 +361,9 @@ const AdminProfile = () => {
             </div>
           </div>
           <div
-            className={`h-1 ${isDarkMode ? "bg-purple-700" : "bg-purple-200"}`}
+            className={`h-1 bg-gradient-to-r from-purple-500 to-blue-500 ${
+              isDarkMode ? "opacity-70" : "opacity-90"
+            }`}
           ></div>
         </motion.div>
 
@@ -398,8 +384,7 @@ const AdminProfile = () => {
                 Total Revenue
               </p>
               <h3 className="text-3xl font-bold mt-2">
-                $
-                <CountUp
+                $<CountUp
                   end={adminData.totalRevenue}
                   duration={2}
                   separator=","
@@ -422,7 +407,9 @@ const AdminProfile = () => {
             </div>
           </div>
           <div
-            className={`h-1 ${isDarkMode ? "bg-purple-700" : "bg-purple-200"}`}
+            className={`h-1 bg-gradient-to-r from-green-500 to-teal-500 ${
+              isDarkMode ? "opacity-70" : "opacity-90"
+            }`}
           ></div>
         </motion.div>
 
@@ -462,7 +449,9 @@ const AdminProfile = () => {
             </div>
           </div>
           <div
-            className={`h-1 ${isDarkMode ? "bg-purple-700" : "bg-purple-200"}`}
+            className={`h-1 bg-gradient-to-r from-yellow-500 to-orange-500 ${
+              isDarkMode ? "opacity-70" : "opacity-90"
+            }`}
           ></div>
         </motion.div>
 
@@ -502,182 +491,79 @@ const AdminProfile = () => {
             </div>
           </div>
           <div
-            className={`h-1 ${isDarkMode ? "bg-purple-700" : "bg-purple-200"}`}
+            className={`h-1 bg-gradient-to-r from-red-500 to-pink-500 ${
+              isDarkMode ? "opacity-70" : "opacity-90"
+            }`}
           ></div>
         </motion.div>
       </motion.div>
-      <div>
-        {/* Auction Status Chart */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.6 }}
-          className={`${boxStyle}`}
-        >
-          <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-            <h2 className="text-xl font-bold flex items-center gap-2">
-              <FaChartLine className="text-purple-500" />
-              Auction Status Overview
-            </h2>
-          </div>
-          <div className="p-6">
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={auctionChartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: isDarkMode ? "#1F2937" : "#FFFFFF",
-                    border: `1px solid ${isDarkMode ? "#374151" : "#E5E7EB"}`,
-                  }}
-                />
-                <Legend />
-                <Bar dataKey="count" fill="#6D28D9" name="Auctions" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </motion.div>
-        <div className="mt-7">
-          {/* Active Auctions */}
-          <motion.div
+  {/* Favorite Colors Chart */}
+  <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.5 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
             className={`${boxStyle}`}
           >
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-xl font-bold flex items-center gap-2">
-                <FaGavel className="text-purple-500" />
-                Active Auctions
+                <FaChartPie className="text-purple-500" />
+                Favorite Colors Survey
               </h2>
-              <button
-                onClick={() => navigate("/dashboard/manageAuctions")}
-                className="text-sm text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300"
-              >
-                View All
-              </button>
             </div>
             <div className="p-6">
-              {auctions.length === 0 ? (
-                <div className="text-center py-8">
-                  <FaGavel className="mx-auto text-4xl text-purple-300 mb-4" />
-                  <h3 className="text-lg font-medium text-gray-500">
-                    No active auctions
-                  </h3>
-                  <p className="text-sm text-gray-400 mt-1">
-                    Check back later for new auctions
-                  </p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {auctions.map((auction) => (
-                    <motion.div
-                      key={auction._id}
-                      whileHover={{ y: -5 }}
-                      className={`p-4 rounded-lg border ${
-                        isDarkMode
-                          ? "border-gray-700 bg-gray-800"
-                          : "border-gray-200 bg-white"
-                      }`}
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={colorChartData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                     >
-                      <div className="flex gap-4">
-                        <img
-                          src={
-                            auction.images?.[0] ||
-                            "https://i.imgur.com/5WYcCQo.png"
-                          }
-                          alt={auction.name}
-                          className="w-16 h-16 rounded-lg object-cover"
+                      {colorChartData.map((entry, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={COLORS[index % COLORS.length]}
                         />
-                        <div className="flex-1">
-                          <h4 className="font-medium line-clamp-1">
-                            {auction.name}
-                          </h4>
-                          <p
-                            className={`text-sm ${
-                              isDarkMode ? "text-gray-400" : "text-gray-500"
-                            }`}
-                          >
-                            Ends: {new Date(auction.endTime).toLocaleString()}
-                          </p>
-                          <div className="mt-2 flex justify-between items-center">
-                            <span
-                              className={`px-2 py-1 rounded-full text-xs ${
-                                auction.status === "pending"
-                                  ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300"
-                                  : auction.status === "accepted"
-                                  ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
-                                  : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
-                              }`}
-                            >
-                              {auction.status}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </motion.div>
-        </div>
-      </div>
-      {/* Main Dashboard Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8 max-w-7xl mx-auto">
-        {/* Left Column - Recent Activity and Quick Actions */}
-        <div className="space-y-6  mt-10 lg:col-span-1">
-          {/* Recent Activity */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className={`${boxStyle}`}
-          >
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-              <h2 className="text-xl font-bold flex items-center gap-2">
-                <FaClock className="text-purple-500" />
-                Recent Activity
-              </h2>
-              <button
-                onClick={() => navigate("/dashboard/activity")}
-                className="text-sm text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300"
-              >
-                View All
-              </button>
-            </div>
-            <div className="p-6">
-              <ul className="space-y-4">
-                {recentActivity.map((activity) => (
-                  <motion.li
-                    key={activity.id}
-                    whileHover={{ x: 5 }}
-                    className="flex items-start gap-3"
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(value) => [`${value}%`, "Votes"]}
+                      contentStyle={{
+                        backgroundColor: isDarkMode ? "#1F2937" : "#FFFFFF",
+                        border: `1px solid ${isDarkMode ? "#374151" : "#E5E7EB"}`,
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                {colorChartData.map((entry, index) => (
+                  <div
+                    key={`legend-${index}`}
+                    className="flex items-center text-sm"
                   >
                     <div
-                      className={`mt-1 p-2 rounded-lg ${
-                        isDarkMode ? "bg-gray-700" : "bg-purple-50"
-                      }`}
-                    >
-                      {activity.icon}
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">{activity.action}</p>
-                      <p
-                        className={`text-xs ${
-                          isDarkMode ? "text-gray-400" : "text-gray-500"
-                        }`}
-                      >
-                        {activity.timestamp}
-                      </p>
-                    </div>
-                  </motion.li>
+                      className="w-3 h-3 rounded-full mr-2"
+                      style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                    />
+                    <span className="font-medium">{entry.name}</span>
+                    <span className="ml-auto font-bold">
+                      {entry.value}%
+                    </span>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </div>
           </motion.div>
-
+      {/* Main Dashboard Content */}
+      <div className="mx-auto">
+        {/* Left Column - Quick Actions and Chart */}
+        <div className="space-y-6 mt-10 lg:col-span-1">
           {/* Quick Actions */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -692,63 +578,22 @@ const AdminProfile = () => {
               </h2>
             </div>
             <div className="p-6 grid grid-cols-2 gap-4">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => navigate("/dashboard/users")}
-                className={`p-4 rounded-lg flex flex-col items-center justify-center ${
-                  isDarkMode
-                    ? "bg-gray-700 hover:bg-gray-600"
-                    : "bg-purple-50 hover:bg-purple-100"
-                } transition-colors`}
-              >
-                <FaUsers className="text-2xl text-purple-500 mb-2" />
-                <span className="text-sm font-medium">Manage Users</span>
-              </motion.button>
-
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => navigate("/dashboard/auctions")}
-                className={`p-4 rounded-lg flex flex-col items-center justify-center ${
-                  isDarkMode
-                    ? "bg-gray-700 hover:bg-gray-600"
-                    : "bg-purple-50 hover:bg-purple-100"
-                } transition-colors`}
-              >
-                <FaGavel className="text-2xl text-purple-500 mb-2" />
-                <span className="text-sm font-medium">Manage Auctions</span>
-              </motion.button>
-
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => navigate("/dashboard/seller-requests")}
-                className={`p-4 rounded-lg flex flex-col items-center justify-center ${
-                  isDarkMode
-                    ? "bg-gray-700 hover:bg-gray-600"
-                    : "bg-purple-50 hover:bg-purple-100"
-                } transition-colors`}
-              >
-                <RiUserStarFill className="text-2xl text-purple-500 mb-2" />
-                <span className="text-sm font-medium">Seller Requests</span>
-              </motion.button>
-
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => navigate("/dashboard/settings")}
-                className={`p-4 rounded-lg flex flex-col items-center justify-center ${
-                  isDarkMode
-                    ? "bg-gray-700 hover:bg-gray-600"
-                    : "bg-purple-50 hover:bg-purple-100"
-                } transition-colors`}
-              >
-                <FaShieldAlt className="text-2xl text-purple-500 mb-2" />
-                <span className="text-sm font-medium">Security</span>
-              </motion.button>
+              {quickActions.map((action) => (
+                <motion.button
+                  key={action.id}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => navigate(action.path)}
+                  className={`p-4 rounded-lg flex flex-col items-center justify-center ${action.bgColor} transition-colors`}
+                >
+                  {action.icon}
+                  <span className="text-sm font-medium">{action.label}</span>
+                </motion.button>
+              ))}
             </div>
           </motion.div>
+
+        
         </div>
 
         {/* Right Column - Main Content */}
