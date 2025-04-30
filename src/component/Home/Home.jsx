@@ -21,9 +21,10 @@ export default function Home() {
         }`}
       >
         <Slider darkMode={isDarkMode} />
+        <HotAuction darkMode={isDarkMode} />
         <UpcomingAuction darkMode={isDarkMode} />
         <BrowsCategory darkMode={isDarkMode} />
-        <HotAuction darkMode={isDarkMode} />
+       
         {/* <LiveAuction darkMode={isDarkMode} /> */}
         <SdDemo darkMode={isDarkMode} />
         {/* <TrendingAuction darkMode={isDarkMode} /> */}

@@ -195,6 +195,12 @@ const Payment2 = () => {
         status: "completed",
       };
       const response = await axiosPublic.post("/paymentsWithSSL", paymentData);
+      // const res = await axiosPublic.post("/paymentConfirmation", auctionData._id);
+
+      // With this:
+      //       const res = await axiosPublic.post("/paymentConfirmation", {
+      //   auctionId: auctionData._id,
+      // });
 
       if (response.data?.gatewayURL) {
         window.location.replace(response.data.gatewayURL);
@@ -963,7 +969,6 @@ const Payment2 = () => {
               </div>
 
               <div className="p-6 space-y-4">
-                {/* Wallet Payment */}
                 {/* Wallet Payment */}
                 <div
                   className={`p-4 border rounded-xl cursor-pointer transition-all ${

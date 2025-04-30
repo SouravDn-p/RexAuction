@@ -123,16 +123,19 @@ const AuthProvider = ({ children }) => {
         setUser(currentUser);
         // generateToken
         const { data } = await axios.post(
-          "http://localhost:5000/jwt",
+          "https://rex-auction-server-side-jzyx.onrender.com/jwt",
           { email: currentUser?.email },
           { withCredentials: true }
         );
         console.log(data);
       } else {
         setUser(currentUser);
-        await axios.get(`http://localhost:5000/logout`, {
-          withCredentials: true,
-        });
+        await axios.get(
+          `https://rex-auction-server-side-jzyx.onrender.com/logout`,
+          {
+            withCredentials: true,
+          }
+        );
       }
       setLoading(false);
     });

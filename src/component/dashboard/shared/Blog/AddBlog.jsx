@@ -61,7 +61,7 @@ export default function AddBlog() {
       };
 
       const response = await axios.post(
-        "http://localhost:5000/addBlogs",
+        "https://rex-auction-server-side-jzyx.onrender.com/addBlogs",
         blogDataWithImages,
         {
           headers: {
@@ -149,7 +149,9 @@ export default function AddBlog() {
           {/* Blog Title and Blog Image Upload - Side by Side */}
           <div className="flex flex-col md:flex-row gap-4 sm:gap-6">
             <div className="flex-1">
-              <label className="block text-sm font-medium mb-2">Blog Title</label>
+              <label className="block text-sm font-medium mb-2">
+                Blog Title
+              </label>
               <input
                 type="text"
                 name="title"
@@ -166,7 +168,9 @@ export default function AddBlog() {
             </div>
 
             <div className="flex-1">
-              <label className="block text-sm font-medium mb-2">Upload Blog Images</label>
+              <label className="block text-sm font-medium mb-2">
+                Upload Blog Images
+              </label>
               <div
                 className={`border-2 border-dashed rounded-lg p-4 sm:p-6 text-center transition-all cursor-pointer ${
                   isDarkMode
@@ -193,10 +197,18 @@ export default function AddBlog() {
                         isDarkMode ? "text-purple-400" : "text-purple-600"
                       }`}
                     />
-                    <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                    <p
+                      className={`text-sm ${
+                        isDarkMode ? "text-gray-400" : "text-gray-600"
+                      }`}
+                    >
                       Click to upload images
                     </p>
-                    <p className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-500"}`}>
+                    <p
+                      className={`text-xs ${
+                        isDarkMode ? "text-gray-500" : "text-gray-500"
+                      }`}
+                    >
                       (JPG, PNG, max 5MB)
                     </p>
                   </div>
@@ -217,7 +229,9 @@ export default function AddBlog() {
 
           {/* Full Content */}
           <div>
-            <label className="block text-sm font-medium mb-2">Full Content</label>
+            <label className="block text-sm font-medium mb-2">
+              Full Content
+            </label>
             <textarea
               name="fullContent"
               value={blogData.fullContent}

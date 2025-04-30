@@ -62,9 +62,13 @@ const AdminProfile = () => {
     const fetchData = async () => {
       try {
         const [usersRes, auctionsRes, requestsRes] = await Promise.all([
-          axios.get("http://localhost:5000/users"),
-          axios.get("http://localhost:5000/auctions"),
-          axios.get("http://localhost:5000/sellerRequest"),
+          axios.get("https://rex-auction-server-side-jzyx.onrender.com/users"),
+          axios.get(
+            "https://rex-auction-server-side-jzyx.onrender.com/auctions"
+          ),
+          axios.get(
+            "https://rex-auction-server-side-jzyx.onrender.com/sellerRequest"
+          ),
         ]);
 
         const totalSellers = usersRes.data.filter(
@@ -384,7 +388,8 @@ const AdminProfile = () => {
                 Total Revenue
               </p>
               <h3 className="text-3xl font-bold mt-2">
-                $<CountUp
+                $
+                <CountUp
                   end={adminData.totalRevenue}
                   duration={2}
                   separator=","
@@ -497,69 +502,69 @@ const AdminProfile = () => {
           ></div>
         </motion.div>
       </motion.div>
-  {/* Favorite Colors Chart */}
-  <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.6 }}
-            className={`${boxStyle}`}
-          >
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-xl font-bold flex items-center gap-2">
-                <FaChartPie className="text-purple-500" />
-                Favorite Colors Survey
-              </h2>
-            </div>
-            <div className="p-6">
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={colorChartData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                      label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                    >
-                      {colorChartData.map((entry, index) => (
-                        <Cell
-                          key={`cell-${index}`}
-                          fill={COLORS[index % COLORS.length]}
-                        />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      formatter={(value) => [`${value}%`, "Votes"]}
-                      contentStyle={{
-                        backgroundColor: isDarkMode ? "#1F2937" : "#FFFFFF",
-                        border: `1px solid ${isDarkMode ? "#374151" : "#E5E7EB"}`,
-                      }}
+      {/* Favorite Colors Chart */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.6 }}
+        className={`${boxStyle}`}
+      >
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+          <h2 className="text-xl font-bold flex items-center gap-2">
+            <FaChartPie className="text-purple-500" />
+            Favorite Colors Survey
+          </h2>
+        </div>
+        <div className="p-6">
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={colorChartData}
+                  cx="50%"
+                  cy="50%"
+                  labelLine={false}
+                  outerRadius={80}
+                  fill="#8884d8"
+                  dataKey="value"
+                  label={({ name, percent }) =>
+                    `${name}: ${(percent * 100).toFixed(0)}%`
+                  }
+                >
+                  {colorChartData.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={COLORS[index % COLORS.length]}
                     />
-                  </PieChart>
-                </ResponsiveContainer>
+                  ))}
+                </Pie>
+                <Tooltip
+                  formatter={(value) => [`${value}%`, "Votes"]}
+                  contentStyle={{
+                    backgroundColor: isDarkMode ? "#1F2937" : "#FFFFFF",
+                    border: `1px solid ${isDarkMode ? "#374151" : "#E5E7EB"}`,
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-2">
+            {colorChartData.map((entry, index) => (
+              <div
+                key={`legend-${index}`}
+                className="flex items-center text-sm"
+              >
+                <div
+                  className="w-3 h-3 rounded-full mr-2"
+                  style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                />
+                <span className="font-medium">{entry.name}</span>
+                <span className="ml-auto font-bold">{entry.value}%</span>
               </div>
-              <div className="mt-4 grid grid-cols-2 gap-2">
-                {colorChartData.map((entry, index) => (
-                  <div
-                    key={`legend-${index}`}
-                    className="flex items-center text-sm"
-                  >
-                    <div
-                      className="w-3 h-3 rounded-full mr-2"
-                      style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                    />
-                    <span className="font-medium">{entry.name}</span>
-                    <span className="ml-auto font-bold">
-                      {entry.value}%
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </motion.div>
+            ))}
+          </div>
+        </div>
+      </motion.div>
       {/* Main Dashboard Content */}
       <div className="mx-auto">
         {/* Left Column - Quick Actions and Chart */}
@@ -592,8 +597,6 @@ const AdminProfile = () => {
               ))}
             </div>
           </motion.div>
-
-        
         </div>
 
         {/* Right Column - Main Content */}

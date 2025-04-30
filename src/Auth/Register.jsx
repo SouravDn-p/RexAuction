@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useDispatch, useSelector } from "react-redux";
@@ -17,6 +17,7 @@ import {
   FaTimes,
 } from "react-icons/fa";
 import { motion } from "framer-motion";
+import { ArrowLeft } from "lucide-react";
 
 const Register = () => {
   const dispatch = useDispatch();
@@ -142,6 +143,7 @@ const Register = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white relative overflow-hidden py-10">
+    
       {/* Background shapes */}
       <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-to-r from-blue-600 to-purple-900  rounded-bl-full opacity-80"></div>
       <div className="absolute bottom-0 left-0 w-2/3 h-1/3 bg-gradient-to-r from-blue-900 to-purple-900  rounded-tr-full opacity-80"></div>
@@ -153,7 +155,16 @@ const Register = () => {
         transition={{ duration: 0.5 }}
         className="relative z-10 w-full max-w-2xl px-6 sm:px-10"
       >
-        <div className="bg-white rounded-3xl shadow-xl overflow-hidden p-8">
+        <div className="bg-white rounded-3xl shadow-xl overflow-hidden p-8 relative">
+                 {/* Back to Home Icon */}
+                <div className="absolute top-7 left-4 py-2 px-3 bg-gradient-to-r from-gray-900 to-purple-500  hover:bg-purple-600 rounded-md ">
+                  <Link
+                    to="/"
+                    className="flex items-center gap-1 text-gray-600 hover:text-black transition"
+                  >
+                    <ArrowLeft className="fon text-white " size={30} />
+                  </Link>
+                </div>
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-800 mb-2">
               Create Account

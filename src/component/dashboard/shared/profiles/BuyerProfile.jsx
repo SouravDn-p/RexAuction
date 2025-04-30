@@ -128,7 +128,9 @@ const BuyerProfile = () => {
     if (user?.email) {
       setBalanceLoading(true);
       axios
-        .get(`http://localhost:5000/users?email=${user.email}`)
+        .get(
+          `https://rex-auction-server-side-jzyx.onrender.com/users?email=${user.email}`
+        )
         .then((res) => {
           const userData = res.data[0];
           setAccountBalance(userData?.accountBalance || 0);
@@ -147,7 +149,9 @@ const BuyerProfile = () => {
     if (user?.email) {
       setPaymentsLoading(true);
       axios
-        .get(`http://localhost:5000/payments?buyerEmail=${user.email}`)
+        .get(
+          `https://rex-auction-server-side-jzyx.onrender.com/payments?buyerEmail=${user.email}`
+        )
         .then((res) => {
           setPayments(res.data.slice(0, 5));
           setPaymentsLoading(false);
@@ -164,7 +168,9 @@ const BuyerProfile = () => {
   useEffect(() => {
     if (user?.email) {
       axios
-        .get(`http://localhost:5000/bids?buyerEmail=${user.email}`)
+        .get(
+          `https://rex-auction-server-side-jzyx.onrender.com/bids?buyerEmail=${user.email}`
+        )
         .then((res) => setBiddingHistory(res.data.slice(0, 5)))
         .catch((err) => console.error("Error fetching bidding history:", err));
     }
@@ -175,7 +181,7 @@ const BuyerProfile = () => {
     if (user?.email) {
       setAuctionStatusLoading(true);
       axios
-        .get("http://localhost:5000/auctions")
+        .get("https://rex-auction-server-side-jzyx.onrender.com/auctions")
         .then((res) => {
           console.log("Auction status response:", res.data);
 
@@ -230,7 +236,9 @@ const BuyerProfile = () => {
   useEffect(() => {
     const fetchCoverOptions = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/cover-options");
+        const response = await axios.get(
+          "https://rex-auction-server-side-jzyx.onrender.com/cover-options"
+        );
         setCoverOptions(response.data);
       } catch (error) {
         console.error("Error fetching cover options:", error);
@@ -247,7 +255,7 @@ const BuyerProfile = () => {
       if (user?.uid) {
         try {
           const response = await axios.get(
-            `http://localhost:5000/cover/${user.uid}`
+            `https://rex-auction-server-side-jzyx.onrender.com/cover/${user.uid}`
           );
           if (response.data.image) {
             setCurrentCover(response.data.image);
@@ -267,10 +275,13 @@ const BuyerProfile = () => {
     if (!selectedCover || !user?.uid) return;
     setIsSaving(true);
     try {
-      await axios.patch("http://localhost:5000/cover", {
-        userId: user.uid,
-        image: selectedCover,
-      });
+      await axios.patch(
+        "https://rex-auction-server-side-jzyx.onrender.com/cover",
+        {
+          userId: user.uid,
+          image: selectedCover,
+        }
+      );
       setCurrentCover(selectedCover);
       setIsModalOpen(false);
     } catch (error) {

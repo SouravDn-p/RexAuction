@@ -186,7 +186,9 @@ const Profile = () => {
   useEffect(() => {
     if (dbUser?.role === "admin") {
       axios
-        .get("http://localhost:5000/upcoming-auctions")
+        .get(
+          "https://rex-auction-server-side-jzyx.onrender.com/upcoming-auctions"
+        )
         .then((res) => setUpcomingAuctions(res.data))
         .catch((err) => console.error(err));
     }
@@ -195,7 +197,7 @@ const Profile = () => {
   useEffect(() => {
     if (dbUser?.role === "admin") {
       axios
-        .get("http://localhost:5000/reviews")
+        .get("https://rex-auction-server-side-jzyx.onrender.com/reviews")
         .then((res) => setUserReviews(res.data))
         .catch((err) => console.error(err));
     }
@@ -206,7 +208,9 @@ const Profile = () => {
     // Fetch cover options
     const fetchCoverOptions = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/cover-options");
+        const response = await axios.get(
+          "https://rex-auction-server-side-jzyx.onrender.com/cover-options"
+        );
         setCoverOptions(response.data);
       } catch (error) {
         console.error("Error fetching cover options:", error);
@@ -224,7 +228,7 @@ const Profile = () => {
       if (user?.uid) {
         try {
           const response = await axios.get(
-            `http://localhost:5000/cover/${user.uid}`
+            `https://rex-auction-server-side-jzyx.onrender.com/cover/${user.uid}`
           );
           if (response.data.image) {
             setCurrentCover(response.data.image);
@@ -245,10 +249,13 @@ const Profile = () => {
     if (!selectedCover || !user?.uid) return;
     setIsSaving(true);
     try {
-      await axios.patch("http://localhost:5000/cover", {
-        userId: user.uid,
-        image: selectedCover, // This will be saved as `cover` in DB
-      });
+      await axios.patch(
+        "https://rex-auction-server-side-jzyx.onrender.com/cover",
+        {
+          userId: user.uid,
+          image: selectedCover, // This will be saved as `cover` in DB
+        }
+      );
       setCurrentCover(selectedCover);
       setIsModalOpen(false);
     } catch (error) {

@@ -1,51 +1,60 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { NavLink, useLocation, useNavigate } from "react-router-dom"
-import { toast, Toaster } from "react-hot-toast"
-import { useDispatch, useSelector } from "react-redux"
-import { setUser, toggleLoading, setErrorMessage } from "../redux/features/user/userSlice"
-import { signInWithEmailAndPassword } from "firebase/auth"
-import auth from "../firebase/firebase.init"
-import ForgotPasswordModal from "./ForgotPasswordModal"
-import SocialLogin from "../component/SocialLogin"
-import { FaEnvelope, FaLock } from "react-icons/fa"
-import { motion } from "framer-motion"
+import { useEffect, useState } from "react";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
+import { toast, Toaster } from "react-hot-toast";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  setUser,
+  toggleLoading,
+  setErrorMessage,
+} from "../redux/features/user/userSlice";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import auth from "../firebase/firebase.init";
+import ForgotPasswordModal from "./ForgotPasswordModal";
+import SocialLogin from "../component/SocialLogin";
+import { FaEnvelope, FaLock } from "react-icons/fa";
+import { motion } from "framer-motion";
+import { ArrowLeft } from "lucide-react";
 
 const LoginPage = () => {
-  const navigate = useNavigate()
-  const location = useLocation()
-  const dispatch = useDispatch()
-  const { loading, errorMessage } = useSelector((state) => state.userSlice)
-  const [showForgotPassword, setShowForgotPassword] = useState(false)
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [rememberMe, setRememberMe] = useState(false)
+  const navigate = useNavigate();
+  const location = useLocation();
+  const dispatch = useDispatch();
+  const { loading, errorMessage } = useSelector((state) => state.userSlice);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
 
   // Load saved email if available
   useEffect(() => {
-    const savedEmail = localStorage.getItem("rememberedEmail")
+    const savedEmail = localStorage.getItem("rememberedEmail");
     if (savedEmail) {
-      setEmail(savedEmail)
-      setRememberMe(true)
+      setEmail(savedEmail);
+      setRememberMe(true);
     }
-  }, [])
+  }, []);
 
   const handleEmailPasswordLogin = async (e) => {
-    e.preventDefault()
-    dispatch(toggleLoading(true))
-    dispatch(setErrorMessage(null))
+    e.preventDefault();
+    dispatch(toggleLoading(true));
+    dispatch(setErrorMessage(null));
 
     // Save email if remember me is checked
     if (rememberMe) {
-      localStorage.setItem("rememberedEmail", email)
+      localStorage.setItem("rememberedEmail", email);
     } else {
-      localStorage.removeItem("rememberedEmail")
+      localStorage.removeItem("rememberedEmail");
     }
 
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password)
-      const user = userCredential.user
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
 
       dispatch(
         setUser({
@@ -65,29 +74,35 @@ const LoginPage = () => {
             month: "long",
             year: "numeric",
           }),
-        }),
-      )
+        })
+      );
 
-      navigate("/")
-      toast.success("Login successful")
+      navigate("/");
+      toast.success("Login successful");
     } catch (err) {
-      console.error("Login error:", err.message)
+      console.error("Login error:", err.message);
       if (err.message.includes("auth/invalid-credential")) {
-        dispatch(setErrorMessage("Password is incorrect"))
-        toast.error("Password is incorrect")
+        dispatch(setErrorMessage("Password is incorrect"));
+        toast.error("Password is incorrect");
       } else {
-        dispatch(setErrorMessage("Login failed. Please check your credentials."))
-        toast.error("Login failed")
+        dispatch(
+          setErrorMessage("Login failed. Please check your credentials.")
+        );
+        toast.error("Login failed");
       }
     } finally {
-      dispatch(toggleLoading(false))
+      dispatch(toggleLoading(false));
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white relative overflow-hidden">
+    
       <Toaster position="top-center" />
-      <ForgotPasswordModal showModal={showForgotPassword} setShowModal={setShowForgotPassword} />
+      <ForgotPasswordModal
+        showModal={showForgotPassword}
+        setShowModal={setShowForgotPassword}
+      />
 
       {/* Background shapes */}
       <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-to-r from-blue-800 to-purple-900  rounded-bl-full opacity-80"></div>
@@ -100,13 +115,26 @@ const LoginPage = () => {
         transition={{ duration: 0.5 }}
         className="relative z-10 w-full max-w-md px-6 py-10 sm:px-10"
       >
-        <div className="bg-white rounded-3xl shadow-xl overflow-hidden p-8">
+        <div className="bg-white rounded-3xl shadow-xl overflow-hidden p-8 relative">
+            {/* Back to Home Icon */}
+      <div className="absolute top-7 left-3 py-2 px-3 bg-gradient-to-r from-gray-900 to-purple-500  hover:bg-purple-600 rounded-md ">
+        <Link
+          to="/"
+          className="flex items-center gap-1 text-gray-600 hover:text-black transition"
+        >
+          <ArrowLeft className="fon text-white " size={30} />
+        </Link>
+      </div>
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">Welcome Back</h1>
+            <h1 className="text-3xl font-bold text-gray-800 mb-2">
+              Welcome Back
+            </h1>
             <p className="text-gray-600">Hey! Good to see you again</p>
           </div>
 
           <form onSubmit={handleEmailPasswordLogin} className="space-y-6">
+  
+
             <div className="space-y-4">
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -147,7 +175,10 @@ const LoginPage = () => {
                   onChange={(e) => setRememberMe(e.target.checked)}
                   className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
                 />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
+                <label
+                  htmlFor="remember-me"
+                  className="ml-2 block text-sm text-gray-700"
+                >
                   Remember me
                 </label>
               </div>
@@ -161,7 +192,9 @@ const LoginPage = () => {
             </div>
 
             {errorMessage && (
-              <div className="bg-red-50 p-3 rounded-lg border border-red-200 text-red-700 text-sm">{errorMessage}</div>
+              <div className="bg-red-50 p-3 rounded-lg border border-red-200 text-red-700 text-sm">
+                {errorMessage}
+              </div>
             )}
 
             <motion.button
@@ -203,7 +236,10 @@ const LoginPage = () => {
             <div className="text-center mt-6">
               <p className="text-sm text-gray-600">
                 Don't have an account?{" "}
-                <NavLink to="/register" className="text-purple-600 hover:text-purple-800 font-medium">
+                <NavLink
+                  to="/register"
+                  className="text-purple-600 hover:text-purple-800 font-medium"
+                >
                   Sign up
                 </NavLink>
               </p>
@@ -214,7 +250,9 @@ const LoginPage = () => {
                 <div className="w-full border-t border-gray-300"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Or continue with</span>
+                <span className="px-2 bg-white text-gray-500">
+                  Or continue with
+                </span>
               </div>
             </div>
 
@@ -223,7 +261,7 @@ const LoginPage = () => {
         </div>
       </motion.div>
     </div>
-  )
-}
+  );
+};
 
-export default LoginPage
+export default LoginPage;

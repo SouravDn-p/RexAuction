@@ -13,18 +13,15 @@ import {
 } from "react-icons/fa";
 import Swal from "sweetalert2";
 import ThemeContext from "../../Context/ThemeContext";
-import useAxiosPublic from "../../../hooks/useAxiosPublic";
 import LoadingSpinner from "../../LoadingSpinner";
-import Header from "../shared/Header/Header";
-import { Star, MessageSquare, Users, Award } from "lucide-react";
+import {
+  useDeleteUserMutation,
+  useGetUsersQuery,
+  useUpdateUserMutation,
+} from "../../../redux/features/api/userApi";
 
 const UserManagement = () => {
-  const axiosPublic = useAxiosPublic();
   const { isDarkMode } = useContext(ThemeContext);
-  const [feedbacks, setFeedbacks] = useState([]);
-  const totalFeedbacks = 10;
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortField, setSortField] = useState("name");
@@ -32,30 +29,19 @@ const UserManagement = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [usersPerPage] = useState(8);
   const [selectedRole, setSelectedRole] = useState("all");
-  const [isLoaded, setIsLoaded] = useState(false);
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        setLoading(true);
-        const response = await axiosPublic.get("/users");
-        setUsers(response.data);
-        setLoading(false);
-        setIsLoaded(true);
-      } catch (err) {
-        console.error("Failed to fetch users:", err);
-        setError("Failed to fetch users");
-        setLoading(false);
-      }
-    };
+  const { data, isLoading } = useGetUsersQuery();
+  const [updateUser] = useUpdateUserMutation();
+  const [deleteUser] = useDeleteUserMutation();
 
-    fetchUsers();
-  }, []);
+  const users = data || [];
+
 
   const handleRoleChange = async (userId, role) => {
     Swal.fire({
       title: "Are you sure?",
       text: `Do you want to change the role to ${role}?`,
+
       showCancelButton: true,
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
@@ -63,14 +49,11 @@ const UserManagement = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          const res = await axiosPublic.patch(`/users/${userId}`, { role });
+          const res = await updateUser({ id: userId, data: { role } });
 
           if (res.data.success) {
             Swal.fire("Updated!", "User role has been changed.", "success");
-
             // Refresh user list after update
-            const response = await axiosPublic.get("/users");
-            setUsers(response.data);
           } else {
             Swal.fire("Failed!", "Could not update user role.", "error");
           }
@@ -93,36 +76,21 @@ const UserManagement = () => {
       confirmButtonText: "Yes, delete it!",
     }).then(async (result) => {
       if (result.isConfirmed) {
-        try {
-          const response = await axiosPublic.delete(`/users/${userId}`);
+        const res = await deleteUser({ id: userId });
 
-          if (response.data.success) {
-            Swal.fire({
-              title: "Deleted!",
-              text: "User has been deleted.",
-              icon: "success",
-              customClass: {
-                popup: isDarkMode ? "swal-dark-theme" : "",
-              },
-            });
-            // Remove the user from UI
-            setUsers((prevUsers) =>
-              prevUsers.filter((user) => user._id !== userId)
-            );
-          } else {
-            Swal.fire({
-              title: "Error!",
-              text: response.data.message,
-              icon: "error",
-              customClass: {
-                popup: isDarkMode ? "swal-dark-theme" : "",
-              },
-            });
-          }
-        } catch (error) {
+        if (res.data.success) {
           Swal.fire({
-            title: "Failed!",
-            text: "Something went wrong.",
+            title: "Deleted!",
+            text: "User has been deleted.",
+            icon: "success",
+            customClass: {
+              popup: isDarkMode ? "swal-dark-theme" : "",
+            },
+          });
+        } else {
+          Swal.fire({
+            title: "Error!",
+            text: response.data.message,
             icon: "error",
             customClass: {
               popup: isDarkMode ? "swal-dark-theme" : "",
@@ -131,7 +99,7 @@ const UserManagement = () => {
         }
       }
     });
-  };  
+  };
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
@@ -169,43 +137,6 @@ const UserManagement = () => {
     return sortDirection === "asc" ? comparison : -comparison;
   });
 
-  // Stat Card Component
-  const StatCard = ({ icon, title, value, color, isDarkMode }) => (
-    <div
-      className={`rounded-xl overflow-hidden shadow-lg transition-transform duration-300 hover:scale-105 ${
-        isDarkMode
-          ? "bg-gray-800 border border-gray-700"
-          : "bg-white border border-gray-100"
-      }`}
-    >
-      <div className="p-6">
-        <div className="flex items-center space-x-4">
-          <div
-            className={`h-12 w-12 rounded-lg bg-gradient-to-br ${color} flex items-center justify-center`}
-          >
-            <div className="text-white">{icon}</div>
-          </div>
-          <div>
-            <p
-              className={`text-sm ${
-                isDarkMode ? "text-gray-400" : "text-gray-500"
-              }`}
-            >
-              {title}
-            </p>
-            <p
-              className={`text-2xl font-bold ${
-                isDarkMode ? "text-white" : "text-gray-800"
-              }`}
-            >
-              {value}
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
   // Pagination
   const indexOfLastUser = currentPage * usersPerPage;
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
@@ -225,7 +156,7 @@ const UserManagement = () => {
     return acc;
   }, {});
 
-  if (loading) {
+  if (isLoading) {
     return <LoadingSpinner />;
   }
 
@@ -250,49 +181,126 @@ const UserManagement = () => {
       }`}
     >
       {/* Header with Title and Search */}
-      <Header
-        header={"User Management"}
-        title={
-          "Manage users, monitor activity, and keep your platform organized"
-        }
-      />
-      {/* Statistics Cards */}
-      <div
-        className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 transition-all duration-700 delay-100 ${
-          isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-        }`}
-      >
-        <StatCard
-          icon={<FaUserAlt className="w-6 h-6" />}
-          title="Total Users"
-          value={users?.length || 0}
-          color="from-amber-500 to-yellow-500"
-          isDarkMode={isDarkMode}
-        />
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+        <h1
+          className={`text-2xl md:text-3xl font-bold ${
+            isDarkMode
+              ? "text-transparent bg-clip-text bg-gradient-to-r from-white via-violet-100 to-violet-100"
+              : "text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-500 to-indigo-600"
+          }`}
+        >
+          User Management
+        </h1>
 
-        <StatCard
-          icon={<FaUserShield className="w-6 h-6" />}
-          title="Admins"
-          value={roleCounts.admin || 0}
-          color="from-violet-500 to-purple-500"
-          isDarkMode={isDarkMode}
-        />
+        <div className="relative w-full md:w-64">
+          <input
+            type="text"
+            placeholder="Search users..."
+            value={searchQuery}
+            onChange={handleSearchChange}
+            className={`w-full pl-10 pr-4 py-2 rounded-lg border ${
+              isDarkMode
+                ? "bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                : "bg-white border-gray-300 text-gray-800 placeholder-gray-500"
+            } focus:outline-none focus:ring-2 focus:ring-purple-500`}
+          />
+          <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+        </div>
+      </div>
 
-        <StatCard
-          icon={<Users className="w-6 h-6" />}
-          title="Sellers"
-          value={roleCounts.seller || 0}
-          color="from-blue-500 to-indigo-500"
-          isDarkMode={isDarkMode}
-        />
+      {/* Dashboard Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div
+          className={`rounded-lg shadow-sm p-4 border ${
+            isDarkMode
+              ? "bg-gray-800 border-gray-700"
+              : "bg-white border-gray-200"
+          }`}
+        >
+          <div className="flex items-center">
+            <div
+              className={`p-3 rounded-full ${
+                isDarkMode ? "bg-blue-900/30" : "bg-blue-100"
+              } mr-4`}
+            >
+              <FaUserAlt className="text-blue-500" size={20} />
+            </div>
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Total Users
+              </p>
+              <p className="text-2xl font-semibold">{users.length}</p>
+            </div>
+          </div>
+        </div>
 
-        <StatCard
-          icon={<FaUserAlt className="w-6 h-6" />}
-          title="5-Star Reviews"
-          value={roleCounts.buyer || 0}
-          color="from-emerald-500 to-teal-500"
-          isDarkMode={isDarkMode}
-        />
+        <div
+          className={`rounded-lg shadow-sm p-4 border ${
+            isDarkMode
+              ? "bg-gray-800 border-gray-700"
+              : "bg-white border-gray-200"
+          }`}
+        >
+          <div className="flex items-center">
+            <div
+              className={`p-3 rounded-full ${
+                isDarkMode ? "bg-purple-900/30" : "bg-purple-100"
+              } mr-4`}
+            >
+              <FaUserShield className="text-purple-500" size={20} />
+            </div>
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Admins</p>
+              <p className="text-2xl font-semibold">{roleCounts.admin || 0}</p>
+            </div>
+          </div>
+        </div>
+
+        <div
+          className={`rounded-lg shadow-sm p-4 border ${
+            isDarkMode
+              ? "bg-gray-800 border-gray-700"
+              : "bg-white border-gray-200"
+          }`}
+        >
+          <div className="flex items-center">
+            <div
+              className={`p-3 rounded-full ${
+                isDarkMode ? "bg-amber-900/30" : "bg-amber-100"
+              } mr-4`}
+            >
+              <FaUserAlt className="text-amber-500" size={20} />
+            </div>
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Sellers
+              </p>
+              <p className="text-2xl font-semibold">{roleCounts.seller || 0}</p>
+            </div>
+          </div>
+        </div>
+
+        <div
+          className={`rounded-lg shadow-sm p-4 border ${
+            isDarkMode
+              ? "bg-gray-800 border-gray-700"
+              : "bg-white border-gray-200"
+          }`}
+        >
+          <div className="flex items-center">
+            <div
+              className={`p-3 rounded-full ${
+                isDarkMode ? "bg-green-900/30" : "bg-green-100"
+              } mr-4`}
+            >
+              <FaUserAlt className="text-green-500" size={20} />
+            </div>
+            <div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Buyers</p>
+              <p className="text-2xl font-semibold">{roleCounts.buyer || 0}</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Filters and Actions */}

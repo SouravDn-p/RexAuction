@@ -40,7 +40,7 @@ const ProfileSettings = () => {
         if (user?.email) {
           setLoading(true);
           const response = await axios.get(
-            `http://localhost:5000/user/${user.email}`
+            `https://rex-auction-server-side-jzyx.onrender.com/user/${user.email}`
           );
           setProfileData(response.data);
           setFormData({
@@ -107,7 +107,7 @@ const ProfileSettings = () => {
         const formDataPhoto = new FormData();
         formDataPhoto.append("photo", formData.photoFile);
         const photoResponse = await axios.post(
-          "http://localhost:5000/upload-photo",
+          "https://rex-auction-server-side-jzyx.onrender.com/upload-photo",
           formDataPhoto,
           {
             headers: { "Content-Type": "multipart/form-data" },
@@ -130,7 +130,7 @@ const ProfileSettings = () => {
       }
 
       const response = await axios.patch(
-        `http://localhost:5000/user/${user.email}`,
+        `https://rex-auction-server-side-jzyx.onrender.com/user/${user.email}`,
         dataToUpdate
       );
 
