@@ -195,7 +195,13 @@ const Payment2 = () => {
         status: "completed",
       };
       const response = await axiosPublic.post("/paymentsWithSSL", paymentData);
-    
+      // const res = await axiosPublic.post("/paymentConfirmation", auctionData._id);
+
+      // With this:
+      //       const res = await axiosPublic.post("/paymentConfirmation", {
+      //   auctionId: auctionData._id,
+      // });
+
       if (response.data?.gatewayURL) {
         window.location.replace(response.data.gatewayURL);
       } else {
@@ -206,7 +212,7 @@ const Payment2 = () => {
           title: "Payment Failed",
           text: "Payment processing failed. Please try again.",
         });
-        
+
         return;
       }
 

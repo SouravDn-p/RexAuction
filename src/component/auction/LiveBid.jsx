@@ -238,8 +238,6 @@ export default function LiveBid() {
       incrementBy: Number.parseFloat(myBid?.incrementBy) || 0,
     };
 
-   
-
     try {
       const response = await axiosPublic.post("/live-bid", bidData);
 
@@ -297,7 +295,8 @@ export default function LiveBid() {
 
   // Socket.IO connection setup with reconnection logic
   useEffect(() => {
-    const SOCKET_SERVER_URL = "http://localhost:5000";
+    const SOCKET_SERVER_URL =
+      "https://rex-auction-server-side-jzyx.onrender.com";
 
     const connectSocket = () => {
       console.log("Attempting to connect to socket server...");
@@ -995,36 +994,36 @@ export default function LiveBid() {
       >
         <div className="flex flex-col lg:flex-row gap-8">
           <div className="lg:w-2/3 w-full space-y-6">
-          <div className="relative w-full rounded-xl overflow-hidden shadow-lg">
-  <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-transparent rounded-xl backdrop-blur-md z-0 border border-white/20"></div>
-  <img
-    src={liveBid?.images?.[0] || image}
-    className="relative w-full h-96 object-contain z-10"
-    alt="Auction Item"
-    onError={(e) => {
-      e.target.src = image;
-    }}
-  />
-</div>
+            <div className="relative w-full rounded-xl overflow-hidden shadow-lg">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-transparent rounded-xl backdrop-blur-md z-0 border border-white/20"></div>
+              <img
+                src={liveBid?.images?.[0] || image}
+                className="relative w-full h-96 object-contain z-10"
+                alt="Auction Item"
+                onError={(e) => {
+                  e.target.src = image;
+                }}
+              />
+            </div>
 
-<div className="grid grid-cols-3 gap-3 mt-3">
-  {[1, 2, 3].map((_, index) => (
-    <div
-      key={index}
-      className="relative h-40 w-full rounded-lg overflow-hidden shadow-md"
-    >
-      <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-transparent rounded-lg backdrop-blur-md z-0 border border-white/20"></div>
-      <img
-        src={liveBid?.images?.[index + 1] || image}
-        className="relative object-contain h-full w-full z-10"
-        alt={`Thumbnail ${index + 1}`}
-        onError={(e) => {
-          e.target.src = image;
-        }}
-      />
-    </div>
-  ))}
-</div>
+            <div className="grid grid-cols-3 gap-3 mt-3">
+              {[1, 2, 3].map((_, index) => (
+                <div
+                  key={index}
+                  className="relative h-40 w-full rounded-lg overflow-hidden shadow-md"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-transparent rounded-lg backdrop-blur-md z-0 border border-white/20"></div>
+                  <img
+                    src={liveBid?.images?.[index + 1] || image}
+                    className="relative object-contain h-full w-full z-10"
+                    alt={`Thumbnail ${index + 1}`}
+                    onError={(e) => {
+                      e.target.src = image;
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
 
             <div
               className={`p-6 rounded-xl ${

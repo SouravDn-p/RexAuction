@@ -84,13 +84,16 @@ export default function Chat() {
 
   useEffect(() => {
     if (!socketRef.current) {
-      socketRef.current = io("http://localhost:5000", {
-        withCredentials: true,
-        reconnection: true,
-        reconnectionAttempts: 5,
-        reconnectionDelay: 1000,
-        timeout: 10000,
-      });
+      socketRef.current = io(
+        "https://rex-auction-server-side-jzyx.onrender.com",
+        {
+          withCredentials: true,
+          reconnection: true,
+          reconnectionAttempts: 5,
+          reconnectionDelay: 1000,
+          timeout: 10000,
+        }
+      );
     }
 
     const socket = socketRef.current;
@@ -243,9 +246,9 @@ export default function Chat() {
       const since = lastMessageTimestamp
         ? new Date(lastMessageTimestamp).toISOString()
         : null;
-      const url = `http://localhost:5000/messages/email/${currentUser.email}/${
-        user.email
-      }${since ? `?since=${since}` : ""}`;
+      const url = `https://rex-auction-server-side-jzyx.onrender.com/messages/email/${
+        currentUser.email
+      }/${user.email}${since ? `?since=${since}` : ""}`;
 
       const response = await axios.get(url, { withCredentials: true });
 

@@ -66,13 +66,16 @@ export default function ChatSidebar({
 
   useEffect(() => {
     if (!socketRef.current) {
-      socketRef.current = io("http://localhost:5000", {
-        withCredentials: true,
-        reconnection: true,
-        reconnectionAttempts: 5,
-        reconnectionDelay: 1000,
-        timeout: 10000,
-      });
+      socketRef.current = io(
+        "https://rex-auction-server-side-jzyx.onrender.com",
+        {
+          withCredentials: true,
+          reconnection: true,
+          reconnectionAttempts: 5,
+          reconnectionDelay: 1000,
+          timeout: 10000,
+        }
+      );
     }
 
     const fetchUsers = async () => {

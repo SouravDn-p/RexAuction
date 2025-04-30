@@ -24,7 +24,9 @@ export default function UpdateBlog() {
   useEffect(() => {
     const fetchBlogData = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/blog/${id}`);
+        const response = await axios.get(
+          `https://rex-auction-server-side-jzyx.onrender.com/blog/${id}`
+        );
         setBlogData(response.data);
       } catch (error) {
         console.error("Error fetching blog data:", error);
@@ -107,7 +109,7 @@ export default function UpdateBlog() {
 
       const updatedBlog = { ...blogData, imageUrls };
       const response = await axios.patch(
-        `http://localhost:5000/updateBlog/${id}`,
+        `https://rex-auction-server-side-jzyx.onrender.com/updateBlog/${id}`,
         updatedBlog
       );
 
@@ -143,9 +145,13 @@ export default function UpdateBlog() {
           : "bg-gradient-to-br from-purple-50 via-white to-purple-50 text-gray-800"
       }`}
     >
-      <div className={`max-w-5xl mx-auto border border-opacity-20 p-6 sm:p-8 rounded-2xl shadow-xl animate-fade-in backdrop-blur-sm bg-opacity-80 ${
-        isDarkMode ? "bg-gray-800/80 border-gray-600" : "bg-white/80 border-purple-300"
-      }`}>
+      <div
+        className={`max-w-5xl mx-auto border border-opacity-20 p-6 sm:p-8 rounded-2xl shadow-xl animate-fade-in backdrop-blur-sm bg-opacity-80 ${
+          isDarkMode
+            ? "bg-gray-800/80 border-gray-600"
+            : "bg-white/80 border-purple-300"
+        }`}
+      >
         {/* Back Button */}
         <button
           onClick={() => navigate(-1)}
@@ -160,7 +166,11 @@ export default function UpdateBlog() {
           <h2 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-500 bg-clip-text text-transparent">
             Update Blog Post
           </h2>
-          <p className={`mt-2 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+          <p
+            className={`mt-2 text-sm ${
+              isDarkMode ? "text-gray-400" : "text-gray-600"
+            }`}
+          >
             Revise and enhance your blog content
           </p>
         </div>
@@ -169,7 +179,9 @@ export default function UpdateBlog() {
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Blog Title */}
           <div className="relative group">
-            <label className="block text-sm font-medium mb-2 ml-1">Blog Title</label>
+            <label className="block text-sm font-medium mb-2 ml-1">
+              Blog Title
+            </label>
             <input
               type="text"
               name="title"
@@ -183,7 +195,11 @@ export default function UpdateBlog() {
               required
             />
             <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none top-7">
-              <FaEdit className={`${isDarkMode ? "text-purple-400" : "text-purple-600"} opacity-70`} />
+              <FaEdit
+                className={`${
+                  isDarkMode ? "text-purple-400" : "text-purple-600"
+                } opacity-70`}
+              />
             </div>
           </div>
 
@@ -191,7 +207,9 @@ export default function UpdateBlog() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Existing Images */}
             <div>
-              <label className="block text-sm font-medium mb-2 ml-1">Existing Images</label>
+              <label className="block text-sm font-medium mb-2 ml-1">
+                Existing Images
+              </label>
               {blogData.imageUrls.length > 0 ? (
                 <div className="grid grid-cols-3 gap-3">
                   {blogData.imageUrls.map((url, index) => (
@@ -212,13 +230,21 @@ export default function UpdateBlog() {
                   ))}
                 </div>
               ) : (
-                <div className={`p-8 text-center rounded-xl ${
-                  isDarkMode ? "bg-gray-700/30" : "bg-purple-50"
-                }`}>
-                  <FaImage className={`mx-auto text-4xl mb-3 ${
-                    isDarkMode ? "text-purple-400/50" : "text-purple-300"
-                  }`} />
-                  <p className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
+                <div
+                  className={`p-8 text-center rounded-xl ${
+                    isDarkMode ? "bg-gray-700/30" : "bg-purple-50"
+                  }`}
+                >
+                  <FaImage
+                    className={`mx-auto text-4xl mb-3 ${
+                      isDarkMode ? "text-purple-400/50" : "text-purple-300"
+                    }`}
+                  />
+                  <p
+                    className={`text-sm ${
+                      isDarkMode ? "text-gray-400" : "text-gray-500"
+                    }`}
+                  >
                     No existing images
                   </p>
                 </div>
@@ -227,18 +253,24 @@ export default function UpdateBlog() {
 
             {/* Upload New Images */}
             <div>
-              <label className="block text-sm font-medium mb-2 ml-1">Add New Images</label>
+              <label className="block text-sm font-medium mb-2 ml-1">
+                Add New Images
+              </label>
               <div
-                className={`border-2 ${isDragging ? 'border-purple-500' : 'border-dashed'} rounded-xl p-6 text-center transition-all cursor-pointer ${
+                className={`border-2 ${
+                  isDragging ? "border-purple-500" : "border-dashed"
+                } rounded-xl p-6 text-center transition-all cursor-pointer ${
                   isDarkMode
-                    ? isDragging 
-                      ? "bg-purple-900/20 border-purple-500" 
+                    ? isDragging
+                      ? "bg-purple-900/20 border-purple-500"
                       : "border-purple-500/50 hover:bg-purple-900/10"
                     : isDragging
-                      ? "bg-purple-100 border-purple-500"
-                      : "border-purple-400 hover:bg-purple-50"
+                    ? "bg-purple-100 border-purple-500"
+                    : "border-purple-400 hover:bg-purple-50"
                 }`}
-                onClick={() => document.getElementById("newImageUpload").click()}
+                onClick={() =>
+                  document.getElementById("newImageUpload").click()
+                }
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
@@ -272,14 +304,20 @@ export default function UpdateBlog() {
                         isDarkMode ? "text-purple-400" : "text-purple-500"
                       } ${isDragging ? "animate-bounce" : ""}`}
                     />
-                    <p className={`font-medium ${
-                      isDarkMode ? "text-purple-300" : "text-purple-600"
-                    }`}>
-                      {isDragging ? "Drop your images here" : "Click to upload or drag & drop"}
+                    <p
+                      className={`font-medium ${
+                        isDarkMode ? "text-purple-300" : "text-purple-600"
+                      }`}
+                    >
+                      {isDragging
+                        ? "Drop your images here"
+                        : "Click to upload or drag & drop"}
                     </p>
-                    <p className={`text-xs ${
-                      isDarkMode ? "text-gray-400" : "text-gray-500"
-                    }`}>
+                    <p
+                      className={`text-xs ${
+                        isDarkMode ? "text-gray-400" : "text-gray-500"
+                      }`}
+                    >
                       (Supports JPG, PNG up to 5MB)
                     </p>
                   </div>
@@ -299,7 +337,9 @@ export default function UpdateBlog() {
 
           {/* Full Content */}
           <div>
-            <label className="block text-sm font-medium mb-2 ml-1">Blog Content</label>
+            <label className="block text-sm font-medium mb-2 ml-1">
+              Blog Content
+            </label>
             <textarea
               name="fullContent"
               value={blogData.fullContent}
@@ -338,9 +378,25 @@ export default function UpdateBlog() {
             >
               {loading ? (
                 <>
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                   Updating...
                 </>

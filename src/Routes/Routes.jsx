@@ -165,7 +165,9 @@ export const router = createBrowserRouter([
         path: "payments/:trxid",
         element: <PaymentSuccess />,
         loader: ({ params }) =>
-          fetch(`http://localhost:5000/payments/${params.trxid}`),
+          fetch(
+            `https://rex-auction-server-side-jzyx.onrender.com/payments/${params.trxid}`
+          ),
       },
       {
         path: "paymentFailed",

@@ -10,7 +10,7 @@ import {
 } from "react-icons/fa";
 import { IoMdContact } from "react-icons/io";
 import { MdOutlineDashboard, MdOutlineLogout } from "react-icons/md";
-import {  FiInfo } from "react-icons/fi";
+import { FiInfo } from "react-icons/fi";
 import { BiMoney } from "react-icons/bi";
 import { Bell } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -55,13 +55,16 @@ const Navbar = () => {
   // Socket.IO connection
   useEffect(() => {
     if (user && !socketRef.current) {
-      socketRef.current = io("http://localhost:5000", {
-        withCredentials: true,
-        reconnection: true,
-        reconnectionAttempts: 5,
-        reconnectionDelay: 1000,
-        timeout: 10000,
-      });
+      socketRef.current = io(
+        "https://rex-auction-server-side-jzyx.onrender.com",
+        {
+          withCredentials: true,
+          reconnection: true,
+          reconnectionAttempts: 5,
+          reconnectionDelay: 1000,
+          timeout: 10000,
+        }
+      );
 
       socketRef.current.on("receiveNotification", (notification) => {
         console.log("Received notification:", notification); // Debug log
@@ -88,7 +91,7 @@ const Navbar = () => {
       const fetchNotifications = async () => {
         try {
           const response = await axios.get(
-            `http://localhost:5000/notifications/${user.email}`,
+            `https://rex-auction-server-side-jzyx.onrender.com/notifications/${user.email}`,
             {
               withCredentials: true,
             }
@@ -221,7 +224,7 @@ const Navbar = () => {
 
       if (user) {
         await axios.put(
-          `http://localhost:5000/notifications/mark-read/${user.email}`,
+          `https://rex-auction-server-side-jzyx.onrender.com/notifications/mark-read/${user.email}`,
           {},
           {
             withCredentials: true,
@@ -294,20 +297,20 @@ const Navbar = () => {
           },
         ]
       : []),
-      {
-        path: "/aboutUs",
-        label: "About Us",
-        icon: <FiInfo className="w-5 h-5" />,
-      },
-      {
-        path: "/blogs",
-        label: "Blog",
-        icon:<FaBloggerB className="w-5 h-5" />,
-      },
+    {
+      path: "/aboutUs",
+      label: "About Us",
+      icon: <FiInfo className="w-5 h-5" />,
+    },
+    {
+      path: "/blogs",
+      label: "Blog",
+      icon: <FaBloggerB className="w-5 h-5" />,
+    },
     {
       path: "/contactUs",
       label: "Contact Us",
-      icon:<IoMdContact className="w-5 h-5" />,
+      icon: <IoMdContact className="w-5 h-5" />,
     },
   ];
 

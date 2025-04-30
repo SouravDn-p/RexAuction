@@ -3,13 +3,13 @@ import { Link, useNavigate } from "react-router-dom";
 import ThemeContext from "../../../Context/ThemeContext";
 import axios from "axios";
 import LoadingSpinner from "../../../LoadingSpinner";
-import { 
-  FaCalendarAlt, 
+import {
+  FaCalendarAlt,
   FaUserAlt,
   FaArrowRight,
   FaPenAlt,
   FaSearch,
-  FaExclamationCircle
+  FaExclamationCircle,
 } from "react-icons/fa";
 import { BiSolidBookAdd } from "react-icons/bi";
 
@@ -26,7 +26,9 @@ const Blogs = () => {
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/allBlogs");
+        const res = await axios.get(
+          "https://rex-auction-server-side-jzyx.onrender.com/allBlogs"
+        );
         setBlogs(res.data);
         setIsLoading(false);
       } catch (err) {
@@ -42,10 +44,11 @@ const Blogs = () => {
   if (isLoading) return <LoadingSpinner />;
 
   // Filter blogs based on search query
-  const filteredBlogs = blogs.filter(blog => 
-    blog?.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    blog?.category?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    blog?.fullContent?.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredBlogs = blogs.filter(
+    (blog) =>
+      blog?.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      blog?.category?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      blog?.fullContent?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Pagination logic
@@ -57,7 +60,7 @@ const Blogs = () => {
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) {
       setCurrentPage(page);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
@@ -79,16 +82,21 @@ const Blogs = () => {
           <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 animate-gradient-x">
             Discover Our Blogs
           </h1>
-          <p className={`text-lg max-w-2xl mx-auto ${
-            isDarkMode ? "text-gray-400" : "text-gray-600"
-          }`}>
-            Explore insightful articles, tutorials, and stories from our community
+          <p
+            className={`text-lg max-w-2xl mx-auto ${
+              isDarkMode ? "text-gray-400" : "text-gray-600"
+            }`}
+          >
+            Explore insightful articles, tutorials, and stories from our
+            community
           </p>
-          
+
           {/* Search Bar */}
           <div className="relative max-w-md mx-auto mt-8">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <FaSearch className={`${isDarkMode ? "text-gray-400" : "text-gray-500"}`} />
+              <FaSearch
+                className={`${isDarkMode ? "text-gray-400" : "text-gray-500"}`}
+              />
             </div>
             <input
               type="text"
@@ -119,9 +127,13 @@ const Blogs = () => {
               <h2 className="text-2xl font-bold mb-3">
                 {isError ? "No blogs available yet" : "No blogs available yet"}
               </h2>
-              <p className={`mb-6 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
-                {isError 
-                  ? "Be the first to create an amazing blog post!" 
+              <p
+                className={`mb-6 ${
+                  isDarkMode ? "text-gray-400" : "text-gray-600"
+                }`}
+              >
+                {isError
+                  ? "Be the first to create an amazing blog post!"
                   : "Be the first to create an amazing blog post!"}
               </p>
               <button
@@ -144,8 +156,14 @@ const Blogs = () => {
           <div className="text-center py-20">
             <div className="max-w-md mx-auto">
               <FaSearch className="mx-auto text-6xl mb-4 text-purple-500" />
-              <h2 className="text-2xl font-bold mb-3">No matching blogs found</h2>
-              <p className={`mb-6 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+              <h2 className="text-2xl font-bold mb-3">
+                No matching blogs found
+              </h2>
+              <p
+                className={`mb-6 ${
+                  isDarkMode ? "text-gray-400" : "text-gray-600"
+                }`}
+              >
                 Try a different search term
               </p>
               <button
@@ -182,13 +200,15 @@ const Blogs = () => {
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-500"></div>
-                    
+
                     {/* Category badge on image */}
-                    <div className={`absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-semibold shadow-md ${
-                      isDarkMode 
-                        ? "bg-purple-900/90 text-purple-100" 
-                        : "bg-white/90 text-purple-800"
-                    }`}>
+                    <div
+                      className={`absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-semibold shadow-md ${
+                        isDarkMode
+                          ? "bg-purple-900/90 text-purple-100"
+                          : "bg-white/90 text-purple-800"
+                      }`}
+                    >
                       {blog.category || "General"}
                     </div>
                   </div>
@@ -197,15 +217,19 @@ const Blogs = () => {
                   <div className="p-6 flex flex-col h-64">
                     {/* Meta information */}
                     <div className="flex items-center gap-3 text-xs mb-3 flex-wrap">
-                      <span className={`flex items-center ${
-                        isDarkMode ? "text-gray-400" : "text-gray-500"
-                      }`}>
+                      <span
+                        className={`flex items-center ${
+                          isDarkMode ? "text-gray-400" : "text-gray-500"
+                        }`}
+                      >
                         <FaUserAlt className="mr-1" />
                         {blog.author || "Admin"}
                       </span>
-                      <span className={`flex items-center ${
-                        isDarkMode ? "text-gray-400" : "text-gray-500"
-                      }`}>
+                      <span
+                        className={`flex items-center ${
+                          isDarkMode ? "text-gray-400" : "text-gray-500"
+                        }`}
+                      >
                         <FaCalendarAlt className="mr-1" />
                         {new Date(blog.createdAt).toLocaleDateString()}
                       </span>
@@ -215,9 +239,11 @@ const Blogs = () => {
                     <h2 className="text-xl font-bold mb-3 line-clamp-2 leading-snug">
                       {blog.title}
                     </h2>
-                    <p className={`text-sm mb-4 line-clamp-3 ${
-                      isDarkMode ? "text-gray-300" : "text-gray-600"
-                    }`}>
+                    <p
+                      className={`text-sm mb-4 line-clamp-3 ${
+                        isDarkMode ? "text-gray-300" : "text-gray-600"
+                      }`}
+                    >
                       {blog.fullContent}
                     </p>
 
@@ -226,8 +252,8 @@ const Blogs = () => {
                       <Link
                         to={`/blogDetails/${blog._id}`}
                         className={`inline-flex items-center font-medium transition-colors group-hover:text-purple-500 ${
-                          isDarkMode 
-                            ? "text-purple-400 hover:text-purple-300" 
+                          isDarkMode
+                            ? "text-purple-400 hover:text-purple-300"
                             : "text-purple-600 hover:text-purple-800"
                         }`}
                       >
@@ -252,8 +278,19 @@ const Blogs = () => {
                       : "bg-purple-100 text-purple-800 hover:bg-purple-200 disabled:bg-gray-200 disabled:text-gray-400"
                   }`}
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 mr-1"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 19l-7-7 7-7"
+                    />
                   </svg>
                   Previous
                 </button>
@@ -295,8 +332,19 @@ const Blogs = () => {
                   }`}
                 >
                   Next
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5 ml-1"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
                   </svg>
                 </button>
               </div>

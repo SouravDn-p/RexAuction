@@ -916,8 +916,6 @@
 
 // export default Sidebar;
 
-
-
 import { useState, useContext } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { AiOutlineInteraction } from "react-icons/ai";
@@ -958,13 +956,13 @@ const Sidebar = () => {
     auctions: false,
     updates: false,
     management: false,
-    buyerAuction: false
+    buyerAuction: false,
   });
 
   const toggleDropdown = (dropdown) => {
-    setOpenDropdown(prev => ({
+    setOpenDropdown((prev) => ({
       ...prev,
-      [dropdown]: !prev[dropdown]
+      [dropdown]: !prev[dropdown],
     }));
   };
 
@@ -976,7 +974,7 @@ const Sidebar = () => {
       text: isDarkMode ? "indigo-100" : "indigo-800",
       icon: isDarkMode ? "indigo-300" : "indigo-700",
       hover: isDarkMode ? "indigo-800/40" : "indigo-100",
-      active: isDarkMode ? "purple-300/50" : "purple-200/70"
+      active: isDarkMode ? "purple-300/50" : "purple-200/70",
     },
     seller: {
       primary: isDarkMode ? "amber" : "amber",
@@ -984,7 +982,7 @@ const Sidebar = () => {
       text: isDarkMode ? "amber-100" : "amber-800",
       icon: isDarkMode ? "amber-300" : "amber-700",
       hover: isDarkMode ? "amber-800/40" : "amber-100",
-      active: isDarkMode ? "orange-300/50" : "orange-200/70"
+      active: isDarkMode ? "orange-300/50" : "orange-200/70",
     },
     buyer: {
       primary: isDarkMode ? "emerald" : "blue",
@@ -992,20 +990,23 @@ const Sidebar = () => {
       text: isDarkMode ? "emerald-100" : "blue-700",
       icon: isDarkMode ? "emerald-300" : "blue-700",
       hover: isDarkMode ? "emerald-800/40" : "blue-100",
-      active: isDarkMode ? "teal-300/50" : "teal-200/70"
+      active: isDarkMode ? "teal-300/50" : "teal-200/70",
     },
     common: {
       text: isDarkMode ? "gray-100" : "gray-800",
       icon: isDarkMode ? "gray-300" : "gray-700",
       hover: isDarkMode ? "gray-800/40" : "gray-200",
-      active: isDarkMode ? "purple-300/50" : "purple-200/70"
-    }
+      active: isDarkMode ? "purple-300/50" : "purple-200/70",
+    },
   };
 
-  const colors = isAdmin ? roleColors.admin : 
-                isSeller ? roleColors.seller : 
-                isBuyer ? roleColors.buyer : 
-                roleColors.common;
+  const colors = isAdmin
+    ? roleColors.admin
+    : isSeller
+    ? roleColors.seller
+    : isBuyer
+    ? roleColors.buyer
+    : roleColors.common;
 
   return (
     <div className="drawer-side fixed z-20">
@@ -1019,8 +1020,8 @@ const Sidebar = () => {
         }`}
       >
         {/* Logo and Title */}
-        <div 
-          className="flex items-center gap-3 mb-8 cursor-pointer group" 
+        <div
+          className="flex items-center gap-3 mb-8 cursor-pointer group"
           onClick={() => navigate("/")}
         >
           <div
@@ -1048,15 +1049,18 @@ const Sidebar = () => {
               <img
                 className="w-12 h-12 rounded-full border-2 border-pink-400 p-0.5 hover:scale-110 transition-transform"
                 src={
-                  user?.photoURL || "https://i.ibb.co.com/Y75m1Mk9/Final-Boss.jpg"
+                  user?.photoURL ||
+                  "https://i.ibb.co.com/Y75m1Mk9/Final-Boss.jpg"
                 }
                 alt="User"
               />
-              <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 ${
-                isDarkMode ? "border-gray-900" : "border-white"
-              } ${
-                dbUser?.status === "active" ? "bg-green-500" : "bg-yellow-500"
-              }`}></div>
+              <div
+                className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 ${
+                  isDarkMode ? "border-gray-900" : "border-white"
+                } ${
+                  dbUser?.status === "active" ? "bg-green-500" : "bg-yellow-500"
+                }`}
+              ></div>
             </div>
             <div>
               <p
@@ -1067,10 +1071,20 @@ const Sidebar = () => {
                 {user?.displayName || "User"}
               </p>
               <div className="flex gap-1 items-center">
-                <span className={`inline-block px-2 py-0.5 bg-gradient-to-r from-${colors.primary}-500 to-${colors.secondary}-500 rounded-full text-white text-xs font-semibold mt-1 capitalize`}>
+                <span
+                  className={`inline-block px-2 py-0.5 bg-gradient-to-r from-${
+                    colors.primary
+                  }-500 to-${colors.secondary}-500 rounded-full ${
+                    isDarkMode ? " text-white" : "text-black"
+                  } text-xs font-semibold mt-1 capitalize`}
+                >
                   {dbUser?.role || "Guest"}
                 </span>
-                <span className={`text-xs opacity-70 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                <span
+                  className={`text-xs opacity-70 ${
+                    isDarkMode ? "text-gray-400" : "text-gray-600"
+                  }`}
+                >
                   v1.2.0
                 </span>
               </div>
@@ -1088,21 +1102,27 @@ const Sidebar = () => {
               >
                 Admin Controls
               </p>
-              
+
               {/* Dashboard Dropdown */}
               <div>
                 <button
-                  onClick={() => toggleDropdown('dashboard')}
+                  onClick={() => toggleDropdown("dashboard")}
                   className={`flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 hover:bg-${colors.hover} text-${colors.text}`}
                 >
                   <div className="flex items-center gap-3">
-                    <MdOutlineDashboard size={20} className={`text-${colors.icon}`} />
+                    <MdOutlineDashboard
+                      size={20}
+                      className={`text-${colors.icon}`}
+                    />
                     <span>Dashboard</span>
                   </div>
                   {openDropdown.dashboard ? (
                     <FaChevronUp size={14} className={`text-${colors.icon}`} />
                   ) : (
-                    <FaChevronDown size={14} className={`text-${colors.icon}`} />
+                    <FaChevronDown
+                      size={14}
+                      className={`text-${colors.icon}`}
+                    />
                   )}
                 </button>
                 {openDropdown.dashboard && (
@@ -1113,12 +1133,17 @@ const Sidebar = () => {
                       className={({ isActive }) =>
                         `flex items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 shadow-sm hover:scale-105 ${
                           isActive
-                            ? `bg-${colors.active} ${isDarkMode ? "text-white" : "text-gray-800"} font-bold`
+                            ? `bg-${colors.active} ${
+                                isDarkMode ? "text-white" : "text-gray-800"
+                              } font-bold`
                             : `hover:bg-${colors.hover} text-${colors.text}`
                         }`
                       }
                     >
-                      <CiViewBoard size={18} className={`text-${colors.icon}`} />
+                      <CiViewBoard
+                        size={18}
+                        className={`text-${colors.icon}`}
+                      />
                       <span>Overview</span>
                     </NavLink>
 
@@ -1128,7 +1153,9 @@ const Sidebar = () => {
                       className={({ isActive }) =>
                         `flex items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 shadow-sm hover:scale-105 ${
                           isActive
-                            ? `bg-${colors.active} ${isDarkMode ? "text-white" : "text-gray-800"} font-bold`
+                            ? `bg-${colors.active} ${
+                                isDarkMode ? "text-white" : "text-gray-800"
+                              } font-bold`
                             : `hover:bg-${colors.hover} text-${colors.text}`
                         }`
                       }
@@ -1141,12 +1168,17 @@ const Sidebar = () => {
                       className={({ isActive }) =>
                         `flex items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 shadow-sm hover:scale-105 ${
                           isActive
-                            ? `bg-${colors.active} ${isDarkMode ? "text-white" : "text-gray-800"} font-bold`
+                            ? `bg-${colors.active} ${
+                                isDarkMode ? "text-white" : "text-gray-800"
+                              } font-bold`
                             : `hover:bg-${colors.hover} text-${colors.text}`
                         }`
                       }
                     >
-                      <IoWalletOutline size={18} className={`text-${colors.icon}`} />
+                      <IoWalletOutline
+                        size={18}
+                        className={`text-${colors.icon}`}
+                      />
                       <span>Payment</span>
                     </NavLink>
                   </div>
@@ -1156,7 +1188,7 @@ const Sidebar = () => {
               {/* Inbox Dropdown */}
               <div>
                 <button
-                  onClick={() => toggleDropdown('inbox')}
+                  onClick={() => toggleDropdown("inbox")}
                   className={`flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 hover:bg-${colors.hover} text-${colors.text}`}
                 >
                   <div className="flex items-center gap-3">
@@ -1166,7 +1198,10 @@ const Sidebar = () => {
                   {openDropdown.inbox ? (
                     <FaChevronUp size={14} className={`text-${colors.icon}`} />
                   ) : (
-                    <FaChevronDown size={14} className={`text-${colors.icon}`} />
+                    <FaChevronDown
+                      size={14}
+                      className={`text-${colors.icon}`}
+                    />
                   )}
                 </button>
                 {openDropdown.inbox && (
@@ -1176,12 +1211,17 @@ const Sidebar = () => {
                       className={({ isActive }) =>
                         `flex items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 shadow-sm hover:scale-105 ${
                           isActive
-                            ? `bg-${colors.active} ${isDarkMode ? "text-white" : "text-gray-800"} font-bold`
+                            ? `bg-${colors.active} ${
+                                isDarkMode ? "text-white" : "text-gray-800"
+                              } font-bold`
                             : `hover:bg-${colors.hover} text-${colors.text}`
                         }`
                       }
                     >
-                      <IoChatbubbleEllipsesOutline size={18} className={`text-${colors.icon}`} />
+                      <IoChatbubbleEllipsesOutline
+                        size={18}
+                        className={`text-${colors.icon}`}
+                      />
                       <span>Chats</span>
                     </NavLink>
                   </div>
@@ -1191,17 +1231,23 @@ const Sidebar = () => {
               {/* Management Dropdown */}
               <div>
                 <button
-                  onClick={() => toggleDropdown('management')}
+                  onClick={() => toggleDropdown("management")}
                   className={`flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 hover:bg-${colors.hover} text-${colors.text}`}
                 >
                   <div className="flex items-center gap-3">
-                    <MdManageAccounts size={20} className={`text-${colors.icon}`} />
+                    <MdManageAccounts
+                      size={20}
+                      className={`text-${colors.icon}`}
+                    />
                     <span>Management</span>
                   </div>
                   {openDropdown.management ? (
                     <FaChevronUp size={14} className={`text-${colors.icon}`} />
                   ) : (
-                    <FaChevronDown size={14} className={`text-${colors.icon}`} />
+                    <FaChevronDown
+                      size={14}
+                      className={`text-${colors.icon}`}
+                    />
                   )}
                 </button>
                 {openDropdown.management && (
@@ -1211,7 +1257,9 @@ const Sidebar = () => {
                       className={({ isActive }) =>
                         `flex items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 shadow-sm hover:scale-105 ${
                           isActive
-                            ? `bg-${colors.active} ${isDarkMode ? "text-white" : "text-gray-800"} font-bold`
+                            ? `bg-${colors.active} ${
+                                isDarkMode ? "text-white" : "text-gray-800"
+                              } font-bold`
                             : `hover:bg-${colors.hover} text-${colors.text}`
                         }`
                       }
@@ -1224,12 +1272,17 @@ const Sidebar = () => {
                       className={({ isActive }) =>
                         `flex items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 shadow-sm hover:scale-105 ${
                           isActive
-                            ? `bg-${colors.active} ${isDarkMode ? "text-white" : "text-gray-800"} font-bold`
+                            ? `bg-${colors.active} ${
+                                isDarkMode ? "text-white" : "text-gray-800"
+                              } font-bold`
                             : `hover:bg-${colors.hover} text-${colors.text}`
                         }`
                       }
                     >
-                      <AiOutlineInteraction size={18} className={`text-${colors.icon}`} />
+                      <AiOutlineInteraction
+                        size={18}
+                        className={`text-${colors.icon}`}
+                      />
                       <span>Seller Requests</span>
                     </NavLink>
                   </div>
@@ -1239,7 +1292,7 @@ const Sidebar = () => {
               {/* Auctions Dropdown */}
               <div>
                 <button
-                  onClick={() => toggleDropdown('auctions')}
+                  onClick={() => toggleDropdown("auctions")}
                   className={`flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 hover:bg-${colors.hover} text-${colors.text}`}
                 >
                   <div className="flex items-center gap-3">
@@ -1249,7 +1302,10 @@ const Sidebar = () => {
                   {openDropdown.auctions ? (
                     <FaChevronUp size={14} className={`text-${colors.icon}`} />
                   ) : (
-                    <FaChevronDown size={14} className={`text-${colors.icon}`} />
+                    <FaChevronDown
+                      size={14}
+                      className={`text-${colors.icon}`}
+                    />
                   )}
                 </button>
                 {openDropdown.auctions && (
@@ -1259,12 +1315,17 @@ const Sidebar = () => {
                       className={({ isActive }) =>
                         `flex items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 shadow-sm hover:scale-105 ${
                           isActive
-                            ? `bg-${colors.active} ${isDarkMode ? "text-white" : "text-gray-800"} font-bold`
+                            ? `bg-${colors.active} ${
+                                isDarkMode ? "text-white" : "text-gray-800"
+                              } font-bold`
                             : `hover:bg-${colors.hover} text-${colors.text}`
                         }`
                       }
                     >
-                      <MdManageAccounts size={18} className={`text-${colors.icon}`} />
+                      <MdManageAccounts
+                        size={18}
+                        className={`text-${colors.icon}`}
+                      />
                       <span>Auction Management</span>
                     </NavLink>
                     <NavLink
@@ -1272,7 +1333,9 @@ const Sidebar = () => {
                       className={({ isActive }) =>
                         `flex items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 shadow-sm hover:scale-105 ${
                           isActive
-                            ? `bg-${colors.active} ${isDarkMode ? "text-white" : "text-gray-800"} font-bold`
+                            ? `bg-${colors.active} ${
+                                isDarkMode ? "text-white" : "text-gray-800"
+                              } font-bold`
                             : `hover:bg-${colors.hover} text-${colors.text}`
                         }`
                       }
@@ -1287,17 +1350,23 @@ const Sidebar = () => {
               {/* Updates Dropdown */}
               <div>
                 <button
-                  onClick={() => toggleDropdown('updates')}
+                  onClick={() => toggleDropdown("updates")}
                   className={`flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 hover:bg-${colors.hover} text-${colors.text}`}
                 >
                   <div className="flex items-center gap-3">
-                    <MdTipsAndUpdates size={20} className={`text-${colors.icon}`} />
+                    <MdTipsAndUpdates
+                      size={20}
+                      className={`text-${colors.icon}`}
+                    />
                     <span>Updates</span>
                   </div>
                   {openDropdown.updates ? (
                     <FaChevronUp size={14} className={`text-${colors.icon}`} />
                   ) : (
-                    <FaChevronDown size={14} className={`text-${colors.icon}`} />
+                    <FaChevronDown
+                      size={14}
+                      className={`text-${colors.icon}`}
+                    />
                   )}
                 </button>
                 {openDropdown.updates && (
@@ -1307,12 +1376,17 @@ const Sidebar = () => {
                       className={({ isActive }) =>
                         `flex items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 shadow-sm hover:scale-105 ${
                           isActive
-                            ? `bg-${colors.active} ${isDarkMode ? "text-white" : "text-gray-800"} font-bold`
+                            ? `bg-${colors.active} ${
+                                isDarkMode ? "text-white" : "text-gray-800"
+                              } font-bold`
                             : `hover:bg-${colors.hover} text-${colors.text}`
                         }`
                       }
                     >
-                      <TfiAnnouncement size={18} className={`text-${colors.icon}`} />
+                      <TfiAnnouncement
+                        size={18}
+                        className={`text-${colors.icon}`}
+                      />
                       <span>Create Announcement</span>
                     </NavLink>
                     <NavLink
@@ -1320,7 +1394,9 @@ const Sidebar = () => {
                       className={({ isActive }) =>
                         `flex items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 shadow-sm hover:scale-105 ${
                           isActive
-                            ? `bg-${colors.active} ${isDarkMode ? "text-white" : "text-gray-800"} font-bold`
+                            ? `bg-${colors.active} ${
+                                isDarkMode ? "text-white" : "text-gray-800"
+                              } font-bold`
                             : `hover:bg-${colors.hover} text-${colors.text}`
                         }`
                       }
@@ -1342,21 +1418,27 @@ const Sidebar = () => {
               >
                 Seller Dashboard
               </p>
-              
+
               {/* Dashboard Dropdown */}
               <div>
                 <button
-                  onClick={() => toggleDropdown('dashboard')}
+                  onClick={() => toggleDropdown("dashboard")}
                   className={`flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 hover:bg-${colors.hover} text-${colors.text}`}
                 >
                   <div className="flex items-center gap-3">
-                    <MdOutlineDashboard size={20} className={`text-${colors.icon}`} />
+                    <MdOutlineDashboard
+                      size={20}
+                      className={`text-${colors.icon}`}
+                    />
                     <span>Dashboard</span>
                   </div>
                   {openDropdown.dashboard ? (
                     <FaChevronUp size={14} className={`text-${colors.icon}`} />
                   ) : (
-                    <FaChevronDown size={14} className={`text-${colors.icon}`} />
+                    <FaChevronDown
+                      size={14}
+                      className={`text-${colors.icon}`}
+                    />
                   )}
                 </button>
                 {openDropdown.dashboard && (
@@ -1367,12 +1449,17 @@ const Sidebar = () => {
                       className={({ isActive }) =>
                         `flex items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 shadow-sm hover:scale-105 ${
                           isActive
-                            ? `bg-${colors.active} ${isDarkMode ? "text-white" : "text-gray-800"} font-bold`
+                            ? `bg-${colors.active} ${
+                                isDarkMode ? "text-white" : "text-gray-800"
+                              } font-bold`
                             : `hover:bg-${colors.hover} text-${colors.text}`
                         }`
                       }
                     >
-                      <CiViewBoard size={18} className={`text-${colors.icon}`} />
+                      <CiViewBoard
+                        size={18}
+                        className={`text-${colors.icon}`}
+                      />
                       <span>Overview</span>
                     </NavLink>
                     <NavLink
@@ -1381,7 +1468,9 @@ const Sidebar = () => {
                       className={({ isActive }) =>
                         `flex items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 shadow-sm hover:scale-105 ${
                           isActive
-                            ? `bg-${colors.active} ${isDarkMode ? "text-white" : "text-gray-800"} font-bold`
+                            ? `bg-${colors.active} ${
+                                isDarkMode ? "text-white" : "text-gray-800"
+                              } font-bold`
                             : `hover:bg-${colors.hover} text-${colors.text}`
                         }`
                       }
@@ -1394,12 +1483,17 @@ const Sidebar = () => {
                       className={({ isActive }) =>
                         `flex items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 shadow-sm hover:scale-105 ${
                           isActive
-                            ? `bg-${colors.active} ${isDarkMode ? "text-white" : "text-gray-800"} font-bold`
+                            ? `bg-${colors.active} ${
+                                isDarkMode ? "text-white" : "text-gray-800"
+                              } font-bold`
                             : `hover:bg-${colors.hover} text-${colors.text}`
                         }`
                       }
                     >
-                      <IoWalletOutline size={18} className={`text-${colors.icon}`} />
+                      <IoWalletOutline
+                        size={18}
+                        className={`text-${colors.icon}`}
+                      />
                       <span>Payment</span>
                     </NavLink>
                   </div>
@@ -1409,7 +1503,7 @@ const Sidebar = () => {
               {/* Inbox Dropdown */}
               <div>
                 <button
-                  onClick={() => toggleDropdown('inbox')}
+                  onClick={() => toggleDropdown("inbox")}
                   className={`flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 hover:bg-${colors.hover} text-${colors.text}`}
                 >
                   <div className="flex items-center gap-3">
@@ -1419,7 +1513,10 @@ const Sidebar = () => {
                   {openDropdown.inbox ? (
                     <FaChevronUp size={14} className={`text-${colors.icon}`} />
                   ) : (
-                    <FaChevronDown size={14} className={`text-${colors.icon}`} />
+                    <FaChevronDown
+                      size={14}
+                      className={`text-${colors.icon}`}
+                    />
                   )}
                 </button>
                 {openDropdown.inbox && (
@@ -1429,12 +1526,17 @@ const Sidebar = () => {
                       className={({ isActive }) =>
                         `flex items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 shadow-sm hover:scale-105 ${
                           isActive
-                            ? `bg-${colors.active} ${isDarkMode ? "text-white" : "text-gray-800"} font-bold`
+                            ? `bg-${colors.active} ${
+                                isDarkMode ? "text-white" : "text-gray-800"
+                              } font-bold`
                             : `hover:bg-${colors.hover} text-${colors.text}`
                         }`
                       }
                     >
-                      <IoChatbubbleEllipsesOutline size={18} className={`text-${colors.icon}`} />
+                      <IoChatbubbleEllipsesOutline
+                        size={18}
+                        className={`text-${colors.icon}`}
+                      />
                       <span>Chats</span>
                     </NavLink>
                   </div>
@@ -1444,7 +1546,7 @@ const Sidebar = () => {
               {/* Auctions Dropdown */}
               <div>
                 <button
-                  onClick={() => toggleDropdown('auctions')}
+                  onClick={() => toggleDropdown("auctions")}
                   className={`flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 hover:bg-${colors.hover} text-${colors.text}`}
                 >
                   <div className="flex items-center gap-3">
@@ -1454,7 +1556,10 @@ const Sidebar = () => {
                   {openDropdown.auctions ? (
                     <FaChevronUp size={14} className={`text-${colors.icon}`} />
                   ) : (
-                    <FaChevronDown size={14} className={`text-${colors.icon}`} />
+                    <FaChevronDown
+                      size={14}
+                      className={`text-${colors.icon}`}
+                    />
                   )}
                 </button>
                 {openDropdown.auctions && (
@@ -1464,12 +1569,17 @@ const Sidebar = () => {
                       className={({ isActive }) =>
                         `flex items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 shadow-sm hover:scale-105 ${
                           isActive
-                            ? `bg-${colors.active} ${isDarkMode ? "text-white" : "text-gray-800"} font-bold`
+                            ? `bg-${colors.active} ${
+                                isDarkMode ? "text-white" : "text-gray-800"
+                              } font-bold`
                             : `hover:bg-${colors.hover} text-${colors.text}`
                         }`
                       }
                     >
-                      <AiOutlineInteraction size={18} className={`text-${colors.icon}`} />
+                      <AiOutlineInteraction
+                        size={18}
+                        className={`text-${colors.icon}`}
+                      />
                       <span>Create Auction</span>
                     </NavLink>
                     <NavLink
@@ -1477,12 +1587,17 @@ const Sidebar = () => {
                       className={({ isActive }) =>
                         `flex items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 shadow-sm hover:scale-105 ${
                           isActive
-                            ? `bg-${colors.active} ${isDarkMode ? "text-white" : "text-gray-800"} font-bold`
+                            ? `bg-${colors.active} ${
+                                isDarkMode ? "text-white" : "text-gray-800"
+                              } font-bold`
                             : `hover:bg-${colors.hover} text-${colors.text}`
                         }`
                       }
                     >
-                      <MdManageAccounts size={18} className={`text-${colors.icon}`} />
+                      <MdManageAccounts
+                        size={18}
+                        className={`text-${colors.icon}`}
+                      />
                       <span>Manage Auction</span>
                     </NavLink>
                   </div>
@@ -1492,17 +1607,23 @@ const Sidebar = () => {
               {/* Updates Dropdown */}
               <div>
                 <button
-                  onClick={() => toggleDropdown('updates')}
+                  onClick={() => toggleDropdown("updates")}
                   className={`flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 hover:bg-${colors.hover} text-${colors.text}`}
                 >
                   <div className="flex items-center gap-3">
-                    <MdTipsAndUpdates size={20} className={`text-${colors.icon}`} />
+                    <MdTipsAndUpdates
+                      size={20}
+                      className={`text-${colors.icon}`}
+                    />
                     <span>Updates</span>
                   </div>
                   {openDropdown.updates ? (
                     <FaChevronUp size={14} className={`text-${colors.icon}`} />
                   ) : (
-                    <FaChevronDown size={14} className={`text-${colors.icon}`} />
+                    <FaChevronDown
+                      size={14}
+                      className={`text-${colors.icon}`}
+                    />
                   )}
                 </button>
                 {openDropdown.updates && (
@@ -1512,12 +1633,17 @@ const Sidebar = () => {
                       className={({ isActive }) =>
                         `flex items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 shadow-sm hover:scale-105 ${
                           isActive
-                            ? `bg-${colors.active} ${isDarkMode ? "text-white" : "text-gray-800"} font-bold`
+                            ? `bg-${colors.active} ${
+                                isDarkMode ? "text-white" : "text-gray-800"
+                              } font-bold`
                             : `hover:bg-${colors.hover} text-${colors.text}`
                         }`
                       }
                     >
-                      <TfiAnnouncement size={18} className={`text-${colors.icon}`} />
+                      <TfiAnnouncement
+                        size={18}
+                        className={`text-${colors.icon}`}
+                      />
                       <span>Announcements</span>
                     </NavLink>
                     <NavLink
@@ -1525,12 +1651,17 @@ const Sidebar = () => {
                       className={({ isActive }) =>
                         `flex items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 shadow-sm hover:scale-105 ${
                           isActive
-                            ? `bg-${colors.active} ${isDarkMode ? "text-white" : "text-gray-800"} font-bold`
+                            ? `bg-${colors.active} ${
+                                isDarkMode ? "text-white" : "text-gray-800"
+                              } font-bold`
                             : `hover:bg-${colors.hover} text-${colors.text}`
                         }`
                       }
                     >
-                      <TbMessageReport size={18} className={`text-${colors.icon}`} />
+                      <TbMessageReport
+                        size={18}
+                        className={`text-${colors.icon}`}
+                      />
                       <span>Reports</span>
                     </NavLink>
                   </div>
@@ -1547,21 +1678,27 @@ const Sidebar = () => {
               >
                 Buyer Dashboard
               </p>
-              
+
               {/* Dashboard Dropdown */}
               <div>
                 <button
-                  onClick={() => toggleDropdown('dashboard')}
+                  onClick={() => toggleDropdown("dashboard")}
                   className={`flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 hover:bg-${colors.hover} text-${colors.text}`}
                 >
                   <div className="flex items-center gap-3">
-                    <MdOutlineDashboard size={20} className={`text-${colors.icon}`} />
+                    <MdOutlineDashboard
+                      size={20}
+                      className={`text-${colors.icon}`}
+                    />
                     <span>Dashboard</span>
                   </div>
                   {openDropdown.dashboard ? (
                     <FaChevronUp size={14} className={`text-${colors.icon}`} />
                   ) : (
-                    <FaChevronDown size={14} className={`text-${colors.icon}`} />
+                    <FaChevronDown
+                      size={14}
+                      className={`text-${colors.icon}`}
+                    />
                   )}
                 </button>
                 {openDropdown.dashboard && (
@@ -1572,12 +1709,17 @@ const Sidebar = () => {
                       className={({ isActive }) =>
                         `flex items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 shadow-sm hover:scale-105 ${
                           isActive
-                            ? `bg-${colors.active} ${isDarkMode ? "text-white" : "text-gray-800"} font-bold`
+                            ? `bg-${colors.active} ${
+                                isDarkMode ? "text-white" : "text-gray-800"
+                              } font-bold`
                             : `hover:bg-${colors.hover} text-${colors.text}`
                         }`
                       }
                     >
-                      <CiViewBoard size={18} className={`text-${colors.icon}`} />
+                      <CiViewBoard
+                        size={18}
+                        className={`text-${colors.icon}`}
+                      />
                       <span>Overview</span>
                     </NavLink>
                     <NavLink
@@ -1586,7 +1728,9 @@ const Sidebar = () => {
                       className={({ isActive }) =>
                         `flex items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 shadow-sm hover:scale-105 ${
                           isActive
-                            ? `bg-${colors.active} ${isDarkMode ? "text-white" : "text-gray-800"} font-bold`
+                            ? `bg-${colors.active} ${
+                                isDarkMode ? "text-white" : "text-gray-800"
+                              } font-bold`
                             : `hover:bg-${colors.hover} text-${colors.text}`
                         }`
                       }
@@ -1599,12 +1743,17 @@ const Sidebar = () => {
                       className={({ isActive }) =>
                         `flex items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 shadow-sm hover:scale-105 ${
                           isActive
-                            ? `bg-${colors.active} ${isDarkMode ? "text-white" : "text-gray-800"} font-bold`
+                            ? `bg-${colors.active} ${
+                                isDarkMode ? "text-white" : "text-gray-800"
+                              } font-bold`
                             : `hover:bg-${colors.hover} text-${colors.text}`
                         }`
                       }
                     >
-                      <IoWalletOutline size={18} className={`text-${colors.icon}`} />
+                      <IoWalletOutline
+                        size={18}
+                        className={`text-${colors.icon}`}
+                      />
                       <span>Payment</span>
                     </NavLink>
                   </div>
@@ -1614,7 +1763,7 @@ const Sidebar = () => {
               {/* Inbox Dropdown */}
               <div>
                 <button
-                  onClick={() => toggleDropdown('inbox')}
+                  onClick={() => toggleDropdown("inbox")}
                   className={`flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 hover:bg-${colors.hover} text-${colors.text}`}
                 >
                   <div className="flex items-center gap-3">
@@ -1624,7 +1773,10 @@ const Sidebar = () => {
                   {openDropdown.inbox ? (
                     <FaChevronUp size={14} className={`text-${colors.icon}`} />
                   ) : (
-                    <FaChevronDown size={14} className={`text-${colors.icon}`} />
+                    <FaChevronDown
+                      size={14}
+                      className={`text-${colors.icon}`}
+                    />
                   )}
                 </button>
                 {openDropdown.inbox && (
@@ -1634,12 +1786,17 @@ const Sidebar = () => {
                       className={({ isActive }) =>
                         `flex items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 shadow-sm hover:scale-105 ${
                           isActive
-                            ? `bg-${colors.active} ${isDarkMode ? "text-white" : "text-gray-800"} font-bold`
+                            ? `bg-${colors.active} ${
+                                isDarkMode ? "text-white" : "text-gray-800"
+                              } font-bold`
                             : `hover:bg-${colors.hover} text-${colors.text}`
                         }`
                       }
                     >
-                      <IoChatbubbleEllipsesOutline size={18} className={`text-${colors.icon}`} />
+                      <IoChatbubbleEllipsesOutline
+                        size={18}
+                        className={`text-${colors.icon}`}
+                      />
                       <span>Chats</span>
                     </NavLink>
                   </div>
@@ -1649,17 +1806,23 @@ const Sidebar = () => {
               {/* Auction Activities Dropdown */}
               <div>
                 <button
-                  onClick={() => toggleDropdown('buyerAuction')}
+                  onClick={() => toggleDropdown("buyerAuction")}
                   className={`flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 hover:bg-${colors.hover} text-${colors.text}`}
                 >
                   <div className="flex items-center gap-3">
-                    <RiAuctionLine size={20} className={`text-${colors.icon}`} />
+                    <RiAuctionLine
+                      size={20}
+                      className={`text-${colors.icon}`}
+                    />
                     <span>Auction Activities</span>
                   </div>
                   {openDropdown.buyerAuction ? (
                     <FaChevronUp size={14} className={`text-${colors.icon}`} />
                   ) : (
-                    <FaChevronDown size={14} className={`text-${colors.icon}`} />
+                    <FaChevronDown
+                      size={14}
+                      className={`text-${colors.icon}`}
+                    />
                   )}
                 </button>
                 {openDropdown.buyerAuction && (
@@ -1669,12 +1832,17 @@ const Sidebar = () => {
                       className={({ isActive }) =>
                         `flex items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 shadow-sm hover:scale-105 ${
                           isActive
-                            ? `bg-${colors.active} ${isDarkMode ? "text-white" : "text-gray-800"} font-bold`
+                            ? `bg-${colors.active} ${
+                                isDarkMode ? "text-white" : "text-gray-800"
+                              } font-bold`
                             : `hover:bg-${colors.hover} text-${colors.text}`
                         }`
                       }
                     >
-                      <RiAuctionLine size={18} className={`text-${colors.icon}`} />
+                      <RiAuctionLine
+                        size={18}
+                        className={`text-${colors.icon}`}
+                      />
                       <span>Auction Status</span>
                     </NavLink>
                     <NavLink
@@ -1682,7 +1850,9 @@ const Sidebar = () => {
                       className={({ isActive }) =>
                         `flex items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 shadow-sm hover:scale-105 ${
                           isActive
-                            ? `bg-${colors.active} ${isDarkMode ? "text-white" : "text-gray-800"} font-bold`
+                            ? `bg-${colors.active} ${
+                                isDarkMode ? "text-white" : "text-gray-800"
+                              } font-bold`
                             : `hover:bg-${colors.hover} text-${colors.text}`
                         }`
                       }
@@ -1697,17 +1867,23 @@ const Sidebar = () => {
               {/* Updates Dropdown */}
               <div>
                 <button
-                  onClick={() => toggleDropdown('updates')}
+                  onClick={() => toggleDropdown("updates")}
                   className={`flex items-center justify-between w-full py-2.5 px-3 rounded-lg transition-all duration-200 hover:bg-${colors.hover} text-${colors.text}`}
                 >
                   <div className="flex items-center gap-3">
-                    <MdTipsAndUpdates size={20} className={`text-${colors.icon}`} />
+                    <MdTipsAndUpdates
+                      size={20}
+                      className={`text-${colors.icon}`}
+                    />
                     <span>Updates</span>
                   </div>
                   {openDropdown.updates ? (
                     <FaChevronUp size={14} className={`text-${colors.icon}`} />
                   ) : (
-                    <FaChevronDown size={14} className={`text-${colors.icon}`} />
+                    <FaChevronDown
+                      size={14}
+                      className={`text-${colors.icon}`}
+                    />
                   )}
                 </button>
                 {openDropdown.updates && (
@@ -1717,12 +1893,17 @@ const Sidebar = () => {
                       className={({ isActive }) =>
                         `flex items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 shadow-sm hover:scale-105 ${
                           isActive
-                            ? `bg-${colors.active} ${isDarkMode ? "text-white" : "text-gray-800"} font-bold`
+                            ? `bg-${colors.active} ${
+                                isDarkMode ? "text-white" : "text-gray-800"
+                              } font-bold`
                             : `hover:bg-${colors.hover} text-${colors.text}`
                         }`
                       }
                     >
-                      <TfiAnnouncement size={18} className={`text-${colors.icon}`} />
+                      <TfiAnnouncement
+                        size={18}
+                        className={`text-${colors.icon}`}
+                      />
                       <span>Announcements</span>
                     </NavLink>
                   </div>
@@ -1734,7 +1915,9 @@ const Sidebar = () => {
                 className={({ isActive }) =>
                   `flex items-center gap-3 py-2.5 px-3 rounded-lg transition-all duration-200 shadow-sm hover:scale-105 ${
                     isActive
-                      ? `bg-${colors.active} ${isDarkMode ? "text-white" : "text-gray-800"} font-bold`
+                      ? `bg-${colors.active} ${
+                          isDarkMode ? "text-white" : "text-gray-800"
+                        } font-bold`
                       : `hover:bg-${colors.hover} text-${colors.text}`
                   }`
                 }
@@ -1764,7 +1947,9 @@ const Sidebar = () => {
             className={({ isActive }) =>
               `flex items-center gap-3 py-2.5 px-3 rounded-lg transition-all duration-200 shadow-sm hover:scale-105 ${
                 isActive
-                  ? `bg-${roleColors.common.active} ${isDarkMode ? "text-white" : "text-gray-800"} font-bold`
+                  ? `bg-${roleColors.common.active} ${
+                      isDarkMode ? "text-white" : "text-gray-800"
+                    } font-bold`
                   : `hover:bg-${roleColors.common.hover} text-${roleColors.common.text}`
               }`
             }
@@ -1777,12 +1962,17 @@ const Sidebar = () => {
             className={({ isActive }) =>
               `flex items-center gap-3 py-2.5 px-3 rounded-lg transition-all duration-200 shadow-sm hover:scale-105 ${
                 isActive
-                  ? `bg-${roleColors.common.active} ${isDarkMode ? "text-white" : "text-gray-800"} font-bold`
+                  ? `bg-${roleColors.common.active} ${
+                      isDarkMode ? "text-white" : "text-gray-800"
+                    } font-bold`
                   : `hover:bg-${roleColors.common.hover} text-${roleColors.common.text}`
               }`
             }
           >
-            <IoSettingsOutline size={20} className={`text-${roleColors.common.icon}`} />
+            <IoSettingsOutline
+              size={20}
+              className={`text-${roleColors.common.icon}`}
+            />
             <span>Settings</span>
           </NavLink>
         </div>

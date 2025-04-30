@@ -16,7 +16,9 @@ export default function UpcomingAuction() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/upcoming-auctions")
+      .get(
+        "https://rex-auction-server-side-jzyx.onrender.com/upcoming-auctions"
+      )
       .then((res) => {
         const today = new Date();
         const upcoming = res.data.filter(
