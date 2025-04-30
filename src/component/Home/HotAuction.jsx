@@ -632,7 +632,7 @@ const HotAuction = () => {
   }
 
   return (
-    <div className={`min-h-screen w-full overflow-x-hidden ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
+    <div className={` w-full overflow-x-hidden ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
       <section className="w-full max-w-screen-xl mx-auto px-4 py-12">
         <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-6 w-full">
           <div className="flex items-center">
@@ -765,11 +765,7 @@ const HotAuction = () => {
                               </p>
                             </div>
                             <div>
-                              <p className="text-xs text-gray-400">Bids</p>
-                              <div className="flex items-center">
-                                <FaGavel className="text-purple-400 mr-1" />
-                                <span className="text-white">{item.bids || 0}</span>
-                              </div>
+                              
                             </div>
                           </div>
                         </div>
