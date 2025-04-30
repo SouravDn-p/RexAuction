@@ -3,8 +3,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 const userApi = createApi({
   reducerPath: "userApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: `http://localhost:5000`,
-    credentials: "include",
+    baseUrl: `https://rex-auction-server-side-jzyx.onrender.com`,
   }),
   tagTypes: ["User"],
   endpoints: (builder) => ({
@@ -15,7 +14,7 @@ const userApi = createApi({
 
     getUserByEmail: builder.query({
       query: (email) => `/users?email=${email}`,
-      providesTags: ["User"], 
+      providesTags: ["User"],
     }),
 
     addUser: builder.mutation({
@@ -24,7 +23,7 @@ const userApi = createApi({
         method: "POST",
         body: user,
       }),
-      invalidatesTags: ["User"], 
+      invalidatesTags: ["User"],
     }),
 
     updateUser: builder.mutation({
@@ -33,7 +32,7 @@ const userApi = createApi({
         method: "PATCH",
         body: data,
       }),
-      invalidatesTags: ["User"], 
+      invalidatesTags: ["User"],
     }),
 
     deleteUser: builder.mutation({
@@ -41,7 +40,7 @@ const userApi = createApi({
         url: `/users/${id}`,
         method: "DELETE",
       }),
-      invalidatesTags: ["User"], 
+      invalidatesTags: ["User"],
     }),
   }),
 });
