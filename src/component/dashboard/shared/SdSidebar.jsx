@@ -1093,7 +1093,7 @@ const Sidebar = () => {
         </div>
 
         {/* Navigation Links Section */}
-        <div className="space-y-1 flex-1 overflow-y-auto">
+        <div className="space-y-1 flex-1 ">
           {/* Admin Navigation Links */}
           {isAdmin && (
             <div className="space-y-1">
