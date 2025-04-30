@@ -7,6 +7,7 @@ import TrendingAuction from "./TrendingAuction";
 import SdDemo from "./SdDemo";
 import ThemeContext from "../../component/Context/ThemeContext";
 import UpcomingAuction from "../auction/UpcomingAuction";
+import BlogCard from "./BlogCard";
 
 export default function Home() {
   const { isDarkMode } = useContext(ThemeContext);
@@ -25,8 +26,9 @@ export default function Home() {
         <BrowsCategory darkMode={isDarkMode} />
         <UpcomingAuction darkMode={isDarkMode} />
         {/* <LiveAuction darkMode={isDarkMode} /> */}
-        <SdDemo darkMode={isDarkMode} />
+        {/* <SdDemo darkMode={isDarkMode} /> */}
         {/* <TrendingAuction darkMode={isDarkMode} /> */}
+        <BlogCard darkMode={isDarkMode} />
       </div>
     </div>
   );

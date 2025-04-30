@@ -35,9 +35,7 @@
 .animate-floating {
   animation: floating 2s ease-in-out infinite;
 }
-body{
-  background-color: white;
-}
+
 
 
 /* auction layout design */
