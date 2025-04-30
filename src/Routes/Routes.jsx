@@ -44,6 +44,8 @@ import SharedPayment from "../component/dashboard/shared/payment/SharedPayment";
 import Blog from "../component/dashboard/shared/Blog/Blog";
 import AddBlog from "../component/dashboard/shared/Blog/AddBlog";
 import UpdateBlog from "../component/dashboard/shared/Blog/UpdateBlog";
+import Blogs from "../component/dashboard/shared/Blog/Blogs";
+import BlogDetails from "../component/dashboard/shared/Blog/BlogDetails";
 // import Blogs from "../component/Blogs/Blogs";
 // import AdminFeedback from "../component/dashboard/admin/AdminFeedback";
 
@@ -64,6 +66,14 @@ export const router = createBrowserRouter([
       {
         path: "/aboutUs",
         element: <AboutUs />,
+      },
+      {
+        path: "blogs",
+        element: <Blogs />,
+      },
+      {
+        path: "blogDetails/:id",
+        element: <BlogDetails />,
       },
       {
         path: "/auction",
@@ -155,7 +165,9 @@ export const router = createBrowserRouter([
         path: "payments/:trxid",
         element: <PaymentSuccess />,
         loader: ({ params }) =>
-          fetch(`http://localhost:5000/payments/${params.trxid}`),
+          fetch(
+            `https://rex-auction-server-side-jzyx.onrender.com/payments/${params.trxid}`
+          ),
       },
       {
         path: "paymentFailed",
@@ -211,7 +223,6 @@ export const router = createBrowserRouter([
             path: "plan",
             element: <Plan />,
           },
-          
         ],
       },
       {
@@ -250,17 +261,18 @@ export const router = createBrowserRouter([
         path: "sharedPayment",
         element: <SharedPayment />,
       },
+
       {
         path: "blog",
         element: <Blog />,
       },
       {
-        path: 'create-blog',
-        element: <AddBlog></AddBlog>
+        path: "create-blog",
+        element: <AddBlog></AddBlog>,
       },
       {
-        path:'updateBlog/:id',
-        element:<UpdateBlog></UpdateBlog>
+        path: "updateBlog/:id",
+        element: <UpdateBlog></UpdateBlog>,
       },
     ],
   },

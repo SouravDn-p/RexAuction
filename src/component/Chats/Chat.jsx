@@ -3,7 +3,7 @@ import ChatSidebar from "./ChatSidebar";
 import io from "socket.io-client";
 import axios from "axios";
 import auth from "../../firebase/firebase.init";
-import { useLocation } from "react-router-dom";
+import { Navigate, useLocation, useNavigate } from "react-router-dom";
 import ThemeContext from "../Context/ThemeContext";
 import {
   ArrowLeft,
@@ -40,6 +40,7 @@ export default function Chat() {
   const { isMobile, setIsMobile, selectedUser, setSelectedUser } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const axiosPublic = useAxiosPublic();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const checkIfMobile = () => {
@@ -78,17 +79,21 @@ export default function Chat() {
     };
 
     fetchUserData();
+    setSelectedUser(null);
   }, []);
 
   useEffect(() => {
     if (!socketRef.current) {
-      socketRef.current = io("http://localhost:5000", {
-        withCredentials: true,
-        reconnection: true,
-        reconnectionAttempts: 5,
-        reconnectionDelay: 1000,
-        timeout: 10000,
-      });
+      socketRef.current = io(
+        "https://rex-auction-server-side-jzyx.onrender.com",
+        {
+          withCredentials: true,
+          reconnection: true,
+          reconnectionAttempts: 5,
+          reconnectionDelay: 1000,
+          timeout: 10000,
+        }
+      );
     }
 
     const socket = socketRef.current;
@@ -241,9 +246,9 @@ export default function Chat() {
       const since = lastMessageTimestamp
         ? new Date(lastMessageTimestamp).toISOString()
         : null;
-      const url = `http://localhost:5000/messages/email/${currentUser.email}/${
-        user.email
-      }${since ? `?since=${since}` : ""}`;
+      const url = `https://rex-auction-server-side-jzyx.onrender.com/messages/email/${
+        currentUser.email
+      }/${user.email}${since ? `?since=${since}` : ""}`;
 
       const response = await axios.get(url, { withCredentials: true });
 
@@ -319,12 +324,6 @@ export default function Chat() {
       setSelectedUser(storedUser);
     }
   }, [location.state, selectedUser, setSelectedUser]);
-
-  useEffect(() => {
-    if (selectedUser) {
-      localStorage.setItem("selectedUser", JSON.stringify(selectedUser));
-    }
-  }, [selectedUser]);
 
   useEffect(() => {
     const user = auth.currentUser;
@@ -689,9 +688,8 @@ export default function Chat() {
 
   const handleBackToSidebar = () => {
     setSelectedUser(null);
-    // Force a re-render by resetting messages
     setMessages([]);
-    // Ensure the sidebar is visible on mobile
+    localStorage.removeItem("selectedUser"); // Clear selectedUser from localStorage
     if (isMobile) {
       document
         .querySelector(".chat-sidebar-container")
@@ -821,9 +819,9 @@ export default function Chat() {
           )}
 
           {selectedUser ? (
-            <>
+            <div className="h-screen">
               <div
-                className={`border-b sticky top-0 z-50 ${
+                className={`border-b sticky top-0 z-50   ${
                   isDarkMode
                     ? "bg-gradient-to-r from-gray-800 to-gray-900 border-gray-700 text-gray-200"
                     : "bg-gradient-to-r from-white to-gray-50 border-gray-200 text-gray-800"
@@ -899,7 +897,7 @@ export default function Chat() {
               </div>
 
               <div
-                className={`flex-1 overflow-y-auto p-4 ${
+                className={`flex-1 overflow-y-auto h-screen p-4 ${
                   isDarkMode
                     ? "bg-gradient-to-b from-gray-900 to-gray-800"
                     : "bg-gradient-to-b from-gray-50 to-white"
@@ -1085,7 +1083,7 @@ export default function Chat() {
               </div>
 
               <div
-                className={`p-4 border-t ${
+                className={`p-4 border-t sticky bottom-0 z-10 ${
                   isDarkMode
                     ? "bg-gray-800 border-gray-700"
                     : "bg-white border-gray-200"
@@ -1112,7 +1110,7 @@ export default function Chat() {
 
                 {showAttachMenu && (
                   <div
-                    className={`p-2 mb-2 rounded-lg flex space-x-2 ${
+                    className={`p-2 mb-2 rounded-lg flex space-x-2 flex-1 overflow-y-auto ${
                       isDarkMode ? "bg-gray-700" : "bg-gray-100"
                     }`}
                   >
@@ -1137,7 +1135,7 @@ export default function Chat() {
                   </div>
                 )}
 
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 sticky bottom-0">
                   <button
                     onClick={() => setShowAttachMenu(!showAttachMenu)}
                     className={`p-3 rounded-full ${
@@ -1196,7 +1194,7 @@ export default function Chat() {
                   </button>
                 </div>
               </div>
-            </>
+            </div>
           ) : (
             <div
               className={`flex-1 flex flex-col items-center justify-center ${

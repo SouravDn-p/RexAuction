@@ -107,8 +107,8 @@ const SdBot = () => {
         className={`btn btn-circle ${
           showChatbot
             ? "btn-error bg-yellow-400 absolute top-2 right-2 z-10"
-            : "btn-primary shadow-lg"
-        } transition-all duration-300`}
+            : "bg-purple-500 text-white shadow-lg hover:bg-purple-600"
+        } transition-all duration-300 border-none`}
         aria-label={showChatbot ? "Close chatbot" : "Open chatbot"}
       >
         {showChatbot ? <X size={20} /> : <MessageSquare size={20} />}
@@ -123,11 +123,11 @@ const SdBot = () => {
         <div
           className={`${
             isDarkMode
-              ? "bg-purple-900"
-              : "bg-gradient-to-r from-purple-600 to-purple-500"
-          } text-primary-content p-4 flex justify-between items-center`}
+              ? "bg-purple-500"
+              : "bg-purple-500"
+          } text-white p-4 flex justify-between items-center`}
         >
-          <div className="flex items-center gap-3 ">
+          <div className="flex items-center gap-3">
             <div className="w-10 h-10">
               <Lottie
                 animationData={chatAnimation}
@@ -139,7 +139,7 @@ const SdBot = () => {
           </div>
           <button
             onClick={() => setShowChatbot(false)}
-            className="btn btn-circle btn-sm btn-ghost"
+            className="btn btn-circle btn-sm btn-ghost text-white border-none"
           >
             <ChevronDown size={18} />
           </button>
@@ -155,7 +155,7 @@ const SdBot = () => {
           {/* Welcome Message */}
           <div className="chat chat-start mb-4">
             <div className="chat-image avatar">
-              <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary">
+              <div className="w-10 h-10 rounded-full overflow-hidden">
                 <img
                   src={rexLogo}
                   alt="AI Assistant Logo"
@@ -163,7 +163,7 @@ const SdBot = () => {
                 />
               </div>
             </div>
-            <div className="chat-bubble chat-bubble-primary text-sm leading-relaxed">
+            <div className="chat-bubble bg-purple-500 text-white text-sm leading-relaxed">
               Hello! 👋
               <br />
               I’m your AI assistant. How can I assist you today?
@@ -181,11 +181,11 @@ const SdBot = () => {
               <div className="chat-image avatar">
                 <div
                   className={`w-10 h-10 rounded-full ${
-                    chat.role === "user" ? "bg-secondary" : "bg-primary"
+                    chat.role === "user" ? "bg-purple-400" : "bg-purple-500"
                   } flex items-center justify-center`}
                 >
                   {chat.role === "user" ? (
-                    <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-secondary">
+                    <div className="w-10 h-10 rounded-full overflow-hidden">
                       <img
                         src={dbUser?.photo || "/default-user.png"}
                         alt="You"
@@ -193,14 +193,12 @@ const SdBot = () => {
                       />
                     </div>
                   ) : (
-                    <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
-                      <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary">
-                        <img
-                          src={rexLogo}
-                          alt="AI Assistant Logo"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
+                    <div className="w-10 h-10 rounded-full overflow-hidden">
+                      <img
+                        src={rexLogo}
+                        alt="AI Assistant Logo"
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                   )}
                 </div>
@@ -208,10 +206,10 @@ const SdBot = () => {
               <div
                 className={`chat-bubble ${
                   chat.role === "user"
-                    ? "chat-bubble-secondary"
+                    ? "bg-purple-400 text-white"
                     : chat.isError
                     ? "chat-bubble-error"
-                    : "chat-bubble-primary"
+                    : "bg-purple-500 text-white"
                 }`}
               >
                 {chat.text === "Thinking..." ? (
@@ -231,29 +229,9 @@ const SdBot = () => {
               </div>
             </div>
           ))}
-
-          {/* Loading Indicator */}
-          {/* {isLoading && (
-            <div className="chat chat-start mb-4">
-              <div className="chat-image avatar">
-                <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
-                  <MessageSquare size={18} className="text-primary-content" />
-                </div>
-              </div>
-              <div className="chat-bubble chat-bubble-primary flex items-center gap-2">
-                <span>Thinking</span>
-                <div className="w-12 h-6">
-                  <Lottie
-                    animationData={typingAnimation}
-                    loop={true}
-                    className="w-full h-full"
-                  />
-                </div>
-              </div>
-            </div>
-          )} */}
         </div>
 
+        {/* Chatbot Footer */}
         {/* Chatbot Footer */}
         <form
           onSubmit={handleSubmit}
@@ -277,7 +255,7 @@ const SdBot = () => {
           />
           <button
             type="submit"
-            className="btn btn-primary"
+            className="btn bg-purple-500 hover:bg-purple-600 text-white border-none"
             disabled={!inputMessage.trim() || isLoading}
           >
             {isLoading ? (

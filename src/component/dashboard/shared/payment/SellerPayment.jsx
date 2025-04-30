@@ -104,7 +104,9 @@ export default function SellerPayment() {
   const fetchPayments = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/payments");
+      const response = await fetch(
+        "https://rex-auction-server-side-jzyx.onrender.com/payments"
+      );
       const data = await response.json();
       // Filter payments for the logged-in seller
       const sellerPayments = data.filter(

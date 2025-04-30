@@ -17,13 +17,16 @@ const NotificationHandler = () => {
   // Initialize socket connection
   useEffect(() => {
     if (user && !socketRef.current) {
-      socketRef.current = io("http://localhost:5000", {
-        withCredentials: true,
-        reconnection: true,
-        reconnectionAttempts: 5,
-        reconnectionDelay: 1000,
-        timeout: 10000,
-      });
+      socketRef.current = io(
+        "https://rex-auction-server-side-jzyx.onrender.com",
+        {
+          withCredentials: true,
+          reconnection: true,
+          reconnectionAttempts: 5,
+          reconnectionDelay: 1000,
+          timeout: 10000,
+        }
+      );
 
       // Listen for notifications
       socketRef.current.on("receiveNotification", (notification) => {
@@ -81,7 +84,7 @@ const NotificationHandler = () => {
     try {
       // Update in database
       await axios.put(
-        `http://localhost:5000/notifications/mark-read/${user.email}`,
+        `https://rex-auction-server-side-jzyx.onrender.com/notifications/mark-read/${user.email}`,
         { notificationId },
         { withCredentials: true }
       );

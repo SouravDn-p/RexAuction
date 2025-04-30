@@ -61,7 +61,9 @@ const SellerProfile = () => {
     if (user?.email) {
       setBalanceLoading(true);
       axios
-        .get(`http://localhost:5000/users?email=${user.email}`)
+        .get(
+          `https://rex-auction-server-side-jzyx.onrender.com/users?email=${user.email}`
+        )
         .then((res) => {
           const userData = res.data[0];
           setAccountBalance(userData?.accountBalance || 0);
@@ -80,7 +82,9 @@ const SellerProfile = () => {
     if (user?.email) {
       setPaymentsLoading(true);
       axios
-        .get(`http://localhost:5000/payments?sellerEmail=${user.email}`)
+        .get(
+          `https://rex-auction-server-side-jzyx.onrender.com/payments?sellerEmail=${user.email}`
+        )
         .then((res) => {
           setPayments(res.data.slice(0, 5));
           setPaymentsLoading(false);
@@ -98,7 +102,9 @@ const SellerProfile = () => {
     if (user?.email) {
       setAuctionsLoading(true);
       axios
-        .get(`http://localhost:5000/auctions?sellerEmail=${user.email}`)
+        .get(
+          `https://rex-auction-server-side-jzyx.onrender.com/auctions?sellerEmail=${user.email}`
+        )
         .then((res) => {
           setAuctions(res.data.slice(0, 5));
           setAuctionsLoading(false);
@@ -115,7 +121,9 @@ const SellerProfile = () => {
   useEffect(() => {
     const fetchCoverOptions = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/cover-options");
+        const response = await axios.get(
+          "https://rex-auction-server-side-jzyx.onrender.com/cover-options"
+        );
         setCoverOptions(response.data);
       } catch (error) {
         console.error("Error fetching cover options:", error);
@@ -131,7 +139,9 @@ const SellerProfile = () => {
     const fetchUserCover = async () => {
       if (user?.uid) {
         try {
-          const response = await axios.get(`http://localhost:5000/cover/${user.uid}`);
+          const response = await axios.get(
+            `https://rex-auction-server-side-jzyx.onrender.com/cover/${user.uid}`
+          );
           if (response.data.image) {
             setCurrentCover(response.data.image);
           }
@@ -153,29 +163,36 @@ const SellerProfile = () => {
 
   // Prepare chart data for auction activity
   const chartData = auctions.length
-    ? auctions.reduce((acc, auction) => {
-        const date = new Date(auction.createdAt || Date.now()).toLocaleDateString();
-        const existing = acc.find((item) => item.date === date);
-        if (existing) {
-          existing.count += 1;
-        } else {
-          acc.push({
-            date,
-            count: 1,
-          });
-        }
-        return acc;
-      }, []).slice(-5)
+    ? auctions
+        .reduce((acc, auction) => {
+          const date = new Date(
+            auction.createdAt || Date.now()
+          ).toLocaleDateString();
+          const existing = acc.find((item) => item.date === date);
+          if (existing) {
+            existing.count += 1;
+          } else {
+            acc.push({
+              date,
+              count: 1,
+            });
+          }
+          return acc;
+        }, [])
+        .slice(-5)
     : demoChartData;
 
   const saveCoverImage = async () => {
     if (!selectedCover || !user?.uid) return;
     setIsSaving(true);
     try {
-      await axios.patch("http://localhost:5000/cover", {
-        userId: user.uid,
-        image: selectedCover,
-      });
+      await axios.patch(
+        "https://rex-auction-server-side-jzyx.onrender.com/cover",
+        {
+          userId: user.uid,
+          image: selectedCover,
+        }
+      );
       setCurrentCover(selectedCover);
       setIsModalOpen(false);
     } catch (error) {
@@ -196,7 +213,9 @@ const SellerProfile = () => {
     isDarkMode ? "text-white" : "text-gray-900"
   }`;
 
-  const labelStyle = `text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`;
+  const labelStyle = `text-sm ${
+    isDarkMode ? "text-gray-300" : "text-gray-600"
+  }`;
 
   if (authLoading) return <LoadingSpinner />;
 
@@ -530,9 +549,23 @@ const SellerProfile = () => {
                       margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                     >
                       <defs>
-                        <linearGradient id="colorBar" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.8} />
-                          <stop offset="95%" stopColor="#6D28D9" stopOpacity={1} />
+                        <linearGradient
+                          id="colorBar"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="5%"
+                            stopColor="#8B5CF6"
+                            stopOpacity={0.8}
+                          />
+                          <stop
+                            offset="95%"
+                            stopColor="#6D28D9"
+                            stopOpacity={1}
+                          />
                         </linearGradient>
                       </defs>
                       <CartesianGrid
@@ -542,16 +575,22 @@ const SellerProfile = () => {
                       <XAxis
                         dataKey="date"
                         tick={{ fill: isDarkMode ? "#E5E7EB" : "#4B5563" }}
-                        axisLine={{ stroke: isDarkMode ? "#6B7280" : "#D1D5DB" }}
+                        axisLine={{
+                          stroke: isDarkMode ? "#6B7280" : "#D1D5DB",
+                        }}
                       />
                       <YAxis
                         tick={{ fill: isDarkMode ? "#E5E7EB" : "#4B5563" }}
-                        axisLine={{ stroke: isDarkMode ? "#6B7280" : "#D1D5DB" }}
+                        axisLine={{
+                          stroke: isDarkMode ? "#6B7280" : "#D1D5DB",
+                        }}
                       />
                       <Tooltip
                         contentStyle={{
                           backgroundColor: isDarkMode ? "#1F2937" : "#FFFFFF",
-                          border: `1px solid ${isDarkMode ? "#374151" : "#E5E7EB"}`,
+                          border: `1px solid ${
+                            isDarkMode ? "#374151" : "#E5E7EB"
+                          }`,
                           borderRadius: "0.5rem",
                           boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
                         }}
@@ -637,11 +676,15 @@ const SellerProfile = () => {
                   </motion.button>
                 </div>
                 {auctionsLoading ? (
-                  <p className="text-center text-gray-500">Loading auctions...</p>
+                  <p className="text-center text-gray-500">
+                    Loading auctions...
+                  </p>
                 ) : auctionsError ? (
                   <p className="text-center text-red-500">{auctionsError}</p>
                 ) : auctions.length === 0 ? (
-                  <p className="text-center text-gray-500">No auctions found.</p>
+                  <p className="text-center text-gray-500">
+                    No auctions found.
+                  </p>
                 ) : (
                   <ManageCard />
                 )}
@@ -695,9 +738,16 @@ const SellerProfile = () => {
                     >
                       <FaMoneyCheckAlt className="text-3xl text-green-500" />
                       <div>
-                        <h3 className="text-lg font-semibold">Total Earnings</h3>
+                        <h3 className="text-lg font-semibold">
+                          Total Earnings
+                        </h3>
                         <p className="text-2xl font-bold">
-                          ৳<CountUp end={totalEarnings} decimals={2} duration={2} />
+                          ৳
+                          <CountUp
+                            end={totalEarnings}
+                            decimals={2}
+                            duration={2}
+                          />
                         </p>
                         <p className={labelStyle}>From completed payments</p>
                       </div>
@@ -716,7 +766,9 @@ const SellerProfile = () => {
                             isDarkMode ? "bg-gray-700" : "bg-white"
                           } border ${
                             isDarkMode ? "border-gray-600" : "border-gray-200"
-                          } hover:${isDarkMode ? "bg-gray-600" : "bg-gray-50"} transition-colors`}
+                          } hover:${
+                            isDarkMode ? "bg-gray-600" : "bg-gray-50"
+                          } transition-colors`}
                         >
                           <div className="flex items-center justify-between mb-3">
                             <h4 className="text-lg font-semibold truncate">
@@ -744,13 +796,14 @@ const SellerProfile = () => {
                           <p className={labelStyle}>
                             Date:{" "}
                             {payment.paymentDate
-                              ? new Date(payment.paymentDate).toLocaleDateString()
+                              ? new Date(
+                                  payment.paymentDate
+                                ).toLocaleDateString()
                               : "N/A"}
                           </p>
                           <p className={labelStyle}>
                             Method: {payment.PaymentMethod || "N/A"}
                           </p>
-                    
                         </motion.div>
                       ))}
                     </div>

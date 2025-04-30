@@ -43,19 +43,22 @@ const biddingTips = [
   {
     id: 1,
     title: "Set a Budget",
-    description: "Determine your maximum bid before the auction starts to avoid overspending.",
+    description:
+      "Determine your maximum bid before the auction starts to avoid overspending.",
     icon: <FaWallet />,
   },
   {
     id: 2,
     title: "Research Items",
-    description: "Study the auction items to understand their value and condition.",
+    description:
+      "Study the auction items to understand their value and condition.",
     icon: <FaStar />,
   },
   {
     id: 3,
     title: "Bid Strategically",
-    description: "Place bids late in the auction to increase your chances of winning.",
+    description:
+      "Place bids late in the auction to increase your chances of winning.",
     icon: <FaGavel />,
   },
 ];
@@ -125,7 +128,9 @@ const BuyerProfile = () => {
     if (user?.email) {
       setBalanceLoading(true);
       axios
-        .get(`http://localhost:5000/users?email=${user.email}`)
+        .get(
+          `https://rex-auction-server-side-jzyx.onrender.com/users?email=${user.email}`
+        )
         .then((res) => {
           const userData = res.data[0];
           setAccountBalance(userData?.accountBalance || 0);
@@ -144,7 +149,9 @@ const BuyerProfile = () => {
     if (user?.email) {
       setPaymentsLoading(true);
       axios
-        .get(`http://localhost:5000/payments?buyerEmail=${user.email}`)
+        .get(
+          `https://rex-auction-server-side-jzyx.onrender.com/payments?buyerEmail=${user.email}`
+        )
         .then((res) => {
           setPayments(res.data.slice(0, 5));
           setPaymentsLoading(false);
@@ -161,7 +168,9 @@ const BuyerProfile = () => {
   useEffect(() => {
     if (user?.email) {
       axios
-        .get(`http://localhost:5000/bids?buyerEmail=${user.email}`)
+        .get(
+          `https://rex-auction-server-side-jzyx.onrender.com/bids?buyerEmail=${user.email}`
+        )
         .then((res) => setBiddingHistory(res.data.slice(0, 5)))
         .catch((err) => console.error("Error fetching bidding history:", err));
     }
@@ -172,7 +181,7 @@ const BuyerProfile = () => {
     if (user?.email) {
       setAuctionStatusLoading(true);
       axios
-        .get("http://localhost:5000/auctions")
+        .get("https://rex-auction-server-side-jzyx.onrender.com/auctions")
         .then((res) => {
           console.log("Auction status response:", res.data);
 
@@ -227,7 +236,9 @@ const BuyerProfile = () => {
   useEffect(() => {
     const fetchCoverOptions = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/cover-options");
+        const response = await axios.get(
+          "https://rex-auction-server-side-jzyx.onrender.com/cover-options"
+        );
         setCoverOptions(response.data);
       } catch (error) {
         console.error("Error fetching cover options:", error);
@@ -243,7 +254,9 @@ const BuyerProfile = () => {
     const fetchUserCover = async () => {
       if (user?.uid) {
         try {
-          const response = await axios.get(`http://localhost:5000/cover/${user.uid}`);
+          const response = await axios.get(
+            `https://rex-auction-server-side-jzyx.onrender.com/cover/${user.uid}`
+          );
           if (response.data.image) {
             setCurrentCover(response.data.image);
           }
@@ -262,10 +275,13 @@ const BuyerProfile = () => {
     if (!selectedCover || !user?.uid) return;
     setIsSaving(true);
     try {
-      await axios.patch("http://localhost:5000/cover", {
-        userId: user.uid,
-        image: selectedCover,
-      });
+      await axios.patch(
+        "https://rex-auction-server-side-jzyx.onrender.com/cover",
+        {
+          userId: user.uid,
+          image: selectedCover,
+        }
+      );
       setCurrentCover(selectedCover);
       setIsModalOpen(false);
     } catch (error) {
@@ -280,9 +296,7 @@ const BuyerProfile = () => {
     return (
       <span
         className={`px-2 py-1 rounded-full text-xs font-semibold ${
-          status
-            ? "bg-green-200 text-green-800"
-            : "bg-red-200 text-red-800"
+          status ? "bg-green-200 text-green-800" : "bg-red-200 text-red-800"
         }`}
       >
         {status ? "Won" : "Lost"}
@@ -300,7 +314,9 @@ const BuyerProfile = () => {
     isDarkMode ? "text-white" : "text-gray-900"
   }`;
 
-  const labelStyle = `text-sm ${isDarkMode ? "text-gray-300" : "text-gray-600"}`;
+  const labelStyle = `text-sm ${
+    isDarkMode ? "text-gray-300" : "text-gray-600"
+  }`;
 
   // Filter and sort bidding history
   const filteredBiddingHistory = biddingHistory.filter((bid) => {
@@ -331,21 +347,25 @@ const BuyerProfile = () => {
 
   // Prepare chart data for bidding activity
   const chartData = biddingHistory.length
-    ? biddingHistory.reduce((acc, bid) => {
-        const date = new Date(bid.createdAt || Date.now()).toLocaleDateString();
-        const existing = acc.find((item) => item.date === date);
-        if (existing) {
-          existing.count += 1; // Count bids
-          existing.amount += typeof bid.amount === "number" ? bid.amount : 0; // Sum bid amounts (optional)
-        } else {
-          acc.push({
-            date,
-            count: 1,
-            amount: typeof bid.amount === "number" ? bid.amount : 0,
-          });
-        }
-        return acc;
-      }, []).slice(-5) // Show last 5 days for brevity
+    ? biddingHistory
+        .reduce((acc, bid) => {
+          const date = new Date(
+            bid.createdAt || Date.now()
+          ).toLocaleDateString();
+          const existing = acc.find((item) => item.date === date);
+          if (existing) {
+            existing.count += 1; // Count bids
+            existing.amount += typeof bid.amount === "number" ? bid.amount : 0; // Sum bid amounts (optional)
+          } else {
+            acc.push({
+              date,
+              count: 1,
+              amount: typeof bid.amount === "number" ? bid.amount : 0,
+            });
+          }
+          return acc;
+        }, [])
+        .slice(-5) // Show last 5 days for brevity
     : [
         { date: "2025-04-23", count: 2, amount: 100 },
         { date: "2025-04-24", count: 3, amount: 150 },
@@ -688,9 +708,23 @@ const BuyerProfile = () => {
                       margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                     >
                       <defs>
-                        <linearGradient id="colorBar" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.8} />
-                          <stop offset="95%" stopColor="#6D28D9" stopOpacity={1} />
+                        <linearGradient
+                          id="colorBar"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="5%"
+                            stopColor="#8B5CF6"
+                            stopOpacity={0.8}
+                          />
+                          <stop
+                            offset="95%"
+                            stopColor="#6D28D9"
+                            stopOpacity={1}
+                          />
                         </linearGradient>
                       </defs>
                       <CartesianGrid
@@ -700,16 +734,22 @@ const BuyerProfile = () => {
                       <XAxis
                         dataKey="date"
                         tick={{ fill: isDarkMode ? "#E5E7EB" : "#4B5563" }}
-                        axisLine={{ stroke: isDarkMode ? "#6B7280" : "#D1D5DB" }}
+                        axisLine={{
+                          stroke: isDarkMode ? "#6B7280" : "#D1D5DB",
+                        }}
                       />
                       <YAxis
                         tick={{ fill: isDarkMode ? "#E5E7EB" : "#4B5563" }}
-                        axisLine={{ stroke: isDarkMode ? "#6B7280" : "#D1D5DB" }}
+                        axisLine={{
+                          stroke: isDarkMode ? "#6B7280" : "#D1D5DB",
+                        }}
                       />
                       <Tooltip
                         contentStyle={{
                           backgroundColor: isDarkMode ? "#1F2937" : "#FFFFFF",
-                          border: `1px solid ${isDarkMode ? "#374151" : "#E5E7EB"}`,
+                          border: `1px solid ${
+                            isDarkMode ? "#374151" : "#E5E7EB"
+                          }`,
                           borderRadius: "0.5rem",
                           boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
                         }}
@@ -852,14 +892,18 @@ const BuyerProfile = () => {
                               isDarkMode ? "bg-gray-700" : "bg-gray-50"
                             } transition-colors`}
                           >
-                            <td className="py-3 px-4">{bid.auctionName || "N/A"}</td>
+                            <td className="py-3 px-4">
+                              {bid.auctionName || "N/A"}
+                            </td>
                             <td className="py-3 px-4">
                               $
                               {typeof bid.amount === "number"
                                 ? bid.amount.toFixed(2)
                                 : "0.00"}
                             </td>
-                            <td className="py-3 px-4">{renderStatusBadge(bid.status)}</td>
+                            <td className="py-3 px-4">
+                              {renderStatusBadge(bid.status)}
+                            </td>
                             <td className="py-3 px-4">
                               {bid.createdAt
                                 ? new Date(bid.createdAt).toLocaleDateString()
@@ -882,11 +926,15 @@ const BuyerProfile = () => {
                 transition={{ duration: 0.3 }}
               >
                 {paymentsLoading ? (
-                  <p className="text-center text-gray-500">Loading payments...</p>
+                  <p className="text-center text-gray-500">
+                    Loading payments...
+                  </p>
                 ) : paymentsError ? (
                   <p className="text-center text-red-500">{paymentsError}</p>
                 ) : payments.length === 0 ? (
-                  <p className="text-center text-gray-500">No payments found.</p>
+                  <p className="text-center text-gray-500">
+                    No payments found.
+                  </p>
                 ) : (
                   <>
                     <SharedPayment />
@@ -914,12 +962,16 @@ const BuyerProfile = () => {
                               animate={{ opacity: 1 }}
                               transition={{ duration: 0.3 }}
                               className={`border-t ${
-                                isDarkMode ? "border-gray-700" : "border-gray-200"
+                                isDarkMode
+                                  ? "border-gray-700"
+                                  : "border-gray-200"
                               } hover:${
                                 isDarkMode ? "bg-gray-700" : "bg-gray-50"
                               } transition-colors`}
                             >
-                              <td className="py-3 px-4">{payment.auctionName || "N/A"}</td>
+                              <td className="py-3 px-4">
+                                {payment.auctionName || "N/A"}
+                              </td>
                               <td className="py-3 px-4">
                                 $
                                 {typeof payment.amount === "number"
@@ -939,7 +991,9 @@ const BuyerProfile = () => {
                               </td>
                               <td className="py-3 px-4">
                                 {payment.createdAt
-                                  ? new Date(payment.createdAt).toLocaleDateString()
+                                  ? new Date(
+                                      payment.createdAt
+                                    ).toLocaleDateString()
                                   : "N/A"}
                               </td>
                             </motion.tr>
@@ -959,7 +1013,9 @@ const BuyerProfile = () => {
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
               >
-                <h3 className="text-xl font-semibold mb-4">Recent Auction Status</h3>
+                <h3 className="text-xl font-semibold mb-4">
+                  Recent Auction Status
+                </h3>
                 <div className="flex justify-start gap-3 mb-6">
                   {["All", "Won", "Lost"].map((status) => (
                     <motion.button
@@ -979,12 +1035,18 @@ const BuyerProfile = () => {
                   ))}
                 </div>
                 {auctionStatusLoading ? (
-                  <p className="text-center text-gray-500">Loading auction status...</p>
+                  <p className="text-center text-gray-500">
+                    Loading auction status...
+                  </p>
                 ) : auctionStatusError ? (
-                  <p className="text-center text-red-500">{auctionStatusError}</p>
+                  <p className="text-center text-red-500">
+                    {auctionStatusError}
+                  </p>
                 ) : filteredAuctionStatus.length === 0 ? (
                   <>
-                    <p className="text-center text-gray-500 mb-4">No auction status found.</p>
+                    <p className="text-center text-gray-500 mb-4">
+                      No auction status found.
+                    </p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {demoAuctionData
                         .filter((bid) => {
@@ -1009,11 +1071,16 @@ const BuyerProfile = () => {
                               onError={(e) => (e.target.src = coverPhoto)}
                             />
                             <div>
-                              <h4 className="font-semibold">{status.product}</h4>
+                              <h4 className="font-semibold">
+                                {status.product}
+                              </h4>
                               <p className="text-sm">
-                                Position: #{status.position} / {status.totalBidders}
+                                Position: #{status.position} /{" "}
+                                {status.totalBidders}
                               </p>
-                              <p className="text-sm">{renderStatusBadge(status.isWinning)}</p>
+                              <p className="text-sm">
+                                {renderStatusBadge(status.isWinning)}
+                              </p>
                             </div>
                           </motion.div>
                         ))}
@@ -1039,9 +1106,12 @@ const BuyerProfile = () => {
                           <div>
                             <h4 className="font-semibold">{status.product}</h4>
                             <p className="text-sm">
-                              Position: #{status.position} / {status.totalBidders}
+                              Position: #{status.position} /{" "}
+                              {status.totalBidders}
                             </p>
-                            <p className="text-sm">{renderStatusBadge(status.isWinning)}</p>
+                            <p className="text-sm">
+                              {renderStatusBadge(status.isWinning)}
+                            </p>
                           </div>
                         </motion.div>
                       ))}

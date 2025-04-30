@@ -1,29 +1,32 @@
 "use client";
 
-import { useContext, useState, useRef, useEffect } from "react";
+import { useContext, useState, useRef, useEffect, useMemo } from "react";
 import {
-  FiEdit,
-  FiTrash,
   FiBell,
   FiInfo,
   FiChevronLeft,
   FiChevronRight,
+  FiEdit,
+  FiTrash,
 } from "react-icons/fi";
 import "./Announcement.css";
-import useAnnouncement from "../../../hooks/useAnnouncement";
 import LoadingSpinner from "../../LoadingSpinner";
 import axios from "axios";
 import toast from "react-hot-toast";
-import EditAnnouncementModal from "../admin/EditAnnouncementModal";
 import { useNavigate, useLocation } from "react-router-dom";
 import ThemeContext from "../../Context/ThemeContext";
 import io from "socket.io-client";
 import useAuth from "../../../hooks/useAuth";
 import useAxiosPublic from "../../../hooks/useAxiosPublic";
+import { useGetAnnouncementsQuery } from "../../../redux/features/api/announcementApi";
+import EditAnnouncementModal from "../admin/EditAnnouncementModal";
 
 const Announcement = () => {
-  const isAdmin = true;
-  const [announcements, refetch, isLoading] = useAnnouncement();
+  const {
+    data: announcements,
+    isLoading,
+    refetch,
+  } = useGetAnnouncementsQuery();
   const { isDarkMode } = useContext(ThemeContext);
   const [selectedAnnouncement, setSelectedAnnouncement] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -35,33 +38,63 @@ const Announcement = () => {
   const [notificationDetails, setNotificationDetails] = useState(null);
   const [allNotifications, setAllNotifications] = useState([]);
   const [notificationUsers, setNotificationUsers] = useState({});
-  const [notificationFilter, setNotificationFilter] = useState("all"); // all, unread, announcement, auction-win
+  const [notificationFilter, setNotificationFilter] = useState("all");
   const [notificationCount, setNotificationCount] = useState(0);
   const axiosPublic = useAxiosPublic();
+  const [userRole, setUserRole] = useState(null);
+  const [roleLoading, setRoleLoading] = useState(true);
+
+  // Fetch user role from database
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      if (user?.email) {
+        try {
+          setRoleLoading(true);
+          const response = await axiosPublic.get(`/users?email=${user.email}`, {
+            withCredentials: true,
+          });
+          if (response.data && response.data.length > 0) {
+            setUserRole(response.data[0].role);
+          } else {
+            setUserRole("buyer");
+            toast.error("User not found. Defaulting to buyer role.");
+          }
+        } catch (error) {
+          console.error("Error fetching user role:", error);
+          setUserRole("buyer");
+          toast.error("Failed to fetch user role. Defaulting to buyer role.");
+        } finally {
+          setRoleLoading(false);
+        }
+      }
+    };
+
+    fetchUserRole();
+  }, [user, axiosPublic]);
+
+  // Memoize isAdmin to prevent recalculations
+  const isAdmin = useMemo(() => userRole === "admin", [userRole]);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(6);
   const [totalPages, setTotalPages] = useState(1);
 
-  // Calculate total pages whenever announcements or itemsPerPage changes
+  // Calculate total pages
   useEffect(() => {
     if (announcements && announcements.length > 0) {
       setTotalPages(Math.ceil(announcements.length / itemsPerPage));
-      // Reset to page 1 if current page is now invalid
       if (currentPage > Math.ceil(announcements.length / itemsPerPage)) {
         setCurrentPage(1);
       }
     }
-  }, [announcements, itemsPerPage]);
+  }, [announcements, itemsPerPage, currentPage]);
 
   // Get current announcements for pagination
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentAnnouncements = announcements.slice(
-    indexOfFirstItem,
-    indexOfLastItem
-  );
+  const currentAnnouncements =
+    announcements?.slice(indexOfFirstItem, indexOfLastItem) || [];
 
   // Change page
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
@@ -81,13 +114,8 @@ const Announcement = () => {
       }
     };
 
-    // Set initial value
     handleResize();
-
-    // Add event listener
     window.addEventListener("resize", handleResize);
-
-    // Clean up
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
@@ -96,65 +124,44 @@ const Announcement = () => {
     if (location.state?.notificationDetails) {
       setNotificationDetails(location.state.notificationDetails);
       setIsNotificationModalOpen(true);
-
-      // Clear the location state after using it to prevent showing modal on reload
       window.history.replaceState({}, document.title);
     }
   }, [location.state]);
 
   // Initialize socket connection
   useEffect(() => {
-    let socket;
-    if (user) {
-      socket = io("http://localhost:5000", {
-        withCredentials: true,
-        reconnection: true,
-        reconnectionAttempts: 5,
-        reconnectionDelay: 1000,
-        timeout: 10000,
-      });
+    if (!user) return;
 
-      socketRef.current = socket;
+    const socket = io("https://rex-auction-server-side-jzyx.onrender.com", {
+      withCredentials: true,
+      reconnection: true,
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+      timeout: 10000,
+    });
 
-      // Listen for all notifications
-      socket.on("receiveNotification", (notification) => {
-        console.log(
-          "New notification received in Announcement component:",
-          notification
-        );
+    socketRef.current = socket;
 
-        // Add to our local notifications state immediately
-        setAllNotifications((prev) => [notification, ...prev]);
+    socket.on("receiveNotification", (notification) => {
+      console.log(
+        "New notification received in Announcement component:",
+        notification
+      );
+      setAllNotifications((prev) => [notification, ...prev]);
+      setNotificationCount((prev) => prev + 1);
+      toast.success(notification.title, { description: notification.message });
 
-        // Increment unread notification count
-        setNotificationCount((prev) => prev + 1);
-
-        // Show toast notification
-        toast.success(notification.title, {
-          description: notification.message,
-        });
-
-        // If it's an announcement notification, show it in the modal immediately
-        if (
-          notification.type === "announcement" &&
-          notification.announcementData
-        ) {
-          setNotificationDetails(notification);
-          setIsNotificationModalOpen(true);
-        }
-      });
-
-      return () => {
-        if (socket) {
-          socket.disconnect();
-        }
-      };
-    }
+      if (
+        notification.type === "announcement" &&
+        notification.announcementData
+      ) {
+        setNotificationDetails(notification);
+        setIsNotificationModalOpen(true);
+      }
+    });
 
     return () => {
-      if (socket) {
-        socket.disconnect();
-      }
+      socket.disconnect();
     };
   }, [user]);
 
@@ -174,22 +181,19 @@ const Announcement = () => {
 
       if (response.data) {
         setAllNotifications(response.data);
-        // Count unread notifications
         const unreadCount = response.data.filter((n) => !n.read).length;
         setNotificationCount(unreadCount);
       }
     } catch (error) {
       console.error("Error fetching notifications:", error);
+      toast.error("Failed to fetch notifications.");
     }
   };
 
-  // Fetch user data for notifications
   const fetchUsers = async () => {
     try {
       const response = await axiosPublic.get("/users");
-
       if (response.data) {
-        // Create a map of email to user data for quick lookup
         const userMap = {};
         response.data.forEach((user) => {
           userMap[user.email] = user;
@@ -198,23 +202,26 @@ const Announcement = () => {
       }
     } catch (error) {
       console.error("Error fetching users:", error);
+      toast.error("Failed to fetch user data.");
     }
   };
 
-  // Function to post a new announcement
   const handlePostAnnouncement = async (announcementData) => {
     try {
-      const response = await axios.post("http://localhost:5000/announcement", {
-        title: announcementData.title,
-        content: announcementData.content,
-        date: announcementData.date || new Date().toISOString(),
-        image: announcementData.image || "/placeholder.svg",
-      });
+      const response = await axios.post(
+        "https://rex-auction-server-side-jzyx.onrender.com/announcement",
+        {
+          title: announcementData.title,
+          content: announcementData.content,
+          date: announcementData.date || new Date().toISOString(),
+          image: announcementData.image || "/placeholder.svg",
+        }
+      );
       if (response.status === 201) {
         toast.success("Announcement posted successfully!");
-        refetch(); // Refresh the announcements list
-        setIsNotificationModalOpen(false); // Close the notification modal
-        setNotificationDetails(null); // Clear the notification details
+        refetch();
+        setIsNotificationModalOpen(false);
+        setNotificationDetails(null);
       }
     } catch (error) {
       toast.error("Failed to post announcement. Please try again.");
@@ -222,19 +229,17 @@ const Announcement = () => {
     }
   };
 
-  if (isLoading) return <LoadingSpinner />;
-
   const handleEdit = (announcement, e) => {
-    e.stopPropagation(); // Prevent card flip
+    e.stopPropagation();
     setSelectedAnnouncement(announcement);
     setIsModalOpen(true);
   };
 
   const handleDelete = async (id, e) => {
-    e.stopPropagation(); // Prevent card flip
+    e.stopPropagation();
     try {
       const response = await axios.delete(
-        `http://localhost:5000/announcement/${id}`
+        `https://rex-auction-server-side-jzyx.onrender.com/announcement/${id}`
       );
       if (response.status === 200) {
         toast.success("Announcement deleted successfully!");
@@ -246,7 +251,7 @@ const Announcement = () => {
   };
 
   const sendAnnouncementNotification = (announcement, e) => {
-    e.stopPropagation(); // Prevent card flip
+    e.stopPropagation();
     if (!socketRef.current || !socketRef.current.connected) {
       toast.error("Socket connection not available. Cannot send notification.");
       return;
@@ -281,33 +286,29 @@ const Announcement = () => {
   };
 
   const viewNotificationDetails = (notification) => {
-    // Set notification details and open modal immediately
     setNotificationDetails(notification);
     setIsNotificationModalOpen(true);
 
-    // If notification is unread, decrement the count
     if (!notification.read) {
       setNotificationCount((prev) => Math.max(0, prev - 1));
     }
 
-    // Mark as read in the UI
     setAllNotifications((prev) =>
       prev.map((n) => (n._id === notification._id ? { ...n, read: true } : n))
     );
 
-    // Mark as read in the database
     axios
       .put(
-        `http://localhost:5000/notifications/mark-read/${user.email}`,
+        `https://rex-auction-server-side-jzyx.onrender.com/notifications/mark-read/${user.email}`,
         { notificationId: notification._id },
         { withCredentials: true }
       )
       .catch((error) => {
         console.error("Error marking notification as read:", error);
+        toast.error("Failed to mark notification as read.");
       });
   };
 
-  // Get user details for a notification
   const getUserDetails = (email) => {
     if (!email || email === "all")
       return { name: "All Users", photo: "/placeholder.svg" };
@@ -316,7 +317,6 @@ const Announcement = () => {
     );
   };
 
-  // Navigate to announcement details from notification
   const navigateToAnnouncementDetails = (notification) => {
     if (notification.announcementData?._id) {
       navigate(`/announcementDetails/${notification.announcementData._id}`, {
@@ -328,11 +328,8 @@ const Announcement = () => {
     }
   };
 
-  // Navigate to payment page for auction win
   const navigateToPayment = (auctionData) => {
-    navigate(`/dashboard/payment`, {
-      state: { auctionData },
-    });
+    navigate(`/dashboard/payment`, { state: { auctionData } });
     setIsNotificationModalOpen(false);
   };
 
@@ -341,17 +338,13 @@ const Announcement = () => {
       setAllNotifications((prev) =>
         prev.map((notif) => ({ ...notif, read: true }))
       );
-
       setNotificationCount(0);
 
-      // Send request to mark all as read in the database
       if (user) {
         await axios.put(
-          `http://localhost:5000/notifications/mark-read/${user.email}`,
+          `https://rex-auction-server-side-jzyx.onrender.com/notifications/mark-read/${user.email}`,
           {},
-          {
-            withCredentials: true,
-          }
+          { withCredentials: true }
         );
         toast.success("All notifications marked as read");
       }
@@ -370,6 +363,19 @@ const Announcement = () => {
 
   const filteredNotifications = getFilteredNotifications();
 
+  // Validate and format dates
+  const formatDateRange = (startDate, endDate) => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (end < start) {
+      return `${start.toLocaleDateString()} - ${end.toLocaleDateString()} (Invalid: End date before start date)`;
+    }
+    return `${start.toLocaleDateString()} - ${end.toLocaleDateString()}`;
+  };
+
+  if (isLoading || roleLoading) return <LoadingSpinner />;
+
   return (
     <div
       className={`px-4 md:px-8 py-10 ${
@@ -383,7 +389,6 @@ const Announcement = () => {
             isDarkMode ? "bg-gray-800" : "bg-white"
           } rounded-xl shadow-md overflow-hidden`}
         >
-          {/* Notifications Header */}
           <div
             className={`p-6 border-b ${
               isDarkMode ? "border-gray-700" : "border-gray-200"
@@ -414,7 +419,6 @@ const Announcement = () => {
               </div>
             </div>
 
-            {/* Filter tabs */}
             <div className="flex flex-wrap gap-2 mt-3">
               <button
                 onClick={() => setNotificationFilter("all")}
@@ -475,7 +479,6 @@ const Announcement = () => {
             </div>
           </div>
 
-          {/* Notifications List */}
           <div>
             {filteredNotifications.length > 0 ? (
               <div className="divide-y divide-gray-200 dark:divide-gray-700">
@@ -494,7 +497,6 @@ const Announcement = () => {
                     onClick={() => viewNotificationDetails(notification)}
                   >
                     <div className="flex items-start gap-3">
-                      {/* User avatar */}
                       <div className="flex-shrink-0">
                         <img
                           src={
@@ -506,7 +508,6 @@ const Announcement = () => {
                         />
                       </div>
 
-                      {/* Notification content */}
                       <div className="flex-1 min-w-0">
                         <div className="flex justify-between items-start">
                           <h4
@@ -524,7 +525,6 @@ const Announcement = () => {
                           {notification.message}
                         </p>
 
-                        {/* Notification metadata */}
                         <div className="flex justify-between items-center mt-2">
                           <div className="flex items-center gap-2">
                             <span
@@ -561,75 +561,104 @@ const Announcement = () => {
       </div>
 
       {/* Announcements Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {currentAnnouncements.map((item) => (
-          <div key={item._id} className="card-flip-container">
-            <div className="card-flip-inner">
-              <div
-                className={`card-flip-front border ${
-                  isDarkMode ? "bg-gray-700" : "text-white"
-                } border-purple-200 rounded-xl overflow-hidden shadow-md relative`}
-              >
-                <img
-                  src={item.image || "/placeholder.svg"}
-                  alt={item.title}
-                  className="w-full h-48 object-cover"
-                />
-                <div className="p-4">
-                  <p
-                    className={`text-sm text-gray-300 mb-1 ${
-                      isDarkMode ? "text-gray-300" : "text-gray-800"
+          <div
+            key={item._id}
+            className={`relative rounded-xl overflow-hidden shadow-lg transform transition-transform duration-300 hover:scale-105 ${
+              isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"
+            }`}
+          >
+            {/* Image with Gradient Overlay */}
+            <div className="relative">
+              <img
+                src={item.files?.[0]?.url || "/placeholder.svg"}
+                alt={item.title}
+                className="w-full h-48 object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+              <div className="absolute bottom-4 left-4">
+                <h2 className="text-xl font-bold text-white drop-shadow-lg">
+                  {item.title}
+                </h2>
+              </div>
+              {isAdmin && (
+                <div className="absolute top-2 right-2 flex gap-2">
+                  <button
+                    onClick={(e) => handleEdit(item, e)}
+                    className={`flex items-center gap-1 px-3 py-1.5 rounded-lg font-medium text-sm transition ${
+                      isDarkMode
+                        ? "bg-blue-600 hover:bg-blue-700 text-white"
+                        : "bg-blue-500 hover:bg-blue-600 text-white"
                     }`}
+                    title="Edit announcement"
+                    aria-label="Edit announcement"
                   >
-                    {new Date(item.date).toLocaleDateString()}
-                  </p>
-                  <h2 className="text-lg font-bold text-purple-500 mb-2">
-                    {item.title}
-                  </h2>
+                    <FiEdit /> Edit
+                  </button>
+                  <button
+                    onClick={(e) => handleDelete(item._id, e)}
+                    className={`flex items-center gap-1 px-3 py-1.5 rounded-lg font-medium text-sm transition ${
+                      isDarkMode
+                        ? "bg-red-600 hover:bg-red-700 text-white"
+                        : "bg-red-500 hover:bg-red-600 text-white"
+                    }`}
+                    title="Delete announcement"
+                    aria-label="Delete announcement"
+                  >
+                    <FiTrash /> Delete
+                  </button>
                 </div>
-              </div>
+              )}
+            </div>
 
-              <div
-                className={`card-flip-back ${
-                  isDarkMode ? "bg-gray-700" : "text-black"
-                } border border-purple-200 rounded-xl p-4 flex flex-col justify-between shadow-md`}
+            {/* Card Content */}
+            <div className="p-4">
+              <p
+                className={`text-sm ${
+                  isDarkMode ? "text-gray-300" : "text-gray-600"
+                } mb-2`}
               >
-                <p className="text-sm">{item.content}</p>
-                {isAdmin && (
-                  <div className="absolute top-2 right-2 flex gap-2">
-                    <button
-                      onClick={(e) => handleEdit(item, e)}
-                      className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition"
-                      title="Edit announcement"
-                    >
-                      <FiEdit />
-                    </button>
-                    <button
-                      onClick={(e) => handleDelete(item._id, e)}
-                      className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition"
-                      title="Delete announcement"
-                    >
-                      <FiTrash />
-                    </button>
-                    <button
-                      onClick={(e) => sendAnnouncementNotification(item, e)}
-                      className="p-2 bg-green-500 text-white rounded-full hover:bg-green-600 transition"
-                      title="Send as notification"
-                    >
-                      <FiBell />
-                    </button>
-                  </div>
-                )}
+                {formatDateRange(item.startDate, item.endDate)}
+              </p>
+              <p
+                className={`text-sm ${
+                  isDarkMode ? "text-gray-300" : "text-gray-600"
+                } line-clamp-2`}
+              >
+                {item.content}
+              </p>
+              <p
+                className={`text-xs ${
+                  isDarkMode ? "text-gray-400" : "text-gray-500"
+                } mt-2`}
+              >
+                Target Audience: {item.targetAudience}
+              </p>
+            </div>
+
+            {/* Notify Button (Admin Only) and Read More */}
+            <div className="p-4 pt-0 flex justify-between items-center">
+              {isAdmin && (
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation(); // Prevent card flip
-                    navigate(`/announcementDetails/${item._id}`);
-                  }}
-                  className="mt-4 px-4 py-2 bg-purple-600 text-white text-sm font-semibold rounded hover:bg-purple-700 transition"
+                  onClick={(e) => sendAnnouncementNotification(item, e)}
+                  className={`flex items-center gap-1 px-3 py-1.5 rounded-lg font-medium text-sm transition ${
+                    isDarkMode
+                      ? "bg-green-600 hover:bg-green-700 text-white"
+                      : "bg-green-500 hover:bg-green-600 text-white"
+                  }`}
+                  title="Send as notification"
+                  aria-label="Send announcement as notification"
                 >
-                  Read More →
+                  <FiBell /> Notify
                 </button>
-              </div>
+              )}
+              <button
+                onClick={() => navigate(`/announcementDetails/${item._id}`)}
+                className="px-4 py-1.5 bg-purple-600 text-white text-sm font-semibold rounded-lg hover:bg-purple-700 transition"
+              >
+                Read More →
+              </button>
             </div>
           </div>
         ))}
@@ -654,7 +683,6 @@ const Announcement = () => {
               <FiChevronLeft className="w-5 h-5" />
             </button>
 
-            {/* Page numbers */}
             <div className="flex space-x-2">
               {Array.from({ length: totalPages }, (_, i) => i + 1).map(
                 (number) => (
@@ -705,7 +733,6 @@ const Announcement = () => {
                 : "bg-white text-gray-800"
             } rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col`}
           >
-            {/* Header */}
             <div className="flex justify-between items-center p-6 pb-0">
               <div className="flex items-center space-x-3">
                 <div
@@ -772,10 +799,8 @@ const Announcement = () => {
               </button>
             </div>
 
-            {/* Content - Scrollable area */}
             <div className="overflow-y-auto p-6 pt-4 flex-1">
               <div className="space-y-5">
-                {/* Basic Info */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div
                     className={`p-4 rounded-lg ${
@@ -845,7 +870,6 @@ const Announcement = () => {
                   </p>
                 </div>
 
-                {/* Auction Details */}
                 {notificationDetails.type === "auction" &&
                   notificationDetails.auctionData && (
                     <div
@@ -880,7 +904,6 @@ const Announcement = () => {
                           isDarkMode ? "bg-gray-700" : "bg-gray-100"
                         }`}
                       >
-                        {/* Auction Header with Image */}
                         <div className="relative">
                           {notificationDetails.auctionData.images?.length >
                           0 ? (
@@ -895,7 +918,6 @@ const Announcement = () => {
                               />
                               <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-5">
                                 <h5 className="text-3xl font-bold text-white drop-shadow-lg">
-                                  {notificationDetails.auctionData.name}
                                   {notificationDetails.auctionData.name}
                                 </h5>
                               </div>
@@ -926,9 +948,7 @@ const Announcement = () => {
                           </div>
                         </div>
 
-                        {/* Auction Info */}
                         <div className="p-6 space-y-6">
-                          {/* Description */}
                           <div>
                             <h6 className="text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
                               Description
@@ -948,7 +968,6 @@ const Announcement = () => {
                             </p>
                           </div>
 
-                          {/* Key Details */}
                           <div className="grid grid-cols-2 gap-4">
                             <div>
                               <h6 className="text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">
@@ -1031,9 +1050,8 @@ const Announcement = () => {
                             </div>
                           </div>
 
-                          {/* Seller Info */}
                           <div>
-                            <h6 className="text-sm font-semibold uppercase tracking-wider text_sender-gray-500 dark:text-gray-400 mb-2">
+                            <h6 className="text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">
                               Seller Information
                             </h6>
                             <div className="flex items-center space-x-4 p-4 rounded-lg bg-white dark:bg-gray-600">
@@ -1041,11 +1059,7 @@ const Announcement = () => {
                                 <img
                                   src={
                                     notificationDetails.auctionData
-                                      .sellerPhotoUrl ||
-                                    "/placeholder.svg" ||
-                                    "/placeholder.svg" ||
-                                    "/placeholder.svg" ||
-                                    "/placeholder.svg"
+                                      .sellerPhotoUrl || "/placeholder.svg"
                                   }
                                   alt={
                                     notificationDetails.auctionData
@@ -1068,7 +1082,6 @@ const Announcement = () => {
                             </div>
                           </div>
 
-                          {/* Additional Images */}
                           {notificationDetails.auctionData.images?.length >
                             1 && (
                             <div>
@@ -1090,7 +1103,6 @@ const Announcement = () => {
                             </div>
                           )}
 
-                          {/* Top Bidders */}
                           {notificationDetails.auctionData.topBidders?.length >
                             0 && (
                             <div>
@@ -1134,7 +1146,6 @@ const Announcement = () => {
                             </div>
                           )}
 
-                          {/* History Section */}
                           <div>
                             <h6 className="text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">
                               Bidding History
@@ -1151,7 +1162,6 @@ const Announcement = () => {
               </div>
             </div>
 
-            {/* Footer with action buttons */}
             <div
               className={`p-4 border-t ${
                 isDarkMode
@@ -1246,12 +1256,15 @@ const Announcement = () => {
         </div>
       )}
 
-      <EditAnnouncementModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        announcementData={selectedAnnouncement}
-        refetch={refetch}
-      />
+      {/* Edit Announcement Modal */}
+      {isAdmin && (
+        <EditAnnouncementModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          announcementData={selectedAnnouncement}
+          refetch={refetch}
+        />
+      )}
     </div>
   );
 };

@@ -6,9 +6,11 @@ import {
   FaPlus,
   FaUserCircle,
   FaGavel,
+  FaBloggerB,
 } from "react-icons/fa";
+import { IoMdContact } from "react-icons/io";
 import { MdOutlineDashboard, MdOutlineLogout } from "react-icons/md";
-import { FiHome, FiInfo } from "react-icons/fi";
+import { FiInfo } from "react-icons/fi";
 import { BiMoney } from "react-icons/bi";
 import { Bell } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -53,13 +55,16 @@ const Navbar = () => {
   // Socket.IO connection
   useEffect(() => {
     if (user && !socketRef.current) {
-      socketRef.current = io("http://localhost:5000", {
-        withCredentials: true,
-        reconnection: true,
-        reconnectionAttempts: 5,
-        reconnectionDelay: 1000,
-        timeout: 10000,
-      });
+      socketRef.current = io(
+        "https://rex-auction-server-side-jzyx.onrender.com",
+        {
+          withCredentials: true,
+          reconnection: true,
+          reconnectionAttempts: 5,
+          reconnectionDelay: 1000,
+          timeout: 10000,
+        }
+      );
 
       socketRef.current.on("receiveNotification", (notification) => {
         console.log("Received notification:", notification); // Debug log
@@ -86,7 +91,7 @@ const Navbar = () => {
       const fetchNotifications = async () => {
         try {
           const response = await axios.get(
-            `http://localhost:5000/notifications/${user.email}`,
+            `https://rex-auction-server-side-jzyx.onrender.com/notifications/${user.email}`,
             {
               withCredentials: true,
             }
@@ -219,7 +224,7 @@ const Navbar = () => {
 
       if (user) {
         await axios.put(
-          `http://localhost:5000/notifications/mark-read/${user.email}`,
+          `https://rex-auction-server-side-jzyx.onrender.com/notifications/mark-read/${user.email}`,
           {},
           {
             withCredentials: true,
@@ -238,7 +243,7 @@ const Navbar = () => {
     if (notificationCount > 0) {
       setNotificationCount((prev) => prev - 1);
     }
-  
+
     if (user) {
       axiosPublic
         .put(
@@ -250,11 +255,14 @@ const Navbar = () => {
           console.error("Error marking notification as read:", error);
         });
     }
-  
+
     // Navigate based on notification type
     if (notification.type === "auction" && notification.auctionData?._id) {
       navigate(`/dashboard/auction-details/${notification.auctionData._id}`);
-    } else if (notification.type === "announcement" && notification.announcementData?._id) {
+    } else if (
+      notification.type === "announcement" &&
+      notification.announcementData?._id
+    ) {
       // Navigate to announcement details with ID
       navigate(`/dashboard/announcement/${notification.announcementData._id}`, {
         state: { notificationDetails: notification },
@@ -265,7 +273,7 @@ const Navbar = () => {
         state: { notificationDetails: notification },
       });
     }
-  
+
     setIsNotificationsOpen(false);
   };
 
@@ -279,7 +287,7 @@ const Navbar = () => {
       : "flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-indigo-100 text-indigo-800";
 
   const navRoutes = [
-    { path: "/", label: "Home", icon: <FiHome className="w-5 h-5" /> },
+    // { path: "/", label: "Home", icon: <FiHome className="w-5 h-5" /> },
     ...(user?.email
       ? [
           {
@@ -294,19 +302,29 @@ const Navbar = () => {
       label: "About Us",
       icon: <FiInfo className="w-5 h-5" />,
     },
+    {
+      path: "/blogs",
+      label: "Blog",
+      icon: <FaBloggerB className="w-5 h-5" />,
+    },
+    {
+      path: "/contactUs",
+      label: "Contact Us",
+      icon: <IoMdContact className="w-5 h-5" />,
+    },
   ];
 
   return (
     <div>
       <nav
-        className={`fixed top-0 w-full z-50 shadow-lg transition-all duration-300 ${
+        className={`fixed  top-0 w-full z-50 shadow-lg transition-all duration-300 ${
           isScrolled
             ? isDarkMode
               ? "backdrop-blur-md bg-gray-900/30 shadow-lg"
-              : "backdrop-blur-md bg-purple-900/30 shadow-lg"
+              : "backdrop-blur-md bg-purple-800/80 shadow-lg "
             : isDarkMode
-            ? "bg-transparent"
-            : "bg-transparent"
+            ? "bg-gray-900/90"
+            : "bg-purple-800/70 "
         }`}
       >
         <div className="container mx-auto flex justify-between items-center px-4">
@@ -367,7 +385,7 @@ const Navbar = () => {
           <div className="hidden lg:flex items-center space-x-3">
             {user?.email ? (
               <>
-                <button
+                {/* <button
                   className={`flex items-center gap-2 py-1 px-2 rounded-lg transition-all duration-300 relative overflow-hidden ${
                     isDarkMode
                       ? "border-2 text-white hover:border-b-purple-600/90 hover:bg-purple-100/20"
@@ -388,7 +406,7 @@ const Navbar = () => {
                   </span>
                   <FaPlus className="text-green-400 text-xs animate-pulse" />
                   <div className="absolute inset-0 bg-gradient-to-r from-indigo-600/0 to-indigo-400/0 hover:from-indigo-600/20 hover:to-indigo-400/20 transition-all duration-300 opacity-0 hover:opacity-100"></div>
-                </button>
+                </button> */}
 
                 {/* Notifications Button and Dropdown (Desktop) */}
                 <div className="relative" ref={notificationsRef}>
@@ -451,93 +469,95 @@ const Navbar = () => {
                       </div>
 
                       <div className="py-1">
-                      {notifications.length > 0 ? (
-                        notifications.map((notification) => (
-                          <div
-                            key={notification._id}
-                            onClick={() =>
-                              viewNotificationDetails(notification)
-                            }
-                            className={`px-4 py-3 border-b last:border-b-0 cursor-pointer transition-all duration-200 ${
-                              isDarkMode
-                                ? "border-indigo-700/50 hover:bg-indigo-700/70"
-                                : "border-indigo-200/50 hover:bg-indigo-100"
-                            } ${
-                              !notification.read
-                                ? isDarkMode
-                                  ? "bg-indigo-700/50"
-                                  : "bg-blue-50"
-                                : ""
-                            }`}
-                          >
-                            <div className="flex items-start">
-                              <div
-                                className={`p-2 rounded-full mr-3 ${
-                                  isDarkMode ? "bg-indigo-700" : "bg-blue-100"
-                                }`}
-                              >
-                                {notification.type === "auction" ? (
-                                  <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="h-5 w-5 text-blue-500"
-                                    viewBox="0 0 20 20"
-                                    fill="currentColor"
+                        {notifications.length > 0 ? (
+                          notifications.map((notification) => (
+                            <div
+                              key={notification._id}
+                              onClick={() =>
+                                viewNotificationDetails(notification)
+                              }
+                              className={`px-4 py-3 border-b last:border-b-0 cursor-pointer transition-all duration-200 ${
+                                isDarkMode
+                                  ? "border-indigo-700/50 hover:bg-indigo-700/70"
+                                  : "border-indigo-200/50 hover:bg-indigo-100"
+                              } ${
+                                !notification.read
+                                  ? isDarkMode
+                                    ? "bg-indigo-700/50"
+                                    : "bg-blue-50"
+                                  : ""
+                              }`}
+                            >
+                              <div className="flex items-start">
+                                <div
+                                  className={`p-2 rounded-full mr-3 ${
+                                    isDarkMode ? "bg-indigo-700" : "bg-blue-100"
+                                  }`}
+                                >
+                                  {notification.type === "auction" ? (
+                                    <svg
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      className="h-5 w-5 text-blue-500"
+                                      viewBox="0 0 20 20"
+                                      fill="currentColor"
+                                    >
+                                      <path
+                                        fillRule="evenodd"
+                                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                        clipRule="evenodd"
+                                      />
+                                    </svg>
+                                  ) : (
+                                    <Bell className="h-5 w-5 text-blue-500" />
+                                  )}
+                                </div>
+                                <div className="flex-1">
+                                  <p
+                                    className={`font-medium text-sm ${
+                                      isDarkMode
+                                        ? "text-white"
+                                        : "text-gray-800"
+                                    } ${!notification.read ? "font-bold" : ""}`}
                                   >
-                                    <path
-                                      fillRule="evenodd"
-                                      d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
-                                      clipRule="evenodd"
-                                    />
-                                  </svg>
-                                ) : (
-                                  <Bell className="h-5 w-5 text-blue-500" />
+                                    {notification.title}
+                                  </p>
+                                  <p
+                                    className={`text-xs mt-1 ${
+                                      isDarkMode
+                                        ? "text-indigo-200"
+                                        : "text-gray-500"
+                                    }`}
+                                  >
+                                    {notification.message}
+                                  </p>
+                                  <p
+                                    className={`text-xs mt-1 ${
+                                      isDarkMode
+                                        ? "text-indigo-300"
+                                        : "text-gray-400"
+                                    }`}
+                                  >
+                                    {new Date(
+                                      notification.timestamp
+                                    ).toLocaleString()}
+                                  </p>
+                                </div>
+                                {!notification.read && (
+                                  <div className="h-2 w-2 rounded-full bg-blue-500 mt-1"></div>
                                 )}
                               </div>
-                              <div className="flex-1">
-                                <p
-                                  className={`font-medium text-sm ${
-                                    isDarkMode ? "text-white" : "text-gray-800"
-                                  } ${!notification.read ? "font-bold" : ""}`}
-                                >
-                                  {notification.title}
-                                </p>
-                                <p
-                                  className={`text-xs mt-1 ${
-                                    isDarkMode
-                                      ? "text-indigo-200"
-                                      : "text-gray-500"
-                                  }`}
-                                >
-                                  {notification.message}
-                                </p>
-                                <p
-                                  className={`text-xs mt-1 ${
-                                    isDarkMode
-                                      ? "text-indigo-300"
-                                      : "text-gray-400"
-                                  }`}
-                                >
-                                  {new Date(
-                                    notification.timestamp
-                                  ).toLocaleString()}
-                                </p>
-                              </div>
-                              {!notification.read && (
-                                <div className="h-2 w-2 rounded-full bg-blue-500 mt-1"></div>
-                              )}
                             </div>
+                          ))
+                        ) : (
+                          <div
+                            className={`px-4 py-6 text-center ${
+                              isDarkMode ? "text-indigo-200" : "text-gray-500"
+                            }`}
+                          >
+                            <p>No notifications yet</p>
                           </div>
-                        ))
-                      ) : (
-                        <div
-                          className={`px-4 py-6 text-center ${
-                            isDarkMode ? "text-indigo-200" : "text-gray-500"
-                          }`}
-                        >
-                          <p>No notifications yet</p>
-                        </div>
-                      )}
-                    </div>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>

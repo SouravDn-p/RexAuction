@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 const announcementApi = createApi({
   reducerPath: "announcementApi",
   baseQuery: fetchBaseQuery({
-    baseUrl: `http://localhost:5000`,
+    baseUrl: `https://rex-auction-server-side-jzyx.onrender.com`,
   }),
   tagTypes: ["Announcement"],
   endpoints: (builder) => ({

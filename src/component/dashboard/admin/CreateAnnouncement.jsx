@@ -28,7 +28,7 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { Document, Packer, Paragraph, TextRun, HeadingLevel } from "docx";
+import { Document, Packer, Paragraph, TextRun } from "docx";
 import { saveAs } from "file-saver";
 import ThemeContext from "../../Context/ThemeContext";
 import Swal from "sweetalert2";
@@ -36,7 +36,6 @@ import toast from "react-hot-toast";
 import withReactContent from "sweetalert2-react-content";
 import { useAddAnnouncementMutation } from "../../../redux/features/api/announcementApi";
 import Header from "../shared/Header/Header";
-// import { useAddAnnouncementMutation } from "../../../api/announcementApi"; // Import the mutation hook
 
 const MySwal = withReactContent(Swal);
 
@@ -61,8 +60,7 @@ export default function CreateAnnouncement() {
   const [isUnderline, setIsUnderline] = useState(false);
   const [isRTL, setIsRTL] = useState(false);
 
-  const [addAnnouncement, { isLoading: isPublishing }] =
-    useAddAnnouncementMutation();
+  const [addAnnouncement, { isLoading: isPublishing }] = useAddAnnouncementMutation();
 
   // Theme classes
   const bgMain = isDarkMode ? "bg-gray-900" : "bg-gray-50";
@@ -143,7 +141,6 @@ export default function CreateAnnouncement() {
     }
   };
 
-  // Handle file changes
   useEffect(() => {
     generatePreviews(files);
   }, [files]);
@@ -190,7 +187,6 @@ export default function CreateAnnouncement() {
     const removedFile = newFiles.splice(index, 1)[0];
     setFiles(newFiles);
 
-    // Also remove the corresponding preview if it's an image
     if (removedFile.type.startsWith("image/")) {
       setPreviews((prev) => prev.filter((p) => p.name !== removedFile.name));
     }
@@ -355,7 +351,6 @@ export default function CreateAnnouncement() {
       return;
     }
 
-    // Validate specific groups selection
     if (targetAudience === "specific" && selectedGroups.length === 0) {
       await MySwal.fire({
         title: "Groups Required",
@@ -367,8 +362,56 @@ export default function CreateAnnouncement() {
     }
 
     try {
-      // Show loading toast
       const toastId = toast.loading("Publishing announcement...");
+
+      // Separate image files and non-image files
+      const imageFiles = files.filter((file) => file.type.startsWith("image/"));
+      const otherFiles = files.filter((file) => !file.type.startsWith("image/"));
+
+      // ImgBB API URL
+      const imageHostingApi = `https://api.imgbb.com/1/upload?key=${
+        import.meta.env.VITE_IMAGE_HOSTING_KEY
+      }`;
+      const uploadedImageUrls = [];
+
+      // Upload images to ImgBB
+      for (const file of imageFiles) {
+        if (!file.type.startsWith("image/")) {
+          throw new Error("File is not an image");
+        }
+
+        const formDataImage = new FormData();
+        formDataImage.append("image", file);
+
+        const res = await fetch(imageHostingApi, {
+          method: "POST",
+          body: formDataImage,
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          uploadedImageUrls.push({
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            url: data.data.display_url,
+          });
+        } else {
+          console.error("ImgBB upload error:", data);
+          throw new Error("Failed to upload image to ImgBB");
+        }
+      }
+
+      // Prepare metadata for non-image files
+      const otherFilesMetadata = otherFiles.map((file) => ({
+        name: file.name,
+        type: file.type,
+        size: file.size,
+      }));
+
+      // Combine uploaded images and other files metadata
+      const allFiles = [...uploadedImageUrls, ...otherFilesMetadata];
 
       // Prepare announcement data
       const announcementData = {
@@ -378,34 +421,23 @@ export default function CreateAnnouncement() {
         selectedGroups: targetAudience === "specific" ? selectedGroups : [],
         startDate: startDate ? startDate.toISOString() : null,
         endDate: endDate ? endDate.toISOString() : null,
-        // Since the backend doesn't handle file uploads, we'll include file metadata (e.g., file names)
-        // In a real-world scenario, you should upload the files to a storage service (e.g., AWS S3) and include the URLs
-        files: files.map((file) => ({
-          name: file.name,
-          type: file.type,
-          size: file.size,
-          // If you upload files to a service, include the URL here
-          // url: "https://your-storage-service.com/path/to/file",
-        })),
+        files: allFiles,
         createdAt: new Date().toISOString(),
       };
 
       // Send POST request using RTK Query mutation
-      const response = await addAnnouncement(announcementData).unwrap();
+      await addAnnouncement(announcementData).unwrap();
 
       // Generate DOCX file
       await generateDocx();
 
-      // Success toast
       toast.success("Announcement published successfully!", {
         id: toastId,
         duration: 4000,
       });
 
-      // Reset form
       resetForm();
 
-      // Show success alert
       await MySwal.fire({
         title: "Success!",
         text: "Your announcement has been published and the DOCX file has been generated.",
@@ -413,31 +445,36 @@ export default function CreateAnnouncement() {
         confirmButtonColor: "#3b82f6",
       });
     } catch (error) {
+      console.error("Error publishing announcement:", error);
       toast.error("Failed to publish announcement", {
         duration: 4000,
       });
-      console.error("Error publishing announcement:", error);
-      await MySwal.fire({
-        title: "Error",
-        text: "Something went wrong while publishing your announcement",
-        icon: "error",
-        confirmButtonColor: "#3b82f6",
-      });
+      if (error.message.includes("ImgBB")) {
+        await MySwal.fire({
+          icon: "warning",
+          title: "Image Upload Failed",
+          text: "Failed to upload images to ImgBB. Please try again.",
+          confirmButtonColor: "#3b82f6",
+        });
+      } else {
+        await MySwal.fire({
+          title: "Error",
+          text: "Something went wrong while publishing your announcement",
+          icon: "error",
+          confirmButtonColor: "#3b82f6",
+        });
+      }
     }
   };
 
   return (
     <div className={`min-h-screen p-4 md:p-8 ${bgMain} ${textColor}`}>
       <div className={`max-w-6xl mx-auto p-6 rounded-lg ${cardBg}`}>
-        {/* heading */}
         <Header
           header={"Create New Announcement"}
-          title={
-            "Easily create and publish announcements to your target audience."
-          }
+          title={"Easily create and publish announcements to your target audience."}
         />
         <div className="space-y-6">
-          {/* Title */}
           <div>
             <Label
               htmlFor="title"
@@ -457,7 +494,6 @@ export default function CreateAnnouncement() {
             />
           </div>
 
-          {/* Content */}
           <div>
             <Label
               htmlFor="content"
@@ -468,9 +504,7 @@ export default function CreateAnnouncement() {
               Announcement Content <span className="text-red-500">*</span>
             </Label>
             <div className={`border ${borderColor} rounded-md overflow-hidden`}>
-              <div
-                className={`${toolbarBg} p-2 border-b ${borderColor} flex gap-2`}
-              >
+              <div className={`${toolbarBg} p-2 border-b ${borderColor} flex gap-2`}>
                 <Button
                   type="button"
                   variant="ghost"
@@ -551,17 +585,11 @@ export default function CreateAnnouncement() {
                       if (selection?.rangeCount > 0) {
                         const range = selection.getRangeAt(0);
                         if (e.key === "ArrowLeft") {
-                          range.setStart(
-                            range.startContainer,
-                            Math.max(0, range.startOffset - 1)
-                          );
+                          range.setStart(range.startContainer, Math.max(0, range.startOffset - 1));
                         } else {
                           range.setStart(
                             range.startContainer,
-                            Math.min(
-                              range.startContainer.length,
-                              range.startOffset + 1
-                            )
+                            Math.min(range.startContainer.length, range.startOffset + 1)
                           );
                         }
                         range.collapse(true);
@@ -580,73 +608,44 @@ export default function CreateAnnouncement() {
             </div>
           </div>
 
-          {/* Target Audience */}
           <div>
-            <Label
-              className={`block text-sm font-medium mb-2 ${
-                isDarkMode ? "text-gray-300" : "text-gray-700"
-              }`}
-            >
+            <Label className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
               Target Audience <span className="text-red-500">*</span>
             </Label>
-            <RadioGroup
-              value={targetAudience}
-              onValueChange={setTargetAudience}
-              className="space-y-2"
-            >
+            <RadioGroup value={targetAudience} onValueChange={setTargetAudience} className="space-y-2">
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="all" id="all-users" />
-                <Label htmlFor="all-users" className={textColor}>
-                  All Users
-                </Label>
+                <Label htmlFor="all-users" className={textColor}>All Users</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="specific" id="specific-groups" />
-                <Label htmlFor="specific-groups" className={textColor}>
-                  Specific Groups
-                </Label>
+                <Label htmlFor="specific-groups" className={textColor}>Specific Groups</Label>
               </div>
             </RadioGroup>
 
             {targetAudience === "specific" && (
               <div className="mt-2">
-                <Select
-                  multiple
-                  value={selectedGroups}
-                  onValueChange={(values) => setSelectedGroups(values)}
-                >
-                  <SelectTrigger
-                    className={`w-full ${inputBg} ${borderColor} ${textColor}`}
-                  >
+                <Select multiple value={selectedGroups} onValueChange={(values) => setSelectedGroups(values)}>
+                  <SelectTrigger className={`w-full ${inputBg} ${borderColor} ${textColor}`}>
                     <SelectValue placeholder="Select groups" />
                   </SelectTrigger>
-                  <SelectContent
-                    className={`${cardBg} ${borderColor} ${textColor}`}
-                  >
+                  <SelectContent className={`${cardBg} ${borderColor} ${textColor}`}>
                     <SelectItem value="admin">Administrators</SelectItem>
                     <SelectItem value="staff">Staff</SelectItem>
                     <SelectItem value="students">Students</SelectItem>
                     <SelectItem value="faculty">Faculty</SelectItem>
                   </SelectContent>
                 </Select>
-                {targetAudience === "specific" &&
-                  selectedGroups.length === 0 && (
-                    <p className="text-red-500 text-xs mt-1">
-                      Please select at least one group
-                    </p>
-                  )}
+                {targetAudience === "specific" && selectedGroups.length === 0 && (
+                  <p className="text-red-500 text-xs mt-1">Please select at least one group</p>
+                )}
               </div>
             )}
           </div>
 
-          {/* Display Dates */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <Label
-                className={`block text-sm font-medium mb-1 ${
-                  isDarkMode ? "text-gray-300" : "text-gray-700"
-                }`}
-              >
+              <Label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                 Display Start Date <span className="text-red-500">*</span>
               </Label>
               <Popover>
@@ -659,16 +658,10 @@ export default function CreateAnnouncement() {
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {startDate ? (
-                      format(startDate, "yyyy/MM/dd")
-                    ) : (
-                      <span>Pick a date</span>
-                    )}
+                    {startDate ? format(startDate, "yyyy/MM/dd") : <span>Pick a date</span>}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent
-                  className={`w-auto p-0 ${cardBg} ${borderColor}`}
-                >
+                <PopoverContent className={`w-auto p-0 ${cardBg} ${borderColor}`}>
                   <Calendar
                     mode="single"
                     selected={startDate}
@@ -681,11 +674,7 @@ export default function CreateAnnouncement() {
             </div>
 
             <div>
-              <Label
-                className={`block text-sm font-medium mb-1 ${
-                  isDarkMode ? "text-gray-300" : "text-gray-700"
-                }`}
-              >
+              <Label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                 Display End Date <span className="text-red-500">*</span>
               </Label>
               <Popover>
@@ -698,16 +687,10 @@ export default function CreateAnnouncement() {
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {endDate ? (
-                      format(endDate, "yyyy/MM/dd")
-                    ) : (
-                      <span>Pick a date</span>
-                    )}
+                    {endDate ? format(endDate, "yyyy/MM/dd") : <span>Pick a date</span>}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent
-                  className={`w-auto p-0 ${cardBg} ${borderColor}`}
-                >
+                <PopoverContent className={`w-auto p-0 ${cardBg} ${borderColor}`}>
                   <Calendar
                     mode="single"
                     selected={endDate}
@@ -720,33 +703,16 @@ export default function CreateAnnouncement() {
             </div>
           </div>
 
-          {/* Media Upload */}
           <div>
-            <Label
-              className={`block text-sm font-medium mb-1 ${
-                isDarkMode ? "text-gray-300" : "text-gray-700"
-              }`}
-            >
+            <Label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
               Media Upload
             </Label>
-            <div
-              className={`border-2 border-dashed ${borderColor} rounded-lg p-8 text-center`}
-              onDrop={handleDrop}
-              onDragOver={handleDragOver}
-            >
+            <div className={`border-2 border-dashed ${borderColor} rounded-lg p-8 text-center`} onDrop={handleDrop} onDragOver={handleDragOver}>
               <Upload className="h-10 w-10 mx-auto text-gray-500" />
-              <p
-                className={`mt-2 text-sm ${
-                  isDarkMode ? "text-gray-400" : "text-gray-600"
-                }`}
-              >
+              <p className={`mt-2 text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
                 Drag and drop files here or click to upload
               </p>
-              <p
-                className={`text-xs ${
-                  isDarkMode ? "text-gray-500" : "text-gray-400"
-                } mt-1`}
-              >
+              <p className={`text-xs ${isDarkMode ? "text-gray-500" : "text-gray-400"} mt-1`}>
                 Supported formats: JPG, PNG, MP4, PDF, WebM
               </p>
               <input
@@ -761,9 +727,7 @@ export default function CreateAnnouncement() {
                 type="button"
                 variant="outline"
                 className={`mt-4 ${
-                  isDarkMode
-                    ? "bg-gray-700 border-gray-600 hover:bg-gray-600"
-                    : "bg-gray-100 border-gray-300 hover:bg-gray-200"
+                  isDarkMode ? "bg-gray-700 border-gray-600 hover:bg-gray-600" : "bg-gray-100 border-gray-300 hover:bg-gray-200"
                 } ${textColor}`}
                 onClick={handleBrowseFiles}
               >
@@ -771,58 +735,28 @@ export default function CreateAnnouncement() {
               </Button>
             </div>
 
-            {/* Image Previews */}
             {previews.length > 0 && (
               <div className="mt-4">
-                <h4
-                  className={`text-sm font-medium ${
-                    isDarkMode ? "text-gray-300" : "text-gray-700"
-                  } mb-2`}
-                >
+                <h4 className={`text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"} mb-2`}>
                   Image Previews:
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                   {previews.map((preview, index) => (
-                    <div
-                      key={index}
-                      className={`relative border ${borderColor} rounded-md overflow-hidden group`}
-                    >
-                      <img
-                        src={preview.url}
-                        alt={preview.name}
-                        className="w-full h-40 object-cover"
-                      />
-                      <div
-                        className={`p-2 ${
-                          isDarkMode ? "bg-gray-800" : "bg-gray-50"
-                        }`}
-                      >
-                        <p
-                          className={`text-xs truncate ${
-                            isDarkMode ? "text-gray-300" : "text-gray-700"
-                          }`}
-                        >
+                    <div key={index} className={`relative border ${borderColor} rounded-md overflow-hidden group`}>
+                      <img src={preview.url} alt={preview.name} className="w-full h-40 object-cover" />
+                      <div className={`p-2 ${isDarkMode ? "bg-gray-800" : "bg-gray-50"}`}>
+                        <p className={`text-xs truncate ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                           {preview.name}
                         </p>
-                        <p
-                          className={`text-xs ${
-                            isDarkMode ? "text-gray-400" : "text-gray-500"
-                          }`}
-                        >
+                        <p className={`text-xs ${isDarkMode ? "text-gray-400" : "text-gray-500"}`}>
                           {(preview.size / 1024).toFixed(1)} KB
                         </p>
                       </div>
                       <button
                         type="button"
-                        onClick={() =>
-                          handleRemoveFile(
-                            files.findIndex((f) => f.name === preview.name)
-                          )
-                        }
+                        onClick={() => handleRemoveFile(files.findIndex((f) => f.name === preview.name))}
                         className={`absolute top-1 right-1 p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity ${
-                          isDarkMode
-                            ? "bg-gray-700 hover:bg-gray-600"
-                            : "bg-gray-200 hover:bg-gray-300"
+                          isDarkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-200 hover:bg-gray-300"
                         }`}
                       >
                         <X className="h-4 w-4" />
@@ -833,39 +767,21 @@ export default function CreateAnnouncement() {
               </div>
             )}
 
-            {/* Other Files List */}
             {files.length > 0 && (
               <div className="mt-4">
-                <h4
-                  className={`text-sm font-medium ${
-                    isDarkMode ? "text-gray-300" : "text-gray-700"
-                  } mb-2`}
-                >
+                <h4 className={`text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"} mb-2`}>
                   Selected Files:
                 </h4>
                 <ul className="space-y-1">
                   {files.map((file, index) => {
-                    // Skip image files since they're shown in preview
                     if (file.type.startsWith("image/")) return null;
-
                     return (
-                      <li
-                        key={index}
-                        className={`flex justify-between items-center text-sm ${
-                          isDarkMode ? "text-gray-400" : "text-gray-600"
-                        }`}
-                      >
-                        <span>
-                          {file.name} ({(file.size / 1024).toFixed(1)} KB)
-                        </span>
+                      <li key={index} className={`flex justify-between items-center text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}>
+                        <span>{file.name} ({(file.size / 1024).toFixed(1)} KB)</span>
                         <button
                           type="button"
                           onClick={() => handleRemoveFile(index)}
-                          className={`p-1 rounded-full ${
-                            isDarkMode
-                              ? "hover:bg-gray-600"
-                              : "hover:bg-gray-200"
-                          }`}
+                          className={`p-1 rounded-full ${isDarkMode ? "hover:bg-gray-600" : "hover:bg-gray-200"}`}
                         >
                           <X className="h-4 w-4" />
                         </button>
@@ -877,15 +793,12 @@ export default function CreateAnnouncement() {
             )}
           </div>
 
-          {/* Action Buttons */}
           <div className="flex justify-end space-x-4 pt-4">
             <Button
               variant="outline"
               type="button"
               className={`${
-                isDarkMode
-                  ? "bg-gray-700 border-gray-600 hover:bg-gray-600"
-                  : "bg-white border-gray-300 hover:bg-gray-50"
+                isDarkMode ? "bg-gray-700 border-gray-600 hover:bg-gray-600" : "bg-white border-gray-300 hover:bg-gray-50"
               } ${textColor}`}
               onClick={resetForm}
             >
