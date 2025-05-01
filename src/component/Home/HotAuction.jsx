@@ -502,11 +502,7 @@ const HotAuction = () => {
   const itemsPerPage = 4;
   const axiosSecure = useAxiosSecure();
 
-  const {
-    data: auctionData = [],
-    isLoading,
-    error,
-  } = useQuery({
+  const { data: auctionDatas = [], isLoading, error } = useQuery({
     queryKey: ["auctionData"],
     queryFn: async () => {
       const res = await axiosSecure.get(`/auctions`);
@@ -514,6 +510,8 @@ const HotAuction = () => {
     },
   });
 
+  const auctionData = auctionDatas.filter(auction => (auction.topBidders?.length || 0) >= 4);
+  
   useEffect(() => {
     if (!auctionData?.length) return;
 
