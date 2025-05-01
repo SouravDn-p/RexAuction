@@ -4,6 +4,7 @@ import SdSidebar from "../component/dashboard/shared/SdSidebar";
 import ThemeContext from "../component/Context/ThemeContext";
 import { AuthContexts } from "../providers/AuthProvider";
 import useAxiosPublic from "../hooks/useAxiosPublic";
+import LoadingSpinner from "../component/LoadingSpinner";
 
 const DashboardLayout = () => {
   const { isDarkMode } = useContext(ThemeContext);
@@ -27,6 +28,10 @@ const DashboardLayout = () => {
         });
     }
   }, [user?.email]);
+
+  if (loading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <div

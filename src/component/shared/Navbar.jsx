@@ -90,8 +90,8 @@ const Navbar = () => {
     if (user) {
       const fetchNotifications = async () => {
         try {
-          const response = await axios.get(
-            `https://rex-auction-server-side-jzyx.onrender.com/notifications/${user.email}`,
+          const response = await axiosPublic.get(
+            `/notifications/${user.email}`,
             {
               withCredentials: true,
             }
@@ -223,8 +223,8 @@ const Navbar = () => {
       setNotificationCount(0);
 
       if (user) {
-        await axios.put(
-          `https://rex-auction-server-side-jzyx.onrender.com/notifications/mark-read/${user.email}`,
+        await axiosPublic.put(
+          `/notifications/mark-read/${user.email}`,
           {},
           {
             withCredentials: true,

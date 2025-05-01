@@ -2,15 +2,16 @@ import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaArrowLeft, FaUpload } from "react-icons/fa";
 import ThemeContext from "../../../Context/ThemeContext";
-import axios from "axios";
 import Swal from "sweetalert2";
 import { AuthContexts } from "../../../../providers/AuthProvider";
+import useAxiosPublic from "../../../../hooks/useAxiosPublic";
 
 export default function AddBlog() {
   const { isDarkMode } = useContext(ThemeContext);
   const navigate = useNavigate();
   const { dbUser } = useContext(AuthContexts);
   const [loading, setLoading] = useState(false);
+  const axiosPublic = useAxiosPublic();
   const [blogData, setBlogData] = useState({
     title: "",
     imageFiles: [],
@@ -60,16 +61,12 @@ export default function AddBlog() {
         authorEmail: dbUser?.email,
       };
 
-      const response = await axios.post(
-        "https://rex-auction-server-side-jzyx.onrender.com/addBlogs",
-        blogDataWithImages,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          withCredentials: true,
-        }
-      );
+      const response = await axiosPublic.post("/addBlogs", blogDataWithImages, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      });
 
       if (response.status === 201) {
         Swal.fire({

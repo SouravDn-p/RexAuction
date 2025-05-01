@@ -8,7 +8,7 @@ import { Fragment } from "react";
 import ThemeContext from "../../component/Context/ThemeContext";
 import { toast } from "react-hot-toast";
 import LoadingSpinner from "../LoadingSpinner";
-import axios from "axios";
+import useAxiosPublic from "../../hooks/useAxiosPublic";
 
 const ProfileSettings = () => {
   const { user, dbUser, setDbUser } = useAuth();
@@ -21,6 +21,7 @@ const ProfileSettings = () => {
   const [activeSection, setActiveSection] = useState("");
   // const [formData, setFormData] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const axiosPublic = useAxiosPublic();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -39,9 +40,7 @@ const ProfileSettings = () => {
       try {
         if (user?.email) {
           setLoading(true);
-          const response = await axios.get(
-            `https://rex-auction-server-side-jzyx.onrender.com/user/${user.email}`
-          );
+          const response = await axiosPublic.get(`/user/${user.email}`);
           setProfileData(response.data);
           setFormData({
             name: response.data?.name || "",
@@ -106,8 +105,8 @@ const ProfileSettings = () => {
       if (activeSection === "photo" && formData.photoFile) {
         const formDataPhoto = new FormData();
         formDataPhoto.append("photo", formData.photoFile);
-        const photoResponse = await axios.post(
-          "https://rex-auction-server-side-jzyx.onrender.com/upload-photo",
+        const photoResponse = await axiosPublic.post(
+          "/upload-photo",
           formDataPhoto,
           {
             headers: { "Content-Type": "multipart/form-data" },
@@ -129,8 +128,8 @@ const ProfileSettings = () => {
         };
       }
 
-      const response = await axios.patch(
-        `https://rex-auction-server-side-jzyx.onrender.com/user/${user.email}`,
+      const response = await axiosPublic.patch(
+        `/user/${user.email}`,
         dataToUpdate
       );
 
@@ -148,7 +147,7 @@ const ProfileSettings = () => {
       setIsSubmitting(false);
     }
   };
-  // if (loading) return <LoadingSpinner />;
+  if (loading) return <LoadingSpinner />;
   if (error) return <div className="text-red-500 p-4">Error: {error}</div>;
   if (!profileData && !dbUser)
     return <div className="p-4">No profile data found</div>;

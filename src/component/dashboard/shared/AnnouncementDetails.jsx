@@ -6,6 +6,7 @@ import ThemeContext from "../../../component/Context/ThemeContext";
 import LoadingSpinner from "../../../component/LoadingSpinner";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import useAxiosPublic from "../../../hooks/useAxiosPublic";
 
 const AnnouncementDetails = () => {
   const { id } = useParams();
@@ -16,6 +17,7 @@ const AnnouncementDetails = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [notificationData, setNotificationData] = useState(null);
+  const axiosPublic = useAxiosPublic();
 
   useEffect(() => {
     // Check if notification data was passed via location state
@@ -35,10 +37,9 @@ const AnnouncementDetails = () => {
       const fetchAnnouncementDetails = async () => {
         try {
           setLoading(true);
-          const response = await axios.get(
-            `https://rex-auction-server-side-jzyx.onrender.com/announcement/${id}`,
-            { withCredentials: true }
-          );
+          const response = await axiosPublic.get(`/announcement/${id}`, {
+            withCredentials: true,
+          });
           setAnnouncement(response.data);
           setLoading(false);
         } catch (err) {

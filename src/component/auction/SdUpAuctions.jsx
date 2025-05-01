@@ -1,22 +1,21 @@
 import { useContext, useEffect, useState } from "react";
 import { FaFire, FaSearch, FaClock, FaSadTear } from "react-icons/fa";
-import axios from "axios";
 import ThemeContext from "../Context/ThemeContext";
 import { motion, AnimatePresence } from "framer-motion";
+import useAxiosPublic from "../../hooks/useAxiosPublic";
 
 export default function SdUpAuctions() {
   const { isDarkMode } = useContext(ThemeContext);
   const [upcomingAuctions, setUpcomingAuctions] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [viewDetails, setViewDetails] = useState(null);
+  const axiosPublic = useAxiosPublic();
 
   const fallbackImage = "https://via.placeholder.com/100";
 
   useEffect(() => {
-    axios
-      .get(
-        "https://rex-auction-server-side-jzyx.onrender.com/upcoming-auctions"
-      )
+    axiosPublic
+      .get("/upcoming-auctions")
       .then((res) => {
         const today = new Date();
         const upcoming = res.data.filter(

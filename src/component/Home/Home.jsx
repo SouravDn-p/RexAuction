@@ -15,18 +15,16 @@ export default function Home() {
     <div className={isDarkMode ? "dark" : ""}>
       <div
         className={`transition-colors duration-300 ${
-          isDarkMode
-            ? "bg-gray-900 text-white"
-            : "bg-white text-gray-900"
+          isDarkMode ? "bg-gray-900 text-white" : "bg-white text-gray-900"
         }`}
       >
         <Slider darkMode={isDarkMode} />
+        <BlogCard darkMode={isDarkMode} />
         <HotAuction darkMode={isDarkMode} />
         {/* <UpcomingAuction darkMode={isDarkMode} /> */}
-        <SdUpAuctions darkMode={isDarkMode} />
         <BrowsCategory darkMode={isDarkMode} />
-        <BlogCard darkMode={isDarkMode} />
-        {/* <SdDemo darkMode={isDarkMode} /> */}
+        <SdUpAuctions darkMode={isDarkMode} />
+        <SdDemo darkMode={isDarkMode} />
       </div>
     </div>
   );

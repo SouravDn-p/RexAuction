@@ -16,7 +16,6 @@ import {
   MessageSquare,
   BarChart3,
   ArrowUpDown,
-  Tag,
   TrendingUp,
   ChevronDown,
   ChevronUp,
@@ -29,6 +28,7 @@ import LoadingSpinner from "../../../LoadingSpinner";
 import useAuth from "../../../../hooks/useAuth";
 import ThemeContext from "../../../Context/ThemeContext";
 import { useNavigate } from "react-router-dom";
+import useAxiosPublic from "../../../../hooks/useAxiosPublic";
 
 // Toast Component
 const Toast = ({ message, type, onClose }) => {
@@ -99,15 +99,14 @@ export default function SellerPayment() {
   const navigate = useNavigate();
   const dateFilterRef = useRef(null);
   const filterRef = useRef(null);
+  const axiosPublic = useAxiosPublic();
 
   // Fetch payment data from backend
   const fetchPayments = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(
-        "https://rex-auction-server-side-jzyx.onrender.com/payments"
-      );
-      const data = await response.json();
+      const response = await axiosPublic.get("/payments");
+      const data = response.data;
       // Filter payments for the logged-in seller
       const sellerPayments = data.filter(
         (payment) => payment.sellerInfo.email === user.email // Match by email
