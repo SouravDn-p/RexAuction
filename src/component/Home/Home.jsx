@@ -5,6 +5,7 @@ import BrowsCategory from "./BrowsCategory";
 import SdDemo from "./SdDemo";
 import ThemeContext from "../../component/Context/ThemeContext";
 import UpcomingAuction from "../auction/UpcomingAuction";
+import SdUpAuctions from "../auction/SdUpAuctions";
 
 export default function Home() {
   const { isDarkMode } = useContext(ThemeContext);
@@ -20,7 +21,8 @@ export default function Home() {
       >
         <Slider darkMode={isDarkMode} />
         <HotAuction darkMode={isDarkMode} />
-        <UpcomingAuction darkMode={isDarkMode} />
+        {/* <UpcomingAuction darkMode={isDarkMode} /> */}
+        <SdUpAuctions darkMode={isDarkMode} />
         <BrowsCategory darkMode={isDarkMode} />
         <SdDemo darkMode={isDarkMode} />
       </div>
