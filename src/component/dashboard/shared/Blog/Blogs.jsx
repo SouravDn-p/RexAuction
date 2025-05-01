@@ -75,11 +75,10 @@ const Blogs = () => {
 
   return (
     <div
-      className={`min-h-screen p-4 md:p-8 transition-colors duration-300 ${
-        isDarkMode
-          ? "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-gray-100"
-          : "bg-gradient-to-br from-purple-50 via-white to-blue-50 text-gray-800"
-      }`}
+      className={`min-h-screen p-4 md:p-8 transition-colors duration-300 ${isDarkMode
+        ? "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-gray-100"
+        : "bg-gradient-to-br from-purple-50 via-white to-blue-50 text-gray-800"
+        }`}
     >
       <div className="max-w-7xl mx-auto">
         {/* Header */}
@@ -88,9 +87,8 @@ const Blogs = () => {
             Discover Our Blogs
           </h1>
           <p
-            className={`text-lg max-w-2xl mx-auto ${
-              isDarkMode ? "text-gray-400" : "text-gray-600"
-            }`}
+            className={`text-lg max-w-2xl mx-auto ${isDarkMode ? "text-gray-400" : "text-gray-600"
+              }`}
           >
             Explore insightful articles, tutorials, and stories from our
             community
@@ -106,11 +104,10 @@ const Blogs = () => {
             <input
               type="text"
               placeholder="Search blogs..."
-              className={`w-full pl-10 pr-4 py-3 rounded-full border focus:outline-none focus:ring-2 ${
-                isDarkMode
-                  ? "bg-gray-700 border-gray-600 focus:ring-purple-500 text-white"
-                  : "bg-white border-gray-300 focus:ring-purple-400 text-gray-800"
-              }`}
+              className={`w-full pl-10 pr-4 py-3 rounded-full border focus:outline-none focus:ring-2 ${isDarkMode
+                ? "bg-gray-700 border-gray-600 focus:ring-purple-500 text-white"
+                : "bg-white border-gray-300 focus:ring-purple-400 text-gray-800"
+                }`}
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value);
@@ -133,9 +130,8 @@ const Blogs = () => {
                 {isError ? "No blogs available yet" : "No blogs available yet"}
               </h2>
               <p
-                className={`mb-6 ${
-                  isDarkMode ? "text-gray-400" : "text-gray-600"
-                }`}
+                className={`mb-6 ${isDarkMode ? "text-gray-400" : "text-gray-600"
+                  }`}
               >
                 {isError
                   ? "Be the first to create an amazing blog post!"
@@ -143,11 +139,10 @@ const Blogs = () => {
               </p>
               <button
                 onClick={handleCreateBlog}
-                className={`px-6 py-3 rounded-full font-medium flex items-center mx-auto space-x-2 transition-all ${
-                  isDarkMode
-                    ? "bg-purple-600 hover:bg-purple-700 text-white"
-                    : "bg-purple-500 hover:bg-purple-600 text-white"
-                }`}
+                className={`px-6 py-3 rounded-full font-medium flex items-center mx-auto space-x-2 transition-all ${isDarkMode
+                  ? "bg-purple-600 hover:bg-purple-700 text-white"
+                  : "bg-purple-500 hover:bg-purple-600 text-white"
+                  }`}
               >
                 <FaPenAlt className="mr-2" />
                 {isError ? "create blog" : "Create Your First Blog"}
@@ -165,19 +160,17 @@ const Blogs = () => {
                 No matching blogs found
               </h2>
               <p
-                className={`mb-6 ${
-                  isDarkMode ? "text-gray-400" : "text-gray-600"
-                }`}
+                className={`mb-6 ${isDarkMode ? "text-gray-400" : "text-gray-600"
+                  }`}
               >
                 Try a different search term
               </p>
               <button
                 onClick={() => setSearchQuery("")}
-                className={`px-6 py-3 rounded-full font-medium flex items-center mx-auto space-x-2 transition-all ${
-                  isDarkMode
-                    ? "bg-purple-600 hover:bg-purple-700 text-white"
-                    : "bg-purple-500 hover:bg-purple-600 text-white"
-                }`}
+                className={`px-6 py-3 rounded-full font-medium flex items-center mx-auto space-x-2 transition-all ${isDarkMode
+                  ? "bg-purple-600 hover:bg-purple-700 text-white"
+                  : "bg-purple-500 hover:bg-purple-600 text-white"
+                  }`}
               >
                 Clear Search
               </button>
@@ -187,84 +180,64 @@ const Blogs = () => {
 
         {!isError && filteredBlogs.length > 0 && (
           <>
-            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="grid gap-8 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 p-6">
               {currentBlogs.map((blog) => (
                 <div
                   key={blog._id}
-                  className={`group relative rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2 ${
-                    isDarkMode
-                      ? "bg-gray-800 border border-gray-700"
-                      : "bg-white border border-gray-100"
-                  }`}
+                  className={`group relative rounded-lg overflow-hidden transition-all duration-500 transform hover:-translate-y-2 ${isDarkMode ? "bg-gray-800" : "bg-white"
+                    }`}
                 >
-                  {/* Image with gradient overlay */}
+                  {/* Image Section with Moon Background */}
                   <div className="relative overflow-hidden h-48">
                     <img
                       src={blog.imageUrls?.[0] || "/fallback.jpg"}
                       alt={blog.title}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent opacity-80 group-hover:opacity-90 transition-opacity duration-500"></div>
-
-                    {/* Category badge on image */}
-                    <div
-                      className={`absolute top-4 left-4 px-3 py-1 rounded-full text-xs font-semibold shadow-md ${
-                        isDarkMode
-                          ? "bg-purple-900/90 text-purple-100"
-                          : "bg-white/90 text-purple-800"
-                      }`}
-                    >
-                      {blog.category || "General"}
-                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-90 group-hover:opacity-100 transition-opacity duration-500"></div>
                   </div>
 
-                  {/* Card content */}
-                  <div className="p-6 flex flex-col h-64">
-                    {/* Meta information */}
-                    <div className="flex items-center gap-3 text-xs mb-3 flex-wrap">
-                      <span
-                        className={`flex items-center ${
-                          isDarkMode ? "text-gray-400" : "text-gray-500"
+                  {/* Card Content */}
+                  <div className="p-5 flex flex-col">
+                    {/* Date */}
+                    <span
+                      className={`text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-600"
                         }`}
-                      >
-                        <FaUserAlt className="mr-1" />
-                        {blog.author || "Admin"}
-                      </span>
-                      <span
-                        className={`flex items-center ${
-                          isDarkMode ? "text-gray-400" : "text-gray-500"
-                        }`}
-                      >
-                        <FaCalendarAlt className="mr-1" />
-                        {new Date(blog.createdAt).toLocaleDateString()}
-                      </span>
-                    </div>
+                    >
+                      {new Date(blog.createdAt).toLocaleDateString("en-US", {
+                        month: "long",
+                        day: "numeric",
+                        year: "numeric",
+                      }).toUpperCase()}
+                    </span>
 
-                    {/* Title and excerpt */}
-                    <h2 className="text-xl font-bold mb-3 line-clamp-2 leading-snug">
+                    {/* Title */}
+                    <h2
+                      className={`text-xl font-bold mb-3 line-clamp-2 leading-snug ${isDarkMode ? "text-white" : "text-blue-900"
+                        }`}
+                    >
                       {blog.title}
                     </h2>
+
+                    {/* Excerpt */}
                     <p
-                      className={`text-sm mb-4 line-clamp-3 ${
-                        isDarkMode ? "text-gray-300" : "text-gray-600"
-                      }`}
+                      className={`text-sm mb-4 line-clamp-3 ${isDarkMode ? "text-gray-200" : "text-gray-700"
+                        }`}
                     >
                       {blog.fullContent}
                     </p>
 
-                    {/* Read More button */}
-                    <div className="mt-auto pt-4 border-t border-gray-200 dark:border-gray-700">
-                      <Link
-                        to={`/blogDetails/${blog._id}`}
-                        className={`inline-flex items-center font-medium transition-colors group-hover:text-purple-500 ${
-                          isDarkMode
-                            ? "text-purple-400 hover:text-purple-300"
-                            : "text-purple-600 hover:text-purple-800"
-                        }`}
+                    {/* Read More Link */}
+                    <div className="mt-auto">
+                      <a
+                        href={`/blogDetails/${blog._id}`}
+                        className={`inline-flex items-center font-medium transition-colors ${isDarkMode
+                          ? "text-blue-400 hover:text-blue-300"
+                          : "text-blue-600 hover:text-blue-800"
+                          }`}
                       >
-                        <span className="mr-2">Continue Reading</span>
-                        <FaArrowRight className="transition-transform group-hover:translate-x-1" />
-                      </Link>
+                        <span className="uppercase text-sm font-semibold">Read More</span>
+                      </a>
                     </div>
                   </div>
                 </div>
@@ -277,11 +250,10 @@ const Blogs = () => {
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className={`px-4 py-2 rounded-lg flex items-center transition-all ${
-                    isDarkMode
-                      ? "bg-gray-700 text-gray-300 hover:bg-gray-600 disabled:bg-gray-800 disabled:text-gray-500"
-                      : "bg-purple-100 text-purple-800 hover:bg-purple-200 disabled:bg-gray-200 disabled:text-gray-400"
-                  }`}
+                  className={`px-4 py-2 rounded-lg flex items-center transition-all ${isDarkMode
+                    ? "bg-gray-700 text-gray-300 hover:bg-gray-600 disabled:bg-gray-800 disabled:text-gray-500"
+                    : "bg-purple-100 text-purple-800 hover:bg-purple-200 disabled:bg-gray-200 disabled:text-gray-400"
+                    }`}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -310,15 +282,14 @@ const Blogs = () => {
                       <button
                         key={i}
                         onClick={() => handlePageChange(i + 1)}
-                        className={`px-4 py-2 rounded-lg transition-all ${
-                          currentPage === i + 1
-                            ? isDarkMode
-                              ? "bg-purple-700 text-white shadow-lg"
-                              : "bg-purple-600 text-white shadow-lg"
-                            : isDarkMode
+                        className={`px-4 py-2 rounded-lg transition-all ${currentPage === i + 1
+                          ? isDarkMode
+                            ? "bg-purple-700 text-white shadow-lg"
+                            : "bg-purple-600 text-white shadow-lg"
+                          : isDarkMode
                             ? "bg-gray-700 text-gray-300 hover:bg-gray-600"
                             : "bg-white text-gray-700 hover:bg-gray-100"
-                        }`}
+                          }`}
                       >
                         {i + 1}
                       </button>
@@ -330,11 +301,10 @@ const Blogs = () => {
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages}
-                  className={`px-4 py-2 rounded-lg flex items-center transition-all ${
-                    isDarkMode
-                      ? "bg-gray-700 text-gray-300 hover:bg-gray-600 disabled:bg-gray-800 disabled:text-gray-500"
-                      : "bg-purple-100 text-purple-800 hover:bg-purple-200 disabled:bg-gray-200 disabled:text-gray-400"
-                  }`}
+                  className={`px-4 py-2 rounded-lg flex items-center transition-all ${isDarkMode
+                    ? "bg-gray-700 text-gray-300 hover:bg-gray-600 disabled:bg-gray-800 disabled:text-gray-500"
+                    : "bg-purple-100 text-purple-800 hover:bg-purple-200 disabled:bg-gray-200 disabled:text-gray-400"
+                    }`}
                 >
                   Next
                   <svg
