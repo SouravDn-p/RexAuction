@@ -510,8 +510,11 @@ const HotAuction = () => {
     },
   });
 
-  const auctionData = auctionDatas.filter(auction => (auction.topBidders?.length || 0) >= 4);
-  
+  // Memoize auctionData to prevent new reference on every render
+  const auctionData = useMemo(() => {
+    return auctionDatas.filter(auction => (auction.topBidders?.length || 0) >= 4);
+  }, [auctionDatas]);
+
   useEffect(() => {
     if (!auctionData?.length) return;
 
@@ -540,7 +543,13 @@ const HotAuction = () => {
         }
       });
 
-      setCountdowns(updated);
+      // Use functional update to avoid unnecessary re-renders
+      setCountdowns((prev) => {
+        if (JSON.stringify(prev) !== JSON.stringify(updated)) {
+          return updated;
+        }
+        return prev;
+      });
     };
 
     updateCountdowns();
@@ -763,7 +772,7 @@ const HotAuction = () => {
                               </p>
                             </div>
                             <div>
-                              
+                              {/* Add additional info if needed */}
                             </div>
                           </div>
                         </div>
