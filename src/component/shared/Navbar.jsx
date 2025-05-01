@@ -337,7 +337,7 @@ const Navbar = () => {
                   alt="Rex Auction Logo"
                 />
               </div>
-              <h1 className="font-bold text-lg md:text-xl lg:text-2xl tracking-tight">
+              <h1 className="font-bold text-sm md:text-xl lg:text-2xl tracking-tight">
                 <span
                   className={`${
                     isDarkMode
