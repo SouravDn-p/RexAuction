@@ -72,7 +72,7 @@ export default function Blog() {
   const { isDarkMode, toggleTheme } = useContext(ThemeContext);
   const { dbUser } = useContext(AuthContexts);
   const email = dbUser?.email;
-  const navigate = useNavigate(); // Added for navigation
+  const navigate = useNavigate(); 
 
   const [blogPosts, setBlogPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -173,27 +173,33 @@ export default function Blog() {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className={`min-h-screen flex items-center justify-center p-6 ${isDarkMode
-          ? "bg-gray-900"
-          : "bg-gradient-to-b from-purple-50 to-white"
-          }`}
+        className={`min-h-screen flex items-center justify-center p-6 ${
+          isDarkMode
+            ? "bg-gray-900"
+            : "bg-gradient-to-b from-purple-50 to-white"
+        }`}
       >
         <div
-          className={`text-center max-w-md p-8 rounded-2xl shadow-xl ${isDarkMode ? "bg-gray-800" : "bg-white"
-            }`}
+          className={`text-center max-w-md p-8 rounded-2xl shadow-xl ${
+            isDarkMode ? "bg-gray-800" : "bg-white"
+          }`}
         >
           <motion.div
             animate={{ rotate: [0, 10, -10, 0] }}
             transition={{ repeat: Infinity, duration: 2 }}
-            className={`p-4 rounded-full inline-block ${isDarkMode ? "bg-gray-700" : "bg-purple-100"
-              }`}
+            className={`p-4 rounded-full inline-block ${
+              isDarkMode ? "bg-gray-700" : "bg-purple-100"
+            }`}
           >
             <FaBlogger
-              className={`text-4xl ${isDarkMode ? "text-purple-400" : "text-purple-600"
-                }`}
+              className={`text-4xl ${
+                isDarkMode ? "text-purple-400" : "text-purple-600"
+              }`}
             />
           </motion.div>
-          <h3 className="text-xl font-bold mt-4">Oops! Something went wrong</h3>
+          <h3 className={`text-xl font-bold  mt-4 ${isDarkMode ? "text-white" :""}`}>
+            Oops! Something went wrong
+          </h3>
           <p
             className={`mt-2 ${isDarkMode ? "text-gray-400" : "text-gray-600"}`}
           >
@@ -203,10 +209,11 @@ export default function Blog() {
           <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             <Link
               to="/dashboard/create-blog"
-              className={`mt-4 inline-flex items-center gap-2 px-6 py-3 rounded-xl font-medium shadow-lg ${isDarkMode
-                ? "bg-purple-600 hover:bg-purple-700 text-white"
-                : "bg-purple-500 hover:bg-purple-600 text-white"
-                }`}
+              className={`mt-4 inline-flex items-center gap-2 px-6 py-3 rounded-xl font-medium shadow-lg ${
+                isDarkMode
+                  ? "bg-purple-600 hover:bg-purple-700 text-white"
+                  : "bg-purple-500 hover:bg-purple-600 text-white"
+              }`}
             >
               <FaPlus /> Create New Blog
             </Link>
