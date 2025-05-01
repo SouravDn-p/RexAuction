@@ -1,9 +1,7 @@
 import { useContext } from "react";
 import Slider from "./Slider";
-import LiveAuction from "./LiveAuction";
 import HotAuction from "./HotAuction";
 import BrowsCategory from "./BrowsCategory";
-import TrendingAuction from "./TrendingAuction";
 import SdDemo from "./SdDemo";
 import ThemeContext from "../../component/Context/ThemeContext";
 import UpcomingAuction from "../auction/UpcomingAuction";
@@ -24,10 +22,7 @@ export default function Home() {
         <HotAuction darkMode={isDarkMode} />
         <UpcomingAuction darkMode={isDarkMode} />
         <BrowsCategory darkMode={isDarkMode} />
-       
-        {/* <LiveAuction darkMode={isDarkMode} /> */}
         <SdDemo darkMode={isDarkMode} />
-        {/* <TrendingAuction darkMode={isDarkMode} /> */}
       </div>
     </div>
   );

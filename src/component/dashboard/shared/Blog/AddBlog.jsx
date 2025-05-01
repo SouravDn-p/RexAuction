@@ -248,11 +248,11 @@ export default function AddBlog() {
           </div>
 
           {/* Buttons */}
-          <div className="flex justify-end space-x-4">
+          <div className="grid sm:grid-cols-2 gap-4 mt-6">
             <button
               type="button"
               onClick={handleReset}
-              className={`px-5 py-2 rounded-md font-semibold transition-all transform hover:scale-105 ${
+              className={`w-full px-5 py-2 rounded-md font-semibold transition-all transform hover:scale-105 ${
                 isDarkMode
                   ? "bg-gray-600 hover:bg-gray-700 text-gray-200"
                   : "bg-gray-200 hover:bg-gray-300 text-gray-800"
@@ -260,10 +260,11 @@ export default function AddBlog() {
             >
               Reset
             </button>
+
             <button
               type="button"
               onClick={handleCancel}
-              className={`px-5 py-2 rounded-md font-semibold transition-all transform hover:scale-105 ${
+              className={`w-full px-5 py-2 rounded-md font-semibold transition-all transform hover:scale-105 ${
                 isDarkMode
                   ? "bg-gray-600 hover:bg-gray-700 text-gray-200"
                   : "bg-gray-200 hover:bg-gray-300 text-gray-800"
@@ -271,10 +272,11 @@ export default function AddBlog() {
             >
               Cancel
             </button>
+
             <button
               type="submit"
               disabled={loading}
-              className={`px-6 py-2 rounded-md font-semibold shadow transition-all transform hover:scale-105 ${
+              className={`sm:col-span-2 w-full px-6 py-2 rounded-md font-semibold shadow transition-all transform hover:scale-105 ${
                 isDarkMode
                   ? "bg-purple-500 hover:bg-purple-600 text-white disabled:bg-gray-600"
                   : "bg-purple-600 hover:bg-purple-700 text-white disabled:bg-gray-400"

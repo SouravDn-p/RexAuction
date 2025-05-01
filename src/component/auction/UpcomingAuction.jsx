@@ -11,7 +11,6 @@ export default function UpcomingAuction() {
   const [viewDetails, setViewDetails] = useState(null);
 
   const fallbackImage = "https://via.placeholder.com/100";
-// useeffect
   useEffect(() => {
     axios
       .get(
