@@ -37,6 +37,8 @@ const HotAuction = () => {
 
   // Memoize auctionData to prevent new reference on every render
   const auctionData = useMemo(() => {
+    return auctionDatas.filter(auction => (auction.topBidders?.length || 0) >= 1);
+
     return auctionDatas.filter(
       (auction) => (auction.topBidders?.length || 0) >= 4
     );
