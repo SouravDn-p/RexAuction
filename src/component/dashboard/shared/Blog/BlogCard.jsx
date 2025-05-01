@@ -14,7 +14,7 @@ const BlogCard = () => {
     ];
 
     return (
-        <div className="p-10">
+        <div className="p-4 sm:p-10">
             <style>
                 {`
                     @keyframes fadeInUp {
@@ -57,16 +57,16 @@ const BlogCard = () => {
                 `}
             </style>
             <div
-                className={`flex gap-6 flex-col rounded-xl md:flex-row items-center justify-between p-8 max-w-5xl mx-auto transition-all duration-300 animate-fadeInUp ${
+                className={`flex gap-4 sm:gap-6 flex-col rounded-xl md:flex-row items-center justify-between p-4 sm:p-8 max-w-5xl mx-auto transition-all duration-300 animate-fadeInUp ${
                     isDarkMode
                         ? 'bg-gray-900 text-white'
                         : 'backdrop-blur-3xl text-gray-800'
                 }`}
             >
                 {/* Left Section: Text and Buttons */}
-                <div className="md:w-1/2 mb-6 md:mb-0">
+                <div className="md:w-1/2 mb-4 sm:mb-6 md:mb-0">
                     <h2
-                        className={`text-4xl md:text-5xl font-bold leading-tight mb-4 animate-fadeInUp ${
+                        className={`text-2xl sm:text-4xl md:text-5xl font-bold leading-tight mb-4 animate-fadeInUp ${
                             isDarkMode ? 'text-white' : 'text-gray-900'
                         }`}
                         style={{ animationDelay: '0.2s' }}
@@ -74,23 +74,23 @@ const BlogCard = () => {
                         Join Our <span className="text-purple-500 font-bolder">Blog </span>Community And Stay Informed Today
                     </h2>
                     <p
-                        className={`text-lg mb-6 animate-fadeInUp ${
+                        className={`text-base sm:text-lg mb-4 sm:mb-6 animate-fadeInUp ${
                             isDarkMode ? 'text-gray-300' : 'text-gray-600'
                         }`}
                         style={{ animationDelay: '0.4s' }}
                     >
                         Discover Insights, Tips, And Stories To Keep You Inspired And Engaged
                     </p>
-                    <div className="flex gap-4 animate-fadeInUp" style={{ animationDelay: '0.6s' }}>
+                    <div className="flex gap-2 sm:gap-4 animate-fadeInUp" style={{ animationDelay: '0.6s' }}>
                         <Link
                             to="/blogs"
-                            className="bg-purple-500 text-white px-6 py-3 rounded-full font-semibold hover:bg-purple-600 transition-all duration-300 transform hover:scale-105"
+                            className="bg-purple-500 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-full font-semibold text-sm sm:text-base hover:bg-purple-600 transition-all duration-300 transform hover:scale-105"
                         >
                             Read More
                         </Link>
                         <Link
                             to="/blogs"
-                            className={`border-2 border-purple-500 px-6 py-3 rounded-full font-semibold transition-all duration-300 transform hover:scale-105 ${
+                            className={`border-2 border-purple-500 px-4 sm:px-6 py-2 sm:py-3 rounded-full font-semibold text-sm sm:text-base transition-all duration-300 transform hover:scale-105 ${
                                 isDarkMode
                                     ? 'text-white border-purple-500 hover:bg-purple-500 hover:text-white'
                                     : 'text-purple-500 border-purple-500 hover:bg-purple-500 hover:text-white'
@@ -102,7 +102,7 @@ const BlogCard = () => {
                 </div>
 
                 {/* Right Section: Images */}
-                <div className="md:w-1/2 grid grid-cols-2 gap-4">
+                <div className="md:w-1/2 grid grid-cols-2 gap-2 sm:gap-4">
                     {blogImages.map((image, index) => (
                         <div
                             key={index}
@@ -114,7 +114,7 @@ const BlogCard = () => {
                             <img
                                 src={image}
                                 alt={`Blog image ${index + 1}`}
-                                className="w-full h-40 object-cover"
+                                className="w-full h-32 sm:h-40 object-cover"
                                 onError={(e) => {
                                     e.target.src = 'https://via.placeholder.com/150?text=Blog+Image';
                                 }}
