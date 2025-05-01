@@ -6,6 +6,7 @@ import SdDemo from "./SdDemo";
 import ThemeContext from "../../component/Context/ThemeContext";
 import UpcomingAuction from "../auction/UpcomingAuction";
 import SdUpAuctions from "../auction/SdUpAuctions";
+import BlogCard from "../dashboard/shared/Blog/BlogCard";
 
 export default function Home() {
   const { isDarkMode } = useContext(ThemeContext);
@@ -15,7 +16,7 @@ export default function Home() {
       <div
         className={`transition-colors duration-300 ${
           isDarkMode
-            ? "bg-gradient-to-r from-[#182939] to-[#000000] text-white"
+            ? "bg-gray-900 text-white"
             : "bg-white text-gray-900"
         }`}
       >
@@ -24,7 +25,8 @@ export default function Home() {
         {/* <UpcomingAuction darkMode={isDarkMode} /> */}
         <SdUpAuctions darkMode={isDarkMode} />
         <BrowsCategory darkMode={isDarkMode} />
-        <SdDemo darkMode={isDarkMode} />
+        <BlogCard darkMode={isDarkMode} />
+        {/* <SdDemo darkMode={isDarkMode} /> */}
       </div>
     </div>
   );
