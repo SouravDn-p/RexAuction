@@ -11,7 +11,6 @@ import {
 } from "react-icons/fi";
 import "./Announcement.css";
 import LoadingSpinner from "../../LoadingSpinner";
-import axios from "axios";
 import toast from "react-hot-toast";
 import { useNavigate, useLocation } from "react-router-dom";
 import ThemeContext from "../../Context/ThemeContext";
@@ -209,15 +208,12 @@ const Announcement = () => {
 
   const handlePostAnnouncement = async (announcementData) => {
     try {
-      const response = await axios.post(
-        "https://rex-auction-server-side-jzyx.onrender.com/announcement",
-        {
-          title: announcementData.title,
-          content: announcementData.content,
-          date: announcementData.date || new Date().toISOString(),
-          image: announcementData.image || "/placeholder.svg",
-        }
-      );
+      const response = await axiosPublic.post("/announcement", {
+        title: announcementData.title,
+        content: announcementData.content,
+        date: announcementData.date || new Date().toISOString(),
+        image: announcementData.image || "/placeholder.svg",
+      });
       if (response.status === 201) {
         toast.success("Announcement posted successfully!");
         refetch();
@@ -239,9 +235,7 @@ const Announcement = () => {
   const handleDelete = async (id, e) => {
     e.stopPropagation();
     try {
-      const response = await axios.delete(
-        `https://rex-auction-server-side-jzyx.onrender.com/announcement/${id}`
-      );
+      const response = await axiosPublic.delete(`/announcement/${id}`);
       if (response.status === 200) {
         toast.success("Announcement deleted successfully!");
         refetch();
@@ -298,9 +292,9 @@ const Announcement = () => {
       prev.map((n) => (n._id === notification._id ? { ...n, read: true } : n))
     );
 
-    axios
+    axiosPublic
       .put(
-        `https://rex-auction-server-side-jzyx.onrender.com/notifications/mark-read/${user.email}`,
+        `/notifications/mark-read/${user.email}`,
         { notificationId: notification._id },
         { withCredentials: true }
       )
@@ -342,8 +336,8 @@ const Announcement = () => {
       setNotificationCount(0);
 
       if (user) {
-        await axios.put(
-          `https://rex-auction-server-side-jzyx.onrender.com/notifications/mark-read/${user.email}`,
+        await axiosPublic.put(
+          `/notifications/mark-read/${user.email}`,
           {},
           { withCredentials: true }
         );

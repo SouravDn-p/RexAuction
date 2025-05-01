@@ -5,10 +5,16 @@ import CountUp from "react-countup";
 import useAuth from "../../../../hooks/useAuth";
 import coverPhoto from "../../../../assets/bg/hammer.webp";
 import LoadingSpinner from "../../../LoadingSpinner";
-import axios from "axios";
 import ManageCard from "../ManageCard";
 import { motion, AnimatePresence } from "framer-motion";
-import { FaGavel, FaStar, FaWallet, FaMoneyCheckAlt, FaRocket, FaChartLine } from "react-icons/fa";
+import {
+  FaGavel,
+  FaStar,
+  FaWallet,
+  FaMoneyCheckAlt,
+  FaRocket,
+  FaChartLine,
+} from "react-icons/fa";
 // import { IoIosHammer  } from "react-icons/gi";
 import { IoIosHammer, IoMdNotifications } from "react-icons/io";
 import { toast, Toaster } from "react-hot-toast";
@@ -25,6 +31,7 @@ import {
   AreaChart,
   Area,
 } from "recharts";
+import useAxiosPublic from "../../../../hooks/useAxiosPublic";
 
 // Mock profile data for metrics
 const profileData = {
@@ -61,15 +68,14 @@ const SellerProfile = () => {
   const [balanceError, setBalanceError] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const navigate = useNavigate();
+  const axiosPublic = useAxiosPublic();
 
   // Fetch account balance
   useEffect(() => {
     if (user?.email) {
       setBalanceLoading(true);
-      axios
-        .get(
-          `https://rex-auction-server-side-jzyx.onrender.com/users?email=${user.email}`
-        )
+      axiosPublic
+        .get(`/users?email=${user.email}`)
         .then((res) => {
           const userData = res.data[0];
           setAccountBalance(userData?.accountBalance || 0);
@@ -87,10 +93,8 @@ const SellerProfile = () => {
   useEffect(() => {
     if (user?.email) {
       setPaymentsLoading(true);
-      axios
-        .get(
-          `https://rex-auction-server-side-jzyx.onrender.com/payments?sellerEmail=${user.email}`
-        )
+      axiosPublic
+        .get(`/payments?sellerEmail=${user.email}`)
         .then((res) => {
           setPayments(res.data.slice(0, 5));
           setPaymentsLoading(false);
@@ -107,10 +111,8 @@ const SellerProfile = () => {
   useEffect(() => {
     if (user?.email) {
       setAuctionsLoading(true);
-      axios
-        .get(
-          `https://rex-auction-server-side-jzyx.onrender.com/auctions?sellerEmail=${user.email}`
-        )
+      axiosPublic
+        .get(`/auctions?sellerEmail=${user.email}`)
         .then((res) => {
           setAuctions(res.data.slice(0, 5));
           setAuctionsLoading(false);
@@ -127,9 +129,7 @@ const SellerProfile = () => {
   useEffect(() => {
     const fetchCoverOptions = async () => {
       try {
-        const response = await axios.get(
-          "https://rex-auction-server-side-jzyx.onrender.com/cover-options"
-        );
+        const response = await axiosPublic.get("/cover-options");
         setCoverOptions(response.data);
       } catch (error) {
         console.error("Error fetching cover options:", error);
@@ -145,9 +145,7 @@ const SellerProfile = () => {
     const fetchUserCover = async () => {
       if (user?.uid) {
         try {
-          const response = await axios.get(
-            `https://rex-auction-server-side-jzyx.onrender.com/cover/${user.uid}`
-          );
+          const response = await axiosPublic.get(`/cover/${user.uid}`);
           if (response.data.image) {
             setCurrentCover(response.data.image);
           }
@@ -192,13 +190,10 @@ const SellerProfile = () => {
     if (!selectedCover || !user?.uid) return;
     setIsSaving(true);
     try {
-      await axios.patch(
-        "https://rex-auction-server-side-jzyx.onrender.com/cover",
-        {
-          userId: user.uid,
-          image: selectedCover,
-        }
-      );
+      await axiosPublic.patch("/cover", {
+        userId: user.uid,
+        image: selectedCover,
+      });
       setCurrentCover(selectedCover);
       setIsModalOpen(false);
       setShowSuccess(true);
@@ -254,7 +249,7 @@ const SellerProfile = () => {
       } transition-all duration-300 p-4 md:p-8`}
     >
       <Toaster />
-      
+
       {/* Profile Banner */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -503,7 +498,6 @@ const SellerProfile = () => {
             </div>
             <div className="mt-6 space-y-4">
               <div className="flex items-center gap-4 flex-wrap">
-             
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -558,14 +552,16 @@ const SellerProfile = () => {
               <p className="text-2xl font-bold">
                 <CountUp end={profileData.totalAuctions} duration={2} />
               </p>
-              <p className={`text-xs mt-1 ${
-                isDarkMode ? "text-blue-300" : "text-blue-600"
-              }`}>
+              <p
+                className={`text-xs mt-1 ${
+                  isDarkMode ? "text-blue-300" : "text-blue-600"
+                }`}
+              >
                 +2 from last month
               </p>
             </div>
           </motion.div>
-          
+
           <motion.div
             whileHover={{ scale: 1.03 }}
             className={`p-6 rounded-xl shadow-lg ${
@@ -587,14 +583,16 @@ const SellerProfile = () => {
               <p className="text-2xl font-bold">
                 <CountUp end={profileData.totalSold} duration={2} />
               </p>
-              <p className={`text-xs mt-1 ${
-                isDarkMode ? "text-green-300" : "text-green-600"
-              }`}>
+              <p
+                className={`text-xs mt-1 ${
+                  isDarkMode ? "text-green-300" : "text-green-600"
+                }`}
+              >
                 80% success rate
               </p>
             </div>
           </motion.div>
-          
+
           <motion.div
             whileHover={{ scale: 1.03 }}
             className={`p-6 rounded-xl shadow-lg ${
@@ -620,15 +618,17 @@ const SellerProfile = () => {
               ) : (
                 <>
                   <p className="text-sm text-purple-100 font-medium">
-                  Current Balance
-                </p>
-                <p className="text-3xl font-bold text-white">
-                  {formatNumber(dbUser?.accountBalance)}{" "}
-                  <span className="text-lg">Taka</span>
-                </p>
-                  <p className={`text-xs mt-1 ${
-                    isDarkMode ? "text-purple-300" : "text-purple-600"
-                  }`}>
+                    Current Balance
+                  </p>
+                  <p className="text-3xl font-bold text-white">
+                    {formatNumber(dbUser?.accountBalance)}{" "}
+                    <span className="text-lg">Taka</span>
+                  </p>
+                  <p
+                    className={`text-xs mt-1 ${
+                      isDarkMode ? "text-purple-300" : "text-purple-600"
+                    }`}
+                  >
                     Available for withdrawal
                   </p>
                 </>
@@ -753,8 +753,7 @@ const SellerProfile = () => {
                                 isDarkMode ? "#374151" : "#E5E7EB"
                               }`,
                               borderRadius: "0.5rem",
-                              boxShadow:
-                                "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                              boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
                             }}
                             itemStyle={{
                               color: isDarkMode ? "#E5E7EB" : "#111827",
@@ -776,7 +775,7 @@ const SellerProfile = () => {
                       </ResponsiveContainer>
                     </div>
                   </div>
-                  
+
                   <div
                     className={`${
                       isDarkMode ? "bg-gray-800" : "bg-white"
@@ -838,8 +837,7 @@ const SellerProfile = () => {
                                 isDarkMode ? "#374151" : "#E5E7EB"
                               }`,
                               borderRadius: "0.5rem",
-                              boxShadow:
-                                "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+                              boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
                             }}
                             itemStyle={{
                               color: isDarkMode ? "#E5E7EB" : "#111827",
@@ -861,7 +859,7 @@ const SellerProfile = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {chartData.slice(0, 3).map((entry, index) => (
                     <motion.div
@@ -897,7 +895,7 @@ const SellerProfile = () => {
                           }`}
                         >
                           {index % 3 === 0 ? (
-                            <IoIosHammer  className="text-xl" />
+                            <IoIosHammer className="text-xl" />
                           ) : index % 3 === 1 ? (
                             <FaStar className="text-xl" />
                           ) : (
@@ -919,7 +917,7 @@ const SellerProfile = () => {
                 </div>
               </motion.div>
             )}
-            
+
             {activeTab === "auctions" && (
               <motion.div
                 key="auctions"
@@ -930,7 +928,7 @@ const SellerProfile = () => {
               >
                 <div className="flex justify-between items-center mb-6">
                   <h3 className="text-xl font-semibold flex items-center gap-2">
-                    <IoIosHammer  className="text-purple-500" />
+                    <IoIosHammer className="text-purple-500" />
                     Your Auctions
                   </h3>
                   <motion.button
@@ -973,7 +971,7 @@ const SellerProfile = () => {
                 ) : auctions.length === 0 ? (
                   <div className="text-center py-12">
                     <div className="mx-auto w-24 h-24 bg-purple-100 rounded-full flex items-center justify-center mb-4">
-                      <IoIosHammer  className="text-4xl text-purple-600" />
+                      <IoIosHammer className="text-4xl text-purple-600" />
                     </div>
                     <h4 className="text-xl font-semibold mb-2">
                       No Auctions Found
@@ -987,7 +985,7 @@ const SellerProfile = () => {
                       onClick={() => navigate("/dashboard/create-auction")}
                       className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3 rounded-full text-sm font-semibold shadow-lg flex items-center gap-2 mx-auto"
                     >
-                      <IoIosHammer  className="text-lg" />
+                      <IoIosHammer className="text-lg" />
                       Create Your First Auction
                     </motion.button>
                   </div>
@@ -996,7 +994,7 @@ const SellerProfile = () => {
                 )}
               </motion.div>
             )}
-            
+
             {activeTab === "payments" && (
               <motion.div
                 key="payments"
@@ -1064,7 +1062,7 @@ const SellerProfile = () => {
                       onClick={() => navigate("/dashboard/createAuction")}
                       className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3 rounded-full text-sm font-semibold shadow-lg flex items-center gap-2 mx-auto"
                     >
-                      <IoIosHammer  className="text-lg" />
+                      <IoIosHammer className="text-lg" />
                       Start Selling Items
                     </motion.button>
                   </div>
@@ -1085,8 +1083,10 @@ const SellerProfile = () => {
                         <FaMoneyCheckAlt className="text-2xl text-green-500" />
                       </div>
                       <div>
-                        <h3 className="text-lg font-semibold">Total Earnings</h3>
-                       
+                        <h3 className="text-lg font-semibold">
+                          Total Earnings
+                        </h3>
+
                         <p className={labelStyle}>From completed payments</p>
                       </div>
                     </motion.div>
@@ -1191,11 +1191,11 @@ const SellerProfile = () => {
             } transition-colors`}
           >
             <div className="bg-purple-100 p-3 rounded-full">
-              <IoIosHammer  className="text-2xl text-purple-600" />
+              <IoIosHammer className="text-2xl text-purple-600" />
             </div>
             <span className="font-medium">Create Auction</span>
           </motion.button>
-          
+
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -1211,7 +1211,7 @@ const SellerProfile = () => {
             </div>
             <span className="font-medium">Manage Auctions</span>
           </motion.button>
-          
+
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -1227,7 +1227,7 @@ const SellerProfile = () => {
             </div>
             <span className="font-medium">View Payments</span>
           </motion.button>
-          
+
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -1274,10 +1274,10 @@ const SellerProfile = () => {
         >
           <div className={`${boxStyle}`}>
             <div className="p-6">
-            <p className="text-3xl font-bold text-white">
-                  {formatNumber(dbUser?.accountBalance)}{" "}
-                  <span className="text-lg">Taka</span>
-                </p>
+              <p className="text-3xl font-bold text-white">
+                {formatNumber(dbUser?.accountBalance)}{" "}
+                <span className="text-lg">Taka</span>
+              </p>
               {balanceLoading ? (
                 <div className="flex items-center gap-2">
                   <div className="h-4 w-4 border-2 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
@@ -1287,7 +1287,6 @@ const SellerProfile = () => {
                 <p className="text-red-500">{balanceError}</p>
               ) : (
                 <>
-                  
                   <p className={labelStyle}>Available earnings</p>
                   <motion.button
                     whileHover={{ scale: 1.05 }}
@@ -1321,7 +1320,7 @@ const SellerProfile = () => {
               <div className="space-y-4">
                 <div className="flex items-start gap-3">
                   <div className="bg-purple-100 p-2 rounded-full">
-                    <IoIosHammer  className="text-purple-600" />
+                    <IoIosHammer className="text-purple-600" />
                   </div>
                   <div>
                     <p className="font-medium">New bid received</p>

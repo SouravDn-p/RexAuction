@@ -1,21 +1,20 @@
 import { useContext, useEffect, useState } from "react";
 import { FaFire, FaSearch, FaClock, FaSadTear } from "react-icons/fa";
-import axios from "axios";
 import ThemeContext from "../Context/ThemeContext";
 import { motion, AnimatePresence } from "framer-motion";
+import useAxiosPublic from "../../hooks/useAxiosPublic";
 
 export default function UpcomingAuction() {
   const { isDarkMode } = useContext(ThemeContext);
   const [upcomingAuctions, setUpcomingAuctions] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [viewDetails, setViewDetails] = useState(null);
+  const axiosPublic = useAxiosPublic();
 
   const fallbackImage = "https://via.placeholder.com/100";
   useEffect(() => {
-    axios
-      .get(
-        "https://rex-auction-server-side-jzyx.onrender.com/upcoming-auctions"
-      )
+    axiosPublic
+      .get("/upcoming-auctions")
       .then((res) => {
         const today = new Date();
         const upcoming = res.data.filter(
@@ -32,18 +31,18 @@ export default function UpcomingAuction() {
 
   const formatTime = (time) => {
     if (!time) return "Starting Soon";
-    
+
     const totalSeconds = Math.floor((new Date(time) - new Date()) / 1000);
     if (totalSeconds <= 0) return "Started";
-  
+
     const days = Math.floor(totalSeconds / (3600 * 24));
     const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
-  
+
     if (days > 0) {
       return `${days}d`;
     }
-  
+
     return `${hours}h ${minutes}m`;
   };
 
@@ -71,7 +70,6 @@ export default function UpcomingAuction() {
               Upcoming Auctions
             </h2>
           </div>
-
         </div>
 
         {!filteredAuctions.length && (
@@ -109,7 +107,9 @@ export default function UpcomingAuction() {
             <table className={`min-w-full w-full divide-y `}>
               <thead
                 className={`sticky top-0 z-10 ${
-                  isDarkMode ? "bg-gray-800 text-white" : "bg-gray-200 text-gray-700"
+                  isDarkMode
+                    ? "bg-gray-800 text-white"
+                    : "bg-gray-200 text-gray-700"
                 }`}
               >
                 <tr>
@@ -149,54 +149,56 @@ export default function UpcomingAuction() {
                   }}
                   className={isDarkMode ? " text-white" : " text-gray-800"}
                 >
-                  {filteredAuctions.concat(filteredAuctions).map((item, index) => (
-                    <motion.tr
-                      key={`${item._id}-${index}`}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="dark:bg-gray-800 transition"
-                    >
-                      <td className="px-2 sm:px-4 py-3 sm:py-4 text-center truncate text-xs sm:text-sm">
-                        {item.name?.split(".")[0] || item.name}
-                      </td>
-                      <td className="px-2 sm:px-4 py-3 sm:py-4">
-                        <div className="flex gap-1 sm:gap-2 overflow-x-auto">
-                          {(item.images || []).slice(0, 4).map((img, idx) => (
-                            <img
-                              key={idx}
-                              src={img || fallbackImage}
-                              alt="Item"
-                              className="w-8 sm:w-10 h-8 sm:h-10 rounded-full border object-cover"
-                              onError={(e) => (e.target.src = fallbackImage)}
-                            />
-                          ))}
-                        </div>
-                      </td>
-                      <td className="px-2 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm">
-                        <span className="text-purple-600 font-semibold">
-                          ${item.startingPrice?.toLocaleString()}
-                        </span>
-                      </td>
-                      <td className="px-2 sm:px-4 py-3 sm:py-4 text-center text-xs sm:text-sm hidden sm:table-cell">
-                        {item.sellerDisplayName}
-                      </td>
-                      <td className="px-2 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm text-purple-500 hidden sm:table-cell">
-                        <div className="flex justify-end items-center gap-1 sm:gap-2">
-                          <FaClock className="text-xs" />
-                          <span>{formatTime(item.startTime)}</span>
-                        </div>
-                      </td>
-                      <td className="px-2 sm:px-4 py-3 sm:py-4 text-center">
-                        <button
-                          onClick={() => handleViewDetails(item)}
-                          className="px-3 sm:px-4 py-1 sm:py-2 bg-purple-500 text-white rounded-full hover:bg-purple-600 text-xs sm:text-sm"
-                        >
-                          View
-                        </button>
-                      </td>
-                    </motion.tr>
-                  ))}
+                  {filteredAuctions
+                    .concat(filteredAuctions)
+                    .map((item, index) => (
+                      <motion.tr
+                        key={`${item._id}-${index}`}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="dark:bg-gray-800 transition"
+                      >
+                        <td className="px-2 sm:px-4 py-3 sm:py-4 text-center truncate text-xs sm:text-sm">
+                          {item.name?.split(".")[0] || item.name}
+                        </td>
+                        <td className="px-2 sm:px-4 py-3 sm:py-4">
+                          <div className="flex gap-1 sm:gap-2 overflow-x-auto">
+                            {(item.images || []).slice(0, 4).map((img, idx) => (
+                              <img
+                                key={idx}
+                                src={img || fallbackImage}
+                                alt="Item"
+                                className="w-8 sm:w-10 h-8 sm:h-10 rounded-full border object-cover"
+                                onError={(e) => (e.target.src = fallbackImage)}
+                              />
+                            ))}
+                          </div>
+                        </td>
+                        <td className="px-2 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm">
+                          <span className="text-purple-600 font-semibold">
+                            ${item.startingPrice?.toLocaleString()}
+                          </span>
+                        </td>
+                        <td className="px-2 sm:px-4 py-3 sm:py-4 text-center text-xs sm:text-sm hidden sm:table-cell">
+                          {item.sellerDisplayName}
+                        </td>
+                        <td className="px-2 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm text-purple-500 hidden sm:table-cell">
+                          <div className="flex justify-end items-center gap-1 sm:gap-2">
+                            <FaClock className="text-xs" />
+                            <span>{formatTime(item.startTime)}</span>
+                          </div>
+                        </td>
+                        <td className="px-2 sm:px-4 py-3 sm:py-4 text-center">
+                          <button
+                            onClick={() => handleViewDetails(item)}
+                            className="px-3 sm:px-4 py-1 sm:py-2 bg-purple-500 text-white rounded-full hover:bg-purple-600 text-xs sm:text-sm"
+                          >
+                            View
+                          </button>
+                        </td>
+                      </motion.tr>
+                    ))}
                 </motion.tbody>
               </AnimatePresence>
             </table>
@@ -220,7 +222,9 @@ export default function UpcomingAuction() {
               >
                 ×
               </button>
-              <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4">{viewDetails.name}</h3>
+              <h3 className="text-lg sm:text-xl font-bold mb-3 sm:mb-4">
+                {viewDetails.name}
+              </h3>
               <div className="flex gap-2 sm:gap-3 items-center mb-3 sm:mb-4">
                 <img
                   src={viewDetails.sellerPhotoUrl || fallbackImage}
@@ -228,12 +232,20 @@ export default function UpcomingAuction() {
                   className="w-10 sm:w-12 h-10 sm:h-12 rounded-full"
                 />
                 <div>
-                  <h4 className="text-base sm:text-lg">{viewDetails.sellerDisplayName}</h4>
-                  <p className="text-xs sm:text-sm">{viewDetails.sellerEmail}</p>
+                  <h4 className="text-base sm:text-lg">
+                    {viewDetails.sellerDisplayName}
+                  </h4>
+                  <p className="text-xs sm:text-sm">
+                    {viewDetails.sellerEmail}
+                  </p>
                 </div>
               </div>
-              <h4 className="font-semibold text-sm sm:text-base mb-1 sm:mb-2">Item History:</h4>
-              <p className="mb-3 sm:mb-4 text-xs sm:text-sm">{viewDetails.history}</p>
+              <h4 className="font-semibold text-sm sm:text-base mb-1 sm:mb-2">
+                Item History:
+              </h4>
+              <p className="mb-3 sm:mb-4 text-xs sm:text-sm">
+                {viewDetails.history}
+              </p>
               <div className="grid grid-cols-2 gap-1 sm:gap-2">
                 {viewDetails.images.map((image, index) => (
                   <img

@@ -1,9 +1,6 @@
-
-
 import { useContext, useEffect, useState, useMemo } from "react";
 import {
   FaFire,
-  FaGavel,
   FaSearch,
   FaSadTear,
   FaClock,
@@ -26,7 +23,11 @@ const HotAuction = () => {
   const itemsPerPage = 4;
   const axiosSecure = useAxiosSecure();
 
-  const { data: auctionDatas = [], isLoading, error } = useQuery({
+  const {
+    data: auctionDatas = [],
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["auctionData"],
     queryFn: async () => {
       const res = await axiosSecure.get(`/auctions`);
@@ -37,6 +38,10 @@ const HotAuction = () => {
   // Memoize auctionData to prevent new reference on every render
   const auctionData = useMemo(() => {
     return auctionDatas.filter(auction => (auction.topBidders?.length || 0) >= 1);
+
+    return auctionDatas.filter(
+      (auction) => (auction.topBidders?.length || 0) >= 4
+    );
   }, [auctionDatas]);
 
   useEffect(() => {
@@ -133,7 +138,11 @@ const HotAuction = () => {
 
   if (isLoading) {
     return (
-      <div className={`min-h-screen flex items-center justify-center ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
+      <div
+        className={`min-h-screen flex items-center justify-center ${
+          isDarkMode ? "bg-gray-900" : "bg-gray-50"
+        }`}
+      >
         <div className="animate-pulse flex flex-col items-center">
           <div className="h-16 w-16 bg-purple-500 rounded-full mb-4"></div>
           <div className="h-4 w-32 bg-purple-300 rounded"></div>
@@ -144,7 +153,11 @@ const HotAuction = () => {
 
   if (error) {
     return (
-      <div className={`min-h-screen flex items-center justify-center ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
+      <div
+        className={`min-h-screen flex items-center justify-center ${
+          isDarkMode ? "bg-gray-900" : "bg-gray-50"
+        }`}
+      >
         <div className="text-center p-8 max-w-md">
           <div className="inline-flex items-center justify-center bg-red-100 text-red-600 p-4 rounded-full mb-4">
             <FaSadTear className="text-3xl" />
@@ -163,12 +176,20 @@ const HotAuction = () => {
   }
 
   return (
-    <div className={` w-full overflow-x-hidden ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
+    <div
+      className={` w-full overflow-x-hidden ${
+        isDarkMode ? "bg-gray-950" : "bg-gray-50"
+      }`}
+    >
       <section className="w-full max-w-screen-xl mx-auto px-4 py-12">
         <div className="flex flex-col md:flex-row justify-between items-center mb-12 gap-6 w-full">
           <div className="flex items-center">
             <FaFire className="text-orange-500 mr-3 text-4xl" />
-            <h2 className={`text-4xl font-bold ${isDarkMode ? "text-white" : "text-gray-800"}`}>
+            <h2
+              className={`text-4xl font-bold ${
+                isDarkMode ? "text-white" : "text-gray-800"
+              }`}
+            >
               Hot Auctions
             </h2>
           </div>
@@ -223,9 +244,11 @@ const HotAuction = () => {
                   ? "bg-gray-700 text-white hover:bg-gray-600 shadow-lg"
                   : "bg-white text-gray-800 hover:bg-gray-100 shadow-lg"
               } transition-all duration-300 transform ${
-                currentPage === 0 ? "opacity-0 scale-0" : "opacity-100 scale-100"
+                currentPage === 0
+                  ? "opacity-0 scale-0"
+                  : "opacity-100 scale-100"
               }`}
-              style={{ left: '0.5rem' }}
+              style={{ left: "0.5rem" }}
             >
               <FaChevronLeft className="ml-1" />
             </button>
@@ -259,7 +282,9 @@ const HotAuction = () => {
                         <div>
                           <p className="text-xs text-white/80">Current Bid</p>
                           <p className="text-xl font-bold text-white">
-                            ${item.currentBid?.toLocaleString() || item.startingPrice?.toLocaleString()}
+                            $
+                            {item.currentBid?.toLocaleString() ||
+                              item.startingPrice?.toLocaleString()}
                           </p>
                         </div>
                         <div className="flex items-center bg-purple-600/90 text-white px-3 py-1 rounded-full text-xs font-semibold">
@@ -287,17 +312,17 @@ const HotAuction = () => {
                           <p className="text-gray-300 text-sm line-clamp-3 mb-4">
                             {item.description || "No description available"}
                           </p>
-                          
+
                           <div className="grid grid-cols-2 gap-4 mb-4">
                             <div>
-                              <p className="text-xs text-gray-400">Starting Price</p>
+                              <p className="text-xs text-gray-400">
+                                Starting Price
+                              </p>
                               <p className="text-white font-medium">
                                 ${item.startingPrice?.toLocaleString()}
                               </p>
                             </div>
-                            <div>
-                              {/* Add additional info if needed */}
-                            </div>
+                            <div>{/* Add additional info if needed */}</div>
                           </div>
                         </div>
 
@@ -322,9 +347,11 @@ const HotAuction = () => {
                   ? "bg-gray-700 text-white hover:bg-gray-600 shadow-lg"
                   : "bg-white text-gray-800 hover:bg-gray-100 shadow-lg"
               } transition-all duration-300 transform ${
-                currentPage === pageCount - 1 ? "opacity-0 scale-0" : "opacity-100 scale-100"
+                currentPage === pageCount - 1
+                  ? "opacity-0 scale-0"
+                  : "opacity-100 scale-100"
               }`}
-              style={{ right: '0.5rem' }}
+              style={{ right: "0.5rem" }}
             >
               <FaChevronRight className="mr-1" />
             </button>

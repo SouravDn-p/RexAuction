@@ -4,7 +4,6 @@ import CountUp from "react-countup";
 import useAuth from "../../../../hooks/useAuth";
 import coverPhoto from "../../../../assets/bg/hammer.webp";
 import LoadingSpinner from "../../../LoadingSpinner";
-import axios from "axios";
 import {
   FaGavel,
   FaWallet,
@@ -37,6 +36,7 @@ import antique from "/DemoAuctionImg/antique.jpg";
 import antique2 from "/DemoAuctionImg/antique2.jpg";
 import antique3 from "/DemoAuctionImg/antique3.jpg";
 import antique4 from "/DemoAuctionImg/antique4.jpeg";
+import useAxiosPublic from "../../../../hooks/useAxiosPublic";
 
 const profileData = {
   totalBids: 25,
@@ -117,27 +117,26 @@ const BuyerProfile = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [payments, setPayments] = useState([]);
   const [biddingHistory, setBiddingHistory] = useState([]);
-  const [auctiontatus, setauctiontatus] = useState([]);
+  const [auctionStatus, setAuctionStatus] = useState([]);
   const [paymentsLoading, setPaymentsLoading] = useState(false);
   const [paymentsError, setPaymentsError] = useState(null);
   const [biddingFilter, setBiddingFilter] = useState("all");
   const [biddingSort, setBiddingSort] = useState("date-desc");
-  const [auctiontatusLoading, setauctiontatusLoading] = useState(false);
-  const [auctiontatusError, setauctiontatusError] = useState(null);
+  const [auctionStatusLoading, setAuctionStatusLoading] = useState(false);
+  const [auctionStatusError, setAuctionStatusError] = useState(null);
   const [accountBalance, setAccountBalance] = useState(0);
   const [balanceLoading, setBalanceLoading] = useState(false);
   const [balanceError, setBalanceError] = useState(null);
   const [statusFilter, setStatusFilter] = useState("All");
   const navigate = useNavigate();
+  const axiosPublic = useAxiosPublic();
 
   // Fetch account balance
   useEffect(() => {
     if (user?.email) {
       setBalanceLoading(true);
-      axios
-        .get(
-          `https://rex-auction-server-side-jzyx.onrender.com/users?email=${user.email}`
-        )
+      axiosPublic
+        .get(`/users?email=${user.email}`)
         .then((res) => {
           const userData = res.data[0];
           setAccountBalance(userData?.accountBalance || 0);
@@ -155,10 +154,8 @@ const BuyerProfile = () => {
   useEffect(() => {
     if (user?.email) {
       setPaymentsLoading(true);
-      axios
-        .get(
-          `https://rex-auction-server-side-jzyx.onrender.com/payments?buyerEmail=${user.email}`
-        )
+      axiosPublic
+        .get(`/payments?buyerEmail=${user.email}`)
         .then((res) => {
           setPayments(res.data.slice(0, 5));
           setPaymentsLoading(false);
@@ -174,10 +171,8 @@ const BuyerProfile = () => {
   // Fetch bidding history for buyer
   useEffect(() => {
     if (user?.email) {
-      axios
-        .get(
-          `https://rex-auction-server-side-jzyx.onrender.com/bids?buyerEmail=${user.email}`
-        )
+      axiosPublic
+        .get(`/bids?buyerEmail=${user.email}`)
         .then((res) => setBiddingHistory(res.data.slice(0, 5)))
         .catch((err) => console.error("Error fetching bidding history:", err));
     }
@@ -186,9 +181,9 @@ const BuyerProfile = () => {
   // Fetch auction status for buyer
   useEffect(() => {
     if (user?.email) {
-      setauctiontatusLoading(true);
-      axios
-        .get("https://rex-auction-server-side-jzyx.onrender.com/auction")
+      setAuctionStatusLoading(true);
+      axiosPublic
+        .get("/auction")
         .then((res) => {
           console.log("Auction status response:", res.data);
 
@@ -199,8 +194,8 @@ const BuyerProfile = () => {
             : [];
 
           if (!auction.length) {
-            setauctiontatus(demoAuctionData.slice(0, 4));
-            setauctiontatusLoading(false);
+            setAuctionStatus(demoAuctionData.slice(0, 4));
+            setAuctionStatusLoading(false);
             return;
           }
 
@@ -226,14 +221,14 @@ const BuyerProfile = () => {
               };
             });
 
-          setauctiontatus(userBids.slice(0, 4));
-          setauctiontatusLoading(false);
+          setAuctionStatus(userBids.slice(0, 4));
+          setAuctionStatusLoading(false);
         })
         .catch((err) => {
           console.error("Error fetching auction status:", err);
-          setauctiontatusError("Failed to load auction status.");
-          setauctiontatusLoading(false);
-          setauctiontatus(demoAuctionData.slice(0, 4));
+          setAuctionStatusError("Failed to load auction status.");
+          setAuctionStatusLoading(false);
+          setAuctionStatus(demoAuctionData.slice(0, 4));
         });
     }
   }, [user]);
@@ -242,9 +237,7 @@ const BuyerProfile = () => {
   useEffect(() => {
     const fetchCoverOptions = async () => {
       try {
-        const response = await axios.get(
-          "https://rex-auction-server-side-jzyx.onrender.com/cover-options"
-        );
+        const response = await axiosPublic.get("/cover-options");
         setCoverOptions(response.data);
       } catch (error) {
         console.error("Error fetching cover options:", error);
@@ -260,9 +253,7 @@ const BuyerProfile = () => {
     const fetchUserCover = async () => {
       if (user?.uid) {
         try {
-          const response = await axios.get(
-            `https://rex-auction-server-side-jzyx.onrender.com/cover/${user.uid}`
-          );
+          const response = await axiosPublic.get(`/cover/${user.uid}`);
           if (response.data.image) {
             setCurrentCover(response.data.image);
           }
@@ -281,13 +272,10 @@ const BuyerProfile = () => {
     if (!selectedCover || !user?.uid) return;
     setIsSaving(true);
     try {
-      await axios.patch(
-        "https://rex-auction-server-side-jzyx.onrender.com/cover",
-        {
-          userId: user.uid,
-          image: selectedCover,
-        }
-      );
+      await axiosPublic.patch("/cover", {
+        userId: user.uid,
+        image: selectedCover,
+      });
       setCurrentCover(selectedCover);
       setIsModalOpen(false);
     } catch (error) {
@@ -344,7 +332,7 @@ const BuyerProfile = () => {
   });
 
   // Filter auction status
-  const filteredauctiontatus = auctiontatus.filter((bid) => {
+  const filteredauctiontatus = auctionStatus.filter((bid) => {
     if (statusFilter === "All") return true;
     if (statusFilter === "Won") return bid.isWinning;
     if (statusFilter === "Lost") return !bid.isWinning;
@@ -630,7 +618,6 @@ const BuyerProfile = () => {
             </div>
             <div className="mt-6 space-y-4">
               <div className="flex items-center gap-4 flex-wrap">
-              
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -748,10 +735,10 @@ const BuyerProfile = () => {
                 <p className="text-red-500 text-sm">{balanceError}</p>
               ) : (
                 <>
-                 <p className="text-3xl font-bold text-gray-600">
-                  {formatNumber(dbUser?.accountBalance)}{" "}
-                  <span className="text-lg">Taka</span>
-                </p>
+                  <p className="text-3xl font-bold text-gray-600">
+                    {formatNumber(dbUser?.accountBalance)}{" "}
+                    <span className="text-lg">Taka</span>
+                  </p>
                   <p
                     className={`text-xs mt-1 ${
                       isDarkMode ? "text-purple-300" : "text-purple-600"
@@ -1171,9 +1158,7 @@ const BuyerProfile = () => {
                           <p className={labelStyle}>
                             Date:{" "}
                             {payment.createdAt
-                              ? new Date(
-                                  payment.createdAt
-                                ).toLocaleDateString()
+                              ? new Date(payment.createdAt).toLocaleDateString()
                               : "N/A"}
                           </p>
                         </motion.div>
@@ -1225,13 +1210,13 @@ const BuyerProfile = () => {
                     </motion.button>
                   ))}
                 </div>
-                {auctiontatusLoading ? (
+                {auctionStatusLoading ? (
                   <div className="flex justify-center py-12">
                     <LoadingSpinner />
                   </div>
-                ) : auctiontatusError ? (
+                ) : auctionStatusError ? (
                   <div className="text-center py-12">
-                    <p className="text-red-500">{auctiontatusError}</p>
+                    <p className="text-red-500">{auctionStatusError}</p>
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
@@ -1374,10 +1359,10 @@ const BuyerProfile = () => {
                 </p>
               ) : (
                 <>
-                 <p className="text-3xl font-bold text-gray-300">
-                  {formatNumber(dbUser?.accountBalance)}{" "}
-                  <span className="text-lg">Taka</span>
-                </p>
+                  <p className="text-3xl font-bold text-gray-300">
+                    {formatNumber(dbUser?.accountBalance)}{" "}
+                    <span className="text-lg">Taka</span>
+                  </p>
                   <p className={labelStyle}>Available for bidding</p>
                   <motion.button
                     whileHover={{ scale: 1.05 }}
@@ -1466,9 +1451,7 @@ const BuyerProfile = () => {
                   </div>
                   <div>
                     <p className="font-medium">Vintage Car</p>
-                    <p className={`text-xs ${labelStyle}`}>
-                      Ending in 2 hours
-                    </p>
+                    <p className={`text-xs ${labelStyle}`}>Ending in 2 hours</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
@@ -1477,9 +1460,7 @@ const BuyerProfile = () => {
                   </div>
                   <div>
                     <p className="font-medium">Old Painting</p>
-                    <p className={`text-xs ${labelStyle}`}>
-                      Ending tomorrow
-                    </p>
+                    <p className={`text-xs ${labelStyle}`}>Ending tomorrow</p>
                   </div>
                 </div>
               </div>

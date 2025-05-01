@@ -5,7 +5,7 @@ import { MdDelete } from "react-icons/md";
 import ThemeContext from "../../../Context/ThemeContext";
 import axios from "axios";
 import Swal from "sweetalert2";
-import { AuthContexts } from "../../../../providers/AuthProvider";
+import useAxiosPublic from "../../../../hooks/useAxiosPublic";
 
 export default function UpdateBlog() {
   const { isDarkMode } = useContext(ThemeContext);
@@ -20,13 +20,12 @@ export default function UpdateBlog() {
   const [newImages, setNewImages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const axiosPublic = useAxiosPublic();
 
   useEffect(() => {
     const fetchBlogData = async () => {
       try {
-        const response = await axios.get(
-          `https://rex-auction-server-side-jzyx.onrender.com/blog/${id}`
-        );
+        const response = await axiosPublic.get(`/blog/${id}`);
         setBlogData(response.data);
       } catch (error) {
         console.error("Error fetching blog data:", error);
@@ -108,8 +107,8 @@ export default function UpdateBlog() {
       }
 
       const updatedBlog = { ...blogData, imageUrls };
-      const response = await axios.patch(
-        `https://rex-auction-server-side-jzyx.onrender.com/updateBlog/${id}`,
+      const response = await axiosPublic.patch(
+        `/updateBlog/${id}`,
         updatedBlog
       );
 

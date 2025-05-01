@@ -18,11 +18,11 @@ import { RiArticleLine } from "react-icons/ri";
 import ThemeContext from "../../../Context/ThemeContext";
 import { Link, useNavigate } from "react-router-dom"; // Added useNavigate
 import { AuthContexts } from "../../../../providers/AuthProvider";
-import axios from "axios";
 import LoadingSpinner from "../../../LoadingSpinner";
 import Swal from "sweetalert2";
 import { format } from "date-fns";
 import { motion, AnimatePresence } from "framer-motion";
+import useAxiosPublic from "../../../../hooks/useAxiosPublic";
 
 // Utility function to safely format dates
 const safeFormatDate = (dateString, formatPattern) => {
@@ -72,21 +72,19 @@ export default function Blog() {
   const { isDarkMode, toggleTheme } = useContext(ThemeContext);
   const { dbUser } = useContext(AuthContexts);
   const email = dbUser?.email;
-  const navigate = useNavigate(); 
-
+  const navigate = useNavigate();
   const [blogPosts, setBlogPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPost, setSelectedPost] = useState(null);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const axiosPublic = useAxiosPublic();
 
   useEffect(() => {
     const fetchBlogPosts = async () => {
       try {
-        const response = await axios.get(
-          `https://rex-auction-server-side-jzyx.onrender.com/blogs/${email}`
-        );
+        const response = await axiosPublic.get(`/blogs/${email}`);
 
         // Sort the blogs by createdAt (newest first)
         const sortedPosts = response.data.sort(
@@ -107,7 +105,6 @@ export default function Blog() {
     }
   }, [email]);
 
-
   const deleteBlogPost = async (id) => {
     try {
       const result = await Swal.fire({
@@ -123,9 +120,7 @@ export default function Blog() {
       });
 
       if (result.isConfirmed) {
-        await axios.delete(
-          `https://rex-auction-server-side-jzyx.onrender.com/delete/${id}`
-        );
+        await axiosPublic.delete(`/delete/${id}`);
         setBlogPosts(blogPosts.filter((post) => post._id !== id));
         Swal.fire({
           title: "Deleted!",
@@ -197,7 +192,11 @@ export default function Blog() {
               }`}
             />
           </motion.div>
-          <h3 className={`text-xl font-bold  mt-4 ${isDarkMode ? "text-white" :""}`}>
+          <h3
+            className={`text-xl font-bold  mt-4 ${
+              isDarkMode ? "text-white" : ""
+            }`}
+          >
             Oops! Something went wrong
           </h3>
           <p
@@ -227,10 +226,11 @@ export default function Blog() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className={`min-h-screen p-4 md:p-6 lg:p-8 transition-colors duration-300 ${isDarkMode
-        ? "bg-gray-900 text-gray-100"
-        : "bg-gradient-to-b from-purple-50 via-white to-white text-gray-800"
-        }`}
+      className={`min-h-screen p-4 md:p-6 lg:p-8 transition-colors duration-300 ${
+        isDarkMode
+          ? "bg-gray-900 text-gray-100"
+          : "bg-gradient-to-b from-purple-50 via-white to-white text-gray-800"
+      }`}
     >
       {/* Top Section */}
       <motion.div
@@ -241,12 +241,14 @@ export default function Blog() {
       >
         <motion.div variants={itemVariants} className="flex items-center gap-3">
           <div
-            className={`p-2 md:p-3 rounded-xl ${isDarkMode ? "bg-gray-700" : "bg-purple-100"
-              } shadow-lg`}
+            className={`p-2 md:p-3 rounded-xl ${
+              isDarkMode ? "bg-gray-700" : "bg-purple-100"
+            } shadow-lg`}
           >
             <RiArticleLine
-              className={`text-xl md:text-2xl ${isDarkMode ? "text-purple-400" : "text-purple-600"
-                }`}
+              className={`text-xl md:text-2xl ${
+                isDarkMode ? "text-purple-400" : "text-purple-600"
+              }`}
             />
           </div>
           <div>
@@ -254,8 +256,9 @@ export default function Blog() {
               My Blog Dashboard
             </h1>
             <p
-              className={`text-xs md:text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"
-                }`}
+              className={`text-xs md:text-sm ${
+                isDarkMode ? "text-gray-400" : "text-gray-600"
+              }`}
             >
               Create, manage and analyze your content
             </p>
@@ -275,11 +278,13 @@ export default function Blog() {
             <input
               type="text"
               placeholder="Search blogs..."
-              className={`w-full pl-10 pr-4 py-2 rounded-lg border text-sm md:text-base ${isDarkMode
-                ? "bg-gray-800 border-gray-700 focus:border-purple-500"
-                : "bg-white border-gray-300 focus:border-purple-400"
-                } focus:outline-none focus:ring-2 ${isDarkMode ? "focus:ring-purple-600" : "focus:ring-purple-300"
-                }`}
+              className={`w-full pl-10 pr-4 py-2 rounded-lg border text-sm md:text-base ${
+                isDarkMode
+                  ? "bg-gray-800 border-gray-700 focus:border-purple-500"
+                  : "bg-white border-gray-300 focus:border-purple-400"
+              } focus:outline-none focus:ring-2 ${
+                isDarkMode ? "focus:ring-purple-600" : "focus:ring-purple-300"
+              }`}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -293,10 +298,11 @@ export default function Blog() {
           >
             <button
               onClick={toggleTheme}
-              className={`p-2 md:p-3 rounded-xl ${isDarkMode
-                ? "bg-gray-700 hover:bg-gray-600"
-                : "bg-gray-200 hover:bg-gray-300"
-                } transition-colors`}
+              className={`p-2 md:p-3 rounded-xl ${
+                isDarkMode
+                  ? "bg-gray-700 hover:bg-gray-600"
+                  : "bg-gray-200 hover:bg-gray-300"
+              } transition-colors`}
               aria-label="Toggle dark mode"
             >
               {isDarkMode ? (
@@ -308,10 +314,11 @@ export default function Blog() {
 
             <Link
               to="/dashboard/create-blog"
-              className={`flex items-center gap-2 px-3 md:px-4 py-2 md:py-3 rounded-xl font-semibold text-sm md:text-base transition-all shadow-lg hover:shadow-xl ${isDarkMode
-                ? "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
-                : "bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white"
-                }`}
+              className={`flex items-center gap-2 px-3 md:px-4 py-2 md:py-3 rounded-xl font-semibold text-sm md:text-base transition-all shadow-lg hover:shadow-xl ${
+                isDarkMode
+                  ? "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+                  : "bg-gradient-to-r from-purple-500 to-blue-500 hover:from-purple-600 hover:to-blue-600 text-white"
+              }`}
             >
               <FaPlus className="text-lg" />
               <span className="hidden sm:inline">Create New</span>
@@ -328,14 +335,16 @@ export default function Blog() {
         <motion.div
           variants={itemVariants}
           whileHover={{ y: -5 }}
-          className={`p-4 md:p-5 rounded-xl shadow-lg ${isDarkMode ? "bg-gray-800" : "bg-white"
-            } border-t-4 border-purple-500`}
+          className={`p-4 md:p-5 rounded-xl shadow-lg ${
+            isDarkMode ? "bg-gray-800" : "bg-white"
+          } border-t-4 border-purple-500`}
         >
           <div className="flex items-center justify-between">
             <div>
               <p
-                className={`text-xs md:text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"
-                  }`}
+                className={`text-xs md:text-sm ${
+                  isDarkMode ? "text-gray-400" : "text-gray-600"
+                }`}
               >
                 Total Posts
               </p>
@@ -344,12 +353,14 @@ export default function Blog() {
               </h3>
             </div>
             <div
-              className={`p-2 md:p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-purple-100"
-                }`}
+              className={`p-2 md:p-3 rounded-lg ${
+                isDarkMode ? "bg-gray-700" : "bg-purple-100"
+              }`}
             >
               <MdOutlineDashboard
-                className={`text-xl md:text-2xl ${isDarkMode ? "text-purple-400" : "text-purple-600"
-                  }`}
+                className={`text-xl md:text-2xl ${
+                  isDarkMode ? "text-purple-400" : "text-purple-600"
+                }`}
               />
             </div>
           </div>
@@ -358,14 +369,16 @@ export default function Blog() {
         <motion.div
           variants={itemVariants}
           whileHover={{ y: -5 }}
-          className={`p-4 md:p-5 rounded-xl shadow-lg ${isDarkMode ? "bg-gray-800" : "bg-white"
-            } border-t-4 border-blue-500`}
+          className={`p-4 md:p-5 rounded-xl shadow-lg ${
+            isDarkMode ? "bg-gray-800" : "bg-white"
+          } border-t-4 border-blue-500`}
         >
           <div className="flex items-center justify-between">
             <div>
               <p
-                className={`text-xs md:text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"
-                  }`}
+                className={`text-xs md:text-sm ${
+                  isDarkMode ? "text-gray-400" : "text-gray-600"
+                }`}
               >
                 Latest Post
               </p>
@@ -374,15 +387,16 @@ export default function Blog() {
                   ? blogPosts[0].title.split(" ").slice(0, 1).join(" ")
                   : "No posts"}
               </h3>
-
             </div>
             <div
-              className={`p-2 md:p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-blue-100"
-                }`}
+              className={`p-2 md:p-3 rounded-lg ${
+                isDarkMode ? "bg-gray-700" : "bg-blue-100"
+              }`}
             >
               <FaRegClock
-                className={`text-xl md:text-2xl ${isDarkMode ? "text-blue-400" : "text-blue-600"
-                  }`}
+                className={`text-xl md:text-2xl ${
+                  isDarkMode ? "text-blue-400" : "text-blue-600"
+                }`}
               />
             </div>
           </div>
@@ -391,14 +405,16 @@ export default function Blog() {
         <motion.div
           variants={itemVariants}
           whileHover={{ y: -5 }}
-          className={`p-4 md:p-5 rounded-xl shadow-lg ${isDarkMode ? "bg-gray-800" : "bg-white"
-            } border-t-4 border-green-500`}
+          className={`p-4 md:p-5 rounded-xl shadow-lg ${
+            isDarkMode ? "bg-gray-800" : "bg-white"
+          } border-t-4 border-green-500`}
         >
           <div className="flex items-center justify-between">
             <div>
               <p
-                className={`text-xs md:text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"
-                  }`}
+                className={`text-xs md:text-sm ${
+                  isDarkMode ? "text-gray-400" : "text-gray-600"
+                }`}
               >
                 Last Updated
               </p>
@@ -409,12 +425,14 @@ export default function Blog() {
               </h3>
             </div>
             <div
-              className={`p-2 md:p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-green-100"
-                }`}
+              className={`p-2 md:p-3 rounded-lg ${
+                isDarkMode ? "bg-gray-700" : "bg-green-100"
+              }`}
             >
               <FaEdit
-                className={`text-xl md:text-2xl ${isDarkMode ? "text-green-400" : "text-green-600"
-                  }`}
+                className={`text-xl md:text-2xl ${
+                  isDarkMode ? "text-green-400" : "text-green-600"
+                }`}
               />
             </div>
           </div>
@@ -423,14 +441,16 @@ export default function Blog() {
         <motion.div
           variants={itemVariants}
           whileHover={{ y: -5 }}
-          className={`p-4 md:p-5 rounded-xl shadow-lg ${isDarkMode ? "bg-gray-800" : "bg-white"
-            } border-t-4 border-pink-500`}
+          className={`p-4 md:p-5 rounded-xl shadow-lg ${
+            isDarkMode ? "bg-gray-800" : "bg-white"
+          } border-t-4 border-pink-500`}
         >
           <div className="flex items-center justify-between">
             <div>
               <p
-                className={`text-xs md:text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"
-                  }`}
+                className={`text-xs md:text-sm ${
+                  isDarkMode ? "text-gray-400" : "text-gray-600"
+                }`}
               >
                 Featured
               </p>
@@ -439,12 +459,14 @@ export default function Blog() {
               </h3>
             </div>
             <div
-              className={`p-2 md:p-3 rounded-lg ${isDarkMode ? "bg-gray-700" : "bg-pink-100"
-                }`}
+              className={`p-2 md:p-3 rounded-lg ${
+                isDarkMode ? "bg-gray-700" : "bg-pink-100"
+              }`}
             >
               <MdOutlineFeaturedPlayList
-                className={`text-xl md:text-2xl ${isDarkMode ? "text-pink-400" : "text-pink-600"
-                  }`}
+                className={`text-xl md:text-2xl ${
+                  isDarkMode ? "text-pink-400" : "text-pink-600"
+                }`}
               />
             </div>
           </div>
@@ -456,8 +478,9 @@ export default function Blog() {
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className={`text-center py-12 md:py-16 rounded-xl md:rounded-2xl ${isDarkMode ? "bg-gray-800" : "bg-white"
-            } shadow-xl`}
+          className={`text-center py-12 md:py-16 rounded-xl md:rounded-2xl ${
+            isDarkMode ? "bg-gray-800" : "bg-white"
+          } shadow-xl`}
         >
           <div className="max-w-md mx-auto px-4">
             <motion.div
@@ -466,20 +489,23 @@ export default function Blog() {
                 scale: [1, 1.1, 1],
               }}
               transition={{ repeat: Infinity, duration: 3 }}
-              className={`p-3 md:p-4 rounded-full inline-block ${isDarkMode ? "bg-gray-700" : "bg-purple-100"
-                }`}
+              className={`p-3 md:p-4 rounded-full inline-block ${
+                isDarkMode ? "bg-gray-700" : "bg-purple-100"
+              }`}
             >
               <FaBlogger
-                className={`text-3xl md:text-4xl ${isDarkMode ? "text-purple-400" : "text-purple-600"
-                  }`}
+                className={`text-3xl md:text-4xl ${
+                  isDarkMode ? "text-purple-400" : "text-purple-600"
+                }`}
               />
             </motion.div>
             <h3 className="text-lg md:text-xl font-bold mt-4 bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">
               {searchTerm ? "No matching posts found" : "No Blog Posts Yet"}
             </h3>
             <p
-              className={`mt-2 text-sm md:text-base ${isDarkMode ? "text-gray-400" : "text-gray-600"
-                }`}
+              className={`mt-2 text-sm md:text-base ${
+                isDarkMode ? "text-gray-400" : "text-gray-600"
+              }`}
             >
               {searchTerm
                 ? "Try a different search term or create a new post"
@@ -488,10 +514,11 @@ export default function Blog() {
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Link
                 to="/dashboard/create-blog"
-                className={`mt-4 md:mt-6 inline-flex items-center gap-2 px-4 py-2 md:px-6 md:py-3 rounded-xl font-medium text-sm md:text-base shadow-lg ${isDarkMode
-                  ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white"
-                  : "bg-gradient-to-r from-purple-500 to-pink-500 text-white"
-                  }`}
+                className={`mt-4 md:mt-6 inline-flex items-center gap-2 px-4 py-2 md:px-6 md:py-3 rounded-xl font-medium text-sm md:text-base shadow-lg ${
+                  isDarkMode
+                    ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white"
+                    : "bg-gradient-to-r from-purple-500 to-pink-500 text-white"
+                }`}
               >
                 <FaPlus /> Create First Post
               </Link>
@@ -513,10 +540,11 @@ export default function Blog() {
                   ? "0 10px 25px -5px rgba(124, 58, 237, 0.3)"
                   : "0 10px 25px -5px rgba(168, 85, 247, 0.3)",
               }}
-              className={`rounded-xl md:rounded-2xl overflow-hidden shadow-lg md:shadow-xl transition-all duration-300 border ${isDarkMode
-                ? "bg-gray-800 border-gray-700 hover:border-purple-500"
-                : "bg-white border-gray-200 hover:border-purple-400"
-                }`}
+              className={`rounded-xl md:rounded-2xl overflow-hidden shadow-lg md:shadow-xl transition-all duration-300 border ${
+                isDarkMode
+                  ? "bg-gray-800 border-gray-700 hover:border-purple-500"
+                  : "bg-white border-gray-200 hover:border-purple-400"
+              }`}
             >
               <div
                 className="relative h-48 sm:h-56 md:h-64 overflow-hidden group cursor-pointer"
@@ -531,8 +559,9 @@ export default function Blog() {
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
                 <div
-                  className={`absolute bottom-0 left-0 right-0 p-2 md:p-3 text-xs md:text-sm ${isDarkMode ? "bg-gray-900/90" : "bg-white/90"
-                    }`}
+                  className={`absolute bottom-0 left-0 right-0 p-2 md:p-3 text-xs md:text-sm ${
+                    isDarkMode ? "bg-gray-900/90" : "bg-white/90"
+                  }`}
                 >
                   <div className="flex items-center gap-1">
                     <FaCalendarAlt className="text-purple-500" />
@@ -554,8 +583,9 @@ export default function Blog() {
                     {post.title}
                   </h2>
                   <p
-                    className={`text-sm md:text-base line-clamp-3 ${isDarkMode ? "text-gray-300" : "text-gray-600"
-                      }`}
+                    className={`text-sm md:text-base line-clamp-3 ${
+                      isDarkMode ? "text-gray-300" : "text-gray-600"
+                    }`}
                   >
                     {post.fullContent}
                   </p>
@@ -568,10 +598,11 @@ export default function Blog() {
                     >
                       <button
                         onClick={() => openPreviewModal(post)}
-                        className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium transition text-sm ${isDarkMode
-                          ? "bg-gray-700 hover:bg-gray-600 text-blue-400"
-                          : "bg-blue-100 hover:bg-blue-200 text-blue-600"
-                          }`}
+                        className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium transition text-sm ${
+                          isDarkMode
+                            ? "bg-gray-700 hover:bg-gray-600 text-blue-400"
+                            : "bg-blue-100 hover:bg-blue-200 text-blue-600"
+                        }`}
                         title="Preview"
                         aria-label="Preview blog post"
                       >
@@ -587,10 +618,11 @@ export default function Blog() {
                         onClick={() =>
                           navigate(`/dashboard/updateBlog/${post._id}`)
                         }
-                        className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium transition text-sm ${isDarkMode
-                          ? "bg-purple-600 hover:bg-purple-700 text-white"
-                          : "bg-purple-500 hover:bg-purple-600 text-white"
-                          }`}
+                        className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium transition text-sm ${
+                          isDarkMode
+                            ? "bg-purple-600 hover:bg-purple-700 text-white"
+                            : "bg-purple-500 hover:bg-purple-600 text-white"
+                        }`}
                         title="Edit"
                         aria-label="Edit blog post"
                       >
@@ -605,10 +637,11 @@ export default function Blog() {
                   >
                     <button
                       onClick={() => deleteBlogPost(post._id)}
-                      className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium transition text-sm ${isDarkMode
-                        ? "bg-gray-700 hover:bg-gray-600 text-red-400"
-                        : "bg-red-100 hover:bg-red-200 text-red-600"
-                        }`}
+                      className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium transition text-sm ${
+                        isDarkMode
+                          ? "bg-gray-700 hover:bg-gray-600 text-red-400"
+                          : "bg-red-100 hover:bg-red-200 text-red-600"
+                      }`}
                       title="Delete"
                       aria-label="Delete blog post"
                     >
@@ -637,8 +670,9 @@ export default function Blog() {
               initial="hidden"
               animate="visible"
               exit="exit"
-              className={`relative max-w-2xl w-full max-h-[90vh] overflow-y-auto rounded-xl shadow-2xl ${isDarkMode ? "bg-gray-800" : "bg-white"
-                }`}
+              className={`relative max-w-2xl w-full max-h-[90vh] overflow-y-auto rounded-xl shadow-2xl ${
+                isDarkMode ? "bg-gray-800" : "bg-white"
+              }`}
               onClick={(e) => e.stopPropagation()}
             >
               <div className="sticky top-0 z-10 flex justify-between items-center p-4 border-b bg-gradient-to-r from-purple-500 to-blue-500">
@@ -669,29 +703,32 @@ export default function Blog() {
                 <div className="flex flex-wrap gap-2 mb-4">
                   {selectedPost.category && (
                     <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${isDarkMode
-                        ? "bg-gray-700 text-purple-400"
-                        : "bg-purple-100 text-purple-600"
-                        }`}
+                      className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${
+                        isDarkMode
+                          ? "bg-gray-700 text-purple-400"
+                          : "bg-purple-100 text-purple-600"
+                      }`}
                     >
                       <FaTags size={12} /> {selectedPost.category}
                     </span>
                   )}
                   {selectedPost.featured && (
                     <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${isDarkMode
-                        ? "bg-gray-700 text-yellow-400"
-                        : "bg-yellow-100 text-yellow-600"
-                        }`}
+                      className={`px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 ${
+                        isDarkMode
+                          ? "bg-gray-700 text-yellow-400"
+                          : "bg-yellow-100 text-yellow-600"
+                      }`}
                     >
                       <MdOutlineFeaturedPlayList size={14} /> Featured
                     </span>
                   )}
                   <span
-                    className={`px-3 py-1 rounded-full text-xs flex items-center gap-1 ${isDarkMode
-                      ? "text-gray-400 bg-gray-700"
-                      : "text-gray-500 bg-gray-100"
-                      }`}
+                    className={`px-3 py-1 rounded-full text-xs flex items-center gap-1 ${
+                      isDarkMode
+                        ? "text-gray-400 bg-gray-700"
+                        : "text-gray-500 bg-gray-100"
+                    }`}
                   >
                     <FaCalendarAlt size={12} />{" "}
                     {safeFormatDate(selectedPost.createdAt, "MMM dd, yyyy")}
@@ -699,17 +736,19 @@ export default function Blog() {
                 </div>
 
                 <h2
-                  className={`text-xl md:text-2xl font-bold mb-3 ${isDarkMode ? "text-white" : "text-gray-900"
-                    }`}
+                  className={`text-xl md:text-2xl font-bold mb-3 ${
+                    isDarkMode ? "text-white" : "text-gray-900"
+                  }`}
                 >
                   {selectedPost.title}
                 </h2>
 
                 <div
-                  className={`prose prose-sm max-w-none mb-6 ${isDarkMode
-                    ? "prose-invert prose-headings:text-white prose-strong:text-purple-300"
-                    : "prose-headings:text-gray-900 prose-strong:text-purple-600"
-                    }`}
+                  className={`prose prose-sm max-w-none mb-6 ${
+                    isDarkMode
+                      ? "prose-invert prose-headings:text-white prose-strong:text-purple-300"
+                      : "prose-headings:text-gray-900 prose-strong:text-purple-600"
+                  }`}
                   dangerouslySetInnerHTML={{ __html: selectedPost.fullContent }}
                 />
 
@@ -720,10 +759,11 @@ export default function Blog() {
                   >
                     <button
                       onClick={closePreviewModal}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition text-sm ${isDarkMode
-                        ? "bg-gray-700 hover:bg-gray-600 text-gray-300"
-                        : "bg-gray-200 hover:bg-gray-300 text-gray-700"
-                        }`}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition text-sm ${
+                        isDarkMode
+                          ? "bg-gray-700 hover:bg-gray-600 text-gray-300"
+                          : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+                      }`}
                       aria-label="Close preview modal"
                     >
                       <FaTimes /> Cancel
@@ -735,10 +775,11 @@ export default function Blog() {
                   >
                     <button
                       onClick={() => deleteBlogPost(selectedPost._id)}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition text-sm ${isDarkMode
-                        ? "bg-red-600 hover:bg-red-700 text-white"
-                        : "bg-red-500 hover:bg-red-600 text-white"
-                        }`}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition text-sm ${
+                        isDarkMode
+                          ? "bg-red-600 hover:bg-red-700 text-white"
+                          : "bg-red-500 hover:bg-red-600 text-white"
+                      }`}
                       aria-label="Delete blog post"
                     >
                       <FaTrash /> Delete
@@ -752,10 +793,11 @@ export default function Blog() {
                       onClick={() =>
                         navigate(`/dashboard/updateBlog/${selectedPost._id}`)
                       }
-                      className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition text-sm ${isDarkMode
-                        ? "bg-purple-600 hover:bg-purple-700 text-white"
-                        : "bg-purple-500 hover:bg-purple-600 text-white"
-                        }`}
+                      className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition text-sm ${
+                        isDarkMode
+                          ? "bg-purple-600 hover:bg-purple-700 text-white"
+                          : "bg-purple-500 hover:bg-purple-600 text-white"
+                      }`}
                       aria-label="Edit blog post"
                     >
                       <FaEdit /> Edit
