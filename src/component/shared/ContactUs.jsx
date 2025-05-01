@@ -72,6 +72,15 @@ const ContactUs = () => {
         ));
     };
 
+    // Company logos with their respective image URLs
+    const companies = [
+        { name: '', logo: 'https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg' },
+        { name: '', logo: 'https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg' },
+        { name: '', logo: 'https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg' },
+        { name: '', logo: 'https://upload.wikimedia.org/wikipedia/commons/0/08/Netflix_2015_logo.svg' },
+        { name: '', logo: 'https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg' },
+    ];
+
     return (
         <div
             className={`min-h-screen pt-8 transition-colors duration-500 ${isDarkMode
@@ -287,17 +296,18 @@ const ContactUs = () => {
                             Trusted by 225,000+ customers, from startups to enterprises
                         </p>
                         <div className="flex flex-wrap gap-6 items-center justify-between">
-                            {/* Company logos - using simple colored circles as placeholders */}
-                            {['Google', 'Microsoft', 'Amazon', 'Netflix', 'Spotify'].map((company, index) => (
+                            {companies.map((company, index) => (
                                 <div key={index} className="flex items-center">
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center 
-                                        ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
-                                        <span className={`text-xs font-bold ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                                            {company[0]}
-                                        </span>
-                                    </div>
+                                    <img
+                                        src={company.logo}
+                                        alt={`${company.name} logo`}
+                                        className="h-5 w-auto object-contain"
+                                        onError={(e) => {
+                                            e.target.src = 'https://via.placeholder.com/40?text=' + company.name[0];
+                                        }}
+                                    />
                                     <span className="ml-2 text-sm font-medium">
-                                        {company}
+                                        {company.name}
                                     </span>
                                 </div>
                             ))}
