@@ -342,8 +342,6 @@ function EndedAuctionsHistory() {
       });
       const res = await axiosSecure.post("/endedAuctions", { auctionId });
       if (response.data.modifiedCount > 0 || res.data?.data?.insertedId) {
-        // Refresh the auctions data to reflect the updated status
-        // You might need to refetch the data using react-query's refetch function
         console.log("Auction status updated successfully");
       } else {
         console.log("Auction status update failed");
@@ -972,7 +970,8 @@ function EndedAuctionsHistory() {
                         updateAuctionStatus(selectedAuction._id, "pending")
                       }
                       disabled={
-                        selectedAuction.payment?.toLowerCase().trim() !== "done"
+                        selectedAuction.payment?.toLowerCase().trim() !=
+                        "success"
                       }
                       className={`flex-1 min-w-[140px] px-5 py-2.5 rounded-lg flex items-center justify-center gap-2 font-semibold transition-all duration-300 ease-in-out transform 
                      ${
@@ -993,7 +992,8 @@ function EndedAuctionsHistory() {
                           clipRule="evenodd"
                         />
                       </svg>
-                      {selectedAuction.payment?.toLowerCase().trim() === "done"
+                      {selectedAuction.payment?.toLowerCase().trim() ===
+                      "success"
                         ? "Place in Delivery Process"
                         : "Payment Pending"}
                     </button>

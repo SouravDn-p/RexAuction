@@ -20,6 +20,7 @@ import useAuth from "../../../hooks/useAuth";
 import useAxiosPublic from "../../../hooks/useAxiosPublic";
 import { useGetAnnouncementsQuery } from "../../../redux/features/api/announcementApi";
 import EditAnnouncementModal from "../admin/EditAnnouncementModal";
+import Header from "./Header/Header";
 
 const Announcement = () => {
   const {
@@ -382,6 +383,8 @@ const Announcement = () => {
         isDarkMode ? "bg-gray-900 text-white" : "bg-purple-50 text-gray-800"
       } min-h-screen`}
     >
+      <Header header="Announcements" title="All Announcements in one Place" />
+
       {/* Notifications Section */}
       <div className="mb-8">
         <div
