@@ -137,7 +137,7 @@ export default function SdUpAuctions() {
                 >
                   {filteredAuctions
                     .concat(filteredAuctions)
-                    .slice(0, 3)
+                    .slice(0, 5)
                     .map((item, index) => (
                       <motion.div
                         key={`${item._id}-${index}`}
