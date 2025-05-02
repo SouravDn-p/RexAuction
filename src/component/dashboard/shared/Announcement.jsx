@@ -11,6 +11,7 @@ import {
 } from "react-icons/fi";
 import "./Announcement.css";
 import LoadingSpinner from "../../LoadingSpinner";
+import axios from "axios";
 import toast from "react-hot-toast";
 import { useNavigate, useLocation } from "react-router-dom";
 import ThemeContext from "../../Context/ThemeContext";
@@ -19,7 +20,6 @@ import useAuth from "../../../hooks/useAuth";
 import useAxiosPublic from "../../../hooks/useAxiosPublic";
 import { useGetAnnouncementsQuery } from "../../../redux/features/api/announcementApi";
 import EditAnnouncementModal from "../admin/EditAnnouncementModal";
-import Header from "./Header/Header";
 
 const Announcement = () => {
   const {
@@ -208,12 +208,15 @@ const Announcement = () => {
 
   const handlePostAnnouncement = async (announcementData) => {
     try {
-      const response = await axiosPublic.post("/announcement", {
-        title: announcementData.title,
-        content: announcementData.content,
-        date: announcementData.date || new Date().toISOString(),
-        image: announcementData.image || "/placeholder.svg",
-      });
+      const response = await axios.post(
+        "https://rex-auction-server-side-jzyx.onrender.com/announcement",
+        {
+          title: announcementData.title,
+          content: announcementData.content,
+          date: announcementData.date || new Date().toISOString(),
+          image: announcementData.image || "/placeholder.svg",
+        }
+      );
       if (response.status === 201) {
         toast.success("Announcement posted successfully!");
         refetch();
@@ -235,7 +238,9 @@ const Announcement = () => {
   const handleDelete = async (id, e) => {
     e.stopPropagation();
     try {
-      const response = await axiosPublic.delete(`/announcement/${id}`);
+      const response = await axios.delete(
+        `https://rex-auction-server-side-jzyx.onrender.com/announcement/${id}`
+      );
       if (response.status === 200) {
         toast.success("Announcement deleted successfully!");
         refetch();
@@ -292,9 +297,9 @@ const Announcement = () => {
       prev.map((n) => (n._id === notification._id ? { ...n, read: true } : n))
     );
 
-    axiosPublic
+    axios
       .put(
-        `/notifications/mark-read/${user.email}`,
+        `https://rex-auction-server-side-jzyx.onrender.com/notifications/mark-read/${user.email}`,
         { notificationId: notification._id },
         { withCredentials: true }
       )
@@ -336,8 +341,8 @@ const Announcement = () => {
       setNotificationCount(0);
 
       if (user) {
-        await axiosPublic.put(
-          `/notifications/mark-read/${user.email}`,
+        await axios.put(
+          `https://rex-auction-server-side-jzyx.onrender.com/notifications/mark-read/${user.email}`,
           {},
           { withCredentials: true }
         );
@@ -377,8 +382,6 @@ const Announcement = () => {
         isDarkMode ? "bg-gray-900 text-white" : "bg-purple-50 text-gray-800"
       } min-h-screen`}
     >
-      <Header header="Announcements" title="All Announcements in one Place" />
-
       {/* Notifications Section */}
       <div className="mb-8">
         <div
