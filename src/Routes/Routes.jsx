@@ -46,9 +46,6 @@ import AddBlog from "../component/dashboard/shared/Blog/AddBlog";
 import UpdateBlog from "../component/dashboard/shared/Blog/UpdateBlog";
 import Blogs from "../component/dashboard/shared/Blog/Blogs";
 import BlogDetails from "../component/dashboard/shared/Blog/BlogDetails";
-import BlogCard from "../component/dashboard/shared/Blog/BlogCard";
-import AdminAccessOnly from "../component/shared/AdminAccessOnly";
-import AdminRoute from "./AdminRoute";
 // import Blogs from "../component/Blogs/Blogs";
 // import AdminFeedback from "../component/dashboard/admin/AdminFeedback";
 
@@ -73,10 +70,6 @@ export const router = createBrowserRouter([
       {
         path: "blogs",
         element: <Blogs />,
-      },
-      {
-        path: "blogCard",
-        element: <BlogCard />,
       },
       {
         path: "blogDetails/:id",
@@ -144,11 +137,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "userManagement",
-        element: (
-          <AdminRoute>
-            <UserManagement />
-          </AdminRoute>
-        ),
+        element: <UserManagement />,
       },
       {
         path: "manageAuctions",

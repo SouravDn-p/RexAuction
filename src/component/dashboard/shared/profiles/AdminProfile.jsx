@@ -5,11 +5,13 @@ import CountUp from "react-countup";
 import useAuth from "../../../../hooks/useAuth";
 import coverPhoto from "../../../../assets/bg/hammer.webp";
 import LoadingSpinner from "../../../LoadingSpinner";
+import axios from "axios";
 import { motion } from "framer-motion";
 import {
   FaUsers,
   FaGavel,
   FaDollarSign,
+  FaUserCheck,
   FaChartLine,
   FaTicketAlt,
   FaShieldAlt,
@@ -18,16 +20,15 @@ import {
   FaCheckCircle,
   FaTimesCircle,
   FaHourglassHalf,
+  FaBoxOpen,
   FaChartPie,
 } from "react-icons/fa";
 import { RiUserStarFill } from "react-icons/ri";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import useAxiosPublic from "../../../../hooks/useAxiosPublic";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
 const AdminProfile = () => {
-  const axiosPublic = useAxiosPublic();
   const { user, loading: authLoading } = useAuth();
   const { isDarkMode } = useContext(ThemeContext);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -45,6 +46,7 @@ const AdminProfile = () => {
   const [users, setUsers] = useState([]);
   const [auctions, setAuctions] = useState([]);
   const [sellerRequests, setSellerRequests] = useState([]);
+  const [quickActions, setQuickActions] = useState([]);
   const navigate = useNavigate();
 
   // Chart data from the image
@@ -60,9 +62,13 @@ const AdminProfile = () => {
     const fetchData = async () => {
       try {
         const [usersRes, auctionsRes, requestsRes] = await Promise.all([
-          axiosPublic.get("/users"),
-          axiosPublic.get("/auctions"),
-          axiosPublic.get("/sellerRequest"),
+          axios.get("https://rex-auction-server-side-jzyx.onrender.com/users"),
+          axios.get(
+            "https://rex-auction-server-side-jzyx.onrender.com/auctions"
+          ),
+          axios.get(
+            "https://rex-auction-server-side-jzyx.onrender.com/sellerRequest"
+          ),
         ]);
 
         const totalSellers = usersRes.data.filter(
@@ -91,6 +97,38 @@ const AdminProfile = () => {
             .slice(0, 5)
         );
 
+        // Set quick actions
+        setQuickActions([
+          {
+            id: 1,
+            icon: <FaUsers className="text-2xl text-purple-500 mb-2" />,
+            label: "Manage Users",
+            path: "/dashboard/users",
+            bgColor: "bg-gradient-to-br from-purple-100 to-blue-50",
+          },
+          {
+            id: 2,
+            icon: <FaGavel className="text-2xl text-purple-500 mb-2" />,
+            label: "Manage Auctions",
+            path: "/dashboard/auctions",
+            bgColor: "bg-gradient-to-br from-blue-100 to-cyan-50",
+          },
+          {
+            id: 3,
+            icon: <RiUserStarFill className="text-2xl text-purple-500 mb-2" />,
+            label: "Seller Requests",
+            path: "/dashboard/seller-requests",
+            bgColor: "bg-gradient-to-br from-cyan-100 to-teal-50",
+          },
+          {
+            id: 4,
+            icon: <FaShieldAlt className="text-2xl text-purple-500 mb-2" />,
+            label: "Security",
+            path: "/dashboard/security",
+            bgColor: "bg-gradient-to-br from-teal-100 to-emerald-50",
+          },
+        ]);
+
         // Mock cover options
         setCoverOptions([
           { id: 1, image: coverPhoto },
@@ -116,46 +154,6 @@ const AdminProfile = () => {
     fetchData();
   }, [user]);
 
-  // Set quick actions
-  const quickActions = [
-    {
-      id: 1,
-      icon: <FaUsers className="text-2xl text-purple-500 mb-2" />,
-      label: "Manage Users",
-      path: "/dashboard/users",
-      bgColor: isDarkMode
-        ? "bg-gray-800 hover:bg-gray-700"
-        : "bg-gradient-to-br from-purple-100 to-blue-50",
-    },
-    {
-      id: 2,
-      icon: <FaGavel className="text-2xl text-purple-500 mb-2" />,
-      label: "Manage Auctions",
-      path: "/dashboard/auctions",
-      bgColor: isDarkMode
-        ? "bg-gray-800 hover:bg-gray-700"
-        : "bg-gradient-to-br from-blue-100 to-cyan-50",
-    },
-    {
-      id: 3,
-      icon: <RiUserStarFill className="text-2xl text-purple-500 mb-2" />,
-      label: "Seller Requests",
-      path: "/dashboard/seller-requests",
-      bgColor: isDarkMode
-        ? "bg-gray-800 hover:bg-gray-700"
-        : "bg-gradient-to-br from-cyan-100 to-teal-50",
-    },
-    {
-      id: 4,
-      icon: <FaShieldAlt className="text-2xl text-purple-500 mb-2" />,
-      label: "Security",
-      path: "/dashboard/security",
-      bgColor: isDarkMode
-        ? "bg-gray-800 hover:bg-gray-700"
-        : "bg-gradient-to-br from-teal-100 to-emerald-50",
-    },
-  ];
-
   const saveCoverImage = async () => {
     if (!selectedCover || !user?.uid) return;
     setIsSaving(true);
@@ -172,7 +170,7 @@ const AdminProfile = () => {
 
   const boxStyle = `rounded-xl shadow-lg ${
     isDarkMode
-      ? "bg-gray-800 border-gray-700   hover:bg-gray-805"
+      ? "bg-gray-800 border-gray-700 hover:bg-gray-700"
       : "bg-white border-gray-200 hover:bg-gray-50"
   } transition-all duration-300`;
 
@@ -511,11 +509,7 @@ const AdminProfile = () => {
         transition={{ duration: 0.5, delay: 0.6 }}
         className={`${boxStyle}`}
       >
-        <div
-          className={`p-6 border-b ${
-            isDarkMode ? " border-gray-700" : "border-gray-400"
-          }  `}
-        >
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-xl font-bold flex items-center gap-2">
             <FaChartPie className="text-purple-500" />
             Favorite Colors Survey
@@ -582,11 +576,7 @@ const AdminProfile = () => {
             transition={{ duration: 0.5, delay: 0.4 }}
             className={`${boxStyle}`}
           >
-            <div
-              className={`p-4 rounded-lg flex items-center justify-between ${
-                isDarkMode ? "bg-gray-700" : "bg-purple-50"
-              }`}
-            >
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-xl font-bold flex items-center gap-2">
                 <FaCog className="text-purple-500" />
                 Quick Actions
@@ -599,7 +589,7 @@ const AdminProfile = () => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => navigate(action.path)}
-                  className={`p-4 rounded-lg flex flex-col items-center justify-center ${action.bgColor} transition-colors border-to-r from-yellow-500 to-orange-500`}
+                  className={`p-4 rounded-lg flex flex-col items-center justify-center ${action.bgColor} transition-colors`}
                 >
                   {action.icon}
                   <span className="text-sm font-medium">{action.label}</span>
@@ -618,11 +608,7 @@ const AdminProfile = () => {
             transition={{ duration: 0.5, delay: 0.3 }}
             className={`${boxStyle}`}
           >
-            <div
-              className={`p-6 border-b flex justify-between items-center ${
-                isDarkMode ? "border-gray-700" : "border-gray-200"
-              }`}
-            >
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
               <h2 className="text-xl font-bold flex items-center gap-2">
                 <RiUserStarFill className="text-purple-500" />
                 Pending Seller Requests
@@ -634,11 +620,7 @@ const AdminProfile = () => {
               </h2>
               <button
                 onClick={() => navigate("/dashboard/sellerRequest")}
-                className={`text-sm hover:text-purple-800 ${
-                  isDarkMode
-                    ? "text-purple-400 hover:text-purple-300"
-                    : "text-purple-600"
-                }`}
+                className="text-sm text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300"
               >
                 View All
               </button>
@@ -661,15 +643,13 @@ const AdminProfile = () => {
                       key={request._id}
                       whileHover={{ scale: 1.01 }}
                       className={`p-4 rounded-lg flex items-center justify-between ${
-                        isDarkMode ? "bg-gray-700" : "bg-purple-50 text-black"
+                        isDarkMode ? "bg-gray-700" : "bg-purple-50"
                       }`}
                     >
                       <div className="flex items-center gap-3">
                         <div
                           className={`p-3 rounded-full ${
-                            isDarkMode
-                              ? "bg-gray-600"
-                              : "bg-purple-100 text-black"
+                            isDarkMode ? "bg-gray-600" : "bg-purple-100"
                           }`}
                         >
                           <RiUserStarFill className="text-purple-500" />
@@ -678,7 +658,7 @@ const AdminProfile = () => {
                           <h4 className="font-medium">{request.name}</h4>
                           <p
                             className={`text-xs ${
-                              isDarkMode ? "text-gray-400" : "text-black"
+                              isDarkMode ? "text-gray-400" : "text-gray-500"
                             }`}
                           >
                             {request.email}
@@ -708,7 +688,6 @@ const AdminProfile = () => {
                 </div>
               )}
             </div>
-            
           </motion.div>
 
           {/* Recent Users */}

@@ -1,8 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import useAxiosPublic from "./useAxiosPublic";
+import axios from "axios";
 
 const useAnnouncement = () => {
-  const axiosPublic = useAxiosPublic();
   const {
     refetch,
     data: announcements = [],
@@ -10,7 +9,9 @@ const useAnnouncement = () => {
   } = useQuery({
     queryKey: ["announcements"],
     queryFn: async () => {
-      const res = await axiosPublic.get(`/announcement`);
+      const res = await axios.get(
+        `https://rex-auction-server-side-jzyx.onrender.com/announcement`
+      );
 
       return res.data;
     },

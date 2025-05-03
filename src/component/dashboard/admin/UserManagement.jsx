@@ -36,6 +36,7 @@ const UserManagement = () => {
 
   const users = data || [];
 
+
   const handleRoleChange = async (userId, role) => {
     Swal.fire({
       title: "Are you sure?",

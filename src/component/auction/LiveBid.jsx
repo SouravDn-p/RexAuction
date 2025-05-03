@@ -593,14 +593,12 @@ export default function LiveBid() {
 
     try {
       const response = await axiosPublic.post("/live-bid", bidData);
-      if (dbUser) {
-        const res = await axiosPublic.patch(
-          `/updateUserRecentActivity/${dbUser._id}`,
-          {
-            bidData,
-          }
-        );
-      }
+      const res = await axiosPublic.patch(
+        `/updateUserRecentActivity/${dbUser._id}`,
+        {
+          bidData,
+        }
+      );
       if (
         response.status === 200 ||
         (response.status === 201 && res.status === 201)
@@ -861,6 +859,7 @@ export default function LiveBid() {
         userId: user.uid,
         reactionType,
       });
+
       if (response.data.success) {
         console.log("Reaction saved successfully:", response.data);
       } else {

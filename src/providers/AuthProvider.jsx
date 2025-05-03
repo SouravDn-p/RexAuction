@@ -12,6 +12,8 @@ import { createContext, useContext, useEffect, useState } from "react";
 import auth from "../firebase/firebase.init";
 import useAxiosPublic from "../hooks/useAxiosPublic";
 import { toast } from "react-hot-toast"; // ✅ Hot toast
+import LoadingSpinner from "../component/LoadingSpinner";
+import axios from "axios";
 
 export const AuthContexts = createContext(null);
 const googleProvider = new GoogleAuthProvider();
@@ -31,31 +33,22 @@ const AuthProvider = ({ children }) => {
 
   // get specific user data
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      try {
-        console.log("CurrentUser", currentUser);
-        if (currentUser?.email) {
-          setUser(currentUser);
-          // generateToken
-          const { data } = await axiosPublic.post(
-            "/jwt",
-            { email: currentUser?.email },
-            { withCredentials: true }
-          );
-          console.log(data);
-        } else {
-          setUser(null);
-          await axiosPublic.get("/logout", { withCredentials: true });
-        }
-      } catch (error) {
-        console.error("Auth state change error:", error);
-      } finally {
-        setLoading(false);
-      }
-    });
-
-    return () => unsubscribe();
-  }, []);
+    if (user?.email) {
+      setLoading(true);
+      axiosPublic
+        .get(`/user/${user.email}`)
+        .then((res) => {
+          setDbUser(res.data);
+          console.log("res.data in authProvider", res.data);
+          setLoading(false);
+        })
+        .catch((error) => {
+          console.error("Error fetching user data:", error);
+          setErrorMessage("Failed to load user data");
+          setLoading(false);
+        });
+    }
+  }, [user?.email]);
 
   // Toggle between light and dark themes
   const toggleTheme = () => {
@@ -129,15 +122,20 @@ const AuthProvider = ({ children }) => {
       if (currentUser?.email) {
         setUser(currentUser);
         // generateToken
-        const { data } = await axiosPublic.post(
-          "/jwt",
+        const { data } = await axios.post(
+          "https://rex-auction-server-side-jzyx.onrender.com/jwt",
           { email: currentUser?.email },
           { withCredentials: true }
         );
         console.log(data);
       } else {
         setUser(currentUser);
-        await axiosPublic.get(`/logout`);
+        await axios.get(
+          `https://rex-auction-server-side-jzyx.onrender.com/logout`,
+          {
+            withCredentials: true,
+          }
+        );
       }
       setLoading(false);
     });

@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import ThemeContext from "../../../Context/ThemeContext";
+import axios from "axios";
 import LoadingSpinner from "../../../LoadingSpinner";
 import ImageGallery from "react-image-gallery";
 import "react-image-gallery/styles/css/image-gallery.css";
@@ -18,7 +19,6 @@ import {
 } from "react-icons/fa";
 import { IoMdTime } from "react-icons/io";
 import { BiCategoryAlt } from "react-icons/bi";
-import useAxiosPublic from "../../../../hooks/useAxiosPublic";
 
 const BlogDetails = () => {
   const { isDarkMode } = useContext(ThemeContext);
@@ -27,12 +27,13 @@ const BlogDetails = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const axiosPublic = useAxiosPublic();
 
   useEffect(() => {
     const fetchBlog = async () => {
       try {
-        const res = await axiosPublic.get(`/blog/${id}`);
+        const res = await axios.get(
+          `https://rex-auction-server-side-jzyx.onrender.com/blog/${id}`
+        );
         setBlog(res.data);
         setIsLoading(false);
       } catch (err) {

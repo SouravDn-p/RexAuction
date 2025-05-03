@@ -3,17 +3,16 @@
 import { useContext, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import io from "socket.io-client";
+import axios from "axios";
 import { toast } from "react-hot-toast";
 import ThemeContext from "../../Context/ThemeContext";
 import useAuth from "../../../hooks/useAuth";
-import useAxiosPublic from "../../../hooks/useAxiosPublic";
 
 const NotificationHandler = () => {
   const { user } = useAuth();
   const { isDarkMode } = useContext(ThemeContext);
   const socketRef = useRef(null);
   const navigate = useNavigate();
-  const axiosPublic = useAxiosPublic();
 
   // Initialize socket connection
   useEffect(() => {
@@ -84,8 +83,8 @@ const NotificationHandler = () => {
   const markNotificationAsRead = async (notificationId) => {
     try {
       // Update in database
-      await axiosPublic.put(
-        `/notifications/mark-read/${user.email}`,
+      await axios.put(
+        `https://rex-auction-server-side-jzyx.onrender.com/notifications/mark-read/${user.email}`,
         { notificationId },
         { withCredentials: true }
       );

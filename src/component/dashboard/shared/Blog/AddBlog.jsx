@@ -2,16 +2,15 @@ import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaArrowLeft, FaUpload } from "react-icons/fa";
 import ThemeContext from "../../../Context/ThemeContext";
+import axios from "axios";
 import Swal from "sweetalert2";
 import { AuthContexts } from "../../../../providers/AuthProvider";
-import useAxiosPublic from "../../../../hooks/useAxiosPublic";
 
 export default function AddBlog() {
   const { isDarkMode } = useContext(ThemeContext);
   const navigate = useNavigate();
   const { dbUser } = useContext(AuthContexts);
   const [loading, setLoading] = useState(false);
-  const axiosPublic = useAxiosPublic();
   const [blogData, setBlogData] = useState({
     title: "",
     imageFiles: [],
@@ -61,12 +60,16 @@ export default function AddBlog() {
         authorEmail: dbUser?.email,
       };
 
-      const response = await axiosPublic.post("/addBlogs", blogDataWithImages, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        withCredentials: true,
-      });
+      const response = await axios.post(
+        "https://rex-auction-server-side-jzyx.onrender.com/addBlogs",
+        blogDataWithImages,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
+      );
 
       if (response.status === 201) {
         Swal.fire({
@@ -76,7 +79,7 @@ export default function AddBlog() {
           background: isDarkMode ? "#1f2937" : "#ffffff",
           color: isDarkMode ? "#ffffff" : "#000000",
         });
-        navigate("/dashboard/blog");
+        navigate("/dashboard/blogs");
       }
     } catch (err) {
       console.error("Error uploading images:", err);
@@ -245,11 +248,11 @@ export default function AddBlog() {
           </div>
 
           {/* Buttons */}
-          <div className="grid sm:grid-cols-2 gap-4 mt-6">
+          <div className="flex justify-end space-x-4">
             <button
               type="button"
               onClick={handleReset}
-              className={`w-full px-5 py-2 rounded-md font-semibold transition-all transform hover:scale-105 ${
+              className={`px-5 py-2 rounded-md font-semibold transition-all transform hover:scale-105 ${
                 isDarkMode
                   ? "bg-gray-600 hover:bg-gray-700 text-gray-200"
                   : "bg-gray-200 hover:bg-gray-300 text-gray-800"
@@ -257,11 +260,10 @@ export default function AddBlog() {
             >
               Reset
             </button>
-
             <button
               type="button"
               onClick={handleCancel}
-              className={`w-full px-5 py-2 rounded-md font-semibold transition-all transform hover:scale-105 ${
+              className={`px-5 py-2 rounded-md font-semibold transition-all transform hover:scale-105 ${
                 isDarkMode
                   ? "bg-gray-600 hover:bg-gray-700 text-gray-200"
                   : "bg-gray-200 hover:bg-gray-300 text-gray-800"
@@ -269,11 +271,10 @@ export default function AddBlog() {
             >
               Cancel
             </button>
-
             <button
               type="submit"
               disabled={loading}
-              className={`sm:col-span-2 w-full px-6 py-2 rounded-md font-semibold shadow transition-all transform hover:scale-105 ${
+              className={`px-6 py-2 rounded-md font-semibold shadow transition-all transform hover:scale-105 ${
                 isDarkMode
                   ? "bg-purple-500 hover:bg-purple-600 text-white disabled:bg-gray-600"
                   : "bg-purple-600 hover:bg-purple-700 text-white disabled:bg-gray-400"

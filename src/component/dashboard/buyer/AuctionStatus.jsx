@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import ThemeContext from "../../Context/ThemeContext";
+import useAxiosSecure from "../../../hooks/useAxiosSecure";
 import useBidHistory from "../../../hooks/useBidHistory";
-import Header from "../shared/Header/Header";
 
 const AuctionStatus = () => {
   const { isDarkMode } = useContext(ThemeContext);
@@ -39,12 +39,8 @@ const AuctionStatus = () => {
 
   if (isLoading) {
     return (
-      <div
-        className={`flex items-center justify-center h-screen ${
-          isDarkMode ? "bg-gray-900" : "bg-gray-100"
-        }`}
-      >
-        <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-500"></div>
+      <div className="text-center mt-20 text-gray-500 dark:text-gray-300 animate-pulse">
+        Loading your auctions...
       </div>
     );
   }
@@ -53,11 +49,6 @@ const AuctionStatus = () => {
     <div
       className={`min-h-screen p-4 sm:p-6 ${themeStyles.background} ${themeStyles.text}`}
     >
-      <Header
-        header="Auction Status"
-        title="Manage your auctions effortlessly"
-      />
-
       {/* Filter Buttons */}
       <div className="flex justify-center sm:justify-start gap-3 mb-6">
         {["All", "Won", "Lost"].map((status) => (
@@ -120,9 +111,7 @@ const AuctionStatus = () => {
                         style={{
                           width: `${
                             bid.position !== "N/A" && bid.topBiddersLength
-                              ? (parseInt(bid.position) /
-                                  bid.topBiddersLength) *
-                                100
+                              ? (parseInt(bid.position) / bid.topBiddersLength) * 100
                               : 0
                           }%`,
                         }}

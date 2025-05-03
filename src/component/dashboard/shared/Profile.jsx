@@ -7,8 +7,8 @@ import useAuth from "../../../hooks/useAuth";
 import coverPhoto from "../../../assets/bg/hammer.webp";
 import LoadingSpinner from "../../LoadingSpinner";
 import coverImg from "../../../assets/bg/hammer.webp";
+import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
-import useAxiosPublic from "../../../hooks/useAxiosPublic";
 
 // Demo admin data
 const adminActivity = [
@@ -176,7 +176,6 @@ const Profile = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [userReviews, setUserReviews] = useState([]);
   const [upcomingAuctions, setUpcomingAuctions] = useState([]);
-  const axiosPublic = useAxiosPublic();
 
   const navigate = useNavigate();
   const isBuyer = dbUser?.role === "buyer";
@@ -186,8 +185,10 @@ const Profile = () => {
   // upcoming auction fetch
   useEffect(() => {
     if (dbUser?.role === "admin") {
-      axiosPublic
-        .get("/upcoming-auctions")
+      axios
+        .get(
+          "https://rex-auction-server-side-jzyx.onrender.com/upcoming-auctions"
+        )
         .then((res) => setUpcomingAuctions(res.data))
         .catch((err) => console.error(err));
     }
@@ -195,8 +196,8 @@ const Profile = () => {
   // user review
   useEffect(() => {
     if (dbUser?.role === "admin") {
-      axiosPublic
-        .get("/reviews")
+      axios
+        .get("https://rex-auction-server-side-jzyx.onrender.com/reviews")
         .then((res) => setUserReviews(res.data))
         .catch((err) => console.error(err));
     }
@@ -207,7 +208,9 @@ const Profile = () => {
     // Fetch cover options
     const fetchCoverOptions = async () => {
       try {
-        const response = await axiosPublic.get("/cover-options");
+        const response = await axios.get(
+          "https://rex-auction-server-side-jzyx.onrender.com/cover-options"
+        );
         setCoverOptions(response.data);
       } catch (error) {
         console.error("Error fetching cover options:", error);
@@ -224,7 +227,9 @@ const Profile = () => {
     const fetchUserCover = async () => {
       if (user?.uid) {
         try {
-          const response = await axiosPublic.get(`/cover/${user.uid}`);
+          const response = await axios.get(
+            `https://rex-auction-server-side-jzyx.onrender.com/cover/${user.uid}`
+          );
           if (response.data.image) {
             setCurrentCover(response.data.image);
           }
@@ -244,10 +249,13 @@ const Profile = () => {
     if (!selectedCover || !user?.uid) return;
     setIsSaving(true);
     try {
-      await axiosPublic.patch("/cover", {
-        userId: user.uid,
-        image: selectedCover,
-      });
+      await axios.patch(
+        "https://rex-auction-server-side-jzyx.onrender.com/cover",
+        {
+          userId: user.uid,
+          image: selectedCover, // This will be saved as `cover` in DB
+        }
+      );
       setCurrentCover(selectedCover);
       setIsModalOpen(false);
     } catch (error) {

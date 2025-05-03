@@ -4,7 +4,6 @@ import ThemeContext from "../../Context/ThemeContext";
 import { useNavigate } from "react-router-dom";
 import useBidHistory from "../../../hooks/useBidHistory";
 import LoadingSpinner from "../../LoadingSpinner";
-import Header from "../shared/Header/Header";
 export default function BidHistory() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOrder, setSortOrder] = useState("desc");
@@ -49,7 +48,6 @@ export default function BidHistory() {
           : "bg-gradient-to-b font-medium from-purple-100 via-white to-purple-50 placeholder-gray-500"
       }`}
     >
-      <Header header="Bid History" title="Manage your auctions effortlessly" />
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <h1

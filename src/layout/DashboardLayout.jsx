@@ -35,7 +35,7 @@ const DashboardLayout = () => {
 
   return (
     <div
-      className={` ${
+      className={`${
         isDarkMode
           ? " bg-gray-900"
           : "bg-gradient-to-b from-purple-100 via-white to-purple-50"

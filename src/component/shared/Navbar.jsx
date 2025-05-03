@@ -90,8 +90,8 @@ const Navbar = () => {
     if (user) {
       const fetchNotifications = async () => {
         try {
-          const response = await axiosPublic.get(
-            `/notifications/${user.email}`,
+          const response = await axios.get(
+            `https://rex-auction-server-side-jzyx.onrender.com/notifications/${user.email}`,
             {
               withCredentials: true,
             }
@@ -223,8 +223,8 @@ const Navbar = () => {
       setNotificationCount(0);
 
       if (user) {
-        await axiosPublic.put(
-          `/notifications/mark-read/${user.email}`,
+        await axios.put(
+          `https://rex-auction-server-side-jzyx.onrender.com/notifications/mark-read/${user.email}`,
           {},
           {
             withCredentials: true,
@@ -337,7 +337,7 @@ const Navbar = () => {
                   alt="Rex Auction Logo"
                 />
               </div>
-              <h1 className="font-bold text-sm md:text-xl lg:text-2xl tracking-tight">
+              <h1 className="font-bold text-lg md:text-xl lg:text-2xl tracking-tight">
                 <span
                   className={`${
                     isDarkMode

@@ -12,6 +12,7 @@ export default function UpcomingAuction() {
   const axiosPublic = useAxiosPublic();
 
   const fallbackImage = "https://via.placeholder.com/100";
+
   useEffect(() => {
     axiosPublic
       .get("/upcoming-auctions")
@@ -39,10 +40,7 @@ export default function UpcomingAuction() {
     const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
 
-    if (days > 0) {
-      return `${days}d`;
-    }
-
+    if (days > 0) return `${days}d`;
     return `${hours}h ${minutes}m`;
   };
 
@@ -69,6 +67,20 @@ export default function UpcomingAuction() {
             >
               Upcoming Auctions
             </h2>
+          </div>
+          <div className="relative w-full max-w-xs sm:max-w-sm md:max-w-md">
+            <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search auctions..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className={`w-full pl-10 pr-4 py-2 rounded-full border ${
+                isDarkMode
+                  ? "bg-gray-800 border-gray-700 text-white"
+                  : "bg-white border-gray-300 text-gray-900"
+              } focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm sm:text-base`}
+            />
           </div>
         </div>
 
@@ -103,38 +115,11 @@ export default function UpcomingAuction() {
         )}
 
         {filteredAuctions.length > 0 && (
-          <div className="relative min-h-[300px] sm:h-[400px] overflow-hidden rounded-lg ">
-            <table className={`min-w-full w-full divide-y `}>
-              <thead
-                className={`sticky top-0 z-10 ${
-                  isDarkMode
-                    ? "bg-gray-800 text-white"
-                    : "bg-gray-200 text-gray-700"
-                }`}
-              >
-                <tr>
-                  <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold">
-                    Name
-                  </th>
-                  <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold">
-                    Item
-                  </th>
-                  <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold">
-                    Price
-                  </th>
-                  <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold hidden sm:table-cell">
-                    Seller
-                  </th>
-                  <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold hidden sm:table-cell">
-                    Time
-                  </th>
-                  <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
+          <>
+            {/* Mobile View: Card Layout with Marquee Effect */}
+            <div className="block sm:hidden relative min-h-[300px] overflow-hidden">
               <AnimatePresence>
-                <motion.tbody
+                <motion.div
                   initial={{ y: 0 }}
                   animate={{
                     y: [0, -100 * filteredAuctions.length],
@@ -147,62 +132,167 @@ export default function UpcomingAuction() {
                       ease: "linear",
                     },
                   }}
-                  className={isDarkMode ? " text-white" : " text-gray-800"}
+                  className="space-y-4"
                 >
                   {filteredAuctions
                     .concat(filteredAuctions)
+                    .slice(0, 5)
                     .map((item, index) => (
-                      <motion.tr
+                      <motion.div
                         key={`${item._id}-${index}`}
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="dark:bg-gray-800 transition"
+                        className={`p-4 rounded-lg shadow-md ${
+                          isDarkMode
+                            ? "bg-gray-800 text-white"
+                            : "bg-white text-gray-800"
+                        } flex flex-col gap-3`}
                       >
-                        <td className="px-2 sm:px-4 py-3 sm:py-4 text-center truncate text-xs sm:text-sm">
-                          {item.name?.split(".")[0] || item.name}
-                        </td>
-                        <td className="px-2 sm:px-4 py-3 sm:py-4">
-                          <div className="flex gap-1 sm:gap-2 overflow-x-auto">
-                            {(item.images || []).slice(0, 4).map((img, idx) => (
-                              <img
-                                key={idx}
-                                src={img || fallbackImage}
-                                alt="Item"
-                                className="w-8 sm:w-10 h-8 sm:h-10 rounded-full border object-cover"
-                                onError={(e) => (e.target.src = fallbackImage)}
-                              />
-                            ))}
-                          </div>
-                        </td>
-                        <td className="px-2 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm">
-                          <span className="text-purple-600 font-semibold">
+                        <div className="flex justify-between items-center">
+                          <h3 className="text-base font-semibold truncate">
+                            {item.name?.split(".")[0] || item.name}
+                          </h3>
+                          <span className="text-purple-600 font-semibold text-sm">
                             ${item.startingPrice?.toLocaleString()}
                           </span>
-                        </td>
-                        <td className="px-2 sm:px-4 py-3 sm:py-4 text-center text-xs sm:text-sm hidden sm:table-cell">
-                          {item.sellerDisplayName}
-                        </td>
-                        <td className="px-2 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm text-purple-500 hidden sm:table-cell">
-                          <div className="flex justify-end items-center gap-1 sm:gap-2">
+                        </div>
+                        <div className="flex gap-2 overflow-x-auto">
+                          {(item.images || []).slice(0, 4).map((img, idx) => (
+                            <img
+                              key={idx}
+                              src={img || fallbackImage}
+                              alt="Item"
+                              className="w-12 h-12 rounded-full border object-cover"
+                              onError={(e) => (e.target.src = fallbackImage)}
+                            />
+                          ))}
+                        </div>
+                        <div className="flex justify-between items-center text-sm">
+                          <span>{item.sellerDisplayName}</span>
+                          <div className="flex items-center gap-1 text-purple-500">
                             <FaClock className="text-xs" />
                             <span>{formatTime(item.startTime)}</span>
                           </div>
-                        </td>
-                        <td className="px-2 sm:px-4 py-3 sm:py-4 text-center">
-                          <button
-                            onClick={() => handleViewDetails(item)}
-                            className="px-3 sm:px-4 py-1 sm:py-2 bg-purple-500 text-white rounded-full hover:bg-purple-600 text-xs sm:text-sm"
-                          >
-                            View
-                          </button>
-                        </td>
-                      </motion.tr>
+                        </div>
+                        <button
+                          onClick={() => handleViewDetails(item)}
+                          className="w-full py-2 bg-purple-500 text-white rounded-full hover:bg-purple-600 text-sm"
+                        >
+                          View Details
+                        </button>
+                      </motion.div>
                     ))}
-                </motion.tbody>
+                </motion.div>
               </AnimatePresence>
-            </table>
-          </div>
+            </div>
+
+            {/* Desktop/Tablet View: Table Layout with Existing Marquee Effect */}
+            <div className="hidden sm:block relative min-h-[300px] sm:h-[400px] overflow-hidden rounded-lg">
+              <table className={`min-w-full w-full divide-y `}>
+                <thead
+                  className={`sticky top-0 z-10 ${
+                    isDarkMode
+                      ? "bg-gray-800 text-white"
+                      : "bg-gray-200 text-gray-700"
+                  }`}
+                >
+                  <tr>
+                    <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold">
+                      Name
+                    </th>
+                    <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold">
+                      Item
+                    </th>
+                    <th className="px-2 sm:px-4 py-2 sm:py-3 text-left text-xs sm:text-sm font-semibold">
+                      Price
+                    </th>
+                    <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold hidden sm:table-cell">
+                      Seller
+                    </th>
+                    <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold hidden sm:table-cell">
+                      Time
+                    </th>
+                    <th className="px-2 sm:px-4 py-2 sm:py-3 text-center text-xs sm:text-sm font-semibold">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <AnimatePresence>
+                  <motion.tbody
+                    initial={{ y: 0 }}
+                    animate={{
+                      y: [0, -100 * filteredAuctions.length],
+                    }}
+                    transition={{
+                      y: {
+                        repeat: Infinity,
+                        repeatType: "loop",
+                        duration: filteredAuctions.length * 4,
+                        ease: "linear",
+                      },
+                    }}
+                    className={isDarkMode ? " text-white" : " text-gray-800"}
+                  >
+                    {filteredAuctions
+                      .concat(filteredAuctions)
+                      .map((item, index) => (
+                        <motion.tr
+                          key={`${item._id}-${index}`}
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          className="dark:bg-gray-800 transition"
+                        >
+                          <td className="px-2 sm:px-4 py-3 sm:py-4 text-center truncate text-xs sm:text-sm">
+                            {item.name?.split(".")[0] || item.name}
+                          </td>
+                          <td className="px-2 sm:px-4 py-3 sm:py-4">
+                            <div className="flex gap-1 sm:gap-2 overflow-x-auto">
+                              {(item.images || [])
+                                .slice(0, 4)
+                                .map((img, idx) => (
+                                  <img
+                                    key={idx}
+                                    src={img || fallbackImage}
+                                    alt="Item"
+                                    className="w-8 sm:w-10 h-8 sm:h-10 rounded-full border object-cover"
+                                    onError={(e) =>
+                                      (e.target.src = fallbackImage)
+                                    }
+                                  />
+                                ))}
+                            </div>
+                          </td>
+                          <td className="px-2 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm">
+                            <span className="text-purple-600 font-semibold">
+                              ${item.startingPrice?.toLocaleString()}
+                            </span>
+                          </td>
+                          <td className="px-2 sm:px-4 py-3 sm:py-4 text-center text-xs sm:text-sm hidden sm:table-cell">
+                            {item.sellerDisplayName}
+                          </td>
+                          <td className="px-2 sm:px-4 py-3 sm:py-4 text-xs sm:text-sm text-purple-500 hidden sm:table-cell">
+                            <div className="flex justify-end items-center gap-1 sm:gap-2">
+                              <FaClock className="text-xs" />
+                              <span>{formatTime(item.startTime)}</span>
+                            </div>
+                          </td>
+                          <td className="px-2 sm:px-4 py-3 sm:py-4 text-center">
+                            <button
+                              onClick={() => handleViewDetails(item)}
+                              className="px-3 sm:px-4 py-1 sm:py-2 bg-purple-500 text-white rounded-full hover:bg-purple-600 text-xs sm:text-sm"
+                            >
+                              View
+                            </button>
+                          </td>
+                        </motion.tr>
+                      ))}
+                  </motion.tbody>
+                </AnimatePresence>
+              </table>
+            </div>
+          </>
         )}
 
         {viewDetails && (

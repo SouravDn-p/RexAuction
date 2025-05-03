@@ -19,7 +19,6 @@ import { motion } from "framer-motion";
 import useAxiosPublic from "../../../hooks/useAxiosPublic";
 import Swal from "sweetalert2";
 import LoadingSpinner from "../../LoadingSpinner";
-import toast from "react-hot-toast";
 
 const Payment2 = () => {
   const [paymentMethod, setPaymentMethod] = useState("card");
@@ -196,11 +195,8 @@ const Payment2 = () => {
         status: "completed",
       };
       const response = await axiosPublic.post("/paymentsWithSSL", paymentData);
-      const res = await axiosPublic.patch("/confirmation", {
-        auctionId: auctionData._id,
-      });
 
-      if (response.data?.gatewayURL && res.data?.success) {
+      if (response.data?.gatewayURL) {
         window.location.replace(response.data.gatewayURL);
       } else {
         // Payment failed
@@ -967,6 +963,7 @@ const Payment2 = () => {
               </div>
 
               <div className="p-6 space-y-4">
+                {/* Wallet Payment */}
                 {/* Wallet Payment */}
                 <div
                   className={`p-4 border rounded-xl cursor-pointer transition-all ${

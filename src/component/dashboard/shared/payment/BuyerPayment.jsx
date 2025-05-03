@@ -20,7 +20,6 @@ import LoadingSpinner from "../../../LoadingSpinner";
 import ThemeContext from "../../../Context/ThemeContext";
 import { AuthContexts } from "../../../../providers/AuthProvider";
 import useAxiosPublic from "../../../../hooks/useAxiosPublic";
-import Header from "../Header/Header";
 
 // Inline keyframes for animations
 const animationStyles = `
@@ -150,17 +149,10 @@ const Modal = ({ isOpen, onClose, title, children }) => {
 // Stats Component
 const PaymentStats = ({ payments }) => {
   const { isDarkMode } = useContext(ThemeContext);
-  const totalAmount = payments.reduce(
-    (sum, payment) => sum + (payment.amount || 0),
-    0
-  );
+  const totalAmount = payments.reduce((sum, payment) => sum + (payment.amount || 0), 0);
   const pendingCount = payments.filter((p) => p.status === "pending").length;
-  const completedCount = payments.filter(
-    (p) => p.status === "completed"
-  ).length;
-  const deliveredCount = payments.filter(
-    (p) => p.deliveryStatus === "delivered"
-  ).length;
+  const completedCount = payments.filter((p) => p.status === "completed").length;
+  const deliveredCount = payments.filter((p) => p.deliveryStatus === "delivered").length;
 
   return (
     <div
@@ -279,8 +271,7 @@ export default function BuyerPayment() {
           description: payment.Description || "No description available",
           estimatedDelivery: payment.paymentDate
             ? new Date(
-                new Date(payment.paymentDate).getTime() +
-                  5 * 24 * 60 * 60 * 1000
+                new Date(payment.paymentDate).getTime() + 5 * 24 * 60 * 60 * 1000
               )
                 .toISOString()
                 .split("T")[0]
@@ -459,16 +450,15 @@ export default function BuyerPayment() {
 
   return (
     <div
-      className={`w-full p-4 sm:p-6 lg:p-8 min-h-screen  ${
+      className={`w-full p-4 sm:p-6 lg:p-8 min-h-screen ${
         isDarkMode
           ? "bg-gradient-to-br from-gray-900 to-gray-800 text-white"
           : "bg-gradient-to-br from-gray-50 to-gray-100 text-gray-800"
       } transition-colors duration-500`}
     >
       {toast && <Toast {...toast} onClose={() => setToast(null)} />}
-      <Header header="My Payments" title="ALl Payment In One Place" />
 
-      <div className="flex  rounded-md flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
           <h2 className="text-3xl font-bold flex items-center bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-purple-500">
             <ShoppingBag className="mr-2 w-8 h-8" /> My Auction Payments
@@ -584,7 +574,7 @@ export default function BuyerPayment() {
               isDarkMode
                 ? "bg-gray-800 border-gray-700 hover:bg-gray-700"
                 : "bg-white border-gray-200 hover:bg-gray-100"
-            } transition-colors duration-300 shadow-sm ${
+              } transition-colors duration-300 shadow-sm ${
               isRefreshing ? "animate-spin" : ""
             }`}
             title="Refresh data"
@@ -610,10 +600,7 @@ export default function BuyerPayment() {
         </div>
       </div>
 
-      {(searchTerm ||
-        dateFilter.from ||
-        dateFilter.to ||
-        activeTab !== "all") && (
+      {(searchTerm || dateFilter.from || dateFilter.to || activeTab !== "all") && (
         <div
           className={`flex flex-wrap items-center gap-2 mb-6 p-4 rounded-xl border ${
             isDarkMode
@@ -771,11 +758,7 @@ export default function BuyerPayment() {
                       ৳{auction.currentBid.toLocaleString()}
                     </td>
                     <td className="p-4 text-red-500">
-                      ৳
-                      {(
-                        auction.currentBid +
-                        Math.round(auction.currentBid * 0.01)
-                      ).toLocaleString()}
+                      ৳{(auction.currentBid + Math.round(auction.currentBid * 0.01)).toLocaleString()}
                     </td>
                     <td className="p-4">
                       <span
@@ -830,7 +813,7 @@ export default function BuyerPayment() {
       {isLoading ? (
         <LoadingSpinner />
       ) : (
-        <div className="overflow-x-auto ">
+        <div className="overflow-x-auto">
           <table
             className={`min-w-full rounded-xl ${
               isDarkMode
@@ -902,8 +885,7 @@ export default function BuyerPayment() {
                         ) : (
                           <CheckCircle className="w-4 h-4 mr-1" />
                         )}
-                        {payment.status.charAt(0).toUpperCase() +
-                          payment.status.slice(1)}
+                        {payment.status.charAt(0).toUpperCase() + payment.status.slice(1)}
                       </span>
                     </td>
                     <td className="p-4">
@@ -976,11 +958,7 @@ export default function BuyerPayment() {
         </div>
       )}
 
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title="Payment Details"
-      >
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Payment Details">
         {selectedPayment ? (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
@@ -1043,10 +1021,7 @@ export default function BuyerPayment() {
               }`}
             >
               {[
-                {
-                  label: "Payment Method",
-                  value: selectedPayment.paymentMethod || "N/A",
-                },
+                { label: "Payment Method", value: selectedPayment.paymentMethod || "N/A" },
                 { label: "Seller", value: selectedPayment.seller || "Unknown" },
                 { label: "Date", value: selectedPayment.date || "N/A" },
                 {
@@ -1166,7 +1141,7 @@ export default function BuyerPayment() {
               No payment details available.
             </p>
           </div>
-        )}
+          )}
       </Modal>
     </div>
   );
