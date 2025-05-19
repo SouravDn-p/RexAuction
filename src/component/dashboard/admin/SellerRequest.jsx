@@ -4,7 +4,6 @@ import { FcCheckmark } from "react-icons/fc";
 import { FaSortAmountUp, FaSortAmountDown, FaEye } from "react-icons/fa";
 import ThemeContext from "../../Context/ThemeContext";
 import Swal from "sweetalert2";
-import axios from "axios";
 import { AuthContexts } from "../../../providers/AuthProvider";
 import Header from "../shared/Header/Header";
 import useAxiosPublic from "../../../hooks/useAxiosPublic";
