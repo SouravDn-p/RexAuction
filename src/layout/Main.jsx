@@ -1,4 +1,3 @@
-import React from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import Navbar from "../component/shared/Navbar";
 import Footer from "../component/shared/Footer";
@@ -12,7 +11,7 @@ const Main = () => {
     location.pathname.includes("forgotPassword");
 
   return (
-    <div className="mx-auto ">
+    <div className="mx-auto">
       {head || <Navbar />}
       <Outlet />
       {head || <Footer />}
