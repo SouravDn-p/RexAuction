@@ -36,7 +36,7 @@ import AccountBalance from "../extra/wallet/AccountBalance";
 import Chat from "../component/Chats/Chat";
 import WalletHistory from "../extra/wallet/WalletHistory";
 import SdBot from "../extra/sdChatBot/SdBot";
-import ContactUs from "../component/shared/contactUs";
+
 import FeedbackDisplay from "../component/dashboard/admin/feedbacks/FeedbackDisplay";
 import PaymentSuccess from "../component/dashboard/buyer/PaymentSuccess";
 import PaymentFailed from "../component/dashboard/buyer/PaymentFailed";
@@ -46,6 +46,7 @@ import AddBlog from "../component/dashboard/shared/Blog/AddBlog";
 import UpdateBlog from "../component/dashboard/shared/Blog/UpdateBlog";
 import Blogs from "../component/dashboard/shared/Blog/Blogs";
 import BlogDetails from "../component/dashboard/shared/Blog/BlogDetails";
+import ContactUs from "../component/shared/ContactUs";
 // import Blogs from "../component/Blogs/Blogs";
 // import AdminFeedback from "../component/dashboard/admin/AdminFeedback";
 
@@ -166,7 +167,7 @@ export const router = createBrowserRouter([
         element: <PaymentSuccess />,
         loader: ({ params }) =>
           fetch(
-            `https://rex-auction-server-side-jzyx.onrender.com/payments/${params.trxid}`
+            `http://localhost:5001/payments/${params.trxid}`
           ),
       },
       {

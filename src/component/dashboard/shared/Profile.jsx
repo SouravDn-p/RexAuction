@@ -187,7 +187,7 @@ const Profile = () => {
     if (dbUser?.role === "admin") {
       axios
         .get(
-          "https://rex-auction-server-side-jzyx.onrender.com/upcoming-auctions"
+          "http://localhost:5001/upcoming-auctions"
         )
         .then((res) => setUpcomingAuctions(res.data))
         .catch((err) => console.error(err));
@@ -197,7 +197,7 @@ const Profile = () => {
   useEffect(() => {
     if (dbUser?.role === "admin") {
       axios
-        .get("https://rex-auction-server-side-jzyx.onrender.com/reviews")
+        .get("http://localhost:5001/reviews")
         .then((res) => setUserReviews(res.data))
         .catch((err) => console.error(err));
     }
@@ -209,7 +209,7 @@ const Profile = () => {
     const fetchCoverOptions = async () => {
       try {
         const response = await axios.get(
-          "https://rex-auction-server-side-jzyx.onrender.com/cover-options"
+          "http://localhost:5001/cover-options"
         );
         setCoverOptions(response.data);
       } catch (error) {
@@ -228,7 +228,7 @@ const Profile = () => {
       if (user?.uid) {
         try {
           const response = await axios.get(
-            `https://rex-auction-server-side-jzyx.onrender.com/cover/${user.uid}`
+            `http://localhost:5001/cover/${user.uid}`
           );
           if (response.data.image) {
             setCurrentCover(response.data.image);
@@ -250,7 +250,7 @@ const Profile = () => {
     setIsSaving(true);
     try {
       await axios.patch(
-        "https://rex-auction-server-side-jzyx.onrender.com/cover",
+        "http://localhost:5001/cover",
         {
           userId: user.uid,
           image: selectedCover, // This will be saved as `cover` in DB

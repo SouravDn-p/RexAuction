@@ -36,7 +36,7 @@ const AnnouncementDetails = () => {
         try {
           setLoading(true);
           const response = await axios.get(
-            `https://rex-auction-server-side-jzyx.onrender.com/announcement/${id}`,
+            `http://localhost:5001/announcement/${id}`,
             { withCredentials: true }
           );
           setAnnouncement(response.data);

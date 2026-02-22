@@ -11,7 +11,6 @@ import {
   FaUsers,
   FaGavel,
   FaDollarSign,
-  FaUserCheck,
   FaChartLine,
   FaTicketAlt,
   FaShieldAlt,
@@ -20,13 +19,9 @@ import {
   FaCheckCircle,
   FaTimesCircle,
   FaHourglassHalf,
-  FaBoxOpen,
-  FaChartPie,
 } from "react-icons/fa";
 import { RiUserStarFill } from "react-icons/ri";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+import toast from "react-hot-toast";
 
 const AdminProfile = () => {
   const { user, loading: authLoading } = useAuth();
@@ -42,129 +37,240 @@ const AdminProfile = () => {
     totalBuyers: 0,
     totalAuctions: 0,
     totalRevenue: 0,
+    pendingRequests: 0,
+    activeAuctions: 0,
   });
-  const [users, setUsers] = useState([]);
-  const [auctions, setAuctions] = useState([]);
+  const [recentUsers, setRecentUsers] = useState([]);
   const [sellerRequests, setSellerRequests] = useState([]);
-  const [quickActions, setQuickActions] = useState([]);
+  const [systemStatus, setSystemStatus] = useState({
+    performance: "Loading...",
+    supportTickets: 0,
+    pendingTasks: 0,
+  });
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Chart data from the image
-  const [colorChartData] = useState([
-    { name: "Green", value: 8 },
-    { name: "Blue", value: 45 },
-    { name: "Yellow", value: 31 },
-    { name: "Red", value: 16 },
-  ]);
+  // Quick actions configuration
+  const quickActions = [
+    {
+      id: 1,
+      icon: <FaUsers className="text-2xl text-purple-500 mb-2" />,
+      label: "Manage Users",
+      path: "/dashboard/users",
+      bgColor: "bg-gradient-to-br from-purple-100 to-blue-50",
+    },
+    {
+      id: 2,
+      icon: <FaGavel className="text-2xl text-purple-500 mb-2" />,
+      label: "Manage Auctions",
+      path: "/dashboard/auctions",
+      bgColor: "bg-gradient-to-br from-blue-100 to-cyan-50",
+    },
+    {
+      id: 3,
+      icon: <RiUserStarFill className="text-2xl text-purple-500 mb-2" />,
+      label: "Seller Requests",
+      path: "/dashboard/seller-requests",
+      bgColor: "bg-gradient-to-br from-cyan-100 to-teal-50",
+    },
+    {
+      id: 4,
+      icon: <FaShieldAlt className="text-2xl text-purple-500 mb-2" />,
+      label: "Security Settings",
+      path: "/dashboard/security",
+      bgColor: "bg-gradient-to-br from-teal-100 to-emerald-50",
+    },
+  ];
 
-  // Fetch data
+  // Fetch dashboard data
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchDashboardData = async () => {
+      setIsLoading(true);
       try {
-        const [usersRes, auctionsRes, requestsRes] = await Promise.all([
-          axios.get("https://rex-auction-server-side-jzyx.onrender.com/users"),
-          axios.get(
-            "https://rex-auction-server-side-jzyx.onrender.com/auctions"
-          ),
-          axios.get(
-            "https://rex-auction-server-side-jzyx.onrender.com/sellerRequest"
-          ),
-        ]);
+        // Fetch users data
+        const usersResponse = await axios.get("http://localhost:5001/users");
+        const users = usersResponse.data || [];
 
-        const totalSellers = usersRes.data.filter(
-          (u) => u.role === "seller"
+        // Fetch auctions data
+        const auctionsResponse = await axios.get("http://localhost:5001/auctions");
+        const auctions = auctionsResponse.data || [];
+
+        // Fetch seller requests
+        const requestsResponse = await axios.get("http://localhost:5001/sellerRequest");
+        const requests = requestsResponse.data || [];
+
+        // Fetch revenue data (if you have an endpoint)
+        let totalRevenue = 0;
+        try {
+          const revenueResponse = await axios.get("http://localhost:5001/revenue");
+          totalRevenue = revenueResponse.data.total || 0;
+        } catch (error) {
+          console.log("Revenue endpoint not available");
+        }
+
+        // Calculate statistics
+        const totalSellers = users.filter(
+          (u) => u.role?.toLowerCase() === "seller"
         ).length;
-        const totalBuyers = usersRes.data.filter(
-          (u) => u.role === "buyer"
+
+        const totalBuyers = users.filter(
+          (u) => u.role?.toLowerCase() === "buyer"
         ).length;
+
+        const activeAuctions = auctions.filter(
+          (a) => a.status === "active" || new Date(a.endTime) > new Date()
+        ).length;
+
+        const pendingRequests = requests.filter(
+          (r) => r.becomeSellerStatus?.toLowerCase() === "pending"
+        ).length;
+
+        // Calculate support tickets (if you have an endpoint)
+        let supportTickets = 0;
+        try {
+          const ticketsResponse = await axios.get("http://localhost:5001/support/tickets");
+          supportTickets = ticketsResponse.data.openTickets || 0;
+        } catch (error) {
+          supportTickets = pendingRequests; // Fallback
+        }
 
         setAdminData({
-          totalUsers: usersRes.data.length,
+          totalUsers: users.length,
           totalSellers,
           totalBuyers,
-          totalAuctions: auctionsRes.data.length,
-          totalRevenue: 32500,
+          totalAuctions: auctions.length,
+          activeAuctions,
+          totalRevenue,
+          pendingRequests,
         });
 
-        setUsers(usersRes.data.slice(0, 5));
-        const activeAuctions = auctionsRes.data
-          .filter((a) => new Date(a.endTime) > new Date())
-          .slice(0, 5);
-        setAuctions(activeAuctions);
+        setRecentUsers(users.slice(0, 5));
+
         setSellerRequests(
-          requestsRes.data
-            .filter((r) => r.becomeSellerStatus === "pending")
+          requests
+            .filter((r) => r.becomeSellerStatus?.toLowerCase() === "pending")
             .slice(0, 5)
         );
 
-        // Set quick actions
-        setQuickActions([
-          {
-            id: 1,
-            icon: <FaUsers className="text-2xl text-purple-500 mb-2" />,
-            label: "Manage Users",
-            path: "/dashboard/users",
-            bgColor: "bg-gradient-to-br from-purple-100 to-blue-50",
-          },
-          {
-            id: 2,
-            icon: <FaGavel className="text-2xl text-purple-500 mb-2" />,
-            label: "Manage Auctions",
-            path: "/dashboard/auctions",
-            bgColor: "bg-gradient-to-br from-blue-100 to-cyan-50",
-          },
-          {
-            id: 3,
-            icon: <RiUserStarFill className="text-2xl text-purple-500 mb-2" />,
-            label: "Seller Requests",
-            path: "/dashboard/seller-requests",
-            bgColor: "bg-gradient-to-br from-cyan-100 to-teal-50",
-          },
-          {
-            id: 4,
-            icon: <FaShieldAlt className="text-2xl text-purple-500 mb-2" />,
-            label: "Security",
-            path: "/dashboard/security",
-            bgColor: "bg-gradient-to-br from-teal-100 to-emerald-50",
-          },
-        ]);
-
-        // Mock cover options
-        setCoverOptions([
-          { id: 1, image: coverPhoto },
-          { id: 2, image: "https://i.ibb.co/KSCtW5n/download-2.jpg" },
-          { id: 3, image: "https://i.ibb.co/60Q0GGYP/download-3.jpg" },
-          { id: 4, image: "https://i.ibb.co/RGwFXk1S/download-4.jpg" },
-        ]);
-
-        setCurrentCover(coverPhoto);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        // Fallback data
-        setAdminData({
-          totalUsers: 1243,
-          totalSellers: 342,
-          totalBuyers: 901,
-          totalAuctions: 567,
-          totalRevenue: 32500,
+        setSystemStatus({
+          performance: "Excellent (99.9% uptime)",
+          supportTickets: supportTickets,
+          pendingTasks: pendingRequests,
         });
+
+        // Fetch cover options from your backend or use defaults
+        try {
+          const coverResponse = await axios.get("http://localhost:5001/cover-images");
+          setCoverOptions(coverResponse.data);
+        } catch (error) {
+          // Fallback to default cover options
+          setCoverOptions([
+            { id: 1, image: coverPhoto },
+            { id: 2, image: "https://images.unsplash.com/photo-1557683316-973673baf926?w=800" },
+            { id: 3, image: "https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=800" },
+            { id: 4, image: "https://images.unsplash.com/photo-1557683311-eac922347aa1?w=800" },
+          ]);
+        }
+
+      } catch (error) {
+        console.error("Error fetching dashboard data:", error);
+        toast.error("Failed to load dashboard data");
+        
+        // Set empty data on error
+        setAdminData({
+          totalUsers: 0,
+          totalSellers: 0,
+          totalBuyers: 0,
+          totalAuctions: 0,
+          activeAuctions: 0,
+          totalRevenue: 0,
+          pendingRequests: 0,
+        });
+        
+        setSystemStatus({
+          performance: "Unable to fetch",
+          supportTickets: 0,
+          pendingTasks: 0,
+        });
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    fetchData();
+    if (user) {
+      fetchDashboardData();
+    }
   }, [user]);
 
   const saveCoverImage = async () => {
-    if (!selectedCover || !user?.uid) return;
+    if (!selectedCover) {
+      toast.error("Please select a cover image");
+      return;
+    }
+    
     setIsSaving(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // Save cover image to backend
+      await axios.post("http://localhost:5001/user/cover", {
+        userId: user?.uid,
+        coverImage: selectedCover
+      });
+      
       setCurrentCover(selectedCover);
       setIsModalOpen(false);
+      setSelectedCover(null);
+      toast.success("Cover image updated successfully");
     } catch (error) {
       console.error("Error saving cover image:", error);
+      toast.error("Failed to save cover image");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleApproveRequest = async (requestId, userEmail) => {
+    try {
+      await axios.patch(`http://localhost:5001/sellerRequest/${requestId}`, {
+        status: "approved"
+      });
+      
+      // Update user role to seller
+      await axios.patch(`http://localhost:5001/user/${userEmail}`, {
+        role: "seller"
+      });
+      
+      // Remove from local state
+      setSellerRequests(prev => prev.filter(req => req._id !== requestId));
+      setAdminData(prev => ({
+        ...prev,
+        pendingRequests: prev.pendingRequests - 1,
+        totalSellers: prev.totalSellers + 1,
+        totalBuyers: prev.totalBuyers - 1
+      }));
+      
+      toast.success("Seller request approved successfully");
+    } catch (error) {
+      console.error("Error approving request:", error);
+      toast.error("Failed to approve request");
+    }
+  };
+
+  const handleRejectRequest = async (requestId) => {
+    try {
+      await axios.patch(`http://localhost:5001/sellerRequest/${requestId}`, {
+        status: "rejected"
+      });
+      
+      setSellerRequests(prev => prev.filter(req => req._id !== requestId));
+      setAdminData(prev => ({
+        ...prev,
+        pendingRequests: prev.pendingRequests - 1
+      }));
+      
+      toast.success("Seller request rejected");
+    } catch (error) {
+      console.error("Error rejecting request:", error);
+      toast.error("Failed to reject request");
     }
   };
 
@@ -174,7 +280,7 @@ const AdminProfile = () => {
       : "bg-white border-gray-200 hover:bg-gray-50"
   } transition-all duration-300`;
 
-  if (authLoading) return <LoadingSpinner />;
+  if (authLoading || isLoading) return <LoadingSpinner />;
 
   return (
     <div
@@ -182,7 +288,7 @@ const AdminProfile = () => {
         isDarkMode ? "bg-gray-900 text-white" : "bg-purple-50 text-gray-800"
       } transition-all duration-300 p-4 md:p-8`}
     >
-      {/* Profile Banner with Purple Overlay */}
+      {/* Profile Banner */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -197,12 +303,15 @@ const AdminProfile = () => {
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-center p-6 flex flex-col items-center gap-4">
             <motion.img
-              src={user?.photoURL || "https://i.imgur.com/8Km9tLL.png"}
+              src={user?.photoURL || "https://ui-avatars.com/api/?name=Admin&background=6d28d9&color=fff"}
               alt={user?.displayName || "Admin"}
               className="w-20 h-20 rounded-full object-cover border-4 border-white shadow-lg"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
+              onError={(e) => {
+                e.target.src = `https://ui-avatars.com/api/?name=${user?.displayName || 'Admin'}&background=6d28d9&color=fff`;
+              }}
             />
             <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
               Welcome Back, {user?.displayName?.split(" ")[0] || "Admin"}!
@@ -215,7 +324,7 @@ const AdminProfile = () => {
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="absolute right-4 top-4 bg-white/90 text-purple-800 hover:bg-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2"
+          className="absolute right-4 top-4 bg-white/90 text-purple-800 hover:bg-white px-4 py-2 rounded-full shadow-lg flex items-center gap-2 transition-all hover:scale-105"
         >
           <FaEdit className="text-purple-600" />
           <span className="font-medium">Edit Cover</span>
@@ -228,6 +337,7 @@ const AdminProfile = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           className="fixed inset-0 z-50 bg-black/70 flex justify-center items-center p-4"
+          onClick={() => setIsModalOpen(false)}
         >
           <motion.div
             initial={{ scale: 0.95 }}
@@ -235,6 +345,7 @@ const AdminProfile = () => {
             className={`${
               isDarkMode ? "bg-gray-800" : "bg-white"
             } p-6 rounded-2xl w-full max-w-4xl shadow-2xl`}
+            onClick={(e) => e.stopPropagation()}
           >
             <div className="flex justify-between items-center mb-6">
               <h2
@@ -242,11 +353,11 @@ const AdminProfile = () => {
                   isDarkMode ? "text-white" : "text-gray-900"
                 }`}
               >
-                Choose Your Cover Image
+                Choose Cover Image
               </h2>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-gray-500 hover:text-gray-700 text-2xl"
               >
                 ×
               </button>
@@ -353,7 +464,7 @@ const AdminProfile = () => {
                   isDarkMode ? "text-gray-400" : "text-gray-500"
                 }`}
               >
-                +12% from last month
+                {adminData.totalSellers} Sellers · {adminData.totalBuyers} Buyers
               </p>
             </div>
             <div
@@ -388,19 +499,14 @@ const AdminProfile = () => {
                 Total Revenue
               </p>
               <h3 className="text-3xl font-bold mt-2">
-                $
-                <CountUp
-                  end={adminData.totalRevenue}
-                  duration={2}
-                  separator=","
-                />
+                ${<CountUp end={adminData.totalRevenue} duration={2} separator="," />}
               </h3>
               <p
                 className={`text-xs mt-1 ${
                   isDarkMode ? "text-gray-400" : "text-gray-500"
                 }`}
               >
-                +24% from last month
+                Lifetime earnings
               </p>
             </div>
             <div
@@ -435,14 +541,14 @@ const AdminProfile = () => {
                 Active Auctions
               </p>
               <h3 className="text-3xl font-bold mt-2">
-                <CountUp end={adminData.totalAuctions} duration={2} />
+                <CountUp end={adminData.activeAuctions} duration={2} />
               </h3>
               <p
                 className={`text-xs mt-1 ${
                   isDarkMode ? "text-gray-400" : "text-gray-500"
                 }`}
               >
-                15 ending today
+                Out of {adminData.totalAuctions} total
               </p>
             </div>
             <div
@@ -477,14 +583,14 @@ const AdminProfile = () => {
                 Pending Requests
               </p>
               <h3 className="text-3xl font-bold mt-2">
-                <CountUp end={sellerRequests.length} duration={2} />
+                <CountUp end={adminData.pendingRequests} duration={2} />
               </h3>
               <p
                 className={`text-xs mt-1 ${
                   isDarkMode ? "text-gray-400" : "text-gray-500"
                 }`}
               >
-                Requires your attention
+                Requires attention
               </p>
             </div>
             <div
@@ -502,79 +608,17 @@ const AdminProfile = () => {
           ></div>
         </motion.div>
       </motion.div>
-      {/* Favorite Colors Chart */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.6 }}
-        className={`${boxStyle}`}
-      >
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-xl font-bold flex items-center gap-2">
-            <FaChartPie className="text-purple-500" />
-            Favorite Colors Survey
-          </h2>
-        </div>
-        <div className="p-6">
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={colorChartData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                  label={({ name, percent }) =>
-                    `${name}: ${(percent * 100).toFixed(0)}%`
-                  }
-                >
-                  {colorChartData.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={COLORS[index % COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip
-                  formatter={(value) => [`${value}%`, "Votes"]}
-                  contentStyle={{
-                    backgroundColor: isDarkMode ? "#1F2937" : "#FFFFFF",
-                    border: `1px solid ${isDarkMode ? "#374151" : "#E5E7EB"}`,
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="mt-4 grid grid-cols-2 gap-2">
-            {colorChartData.map((entry, index) => (
-              <div
-                key={`legend-${index}`}
-                className="flex items-center text-sm"
-              >
-                <div
-                  className="w-3 h-3 rounded-full mr-2"
-                  style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                />
-                <span className="font-medium">{entry.name}</span>
-                <span className="ml-auto font-bold">{entry.value}%</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </motion.div>
+
       {/* Main Dashboard Content */}
-      <div className="mx-auto">
-        {/* Left Column - Quick Actions and Chart */}
-        <div className="space-y-6 mt-10 lg:col-span-1">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column - Quick Actions */}
+        <div className="space-y-6 lg:col-span-1">
           {/* Quick Actions */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            className={`${boxStyle}`}
+            className={boxStyle}
           >
             <div className="p-6 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-xl font-bold flex items-center gap-2">
@@ -589,7 +633,7 @@ const AdminProfile = () => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => navigate(action.path)}
-                  className={`p-4 rounded-lg flex flex-col items-center justify-center ${action.bgColor} transition-colors`}
+                  className={`p-4 rounded-lg flex flex-col items-center justify-center ${action.bgColor} transition-colors dark:bg-opacity-20`}
                 >
                   {action.icon}
                   <span className="text-sm font-medium">{action.label}</span>
@@ -597,29 +641,105 @@ const AdminProfile = () => {
               ))}
             </div>
           </motion.div>
+
+          {/* System Status */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+            className={boxStyle}
+          >
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                <FaShieldAlt className="text-purple-500" />
+                System Status
+              </h2>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="flex items-center gap-4">
+                <div
+                  className={`p-3 rounded-full ${
+                    isDarkMode ? "bg-purple-900/50" : "bg-purple-100"
+                  }`}
+                >
+                  <FaChartLine className="text-purple-500 text-xl" />
+                </div>
+                <div>
+                  <h4 className="font-medium">Performance</h4>
+                  <p
+                    className={`text-sm ${
+                      isDarkMode ? "text-gray-400" : "text-gray-500"
+                    }`}
+                  >
+                    {systemStatus.performance}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div
+                  className={`p-3 rounded-full ${
+                    isDarkMode ? "bg-purple-900/50" : "bg-purple-100"
+                  }`}
+                >
+                  <FaTicketAlt className="text-purple-500 text-xl" />
+                </div>
+                <div>
+                  <h4 className="font-medium">Support Tickets</h4>
+                  <p
+                    className={`text-sm ${
+                      isDarkMode ? "text-gray-400" : "text-gray-500"
+                    }`}
+                  >
+                    {systemStatus.supportTickets} open tickets
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div
+                  className={`p-3 rounded-full ${
+                    isDarkMode ? "bg-purple-900/50" : "bg-purple-100"
+                  }`}
+                >
+                  <FaHourglassHalf className="text-purple-500 text-xl" />
+                </div>
+                <div>
+                  <h4 className="font-medium">Pending Tasks</h4>
+                  <p
+                    className={`text-sm ${
+                      isDarkMode ? "text-gray-400" : "text-gray-500"
+                    }`}
+                  >
+                    {systemStatus.pendingTasks} tasks to review
+                  </p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
         </div>
 
         {/* Right Column - Main Content */}
-        <div className="space-y-6 mt-10 lg:col-span-2">
+        <div className="space-y-6 lg:col-span-2">
           {/* Pending Seller Requests */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className={`${boxStyle}`}
+            className={boxStyle}
           >
             <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
               <h2 className="text-xl font-bold flex items-center gap-2">
                 <RiUserStarFill className="text-purple-500" />
                 Pending Seller Requests
-                {sellerRequests.length > 0 && (
+                {adminData.pendingRequests > 0 && (
                   <span className="ml-2 px-2 py-1 bg-purple-100 text-purple-800 text-xs font-bold rounded-full">
-                    {sellerRequests.length} New
+                    {adminData.pendingRequests} New
                   </span>
                 )}
               </h2>
               <button
-                onClick={() => navigate("/dashboard/sellerRequest")}
+                onClick={() => navigate("/dashboard/seller-requests")}
                 className="text-sm text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300"
               >
                 View All
@@ -647,13 +767,14 @@ const AdminProfile = () => {
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <div
-                          className={`p-3 rounded-full ${
-                            isDarkMode ? "bg-gray-600" : "bg-purple-100"
-                          }`}
-                        >
-                          <RiUserStarFill className="text-purple-500" />
-                        </div>
+                        <img
+                          src={request.photo || `https://ui-avatars.com/api/?name=${request.name}&background=6d28d9&color=fff`}
+                          alt={request.name}
+                          className="w-10 h-10 rounded-full object-cover"
+                          onError={(e) => {
+                            e.target.src = `https://ui-avatars.com/api/?name=${request.name}&background=6d28d9&color=fff`;
+                          }}
+                        />
                         <div>
                           <h4 className="font-medium">{request.name}</h4>
                           <p
@@ -669,7 +790,8 @@ const AdminProfile = () => {
                         <motion.button
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.9 }}
-                          className="p-2 rounded-full bg-green-100 text-green-600 hover:bg-green-200"
+                          onClick={() => handleApproveRequest(request._id, request.email)}
+                          className="p-2 rounded-full bg-green-100 text-green-600 hover:bg-green-200 transition-colors"
                           title="Approve"
                         >
                           <FaCheckCircle />
@@ -677,7 +799,8 @@ const AdminProfile = () => {
                         <motion.button
                           whileHover={{ scale: 1.1 }}
                           whileTap={{ scale: 0.9 }}
-                          className="p-2 rounded-full bg-red-100 text-red-600 hover:bg-red-200"
+                          onClick={() => handleRejectRequest(request._id)}
+                          className="p-2 rounded-full bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
                           title="Reject"
                         >
                           <FaTimesCircle />
@@ -695,7 +818,7 @@ const AdminProfile = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
-            className={`${boxStyle}`}
+            className={boxStyle}
           >
             <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
               <h2 className="text-xl font-bold flex items-center gap-2">
@@ -703,152 +826,85 @@ const AdminProfile = () => {
                 Recent Users
               </h2>
               <button
-                onClick={() => navigate("/dashboard/userManagement")}
+                onClick={() => navigate("/dashboard/users")}
                 className="text-sm text-purple-600 hover:text-purple-800 dark:text-purple-400 dark:hover:text-purple-300"
               >
                 View All
               </button>
             </div>
             <div className="p-6">
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr
-                      className={`text-left ${
-                        isDarkMode ? "text-gray-300" : "text-gray-600"
-                      }`}
-                    >
-                      <th className="pb-3 font-medium">User</th>
-                      <th className="pb-3 font-medium">Role</th>
-                      <th className="pb-3 font-medium">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                    {users.map((user) => (
-                      <motion.tr
-                        key={user._id}
-                        whileHover={{
-                          backgroundColor: isDarkMode
-                            ? "rgba(76, 29, 149, 0.1)"
-                            : "rgba(216, 180, 254, 0.2)",
-                        }}
-                        className={`${
-                          isDarkMode ? "text-gray-300" : "text-gray-700"
+              {recentUsers.length === 0 ? (
+                <div className="text-center py-8">
+                  <FaUsers className="mx-auto text-4xl text-purple-300 mb-4" />
+                  <h3 className="text-lg font-medium text-gray-500">
+                    No users found
+                  </h3>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr
+                        className={`text-left ${
+                          isDarkMode ? "text-gray-300" : "text-gray-600"
                         }`}
                       >
-                        <td className="py-3">
-                          <div className="flex items-center gap-3">
-                            <img
-                              src={user.photo}
-                              alt={user.name}
-                              className="w-8 h-8 rounded-full object-cover"
-                            />
-                            <div>
-                              <p className="font-medium">{user.name}</p>
-                              <p className="text-xs opacity-70">{user.email}</p>
+                        <th className="pb-3 font-medium">User</th>
+                        <th className="pb-3 font-medium">Role</th>
+                        <th className="pb-3 font-medium">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                      {recentUsers.map((user) => (
+                        <motion.tr
+                          key={user._id}
+                          whileHover={{
+                            backgroundColor: isDarkMode
+                              ? "rgba(76, 29, 149, 0.1)"
+                              : "rgba(216, 180, 254, 0.2)",
+                          }}
+                          className={`${
+                            isDarkMode ? "text-gray-300" : "text-gray-700"
+                          }`}
+                        >
+                          <td className="py-3">
+                            <div className="flex items-center gap-3">
+                              <img
+                                src={user.photo || `https://ui-avatars.com/api/?name=${user.name}&background=6d28d9&color=fff`}
+                                alt={user.name}
+                                className="w-8 h-8 rounded-full object-cover"
+                                onError={(e) => {
+                                  e.target.src = `https://ui-avatars.com/api/?name=${user.name}&background=6d28d9&color=fff`;
+                                }}
+                              />
+                              <div>
+                                <p className="font-medium">{user.name}</p>
+                                <p className="text-xs opacity-70">{user.email}</p>
+                              </div>
                             </div>
-                          </div>
-                        </td>
-                        <td className="py-3 capitalize">{user.role}</td>
-                        <td className="py-3">
-                          <span
-                            className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              user.status === "active"
-                                ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
-                                : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
-                            }`}
-                          >
-                            {user.status || "active"}
-                          </span>
-                        </td>
-                      </motion.tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                          </td>
+                          <td className="py-3 capitalize">{user.role || "user"}</td>
+                          <td className="py-3">
+                            <span
+                              className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                user.status === "active" || !user.status
+                                  ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300"
+                                  : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300"
+                              }`}
+                            >
+                              {user.status || "active"}
+                            </span>
+                          </td>
+                        </motion.tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           </motion.div>
         </div>
       </div>
-
-      {/* System Status */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.6 }}
-        className={`${boxStyle} mb-8 max-w-7xl mx-auto`}
-      >
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-          <h2 className="text-xl font-bold flex items-center gap-2">
-            <FaShieldAlt className="text-purple-500" />
-            System Status
-          </h2>
-          <span className="px-3 py-1 bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 text-sm font-medium rounded-full">
-            All Systems Operational
-          </span>
-        </div>
-        <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="flex items-center gap-4">
-            <div
-              className={`p-3 rounded-full ${
-                isDarkMode ? "bg-purple-900/50" : "bg-purple-100"
-              }`}
-            >
-              <FaChartLine className="text-purple-500 text-xl" />
-            </div>
-            <div>
-              <h4 className="font-medium">Performance</h4>
-              <p
-                className={`text-sm ${
-                  isDarkMode ? "text-gray-400" : "text-gray-500"
-                }`}
-              >
-                Excellent (99.9% uptime)
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <div
-              className={`p-3 rounded-full ${
-                isDarkMode ? "bg-purple-900/50" : "bg-purple-100"
-              }`}
-            >
-              <FaTicketAlt className="text-purple-500 text-xl" />
-            </div>
-            <div>
-              <h4 className="font-medium">Support Tickets</h4>
-              <p
-                className={`text-sm ${
-                  isDarkMode ? "text-gray-400" : "text-gray-500"
-                }`}
-              >
-                5 open tickets
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <div
-              className={`p-3 rounded-full ${
-                isDarkMode ? "bg-purple-900/50" : "bg-purple-100"
-              }`}
-            >
-              <FaHourglassHalf className="text-purple-500 text-xl" />
-            </div>
-            <div>
-              <h4 className="font-medium">Pending Tasks</h4>
-              <p
-                className={`text-sm ${
-                  isDarkMode ? "text-gray-400" : "text-gray-500"
-                }`}
-              >
-                {sellerRequests.length} requests to review
-              </p>
-            </div>
-          </div>
-        </div>
-      </motion.div>
     </div>
   );
 };

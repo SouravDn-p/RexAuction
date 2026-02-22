@@ -54,7 +54,7 @@ const MainContent = () => {
   useEffect(() => {
     if (user && !socketRef.current) {
       socketRef.current = io(
-        "https://rex-auction-server-side-jzyx.onrender.com",
+        "http://localhost:5001",
         {
           withCredentials: true,
           reconnection: true,

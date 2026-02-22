@@ -132,7 +132,7 @@ const Announcement = () => {
   useEffect(() => {
     if (!user) return;
 
-    const socket = io("https://rex-auction-server-side-jzyx.onrender.com", {
+    const socket = io("http://localhost:5001", {
       withCredentials: true,
       reconnection: true,
       reconnectionAttempts: 5,
@@ -209,7 +209,7 @@ const Announcement = () => {
   const handlePostAnnouncement = async (announcementData) => {
     try {
       const response = await axios.post(
-        "https://rex-auction-server-side-jzyx.onrender.com/announcement",
+        "http://localhost:5001/announcement",
         {
           title: announcementData.title,
           content: announcementData.content,
@@ -239,7 +239,7 @@ const Announcement = () => {
     e.stopPropagation();
     try {
       const response = await axios.delete(
-        `https://rex-auction-server-side-jzyx.onrender.com/announcement/${id}`
+        `http://localhost:5001/announcement/${id}`
       );
       if (response.status === 200) {
         toast.success("Announcement deleted successfully!");
@@ -299,7 +299,7 @@ const Announcement = () => {
 
     axios
       .put(
-        `https://rex-auction-server-side-jzyx.onrender.com/notifications/mark-read/${user.email}`,
+        `http://localhost:5001/notifications/mark-read/${user.email}`,
         { notificationId: notification._id },
         { withCredentials: true }
       )
@@ -342,7 +342,7 @@ const Announcement = () => {
 
       if (user) {
         await axios.put(
-          `https://rex-auction-server-side-jzyx.onrender.com/notifications/mark-read/${user.email}`,
+          `http://localhost:5001/notifications/mark-read/${user.email}`,
           {},
           { withCredentials: true }
         );

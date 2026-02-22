@@ -1,7 +1,7 @@
 "use client"
 
 import Swal from "sweetalert2"
-import { useState, useContext, useRef } from "react"
+import { useState, useContext, useRef, useEffect } from "react"
 import useAuth from "../../../hooks/useAuth"
 import useAxiosSecure from "../../../hooks/useAxiosSecure"
 import axios from "axios"
@@ -15,7 +15,6 @@ import {
   FaCalendarAlt,
   FaDollarSign,
   FaInfoCircle,
-  FaHistory,
   FaCheck,
   FaEye,
   FaExclamationTriangle,
@@ -32,7 +31,33 @@ export default function CreateAuction() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [auctionData, setAuctionData] = useState(null)
   const [showPreview, setShowPreview] = useState(false)
+  const [minStartDate, setMinStartDate] = useState("")
+  const [minEndDate, setMinEndDate] = useState("")
   const formRef = useRef(null)
+
+  // Set minimum dates on component mount
+  useEffect(() => {
+    const now = new Date()
+    const year = now.getFullYear()
+    const month = String(now.getMonth() + 1).padStart(2, '0')
+    const day = String(now.getDate()).padStart(2, '0')
+    const hours = String(now.getHours()).padStart(2, '0')
+    const minutes = String(now.getMinutes()).padStart(2, '0')
+    
+    // Minimum start date is current date/time
+    const minStart = `${year}-${month}-${day}T${hours}:${minutes}`
+    setMinStartDate(minStart)
+    
+    // Minimum end date is start date + 1 hour (will be updated when start date changes)
+    const startDateTime = new Date(minStart)
+    startDateTime.setHours(startDateTime.getHours() + 1)
+    const endYear = startDateTime.getFullYear()
+    const endMonth = String(startDateTime.getMonth() + 1).padStart(2, '0')
+    const endDay = String(startDateTime.getDate()).padStart(2, '0')
+    const endHours = String(startDateTime.getHours()).padStart(2, '0')
+    const endMinutes = String(startDateTime.getMinutes()).padStart(2, '0')
+    setMinEndDate(`${endYear}-${endMonth}-${endDay}T${endHours}:${endMinutes}`)
+  }, [])
 
   const categories = [
     "Electronics",
@@ -89,10 +114,8 @@ export default function CreateAuction() {
     const description = form.get("description")
     const condition = form.get("condition")
     const itemYear = form.get("itemYear")
-    const history = form.get("history")
-    // const payment = "pending";
 
-
+    // Check for empty fields
     if (
       !name ||
       !category ||
@@ -101,8 +124,7 @@ export default function CreateAuction() {
       !endTimeStr ||
       !description ||
       !condition ||
-      !itemYear ||
-      !history
+      !itemYear
     ) {
       Swal.fire({
         title: "Missing Information",
@@ -116,7 +138,34 @@ export default function CreateAuction() {
 
     const startTime = new Date(startTimeStr)
     const endTime = new Date(endTimeStr)
+    const now = new Date()
 
+    // Check if start time is in the past
+    if (startTime < now) {
+      Swal.fire({
+        title: "Invalid Start Time",
+        text: "Start time cannot be in the past. Please select a future date and time.",
+        icon: "error",
+        background: isDarkMode ? "#1f2937" : "#fff",
+        color: isDarkMode ? "#fff" : "#000",
+      })
+      return null
+    }
+
+    // Check if start time is at least 1 hour from now
+    const minStartTime = new Date(now.getTime() + 60 * 60 * 1000) // 1 hour from now
+    if (startTime < minStartTime) {
+      Swal.fire({
+        title: "Start Time Too Soon",
+        text: "Auction must start at least 1 hour from now",
+        icon: "warning",
+        background: isDarkMode ? "#1f2937" : "#fff",
+        color: isDarkMode ? "#fff" : "#000",
+      })
+      return null
+    }
+
+    // Check if end time is after start time
     if (endTime <= startTime) {
       Swal.fire({
         title: "Invalid Dates",
@@ -128,20 +177,86 @@ export default function CreateAuction() {
       return null
     }
 
+    // Check minimum auction duration (1 hour)
+    const minDuration = 60 * 60 * 1000 // 1 hour in milliseconds
+    if (endTime - startTime < minDuration) {
+      Swal.fire({
+        title: "Auction Too Short",
+        text: "Auction duration must be at least 1 hour",
+        icon: "warning",
+        background: isDarkMode ? "#1f2937" : "#fff",
+        color: isDarkMode ? "#fff" : "#000",
+      })
+      return null
+    }
+
+    // Check maximum auction duration (30 days)
+    const maxDuration = 30 * 24 * 60 * 60 * 1000 // 30 days in milliseconds
+    if (endTime - startTime > maxDuration) {
+      Swal.fire({
+        title: "Auction Too Long",
+        text: "Auction duration cannot exceed 30 days",
+        icon: "warning",
+        background: isDarkMode ? "#1f2937" : "#fff",
+        color: isDarkMode ? "#fff" : "#000",
+      })
+      return null
+    }
+
+    // Validate starting price is positive
+    const price = parseFloat(startingPrice)
+    if (isNaN(price) || price <= 0) {
+      Swal.fire({
+        title: "Invalid Price",
+        text: "Starting price must be greater than 0",
+        icon: "error",
+        background: isDarkMode ? "#1f2937" : "#fff",
+        color: isDarkMode ? "#fff" : "#000",
+      })
+      return null
+    }
+
+    // Validate item year
+    const year = parseInt(itemYear)
+    const currentYear = new Date().getFullYear()
+    if (isNaN(year) || year < 1000 || year > currentYear) {
+      Swal.fire({
+        title: "Invalid Year",
+        text: `Item year must be between 1000 and ${currentYear}`,
+        icon: "error",
+        background: isDarkMode ? "#1f2937" : "#fff",
+        color: isDarkMode ? "#fff" : "#000",
+      })
+      return null
+    }
+
     return {
       name,
       category,
-      startingPrice,
+      startingPrice: price,
       startTime,
       endTime,
       description,
       condition,
-      itemYear,
-      history,
+      itemYear: year,
       sellerDisplayName: user?.displayName,
       sellerEmail: user?.email,
-      // payment
-    };
+    }
+  }
+
+  const handleStartTimeChange = (e) => {
+    const startTime = e.target.value
+    if (startTime) {
+      // Set minimum end date to start time + 1 hour
+      const startDateTime = new Date(startTime)
+      startDateTime.setHours(startDateTime.getHours() + 1)
+      const year = startDateTime.getFullYear()
+      const month = String(startDateTime.getMonth() + 1).padStart(2, '0')
+      const day = String(startDateTime.getDate()).padStart(2, '0')
+      const hours = String(startDateTime.getHours()).padStart(2, '0')
+      const minutes = String(startDateTime.getMinutes()).padStart(2, '0')
+      setMinEndDate(`${year}-${month}-${day}T${hours}:${minutes}`)
+    }
   }
 
   const handlePreview = () => {
@@ -291,21 +406,6 @@ export default function CreateAuction() {
       doc.text(splitDescription, 14, yPos)
 
       yPos += splitDescription.length * 7 + 10
-
-      doc.setFontSize(16)
-      doc.setFont("helvetica", "bold")
-      doc.setTextColor(102, 51, 153)
-      doc.text("History/Provenance", 14, yPos)
-      yPos += 10
-
-      doc.setFontSize(11)
-      doc.setFont("helvetica", "normal")
-      doc.setTextColor(0, 0, 0)
-
-      const splitHistory = doc.splitTextToSize(auctionData.history, 180)
-      doc.text(splitHistory, 14, yPos)
-
-      yPos += splitHistory.length * 7 + 10
 
       doc.setLineWidth(0.3)
       doc.setDrawColor(200, 200, 200)
@@ -479,7 +579,7 @@ export default function CreateAuction() {
 
   return (
     <>
-      {dbUser.role == "seller" ? (
+      {dbUser?.role === "seller" ? (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -640,15 +740,6 @@ export default function CreateAuction() {
                         <p className="text-sm">{auctionData.description}</p>
                       </div>
 
-                      <div className={`p-4 rounded-lg mb-4 ${isDarkMode ? "bg-gray-700/50" : "bg-white/80"}`}>
-                        <h4
-                          className={`font-semibold text-lg mb-3 ${isDarkMode ? "text-purple-300" : "text-purple-700"}`}
-                        >
-                          History/Provenance
-                        </h4>
-                        <p className="text-sm">{auctionData.history}</p>
-                      </div>
-
                       <div className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-700/50" : "bg-white/80"}`}>
                         <h4
                           className={`font-semibold text-lg mb-3 ${isDarkMode ? "text-purple-300" : "text-purple-700"}`}
@@ -751,7 +842,7 @@ export default function CreateAuction() {
                             isDarkMode
                               ? "border-gray-700 bg-gray-700 text-white focus:ring-purple-500 focus:border-purple-500"
                               : "border-gray-300 bg-white text-black focus:ring-purple-500 focus:border-purple-500"
-                          } rounded-lg px-4 py-2 focus:outline-none focus:ring-2`}
+                        } rounded-lg px-4 py-2 focus:outline-none focus:ring-2`}
                           required
                         >
                           <option value="">Select Condition</option>
@@ -775,8 +866,8 @@ export default function CreateAuction() {
                           type="number"
                           name="itemYear"
                           min="1000"
-                          placeholder="Year"
                           max={new Date().getFullYear()}
+                          placeholder="Year"
                           className={`w-full border ${
                             isDarkMode
                               ? "border-gray-700 bg-gray-700 text-white placeholder-gray-400 focus:ring-purple-500 focus:border-purple-500"
@@ -799,7 +890,7 @@ export default function CreateAuction() {
                         type="number"
                         name="startingPrice"
                         placeholder="Enter starting price"
-                        min="0"
+                        min="0.01"
                         step="0.01"
                         className={`w-full border ${
                           isDarkMode
@@ -822,6 +913,8 @@ export default function CreateAuction() {
                         <input
                           type="datetime-local"
                           name="startTime"
+                          min={minStartDate}
+                          onChange={handleStartTimeChange}
                           className={`w-full border ${
                             isDarkMode
                               ? "border-gray-700 bg-gray-700 text-white focus:ring-purple-500 focus:border-purple-500"
@@ -842,6 +935,7 @@ export default function CreateAuction() {
                         <input
                           type="datetime-local"
                           name="endTime"
+                          min={minEndDate}
                           className={`w-full border ${
                             isDarkMode
                               ? "border-gray-700 bg-gray-700 text-white focus:ring-purple-500 focus:border-purple-500"
@@ -943,27 +1037,6 @@ export default function CreateAuction() {
                             : "border-gray-300 bg-white text-black placeholder-gray-500 focus:ring-purple-500 focus:border-purple-500"
                         } rounded-lg px-4 py-2 focus:outline-none focus:ring-2`}
                         rows="4"
-                        required
-                      ></textarea>
-                    </div>
-
-                    <div className="space-y-1">
-                      <label
-                        className={`flex items-center gap-2 text-sm font-medium ${
-                          isDarkMode ? "text-purple-300" : "text-purple-700"
-                        }`}
-                      >
-                        <FaHistory className="text-xs" /> History/Provenance
-                      </label>
-                      <textarea
-                        name="history"
-                        placeholder="Enter item history or provenance"
-                        className={`w-full border ${
-                          isDarkMode
-                            ? "border-gray-700 bg-gray-700 text-white placeholder-gray-400 focus:ring-purple-500 focus:border-purple-500"
-                            : "border-gray-300 bg-white text-black placeholder-gray-500 focus:ring-purple-500 focus:border-purple-500"
-                        } rounded-lg px-4 py-2 focus:outline-none focus:ring-2`}
-                        rows="3"
                         required
                       ></textarea>
                     </div>

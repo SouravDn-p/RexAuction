@@ -32,7 +32,7 @@ const BlogDetails = () => {
     const fetchBlog = async () => {
       try {
         const res = await axios.get(
-          `https://rex-auction-server-side-jzyx.onrender.com/blog/${id}`
+          `http://localhost:5001/blog/${id}`
         );
         setBlog(res.data);
         setIsLoading(false);

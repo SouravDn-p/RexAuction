@@ -25,7 +25,7 @@ export default function UpdateBlog() {
     const fetchBlogData = async () => {
       try {
         const response = await axios.get(
-          `https://rex-auction-server-side-jzyx.onrender.com/blog/${id}`
+          `http://localhost:5001/blog/${id}`
         );
         setBlogData(response.data);
       } catch (error) {
@@ -109,7 +109,7 @@ export default function UpdateBlog() {
 
       const updatedBlog = { ...blogData, imageUrls };
       const response = await axios.patch(
-        `https://rex-auction-server-side-jzyx.onrender.com/updateBlog/${id}`,
+        `http://localhost:5001/updateBlog/${id}`,
         updatedBlog
       );
 

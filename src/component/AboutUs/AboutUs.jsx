@@ -114,9 +114,9 @@ const AboutUs = () => {
   const teamMembers = [
     {
       image: SouravImg,
-      name: "Sourav Debnath",
+      name: "IKBAL MAHAMUD",
       project_role: "Team Leader",
-      email: "souravdebnath@gmail.com",
+      email: "mahamud96m@gmail.com",
       expertise:
         "Full stack Development, React.js, Socket, Wireframe, UI/UX Design",
       offer:
@@ -124,18 +124,18 @@ const AboutUs = () => {
     },
     {
       image: SudiptaImg,
-      name: "Sudipta Roy",
+      name: "Faysal",
       project_role: "Documentation & Requirements recorder, backend developer",
-      email: "sudiptaroy@gmail.com",
+      email: "faysal992f@gmail.com",
       expertise: "Backend Development, Node.js,Socket, Express, MongoDB",
       offer:
         "I recorded each detailing of requirements that are needed for a dynamic auction website.",
     },
     {
       image: JasminImg,
-      name: "Jasmin Ara Mim",
+      name: "Asraful Islam",
       project_role: "UI designer and developer",
-      email: "jasminaramim@gmail.com",
+      email: "afrafulislam88a@gmail.com",
       expertise:
         "Full stack development, Wireframe, Socket, MERN stack, Next.Js",
       offer:
@@ -143,32 +143,33 @@ const AboutUs = () => {
     },
     {
       image: JoyetaImg,
-      name: "Joyeta Mondal Kotha",
+      name: "Mostafizur Rahman",
       project_role: "UI & detailing designer",
-      email: "dipannitakotha2019@gmail.com",
+      email: "mostafizur99m@gmail.com",
       expertise:
         "Frontend Development, Wireframe, React Native, Firebase, MERN stack.",
       offer:
         "I craft highly responsive UI and animated features across our website and worked on seamless data flow from the backend.",
     },
-    {
-      image: RohitImg,
-      name: "Rafid Islam Rohit",
-      project_role: "Redux designer",
-      email: "rafidislamrohit@gmail.com",
-      expertise: "Full stack development, Wireframe, Socket, Redux.",
-      offer:
-        "I made the website dynamic and robust using redux on the backend and functionalities to get updated with data.",
-    },
+    
     {
       image: AbirImg,
-      name: "Nazmul Hasan Abir",
+      name: "Rifat",
       project_role:
         "Worked on backend and frontend to coordinate between the two ends for all the functionalities to work seamlessly.",
-      email: "nazmulhasanabir@gmail.com",
+      email: "rifat10@gmail.com",
       expertise: "Full stack development, Socket, MERN stack.",
       offer:
         "I ensured seamless data flow from frontend to backend for a smooth working of RexAuction",
+    },
+    {
+      image: RohitImg,
+      name: "Radwan",
+      project_role: "Redux designer",
+      email: "radwan69m@gmail.com",
+      expertise: "Full stack development, Wireframe, Socket, Redux.",
+      offer:
+        "I made the website dynamic and robust using redux on the backend and functionalities to get updated with data.",
     },
   ];
 

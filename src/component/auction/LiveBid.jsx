@@ -296,7 +296,7 @@ export default function LiveBid() {
   // Socket.IO connection setup with reconnection logic
   useEffect(() => {
     const SOCKET_SERVER_URL =
-      "https://rex-auction-server-side-jzyx.onrender.com";
+      "http://localhost:5001";
 
     const connectSocket = () => {
       console.log("Attempting to connect to socket server...");

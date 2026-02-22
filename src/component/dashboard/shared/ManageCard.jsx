@@ -12,8 +12,6 @@ import {
   useDeleteAuctionMutation,
 } from "../../../redux/features/api/auctionApi";
 import LoadingSpinner from "../../LoadingSpinner";
-
-// Add jsPDF import at the top of the file
 import { jsPDF } from "jspdf";
 import { FileDown } from "lucide-react";
 import Header from "./Header/Header";
@@ -37,12 +35,13 @@ export default function ManageCard() {
     data: auctions = [],
     isLoading,
     error,
+    refetch,
   } = useGetAuctionByEmailQuery(email, {
     skip: !email,
   });
 
-  const [updateAuction] = useUpdateAuctionMutation();
-  const [deleteAuction] = useDeleteAuctionMutation();
+  const [updateAuction, { isLoading: isUpdating }] = useUpdateAuctionMutation();
+  const [deleteAuction, { isLoading: isDeleting }] = useDeleteAuctionMutation();
 
   const isAuctionEnded = (auction) => {
     return new Date(auction.endTime) < new Date();
@@ -51,7 +50,7 @@ export default function ManageCard() {
   const filteredAuctions = auctions.filter((auction) => {
     if (filterStatus === "All") return true;
     if (filterStatus === "Ended") return isAuctionEnded(auction);
-    return auction.status === filterStatus;
+    return auction.status?.toLowerCase() === filterStatus.toLowerCase();
   });
 
   const totalItems = filteredAuctions.length;
@@ -69,15 +68,15 @@ export default function ManageCard() {
   const openDetailsModal = (auction) => {
     setSelectedAuction(auction);
     setEditFormData({
-      name: auction.name,
-      description: auction.description,
-      category: auction.category,
-      startingPrice: auction.startingPrice,
-      condition: auction.condition,
-      itemYear: auction.itemYear,
-      startTime: auction.startTime,
-      endTime: auction.endTime,
-      status: auction.status,
+      name: auction.name || "",
+      description: auction.description || "",
+      category: auction.category || "",
+      startingPrice: auction.startingPrice || 0,
+      condition: auction.condition || "",
+      itemYear: auction.itemYear || new Date().getFullYear(),
+      startTime: auction.startTime ? auction.startTime.slice(0, 16) : "",
+      endTime: auction.endTime ? auction.endTime.slice(0, 16) : "",
+      status: auction.status || "pending",
     });
     setIsModalOpen(true);
     setIsEditing(false);
@@ -88,26 +87,89 @@ export default function ManageCard() {
     setEditFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const validateEditForm = () => {
+    const { name, startingPrice, startTime, endTime } = editFormData;
+    
+    if (!name || !startingPrice || !startTime || !endTime) {
+      toast.error("Please fill in all required fields");
+      return false;
+    }
+
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+    const now = new Date();
+
+    if (start < now) {
+      toast.error("Start time cannot be in the past");
+      return false;
+    }
+
+    if (end <= start) {
+      toast.error("End time must be after start time");
+      return false;
+    }
+
+    if (parseFloat(startingPrice) <= 0) {
+      toast.error("Starting price must be greater than 0");
+      return false;
+    }
+
+    return true;
+  };
+
   const handleEditSubmit = async () => {
     if (!selectedAuction) return;
+    
+    if (!validateEditForm()) return;
+
     const toastId = toast.loading("Updating auction...");
+    
     try {
-      await updateAuction({
+      // Format the data properly for the backend
+      const updateData = {
+        name: editFormData.name,
+        description: editFormData.description,
+        category: editFormData.category,
+        startingPrice: parseFloat(editFormData.startingPrice),
+        condition: editFormData.condition,
+        itemYear: parseInt(editFormData.itemYear),
+        startTime: new Date(editFormData.startTime).toISOString(),
+        endTime: new Date(editFormData.endTime).toISOString(),
+        status: editFormData.status,
+      };
+
+      console.log("Updating auction with data:", updateData);
+      
+      const result = await updateAuction({
         id: selectedAuction._id,
-        data: editFormData,
+        data: updateData,
       }).unwrap();
+      
+      console.log("Update result:", result);
+      
       toast.success("Auction updated successfully!", { id: toastId });
       setIsEditing(false);
+      refetch(); // Refresh the auctions list
+      
     } catch (error) {
-      toast.error("Failed to update auction", { id: toastId });
       console.error("Error updating auction:", error);
+      
+      let errorMessage = "Failed to update auction";
+      if (error.data?.message) {
+        errorMessage = error.data.message;
+      } else if (error.error) {
+        errorMessage = error.error;
+      }
+      
+      toast.error(errorMessage, { id: toastId });
     }
   };
 
   const handleDelete = async () => {
     if (!selectedAuction) return;
+    
     const result = await MySwal.fire({
-      name: "Are you sure?",
+      title: "Are you sure?",
       text: "You won't be able to revert this!",
       icon: "warning",
       showCancelButton: true,
@@ -119,17 +181,30 @@ export default function ManageCard() {
     if (result.isConfirmed) {
       const toastId = toast.loading("Deleting auction...");
       try {
-        await deleteAuction(selectedAuction._id).unwrap();
+        console.log("Deleting auction with ID:", selectedAuction._id);
+        
+        const result = await deleteAuction(selectedAuction._id).unwrap();
+        console.log("Delete result:", result);
+        
         toast.success("Auction deleted successfully!", { id: toastId });
         setIsModalOpen(false);
+        refetch(); // Refresh the auctions list
+        
       } catch (error) {
-        toast.error("Failed to delete auction", { id: toastId });
         console.error("Error deleting auction:", error);
+        
+        let errorMessage = "Failed to delete auction";
+        if (error.data?.message) {
+          errorMessage = error.data.message;
+        } else if (error.error) {
+          errorMessage = error.error;
+        }
+        
+        toast.error(errorMessage, { id: toastId });
       }
     }
   };
 
-  // Add a PDF generation function after the handleDelete function
   const handleDownloadPDF = () => {
     if (!selectedAuction) return;
 
@@ -182,38 +257,38 @@ export default function ManageCard() {
         doc.setFont("helvetica", "bold");
         doc.text("Item Name:", detailsX1, yPos);
         doc.setFont("helvetica", "normal");
-        doc.text(selectedAuction.name, detailsX2, yPos);
+        doc.text(selectedAuction.name || "N/A", detailsX2, yPos);
         yPos += 8;
 
         doc.setFont("helvetica", "bold");
         doc.text("Category:", detailsX1, yPos);
         doc.setFont("helvetica", "normal");
-        doc.text(selectedAuction.category, detailsX2, yPos);
+        doc.text(selectedAuction.category || "N/A", detailsX2, yPos);
         yPos += 8;
 
         doc.setFont("helvetica", "bold");
         doc.text("Condition:", detailsX1, yPos);
         doc.setFont("helvetica", "normal");
-        doc.text(selectedAuction.condition, detailsX2, yPos);
+        doc.text(selectedAuction.condition || "N/A", detailsX2, yPos);
         yPos += 8;
 
         doc.setFont("helvetica", "bold");
         doc.text("Year:", detailsX1, yPos);
         doc.setFont("helvetica", "normal");
-        doc.text(selectedAuction.itemYear.toString(), detailsX2, yPos);
+        doc.text(selectedAuction.itemYear?.toString() || "N/A", detailsX2, yPos);
         yPos += 8;
 
         doc.setFont("helvetica", "bold");
         doc.text("Starting Price:", detailsX1, yPos);
         doc.setFont("helvetica", "normal");
-        doc.text(`${selectedAuction.startingPrice}`, detailsX2, yPos);
+        doc.text(`$${selectedAuction.startingPrice || 0}`, detailsX2, yPos);
         yPos += 8;
 
         doc.setFont("helvetica", "bold");
         doc.text("Status:", detailsX1, yPos);
         doc.setFont("helvetica", "normal");
         doc.text(
-          isAuctionEnded(selectedAuction) ? "Ended" : selectedAuction.status,
+          isAuctionEnded(selectedAuction) ? "Ended" : selectedAuction.status || "Pending",
           detailsX2,
           yPos
         );
@@ -223,7 +298,7 @@ export default function ManageCard() {
         doc.text("Start Time:", detailsX1, yPos);
         doc.setFont("helvetica", "normal");
         doc.text(
-          new Date(selectedAuction.startTime).toLocaleString(),
+          selectedAuction.startTime ? new Date(selectedAuction.startTime).toLocaleString() : "N/A",
           detailsX2,
           yPos
         );
@@ -233,7 +308,7 @@ export default function ManageCard() {
         doc.text("End Time:", detailsX1, yPos);
         doc.setFont("helvetica", "normal");
         doc.text(
-          new Date(selectedAuction.endTime).toLocaleString(),
+          selectedAuction.endTime ? new Date(selectedAuction.endTime).toLocaleString() : "N/A",
           detailsX2,
           yPos
         );
@@ -406,6 +481,10 @@ export default function ManageCard() {
       <div className={`overflow-x-auto rounded-lg ${themeStyles.shadow}`}>
         {isLoading ? (
           <LoadingSpinner />
+        ) : error ? (
+          <div className={`p-8 text-center ${themeStyles.secondaryText}`}>
+            Error loading auctions. Please try again.
+          </div>
         ) : (
           <table
             className={`min-w-full ${themeStyles.tableBg} rounded-lg overflow-hidden`}
@@ -450,7 +529,7 @@ export default function ManageCard() {
                   >
                     <td className="py-4 px-4 sm:px-6">
                       <img
-                        src={auction.images[0] || "/placeholder.svg"}
+                        src={auction.images?.[0] || "/placeholder.svg"}
                         className="h-16 w-20 sm:h-20 sm:w-24 rounded object-cover"
                         alt={auction.name}
                       />
@@ -459,10 +538,10 @@ export default function ManageCard() {
                       {auction.name}
                     </td>
                     <td className="py-4 px-4 sm:px-6 text-sm sm:text-base">
-                      {new Date(auction.startTime).toLocaleString()}
+                      {auction.startTime ? new Date(auction.startTime).toLocaleString() : "N/A"}
                     </td>
                     <td className="py-4 px-4 sm:px-6 text-sm sm:text-base">
-                      {new Date(auction.endTime).toLocaleString()}
+                      {auction.endTime ? new Date(auction.endTime).toLocaleString() : "N/A"}
                     </td>
                     <td className="py-4 px-4 sm:px-6 text-sm sm:text-base">
                       <span
@@ -476,7 +555,7 @@ export default function ManageCard() {
                             : "bg-green-200 text-xs font-bold text-green-600 py-1 rounded-full px-2"
                         }`}
                       >
-                        {isAuctionEnded(auction) ? "Ended" : auction.status}
+                        {isAuctionEnded(auction) ? "Ended" : auction.status || "Pending"}
                       </span>
                     </td>
                     <td className="py-4 px-4 sm:px-6">
@@ -562,7 +641,7 @@ export default function ManageCard() {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium mb-1">
-                      name
+                      Name <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -570,6 +649,7 @@ export default function ManageCard() {
                       value={editFormData.name}
                       onChange={handleEditChange}
                       className={`w-full p-2 rounded ${themeStyles.inputBg} ${themeStyles.inputBorder} ${themeStyles.text}`}
+                      required
                     />
                   </div>
                   <div>
@@ -586,7 +666,7 @@ export default function ManageCard() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1">
-                      Category
+                      Category <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -594,23 +674,27 @@ export default function ManageCard() {
                       value={editFormData.category}
                       onChange={handleEditChange}
                       className={`w-full p-2 rounded ${themeStyles.inputBg} ${themeStyles.inputBorder} ${themeStyles.text}`}
+                      required
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1">
-                      Starting Price
+                      Starting Price ($) <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="number"
                       name="startingPrice"
                       value={editFormData.startingPrice}
                       onChange={handleEditChange}
+                      min="0.01"
+                      step="0.01"
                       className={`w-full p-2 rounded ${themeStyles.inputBg} ${themeStyles.inputBorder} ${themeStyles.text}`}
+                      required
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1">
-                      Condition
+                      Condition <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="text"
@@ -618,56 +702,64 @@ export default function ManageCard() {
                       value={editFormData.condition}
                       onChange={handleEditChange}
                       className={`w-full p-2 rounded ${themeStyles.inputBg} ${themeStyles.inputBorder} ${themeStyles.text}`}
+                      required
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1">
-                      Item Year
+                      Item Year <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="number"
                       name="itemYear"
                       value={editFormData.itemYear}
                       onChange={handleEditChange}
+                      min="1000"
+                      max={new Date().getFullYear()}
                       className={`w-full p-2 rounded ${themeStyles.inputBg} ${themeStyles.inputBorder} ${themeStyles.text}`}
+                      required
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1">
-                      Start Time
+                      Start Time <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="datetime-local"
                       name="startTime"
-                      value={editFormData.startTime.slice(0, 16)}
+                      value={editFormData.startTime}
                       onChange={handleEditChange}
                       className={`w-full p-2 rounded ${themeStyles.inputBg} ${themeStyles.inputBorder} ${themeStyles.text}`}
+                      required
                     />
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1">
-                      End Time
+                      End Time <span className="text-red-500">*</span>
                     </label>
                     <input
                       type="datetime-local"
                       name="endTime"
-                      value={editFormData.endTime.slice(0, 16)}
+                      value={editFormData.endTime}
                       onChange={handleEditChange}
                       className={`w-full p-2 rounded ${themeStyles.inputBg} ${themeStyles.inputBorder} ${themeStyles.text}`}
+                      required
                     />
                   </div>
                   <div className="flex justify-end gap-3">
                     <button
                       onClick={() => setIsEditing(false)}
                       className={`px-4 py-2 rounded ${themeStyles.buttonBg} ${themeStyles.buttonText} ${themeStyles.buttonHover}`}
+                      disabled={isUpdating}
                     >
                       Cancel
                     </button>
                     <button
                       onClick={handleEditSubmit}
-                      className="px-4 py-2 rounded bg-green-500 hover:bg-green-600 text-white"
+                      disabled={isUpdating}
+                      className="px-4 py-2 rounded bg-green-500 hover:bg-green-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Save
+                      {isUpdating ? "Saving..." : "Save Changes"}
                     </button>
                   </div>
                 </div>
@@ -676,7 +768,7 @@ export default function ManageCard() {
                   <div>
                     <h3 className="font-semibold text-lg mb-3">Images</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-                      {selectedAuction.images.map((image, index) => (
+                      {selectedAuction.images?.map((image, index) => (
                         <div key={index} className="w-full aspect-square">
                           <img
                             src={image || "/placeholder.svg"}
@@ -738,11 +830,11 @@ export default function ManageCard() {
                         </h3>
                         <p className="text-sm sm:text-base">
                           <span className="font-semibold">Start Time:</span>{" "}
-                          {new Date(selectedAuction.startTime).toLocaleString()}
+                          {selectedAuction.startTime ? new Date(selectedAuction.startTime).toLocaleString() : "N/A"}
                         </p>
                         <p className="text-sm sm:text-base">
                           <span className="font-semibold">End Time:</span>{" "}
-                          {new Date(selectedAuction.endTime).toLocaleString()}
+                          {selectedAuction.endTime ? new Date(selectedAuction.endTime).toLocaleString() : "N/A"}
                         </p>
                       </div>
                     </div>
@@ -774,17 +866,17 @@ export default function ManageCard() {
                       >
                         {isAuctionEnded(selectedAuction)
                           ? "Ended"
-                          : selectedAuction.status}
+                          : selectedAuction.status || "Pending"}
                       </span>
                     </p>
-                    <div className="mt-2 p-3 rounded-lg ${themeStyles.infoBox}">
+                    <div className={`mt-2 p-3 rounded-lg ${themeStyles.infoBox}`}>
                       <p className="text-sm sm:text-base flex items-center gap-2">
                         <span className="font-medium">
                           {isAuctionEnded(selectedAuction)
-                            ? `This auction has ended on ${new Date(
+                            ? `This auction has ended on ${selectedAuction.endTime ? new Date(
                                 selectedAuction.endTime
-                              ).toLocaleDateString()}`
-                            : `Auction status: ${selectedAuction.status}`}
+                              ).toLocaleDateString() : "N/A"}`
+                            : `Auction status: ${selectedAuction.status || "Pending"}`}
                         </span>
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -825,15 +917,17 @@ export default function ManageCard() {
                     <div className="flex flex-wrap gap-3">
                       <button
                         onClick={() => setIsEditing(true)}
-                        className="px-4 py-2 rounded bg-yellow-500 hover:bg-yellow-600 text-white"
+                        disabled={isAuctionEnded(selectedAuction)}
+                        className="px-4 py-2 rounded bg-yellow-500 hover:bg-yellow-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         Edit
                       </button>
                       <button
                         onClick={handleDelete}
-                        className="px-4 py-2 rounded bg-red-500 hover:bg-red-600 text-white"
+                        disabled={isDeleting}
+                        className="px-4 py-2 rounded bg-red-500 hover:bg-red-600 text-white disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        Delete
+                        {isDeleting ? "Deleting..." : "Delete"}
                       </button>
                       <button
                         onClick={handleDownloadPDF}

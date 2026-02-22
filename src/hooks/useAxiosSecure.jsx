@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { AuthContexts } from "../providers/AuthProvider";
 
 export const axiosSecure = axios.create({
-  baseURL: "https://rex-auction-server-side-jzyx.onrender.com",
+  baseURL: "http://localhost:5001",
   withCredentials: true, // This is essential for cookie-based auth
 });
 

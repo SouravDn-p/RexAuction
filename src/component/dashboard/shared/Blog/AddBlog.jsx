@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaArrowLeft, FaUpload } from "react-icons/fa";
 import ThemeContext from "../../../Context/ThemeContext";
@@ -17,9 +17,24 @@ export default function AddBlog() {
     fullContent: "",
   });
 
+  const imageHostingKey = import.meta.env.VITE_IMAGE_HOSTING_KEY;
+
+  // Cleanup object URLs on unmount
+  useEffect(() => {
+    return () => {
+      blogData.imageFiles.forEach(file => {
+        URL.revokeObjectURL(URL.createObjectURL(file));
+      });
+    };
+  }, [blogData.imageFiles]);
+
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (name === "imageFiles") {
+      // Clean up old object URLs
+      blogData.imageFiles.forEach(file => {
+        URL.revokeObjectURL(URL.createObjectURL(file));
+      });
       setBlogData({ ...blogData, imageFiles: [...files] });
     } else {
       setBlogData({ ...blogData, [name]: value });
@@ -28,40 +43,86 @@ export default function AddBlog() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate environment variable
+    if (!imageHostingKey) {
+      Swal.fire({
+        icon: "error",
+        title: "Configuration Error",
+        text: "Image hosting key is not configured. Please check your environment variables.",
+        background: isDarkMode ? "#1f2937" : "#ffffff",
+        color: isDarkMode ? "#ffffff" : "#000000",
+      });
+      return;
+    }
+
+    // Validate user
+    if (!dbUser?.email || !dbUser?.name) {
+      Swal.fire({
+        icon: "error",
+        title: "Authentication Error",
+        text: "You must be logged in to post a blog.",
+        background: isDarkMode ? "#1f2937" : "#ffffff",
+        color: isDarkMode ? "#ffffff" : "#000000",
+      });
+      return;
+    }
+
     setLoading(true);
 
-    const imageHostingApi = `https://api.imgbb.com/1/upload?key=${
-      import.meta.env.VITE_IMAGE_HOSTING_KEY
-    }`;
+    const imageHostingApi = `https://api.imgbb.com/1/upload?key=${imageHostingKey}`;
     const uploadedImageUrls = [];
 
     try {
+      // Check if images are selected
+      if (blogData.imageFiles.length === 0) {
+        throw new Error("Please select at least one image");
+      }
+
+      // Upload images to ImgBB
       for (const file of blogData.imageFiles) {
+        // Check file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+          throw new Error(`File ${file.name} exceeds 5MB limit`);
+        }
+
         const formDataImage = new FormData();
         formDataImage.append("image", file);
+        
         const res = await fetch(imageHostingApi, {
           method: "POST",
           body: formDataImage,
         });
+        
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+        
         const data = await res.json();
 
         if (data.success) {
           uploadedImageUrls.push(data.data.display_url);
         } else {
-          throw new Error("Failed to upload image to ImgBB");
+          throw new Error(`Failed to upload image: ${file.name}`);
         }
       }
 
+      // Prepare blog data
       const blogDataWithImages = {
         title: blogData.title,
         imageUrls: uploadedImageUrls,
         fullContent: blogData.fullContent,
-        authorName: dbUser?.name,
-        authorEmail: dbUser?.email,
+        authorName: dbUser.name,
+        authorEmail: dbUser.email,
+        authorImage: dbUser.photo || "",
+        category: "General", // You can add a category field if needed
+        tags: [], // You can add tags field if needed
+        createdAt: new Date().toISOString(),
       };
 
+      // Submit blog to backend
       const response = await axios.post(
-        "https://rex-auction-server-side-jzyx.onrender.com/addBlogs",
+        "http://localhost:5001/addBlogs",
         blogDataWithImages,
         {
           headers: {
@@ -71,41 +132,62 @@ export default function AddBlog() {
         }
       );
 
-      if (response.status === 201) {
+      if (response.status === 201 || response.status === 200) {
+        // Clean up object URLs
+        blogData.imageFiles.forEach(file => {
+          URL.revokeObjectURL(URL.createObjectURL(file));
+        });
+
         Swal.fire({
           icon: "success",
           title: "Blog Posted Successfully",
           text: "Your blog has been published.",
           background: isDarkMode ? "#1f2937" : "#ffffff",
           color: isDarkMode ? "#ffffff" : "#000000",
+          timer: 2000,
+          showConfirmButton: true,
+        }).then(() => {
+          navigate("/dashboard/create-blog");
         });
-        navigate("/dashboard/blogs");
       }
     } catch (err) {
-      console.error("Error uploading images:", err);
-      if (err.message.includes("ImgBB")) {
-        Swal.fire({
-          icon: "warning",
-          title: "Image Upload Failed",
-          text: "Please try again.",
-          background: isDarkMode ? "#1f2937" : "#ffffff",
-          color: isDarkMode ? "#ffffff" : "#000000",
-        });
-      } else {
-        Swal.fire({
-          icon: "error",
-          title: "Error Occurred",
-          text: "An error occurred while submitting the blog. Please try again later.",
-          background: isDarkMode ? "#1f2937" : "#ffffff",
-          color: isDarkMode ? "#ffffff" : "#000000",
-        });
+      console.error("Error submitting blog:", err);
+      
+      let errorMessage = "An error occurred while submitting the blog. Please try again later.";
+      let errorTitle = "Error Occurred";
+      let errorIcon = "error";
+
+      if (err.message.includes("ImgBB") || err.message.includes("image")) {
+        errorTitle = "Image Upload Failed";
+        errorMessage = err.message || "Please check your images and try again.";
+        errorIcon = "warning";
+      } else if (err.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        errorMessage = err.response.data?.message || "Server error. Please try again.";
+      } else if (err.request) {
+        // The request was made but no response was received
+        errorMessage = "No response from server. Please check your connection.";
       }
+
+      Swal.fire({
+        icon: errorIcon,
+        title: errorTitle,
+        text: errorMessage,
+        background: isDarkMode ? "#1f2937" : "#ffffff",
+        color: isDarkMode ? "#ffffff" : "#000000",
+      });
     } finally {
       setLoading(false);
     }
   };
 
   const handleReset = () => {
+    // Clean up object URLs
+    blogData.imageFiles.forEach(file => {
+      URL.revokeObjectURL(URL.createObjectURL(file));
+    });
+    
     setBlogData({
       title: "",
       imageFiles: [],
@@ -114,12 +196,37 @@ export default function AddBlog() {
   };
 
   const handleCancel = () => {
-    navigate("/dashboard/blog");
+    // Clean up object URLs
+    blogData.imageFiles.forEach(file => {
+      URL.revokeObjectURL(URL.createObjectURL(file));
+    });
+    navigate("/dashboard/blogs");
   };
 
   const handleBack = () => {
-    navigate("/blog");
+    // Clean up object URLs
+    blogData.imageFiles.forEach(file => {
+      URL.revokeObjectURL(URL.createObjectURL(file));
+    });
+    navigate("/dashboard/blogs");
   };
+
+  // Check if user is authenticated
+  if (!dbUser) {
+    return (
+      <div className={`min-h-screen p-4 flex items-center justify-center ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
+        <div className="text-center">
+          <h2 className="text-2xl font-bold mb-4">Please log in to create a blog post</h2>
+          <button
+            onClick={() => navigate("/login")}
+            className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg"
+          >
+            Go to Login
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -129,7 +236,7 @@ export default function AddBlog() {
           : "bg-gradient-to-b from-purple-50 via-white to-purple-50 text-gray-800"
       }`}
     >
-      <div className="max-w-3xl mx-auto border border-gray-400 dark:bg-gray-800 p-6 sm:p-8 rounded-xl shadow-lg animate-fade-in">
+      <div className="max-w-3xl mx-auto border border-gray-400 dark:bg-gray-800 p-6 sm:p-8 rounded-xl shadow-lg animate-fade-in relative">
         {/* Back Button */}
         <button
           onClick={handleBack}
@@ -185,7 +292,7 @@ export default function AddBlog() {
                       <img
                         key={index}
                         src={URL.createObjectURL(file)}
-                        alt="Uploaded"
+                        alt="Upload preview"
                         className="w-16 h-16 object-cover rounded-md"
                       />
                     ))}
@@ -209,7 +316,7 @@ export default function AddBlog() {
                         isDarkMode ? "text-gray-500" : "text-gray-500"
                       }`}
                     >
-                      (JPG, PNG, max 5MB)
+                      (JPG, PNG, max 5MB each)
                     </p>
                   </div>
                 )}
@@ -276,11 +383,21 @@ export default function AddBlog() {
               disabled={loading}
               className={`px-6 py-2 rounded-md font-semibold shadow transition-all transform hover:scale-105 ${
                 isDarkMode
-                  ? "bg-purple-500 hover:bg-purple-600 text-white disabled:bg-gray-600"
-                  : "bg-purple-600 hover:bg-purple-700 text-white disabled:bg-gray-400"
+                  ? "bg-purple-500 hover:bg-purple-600 text-white disabled:bg-gray-600 disabled:cursor-not-allowed"
+                  : "bg-purple-600 hover:bg-purple-700 text-white disabled:bg-gray-400 disabled:cursor-not-allowed"
               }`}
             >
-              {loading ? "Publishing..." : "Publish Blog"}
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  Publishing...
+                </span>
+              ) : (
+                "Publish Blog"
+              )}
             </button>
           </div>
         </form>

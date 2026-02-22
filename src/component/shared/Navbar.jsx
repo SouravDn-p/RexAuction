@@ -56,7 +56,7 @@ const Navbar = () => {
   useEffect(() => {
     if (user && !socketRef.current) {
       socketRef.current = io(
-        "https://rex-auction-server-side-jzyx.onrender.com",
+        "http://localhost:5001",
         {
           withCredentials: true,
           reconnection: true,
@@ -91,7 +91,7 @@ const Navbar = () => {
       const fetchNotifications = async () => {
         try {
           const response = await axios.get(
-            `https://rex-auction-server-side-jzyx.onrender.com/notifications/${user.email}`,
+            `http://localhost:5001/notifications/${user.email}`,
             {
               withCredentials: true,
             }
@@ -224,7 +224,7 @@ const Navbar = () => {
 
       if (user) {
         await axios.put(
-          `https://rex-auction-server-side-jzyx.onrender.com/notifications/mark-read/${user.email}`,
+          `http://localhost:5001/notifications/mark-read/${user.email}`,
           {},
           {
             withCredentials: true,

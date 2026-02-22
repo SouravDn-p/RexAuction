@@ -10,7 +10,7 @@ const useAnnouncement = () => {
     queryKey: ["announcements"],
     queryFn: async () => {
       const res = await axios.get(
-        `https://rex-auction-server-side-jzyx.onrender.com/announcement`
+        `http://localhost:5001/announcement`
       );
 
       return res.data;

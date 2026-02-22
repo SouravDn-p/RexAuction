@@ -7,7 +7,7 @@ const useSocket = () => {
 
   useEffect(() => {
     if (!socketRef.current) {
-      const socket = io("https://rex-auction-server-side-jzyx.onrender.com"); // adjust as needed
+      const socket = io("http://localhost:5001"); // adjust as needed
       socketRef.current = socket;
 
       socket.on("connect", () => {

@@ -11,7 +11,6 @@ import {
   FaClock,
   FaHeart,
   FaRegHeart,
-  FaEye,
   FaBolt,
   FaTrophy,
   FaTag,
@@ -39,7 +38,6 @@ const Auction = () => {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [hoveredCard, setHoveredCard] = useState(null);
 
-  // Define categories (same as BrowsCategory)
   const categories = [
     "All",
     "Art",
@@ -71,89 +69,93 @@ const Auction = () => {
     }
   }, []);
 
+  // Save favorites to localStorage
+  useEffect(() => {
+    localStorage.setItem("auctionFavorites", JSON.stringify(favorites));
+  }, [favorites]);
+
   // Toggle favorite status
-  const toggleFavorite = (index) => {
-    let newFavorites;
-    if (favorites.includes(index)) {
-      newFavorites = favorites.filter((i) => i !== index);
-    } else {
-      newFavorites = [...favorites, index];
-    }
-    setFavorites(newFavorites);
-    localStorage.setItem("auctionFavorites", JSON.stringify(newFavorites));
+  const toggleFavorite = (id) => {
+    setFavorites(prev => 
+      prev.includes(id) 
+        ? prev.filter(i => i !== id)
+        : [...prev, id]
+    );
   };
 
   const {
     data: auctionData = [],
     isLoading,
     error,
+    refetch, // Add refetch for debugging
   } = useQuery({
     queryKey: ["auctionData"],
     queryFn: async () => {
       const res = await axiosSecure.get(`/auctions`);
-      console.log(res.data);
+      console.log("Raw auction data from API:", res.data);
       return res.data || [];
     },
+    staleTime: 5 * 60 * 1000,
   });
 
+  // Debug: Log the filtered results
   useEffect(() => {
-    if (!auctionData || auctionData.length === 0) return;
-
-    const initialCountdowns = {};
-    const now = new Date();
-
-    auctionData.forEach((item) => {
-      if (!item.startTime || !item.endTime || !item._id) return;
-
-      const startTime = new Date(item.startTime);
-      const endTime = new Date(item.endTime);
-
-      if (now < startTime) {
-        const diffInSeconds = Math.max(0, Math.floor((startTime - now) / 1000));
-        initialCountdowns[item._id] = { time: diffInSeconds, isStarting: true };
-      } else if (now >= startTime && now < endTime) {
-        const diffInSeconds = Math.max(0, Math.floor((endTime - now) / 1000));
-        initialCountdowns[item._id] = {
-          time: diffInSeconds,
-          isStarting: false,
-        };
-      } else {
-        initialCountdowns[item._id] = { time: 0, isStarting: false };
-      }
-    });
-
-    setCountdowns(initialCountdowns);
-
-    const interval = setInterval(() => {
-      setCountdowns((prev) => {
-        const updated = {};
-        const currentTime = new Date();
-
-        auctionData.forEach((item) => {
-          if (!item.startTime || !item.endTime || !item._id) return;
-
-          const startTime = new Date(item.startTime);
-          const endTime = new Date(item.endTime);
-
-          if (currentTime < startTime) {
-            updated[item._id] = {
-              time: Math.max(0, Math.floor((startTime - currentTime) / 1000)),
-              isStarting: true,
-            };
-          } else if (currentTime >= startTime && currentTime < endTime) {
-            updated[item._id] = {
-              time: Math.max(0, Math.floor((endTime - currentTime) / 1000)),
-              isStarting: false,
-            };
-          } else {
-            updated[item._id] = { time: 0, isStarting: false };
-          }
+    if (auctionData.length > 0) {
+      console.log("Total auctions from API:", auctionData.length);
+      
+      // Log all statuses to see what's available
+      const statuses = [...new Set(auctionData.map(item => item.status))];
+      console.log("Available statuses in data:", statuses);
+      
+      // Log date ranges
+      const now = new Date();
+      auctionData.forEach(item => {
+        console.log(`Auction ${item._id}:`, {
+          name: item.name,
+          status: item.status,
+          startTime: item.startTime,
+          endTime: item.endTime,
+          isActive: new Date(item.endTime) > now,
+          category: item.category
         });
-
-        return updated;
       });
-    }, 1000);
+    }
+  }, [auctionData]);
 
+  // Countdown effect
+  useEffect(() => {
+    if (!auctionData?.length) return;
+
+    const updateCountdowns = () => {
+      const now = new Date();
+      const updated = {};
+
+      auctionData.forEach((item) => {
+        if (!item.startTime || !item.endTime || !item._id) return;
+
+        const startTime = new Date(item.startTime);
+        const endTime = new Date(item.endTime);
+
+        if (now < startTime) {
+          updated[item._id] = {
+            time: Math.max(0, Math.floor((startTime - now) / 1000)),
+            isStarting: true,
+          };
+        } else if (now >= startTime && now < endTime) {
+          updated[item._id] = {
+            time: Math.max(0, Math.floor((endTime - now) / 1000)),
+            isStarting: false,
+          };
+        } else {
+          updated[item._id] = { time: 0, isStarting: false };
+        }
+      });
+
+      setCountdowns(updated);
+    };
+
+    updateCountdowns();
+    const interval = setInterval(updateCountdowns, 1000);
     return () => clearInterval(interval);
   }, [auctionData]);
 
@@ -161,37 +163,90 @@ const Auction = () => {
   const handleCategoryChange = (category) => {
     setActiveCategory(category);
     setCurrentPage(0);
-
-    // Update URL with the selected category
-    if (category === "All") {
-      navigate("/auction");
-    } else {
-      navigate(`/auction?category=${encodeURIComponent(category)}`);
-    }
+    navigate(category === "All" ? "/auction" : `/auction?category=${encodeURIComponent(category)}`);
   };
 
-  // Filter and search functionality
+  // Filter and search functionality - FIXED FILTERING
   const filteredAuctions = useMemo(() => {
-    let filtered = auctionData
-      .filter((item) => new Date(item.endTime) > new Date())
-      .filter((item) => item.status === "Accepted");
-    if (activeCategory !== "All") {
-      filtered = filtered.filter((item) => item.category === activeCategory);
+    if (!auctionData || auctionData.length === 0) {
+      console.log("No auction data available");
+      return [];
     }
 
+    const now = new Date();
+    console.log("Current time for filtering:", now);
+    
+    // FIX 1: More lenient filtering - show all auctions first for debugging
+    let filtered = auctionData.filter((item) => {
+      // Check if endTime exists and is valid
+      if (!item.endTime) {
+        console.log("Item missing endTime:", item);
+        return false;
+      }
+
+      const endTime = new Date(item.endTime);
+      
+      // FIX 2: Check if endTime is valid
+      if (isNaN(endTime.getTime())) {
+        console.log("Invalid endTime for item:", item);
+        return false;
+      }
+
+      // FIX 3: More flexible status check - show auctions with any status first
+      // Change this based on your actual status values
+      const validStatuses = ["Accepted", "Active", "Live", "approved", "pending"];
+      const hasValidStatus = validStatuses.includes(item.status);
+      
+      // Log items being filtered out
+      if (endTime <= now) {
+        console.log(`Auction ${item.name} filtered out: ended at ${endTime}`);
+        return false;
+      }
+      
+      if (!hasValidStatus) {
+        console.log(`Auction ${item.name} filtered out: status ${item.status}`);
+        return false;
+      }
+
+      return true;
+    });
+
+    console.log(`After date/status filter: ${filtered.length} auctions`);
+
+    // Apply category filter
+    if (activeCategory !== "All") {
+      filtered = filtered.filter((item) => {
+        const match = item.category === activeCategory;
+        if (!match) {
+          console.log(`Auction ${item.name} filtered out: category ${item.category} != ${activeCategory}`);
+        }
+        return match;
+      });
+      console.log(`After category filter: ${filtered.length} auctions`);
+    }
+
+    // Apply search filter
     if (searchTerm.trim()) {
       const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(
-        (item) =>
-          item.name.toLowerCase().includes(term) ||
-          item.category.toLowerCase().includes(term) ||
-          (item.description && item.description.toLowerCase().includes(term))
-      );
+      filtered = filtered.filter((item) => {
+        const match = 
+          (item.name?.toLowerCase() || "").includes(term) ||
+          (item.category?.toLowerCase() || "").includes(term) ||
+          (item.description?.toLowerCase() || "").includes(term);
+        
+        if (!match) {
+          console.log(`Auction ${item.name} filtered out: doesn't match search term "${term}"`);
+        }
+        return match;
+      });
+      console.log(`After search filter: ${filtered.length} auctions`);
     }
 
+    console.log("Final filtered auctions:", filtered);
     return filtered;
   }, [auctionData, searchTerm, activeCategory]);
 
+  const hasActiveAuctions = filteredAuctions.length > 0;
   const pageCount = Math.ceil(filteredAuctions.length / itemsPerPage);
   const displayedAuctions = filteredAuctions.slice(
     currentPage * itemsPerPage,
@@ -201,21 +256,22 @@ const Auction = () => {
   // Reset to first page when search term changes
   useEffect(() => {
     setCurrentPage(0);
-  }, [searchTerm]);
+  }, [searchTerm, activeCategory]);
 
   const handleNext = () => {
-    setCurrentPage((prev) => (prev < pageCount - 1 ? prev + 1 : prev));
+    setCurrentPage((prev) => Math.min(prev + 1, pageCount - 1));
   };
 
   const handlePrev = () => {
-    setCurrentPage((prev) => (prev > 0 ? prev - 1 : prev));
+    setCurrentPage((prev) => Math.max(prev - 1, 0));
   };
 
   const formatTime = (countdown) => {
-    const { time: seconds, isStarting } = countdown || {
-      time: 0,
-      isStarting: false,
-    };
+    if (!countdown) return "Auction Ended";
+    
+    const { time: seconds, isStarting } = countdown;
+    if (seconds <= 0) return "Auction Ended";
+
     const days = Math.floor(seconds / (24 * 60 * 60));
     const hours = Math.floor((seconds % (24 * 60 * 60)) / (60 * 60));
     const minutes = Math.floor((seconds % (60 * 60)) / 60);
@@ -232,22 +288,17 @@ const Auction = () => {
 
   // Get time status for styling
   const getTimeStatus = (countdown) => {
-    if (!countdown) return "ended";
+    if (!countdown?.time || countdown.time <= 0) return "ended";
     const { time, isStarting } = countdown;
 
-    if (time === 0) return "ended";
     if (isStarting) return "starting";
-    if (time < 3600) return "ending-soon"; // Less than 1 hour
+    if (time < 3600) return "ending-soon";
     return "active";
   };
 
   if (isLoading) {
     return (
-      <div
-        className={`min-h-screen ${
-          isDarkMode ? "bg-gray-900" : "bg-gray-50"
-        } items-center justify-center`}
-      >
+      <div className={`min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}>
         <Banner isDarkMode={isDarkMode} />
         <LoadingSpinner />
       </div>
@@ -256,29 +307,40 @@ const Auction = () => {
 
   if (error) {
     return (
-      <div
-        className={`min-h-screen ${
-          isDarkMode ? "bg-gray-900" : "bg-gray-50"
-        } flex items-center justify-center`}
-      >
+      <div className={`min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-gray-50"} flex flex-col items-center justify-center`}>
         <Banner isDarkMode={isDarkMode} />
-        <p className="text-lg font-semibold text-red-500">
-          Error loading auctions.
+        <p className="text-lg font-semibold text-red-500 mt-8">
+          Error loading auctions. Please try again later.
         </p>
+        <button 
+          onClick={() => refetch()}
+          className="mt-4 px-6 py-2 bg-purple-600 text-white rounded-lg"
+        >
+          Retry
+        </button>
       </div>
     );
   }
 
   return (
-    <div
-      className={`min-h-screen ${
-        isDarkMode ? "bg-gray-900" : "bg-gray-50"
-      } max-sm:pt-8`}
-    >
+    <div className={`min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-gray-50"} max-sm:pt-8`}>
       <section>
-        <EnhancedBanner isDarkMode={isDarkMode} />
+        <Banner isDarkMode={isDarkMode} />
 
         <div id="auction-section" className="w-11/12 mx-auto py-10">
+          {/* Debug Info - Remove in production */}
+          {/* <div className="mb-4 p-4 bg-yellow-100 text-black rounded">
+            <p>Total Auctions: {auctionData.length}</p>
+            <p>Active Auctions: {filteredAuctions.length}</p>
+            <p>Current Category: {activeCategory}</p>
+            <button 
+              onClick={() => refetch()}
+              className="mt-2 px-4 py-2 bg-purple-600 text-white rounded"
+            >
+              Refresh Data
+            </button>
+          </div> */}
+
           {/* Section Header */}
           <motion.div
             className="flex flex-col items-center mb-12"
@@ -297,7 +359,7 @@ const Auction = () => {
                   }}
                   transition={{
                     duration: 1.5,
-                    repeat: Number.POSITIVE_INFINITY,
+                    repeat: Infinity,
                     ease: "easeInOut",
                   }}
                 />
@@ -328,9 +390,9 @@ const Auction = () => {
           {/* Category Buttons */}
           <div className="flex overflow-x-auto pb-4 mb-8 snap-x scrollbar-thin scrollbar-thumb-purple-500 scrollbar-track-transparent">
             <div className="flex space-x-3 mx-auto">
-              {categories.map((category, index) => (
+              {categories.map((category) => (
                 <motion.button
-                  key={index}
+                  key={category}
                   onClick={() => handleCategoryChange(category)}
                   className={`px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-300 relative group whitespace-nowrap snap-start ${
                     activeCategory === category
@@ -344,13 +406,6 @@ const Auction = () => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <span
-                    className={`absolute inset-0 bg-gradient-to-r ${
-                      isDarkMode
-                        ? "from-purple-500/20 to-purple-500/20"
-                        : "from-purple-500/20 to-purple-500/20"
-                    } opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-full -z-10`}
-                  ></span>
                   {category}
                 </motion.button>
               ))}
@@ -423,9 +478,7 @@ const Auction = () => {
           </div>
 
           {/* No Auctions Found */}
-          {!filteredAuctions.some(
-            (item) => new Date(item.endTime) > new Date()
-          ) && (
+          {!hasActiveAuctions && (
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -446,7 +499,7 @@ const Auction = () => {
                   }}
                   transition={{
                     duration: 4,
-                    repeat: Number.POSITIVE_INFINITY,
+                    repeat: Infinity,
                     repeatType: "loop",
                   }}
                 >
@@ -456,7 +509,9 @@ const Auction = () => {
               <h3 className="text-2xl md:text-3xl font-bold mb-3">
                 {searchTerm
                   ? "No matching auctions found"
-                  : "No auctions available"}
+                  : auctionData.length === 0 
+                  ? "No auctions available in the database"
+                  : "No active auctions available"}
               </h3>
               <p
                 className={`max-w-md mx-auto ${
@@ -465,9 +520,11 @@ const Auction = () => {
               >
                 {searchTerm
                   ? "Try adjusting your search or check back later for new listings."
+                  : auctionData.length === 0
+                  ? "There are no auctions in the system yet. Please check back later."
                   : `No ${
                       activeCategory === "All" ? "" : activeCategory
-                    } auctions available. Please check back later.`}
+                    } auctions are currently active. Please check back later.`}
               </p>
               {searchTerm && (
                 <motion.button
@@ -479,292 +536,222 @@ const Auction = () => {
                   Clear Search
                 </motion.button>
               )}
+              {auctionData.length === 0 && (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => refetch()}
+                  className="mt-6 px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-500 text-white rounded-xl hover:from-blue-700 hover:to-blue-600 transition shadow-lg shadow-blue-500/20"
+                >
+                  Refresh Data
+                </motion.button>
+              )}
             </motion.div>
           )}
 
           {/* Auction Cards */}
-          {filteredAuctions.some(
-            (item) => new Date(item.endTime) > new Date()
-          ) && (
+          {hasActiveAuctions && (
             <div className="relative">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8 pb-10">
                 <AnimatePresence>
-                  {displayedAuctions
-                    .filter((item) => new Date(item.endTime) > new Date())
-                    .map((item) => {
-                      const timeStatus = getTimeStatus(countdowns[item._id]);
+                  {displayedAuctions.map((item) => {
+                    const timeStatus = getTimeStatus(countdowns[item._id]);
+                    const countdown = countdowns[item._id];
 
-                      return (
-                        <motion.div
-                          key={item._id}
-                          layout
-                          initial={{ opacity: 0, scale: 0.9 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.9 }}
-                          transition={{ duration: 0.3 }}
-                          whileHover={{ y: -8, scale: 1.02 }}
-                          onHoverStart={() => setHoveredCard(item._id)}
-                          onHoverEnd={() => setHoveredCard(null)}
-                          className={`relative rounded-2xl overflow-hidden transition-all duration-300 flex flex-col h-full ${
-                            isDarkMode
-                              ? "bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700"
-                              : "bg-white border border-gray-200"
-                          } shadow-lg hover:shadow-xl group`}
+                    return (
+                      <motion.div
+                        key={item._id}
+                        layout
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        transition={{ duration: 0.3 }}
+                        whileHover={{ y: -8, scale: 1.02 }}
+                        onHoverStart={() => setHoveredCard(item._id)}
+                        onHoverEnd={() => setHoveredCard(null)}
+                        className={`relative rounded-2xl overflow-hidden transition-all duration-300 flex flex-col h-full ${
+                          isDarkMode
+                            ? "bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700"
+                            : "bg-white border border-gray-200"
+                        } shadow-lg hover:shadow-xl group`}
+                      >
+                        {/* Status Badge */}
+                        <div
+                          className={`absolute top-4 left-4 z-10 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 backdrop-blur-md shadow-lg ${
+                            timeStatus === "ending-soon"
+                              ? "bg-red-500/90 text-white"
+                              : timeStatus === "starting"
+                              ? "bg-blue-500/90 text-white"
+                              : timeStatus === "ended"
+                              ? "bg-gray-500/90 text-white"
+                              : "bg-green-500/90 text-white"
+                          }`}
                         >
-                          {/* Status Badge */}
-                          <div
-                            className={`absolute top-4 left-4 z-10 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 ${
-                              timeStatus === "ending-soon"
-                                ? "bg-purple-800 text-white" // Purple color for "ending-soon"
-                                : timeStatus === "starting"
-                                ? "bg-blue-500 text-white"
-                                : timeStatus === "ended"
-                                ? "bg-gray-500 text-white"
-                                : "bg-purple-800 text-white"
-                            }`}
-                            style={{
-                              backgroundColor: "rgba(128, 0, 128, 0.15)", // Purple background with opacity
-                              backdropFilter: "blur(8px)", // Glass effect
-                              borderRadius: "9999px", // Fully rounded corners (pill shape)
-                              boxShadow: "0 4px 15px rgba(0, 0, 0, 0.1)", // Subtle shadow
-                            }}
+                          {timeStatus === "ending-soon" ? (
+                            <>
+                              <FaBolt className="text-yellow-300" /> Ending Soon
+                            </>
+                          ) : timeStatus === "starting" ? (
+                            <>
+                              <FaRegClock /> Starting Soon
+                            </>
+                          ) : timeStatus === "ended" ? (
+                            <>
+                              <FaTrophy /> Auction Ended
+                            </>
+                          ) : (
+                            <>
+                              <FaTag /> Active Auction
+                            </>
+                          )}
+                        </div>
+
+                        {/* Favorite Button */}
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            toggleFavorite(item._id);
+                          }}
+                          className={`absolute top-4 right-4 z-10 p-2.5 rounded-full transition-all shadow-md ${
+                            isDarkMode
+                              ? "bg-gray-800/90 hover:bg-gray-700"
+                              : "bg-white/90 hover:bg-white"
+                          }`}
+                        >
+                          <motion.div
+                            animate={
+                              favorites.includes(item._id)
+                                ? { scale: [1, 1.3, 1] }
+                                : {}
+                            }
+                            transition={{ duration: 0.3 }}
                           >
-                            {timeStatus === "ending-soon" ? (
-                              <>
-                                <FaBolt className="text-yellow-300" /> Ending
-                                Soon
-                              </>
-                            ) : timeStatus === "starting" ? (
-                              <>
-                                <FaRegClock /> Starting Soon
-                              </>
-                            ) : timeStatus === "ended" ? (
-                              <>
-                                <FaTrophy /> Auction Ended
-                              </>
+                            {favorites.includes(item._id) ? (
+                              <FaHeart className="text-red-500 text-xl" />
                             ) : (
-                              <>
-                                <FaTag /> Active Auction
-                              </>
+                              <FaRegHeart
+                                className={`text-xl ${
+                                  isDarkMode ? "text-gray-200" : "text-gray-800"
+                                }`}
+                              />
                             )}
-                          </div>
+                          </motion.div>
+                        </button>
 
-                          {/* Favorite Button */}
-                          <button
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              toggleFavorite(item._id);
+                        {/* Image */}
+                        <div className="relative h-52 w-full overflow-hidden flex-shrink-0">
+                          <img
+                            src={item.images?.[0] || image}
+                            alt={item.name}
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                            onError={(e) => {
+                              e.target.src = image;
                             }}
-                            className={`absolute top-4 right-4 z-10 p-2.5 rounded-full transition-all shadow-md ${
-                              isDarkMode
-                                ? "bg-gray-800/90 hover:bg-gray-700"
-                                : "bg-white/90 hover:bg-white"
-                            }`}
-                          >
-                            <motion.div
-                              animate={
-                                favorites.includes(item._id)
-                                  ? {
-                                      scale: [1, 1.3, 1],
-                                    }
-                                  : {}
-                              }
-                              transition={{ duration: 0.3 }}
-                            >
-                              {favorites.includes(item._id) ? (
-                                <FaHeart className="text-red-500 text-xl" />
-                              ) : (
-                                <FaRegHeart
-                                  className={`text-xl ${
-                                    isDarkMode
-                                      ? "text-gray-200"
-                                      : "text-gray-800"
-                                  }`}
-                                />
-                              )}
-                            </motion.div>
-                          </button>
+                          />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
-                          {/* Image */}
-                          <div className="relative h-52 w-full overflow-hidden flex-shrink-0">
-                            <img
-                              src={item.images?.[0] || image}
-                              alt={item.name}
-                              className="w-full h-full object-cover transition-transform duration-700 "
-                              onError={(e) => {
-                                e.target.src = image;
-                              }}
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-
-                            {/* Time Countdown */}
-                            <div className="absolute bottom-4 left-0 right-0 flex justify-center">
-                              <div
-                                className={`px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 transition-all duration-300 backdrop-blur-md ${
-                                  timeStatus === "ending-soon"
-                                    ? "bg-purple-800/40 text-white border border-purple-800/50"
-                                    : timeStatus === "starting"
-                                    ? "bg-purple-500/40 text-white border border-purple-500/50"
-                                    : timeStatus === "ended"
-                                    ? "bg-gray-700/40 text-white border border-gray-700/50"
-                                    : "bg-purple-300/40 text-white border border-purple-300/50"
-                                } ${
-                                  hoveredCard === item._id
-                                    ? "opacity-100 transform translate-y-0"
-                                    : "opacity-0 transform translate-y-4"
-                                }`}
-                              >
-                                <FaClock
-                                  className={
-                                    timeStatus === "ending-soon"
-                                      ? "animate-pulse"
-                                      : ""
-                                  }
-                                />
-                                {formatTime(countdowns[item._id]) ===
-                                "0m 0s left"
-                                  ? "Auction Ended"
-                                  : formatTime(countdowns[item._id])}
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Auction Details - Flex-grow to push buttons to bottom */}
-                          <div
-                            className={`p-4 flex-grow flex flex-col ${
-                              isDarkMode ? "text-gray-100" : "text-gray-800"
-                            }`}
-                          >
-                            <div className="flex justify-between items-start mb-2">
-                              <h3
-                                className="text-xl font-bold line-clamp-2 leading-tight"
-                                title={item.name} // Tooltip with full name
-                              >
-                                {item.name.split(" ").slice(0, 3).join(" ")}{" "}
-                                {/* Display first two words */}
-                              </h3>
-                              <span
-                                className={`text-xs px-3 py-1 rounded-full ${
-                                  isDarkMode
-                                    ? "bg-purple-900/50 text-purple-300"
-                                    : "bg-purple-100 text-purple-800"
-                                }`}
-                              >
-                                {item.category}
-                              </span>
-                            </div>
-                            <p
-                              className={`text-sm mb-3 line-clamp-1 ${
-                                isDarkMode ? "text-gray-400" : "text-gray-600"
+                          {/* Time Countdown */}
+                          <div className="absolute bottom-4 left-0 right-0 flex justify-center">
+                            <div
+                              className={`px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 transition-all duration-300 backdrop-blur-md ${
+                                timeStatus === "ending-soon"
+                                  ? "bg-red-500/40 text-white border border-red-500/50"
+                                  : timeStatus === "starting"
+                                  ? "bg-blue-500/40 text-white border border-blue-500/50"
+                                  : timeStatus === "ended"
+                                  ? "bg-gray-700/40 text-white border border-gray-700/50"
+                                  : "bg-green-500/40 text-white border border-green-500/50"
+                              } ${
+                                hoveredCard === item._id
+                                  ? "opacity-100 transform translate-y-0"
+                                  : "opacity-0 transform translate-y-4"
                               }`}
                             >
-                              {item.description || "No description available"}
-                            </p>
-
-                            <div className="flex justify-between items-center mb-3">
-                              <div className="flex items-center gap-2">
-                                <p
-                                  className={`text-md ${
-                                    isDarkMode
-                                      ? "text-gray-400"
-                                      : "text-gray-500"
-                                  }`}
-                                >
-                                  Current Bid:
-                                </p>
-                                <p className="text-md font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-purple-500">
-                                  ${item.startingPrice?.toLocaleString()}
-                                </p>
-                              </div>
-                              <div
-                                className={`flex items-center space-x-2 px-3 py-1.5 rounded-full 
-  ${isDarkMode ? "bg-gray-800 text-white" : "bg-gray-100 text-black"}`}
-                              >
-                                <FaGavel
-                                  className={`${
-                                    isDarkMode
-                                      ? "text-purple-400"
-                                      : "text-purple-600"
-                                  }`}
-                                />
-                                {/* <span
-                                    className={`text-sm font-medium 
-    `}
-                                  >
-                                    {item.bids || 0} bids
-                                  </span> */}
-                              </div>
-                            </div>
-
-                            {/* Progress Bar */}
-                            {/* <div className="mb-4">
-                                <div className="flex justify-between text-xs mb-1.5">
-                                  <span
-                                    className={
-                                      isDarkMode
-                                        ? "text-gray-400"
-                                        : "text-gray-600"
-                                    }
-                                  >
-                                    Bidding Activity
-                                  </span>
-                                  <span className="font-medium">
-                                    {Math.min(100, (item.bids || 0) * 10)}%
-                                  </span>
-                                </div>
-                                <div
-                                  className={`w-full h-2 rounded-full ${isDarkMode ? "bg-gray-700" : "bg-gray-200"
-                                    }`}
-                                >
-                                  <motion.div
-                                    initial={{ width: 0 }}
-                                    animate={{
-                                      width: `${Math.min(
-                                        100,
-                                        (item.bids || 0) * 10
-                                      )}%`,
-                                    }}
-                                    transition={{ duration: 1, ease: "easeOut" }}
-                                    className="h-2 rounded-full bg-gradient-to-r from-purple-500 to-purple-500"
-                                  ></motion.div>
-                                </div>
-                              </div> */}
-
-                            {/* Buttons - Now at the bottom with mt-auto */}
-                            <div className="flex space-x-3 mt-auto">
-                              <Link
-                                to={`/liveBid/${item._id}`}
-                                className={`flex-1 text-center py-2 px-4 rounded-lg transition shadow-md ${
-                                  new Date(item.startTime) > new Date()
-                                    ? "bg-gray-400 text-gray-200 cursor-not-allowed"
-                                    : "bg-gradient-to-r from-purple-600 to-purple-500 text-white hover:from-purple-700 hover:to-purple-600"
-                                }`}
-                                onClick={(e) => {
-                                  if (new Date(item.startTime) > new Date()) {
-                                    e.preventDefault(); // Prevent navigation if the auction hasn't started
-                                  }
-                                }}
-                              >
-                                Bid Now
-                              </Link>
-                              {/* <Link
-                                  to={`/auctionDetails/${item._id}`}
-                                  className="p-3 bg-gray-100 dark:bg-gray-800 rounded-xl hover:bg-gray-200 dark:hover:bg-gray-700 transition flex items-center justify-center"
-                                >
-                                  <FaEye
-                                    className={
-                                      isDarkMode
-                                        ? "text-gray-400"
-                                        : "text-gray-600"
-                                    }
-                                  />
-                                </Link> */}
+                              <FaClock
+                                className={
+                                  timeStatus === "ending-soon" ? "animate-pulse" : ""
+                                }
+                              />
+                              {formatTime(countdown)}
                             </div>
                           </div>
-                        </motion.div>
-                      );
-                    })}
+                        </div>
+
+                        {/* Auction Details */}
+                        <div
+                          className={`p-4 flex-grow flex flex-col ${
+                            isDarkMode ? "text-gray-100" : "text-gray-800"
+                          }`}
+                        >
+                          <div className="flex justify-between items-start mb-2">
+                            <h3
+                              className="text-xl font-bold line-clamp-2 leading-tight"
+                              title={item.name}
+                            >
+                              {item.name}
+                            </h3>
+                            <span
+                              className={`text-xs px-3 py-1 rounded-full ${
+                                isDarkMode
+                                  ? "bg-purple-900/50 text-purple-300"
+                                  : "bg-purple-100 text-purple-800"
+                              }`}
+                            >
+                              {item.category}
+                            </span>
+                          </div>
+                          <p
+                            className={`text-sm mb-3 line-clamp-1 ${
+                              isDarkMode ? "text-gray-400" : "text-gray-600"
+                            }`}
+                          >
+                            {item.description || "No description available"}
+                          </p>
+
+                          <div className="flex justify-between items-center mb-3">
+                            <div className="flex items-center gap-2">
+                              <p
+                                className={`text-md ${
+                                  isDarkMode ? "text-gray-400" : "text-gray-500"
+                                }`}
+                              >
+                                Current Bid:
+                              </p>
+                              <p className="text-md font-bold text-purple-500">
+                                ${item.startingPrice?.toLocaleString()}
+                              </p>
+                            </div>
+                            <div
+                              className={`flex items-center space-x-2 px-3 py-1.5 rounded-full ${
+                                isDarkMode ? "bg-gray-800" : "bg-gray-100"
+                              }`}
+                            >
+                              <FaGavel
+                                className={
+                                  isDarkMode ? "text-purple-400" : "text-purple-600"
+                                }
+                              />
+                            </div>
+                          </div>
+
+                          {/* Buttons */}
+                          <div className="flex space-x-3 mt-auto">
+                            <Link
+                              to={`/liveBid/${item._id}`}
+                              className={`flex-1 text-center py-2 px-4 rounded-lg transition shadow-md ${
+                                new Date(item.startTime) > new Date()
+                                  ? "bg-gray-400 text-gray-200 cursor-not-allowed pointer-events-none"
+                                  : "bg-gradient-to-r from-purple-600 to-purple-500 text-white hover:from-purple-700 hover:to-purple-600"
+                              }`}
+                            >
+                              Bid Now
+                            </Link>
+                          </div>
+                        </div>
+                      </motion.div>
+                    );
+                  })}
                 </AnimatePresence>
               </div>
 
@@ -837,8 +824,8 @@ const Auction = () => {
   );
 };
 
-// Enhanced Banner Component
-const EnhancedBanner = ({ isDarkMode }) => (
+// Banner Component
+const Banner = ({ isDarkMode }) => (
   <div className="relative w-full h-[300px] md:h-[400px] lg:h-[500px] overflow-hidden">
     <div className="absolute inset-0 bg-black">
       <img
@@ -891,58 +878,10 @@ const EnhancedBanner = ({ isDarkMode }) => (
             Explore All Auctions
           </button>
         </motion.div>
-
-        {/* Animated elements */}
-        <motion.div
-          className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 w-full"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8, duration: 0.5 }}
-        >
-          <div className="flex justify-center space-x-2">
-            {[...Array(5)].map((_, i) => (
-              <motion.div
-                key={i}
-                className="w-2 h-2 rounded-full bg-white"
-                animate={{
-                  y: [0, -15, 0],
-                }}
-                transition={{
-                  duration: 1.5,
-                  repeat: Number.POSITIVE_INFINITY,
-                  repeatType: "loop",
-                  delay: i * 0.1,
-                }}
-              />
-            ))}
-          </div>
-        </motion.div>
       </motion.div>
     </div>
 
-    {/* Decorative elements */}
     <div className="absolute bottom-0 left-0 w-full h-20 bg-gradient-to-t from-gray-900 to-transparent"></div>
-  </div>
-);
-
-// Banner Component (original, kept for reference)
-const Banner = ({ isDarkMode }) => (
-  <div className="relative w-full h-64 md:h-96 overflow-hidden">
-    <img
-      src="https://i.ibb.co/BHFqCZDs/Untitled-design-37.jpg"
-      alt="Auction Banner"
-      className="w-full h-full object-cover"
-    />
-    <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-      <div className="text-center px-4 w-full max-w-2xl mx-auto">
-        <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">
-          Exclusive Auctions
-        </h1>
-        <p className="text-lg md:text-xl text-white mb-6">
-          Bid on unique items and rare collectibles from around the world
-        </p>
-      </div>
-    </div>
   </div>
 );
 

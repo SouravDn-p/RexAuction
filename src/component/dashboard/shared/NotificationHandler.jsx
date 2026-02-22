@@ -18,7 +18,7 @@ const NotificationHandler = () => {
   useEffect(() => {
     if (user && !socketRef.current) {
       socketRef.current = io(
-        "https://rex-auction-server-side-jzyx.onrender.com",
+        "http://localhost:5001",
         {
           withCredentials: true,
           reconnection: true,
@@ -84,7 +84,7 @@ const NotificationHandler = () => {
     try {
       // Update in database
       await axios.put(
-        `https://rex-auction-server-side-jzyx.onrender.com/notifications/mark-read/${user.email}`,
+        `http://localhost:5001/notifications/mark-read/${user.email}`,
         { notificationId },
         { withCredentials: true }
       );

@@ -85,7 +85,7 @@ export default function Blog() {
     const fetchBlogPosts = async () => {
       try {
         const response = await axios.get(
-          `https://rex-auction-server-side-jzyx.onrender.com/blogs/${email}`
+          `http://localhost:5001/blogs/${email}`
         );
         setBlogPosts(response.data);
         setIsLoading(false);
@@ -117,7 +117,7 @@ export default function Blog() {
 
       if (result.isConfirmed) {
         await axios.delete(
-          `https://rex-auction-server-side-jzyx.onrender.com/delete/${id}`
+          `http://localhost:5001/delete/${id}`
         );
         setBlogPosts(blogPosts.filter((post) => post._id !== id));
         Swal.fire({
