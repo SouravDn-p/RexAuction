@@ -17,7 +17,7 @@ export const useSocket = () => {
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
-  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5001";
+  const apiUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     // Create socket connection

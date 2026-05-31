@@ -40,7 +40,7 @@
 //         if (user?.email) {
 //           setLoading(true);
 //           const response = await axios.get(
-//             `http://localhost:5001/user/${user.email}`
+//             `${import.meta.env.VITE_API_URL}/user/${user.email}`
 //           );
 //           setProfileData(response.data);
 //           setFormData({
@@ -107,7 +107,7 @@
 //         const formDataPhoto = new FormData();
 //         formDataPhoto.append("photo", formData.photoFile);
 //         const photoResponse = await axios.post(
-//           "http://localhost:5001/upload-photo",
+//           import.meta.env.VITE_API_URL + "/upload-photo",
 //           formDataPhoto,
 //           {
 //             headers: { "Content-Type": "multipart/form-data" },
@@ -130,7 +130,7 @@
 //       }
 
 //       const response = await axios.patch(
-//         `http://localhost:5001/user/${user.email}`,
+//         `${import.meta.env.VITE_API_URL}/user/${user.email}`,
 //         dataToUpdate
 //       );
 

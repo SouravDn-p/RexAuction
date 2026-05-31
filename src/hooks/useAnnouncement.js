@@ -10,7 +10,7 @@ const useAnnouncement = () => {
     queryKey: ["announcements"],
     queryFn: async () => {
       const res = await axios.get(
-        `http://localhost:5001/announcement`
+        `${import.meta.env.VITE_API_URL}/announcement`
       );
 
       return res.data;

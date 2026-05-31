@@ -76,8 +76,6 @@ const AuthProvider = ({ children }) => {
       const result = await signInWithEmailAndPassword(auth, email, password);
       toast.success("🎉 Login Successful! Welcome back!"); // ✅ hot-toast message
       return result;
-    } catch (error) {
-      throw error;
     } finally {
       setLoading(false);
     }
@@ -123,7 +121,7 @@ const AuthProvider = ({ children }) => {
         setUser(currentUser);
         // generateToken
         const { data } = await axios.post(
-          "http://localhost:5001/jwt",
+          import.meta.env.VITE_API_URL + "/jwt",
           { email: currentUser?.email },
           { withCredentials: true }
         );
@@ -131,7 +129,7 @@ const AuthProvider = ({ children }) => {
       } else {
         setUser(currentUser);
         await axios.get(
-          `http://localhost:5001/logout`,
+          `${import.meta.env.VITE_API_URL}/logout`,
           {
             withCredentials: true,
           }

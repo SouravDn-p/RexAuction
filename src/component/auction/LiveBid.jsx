@@ -295,9 +295,7 @@ export default function LiveBid() {
 
   // Socket.IO connection setup with reconnection logic
   useEffect(() => {
-    const SOCKET_SERVER_URL =
-      "http://localhost:5001";
-
+    const SOCKET_SERVER_URL = import.meta.env.VITE_SOCKET_URL;
     const connectSocket = () => {
       console.log("Attempting to connect to socket server...");
       socketRef.current = io(SOCKET_SERVER_URL, {

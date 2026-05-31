@@ -24,6 +24,8 @@ import useAxiosPublic from "../../hooks/useAxiosPublic";
 import io from "socket.io-client";
 import axios from "axios";
 
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
+
 const Navbar = () => {
   const {
     user,
@@ -56,7 +58,7 @@ const Navbar = () => {
   useEffect(() => {
     if (user && !socketRef.current) {
       socketRef.current = io(
-        "http://localhost:5001",
+        SOCKET_URL,
         {
           withCredentials: true,
           reconnection: true,
@@ -91,7 +93,7 @@ const Navbar = () => {
       const fetchNotifications = async () => {
         try {
           const response = await axios.get(
-            `http://localhost:5001/notifications/${user.email}`,
+            `${SOCKET_URL}/notifications/${user.email}`,
             {
               withCredentials: true,
             }
@@ -224,7 +226,7 @@ const Navbar = () => {
 
       if (user) {
         await axios.put(
-          `http://localhost:5001/notifications/mark-read/${user.email}`,
+          `${SOCKET_URL}/notifications/mark-read/${user.email}`,
           {},
           {
             withCredentials: true,
@@ -283,19 +285,19 @@ const Navbar = () => {
         ? "flex items-center gap-3 py-2 px-3 rounded-lg bg-indigo-700/60 text-white font-bold shadow-md"
         : "flex items-center gap-3 py-2 px-3 rounded-lg bg-indigo-200 text-indigo-900 font-bold shadow-md"
       : isDarkMode
-      ? "flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-indigo-800/40 text-indigo-100"
-      : "flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-indigo-100 text-indigo-800";
+        ? "flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-indigo-800/40 text-indigo-100"
+        : "flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-indigo-100 text-indigo-800";
 
   const navRoutes = [
     // { path: "/", label: "Home", icon: <FiHome className="w-5 h-5" /> },
     ...(user?.email
       ? [
-          {
-            path: "/auction",
-            label: "Auction",
-            icon: <FaGavel className="w-5 h-5" />,
-          },
-        ]
+        {
+          path: "/auction",
+          label: "Auction",
+          icon: <FaGavel className="w-5 h-5" />,
+        },
+      ]
       : []),
     {
       path: "/aboutUs",
@@ -317,15 +319,14 @@ const Navbar = () => {
   return (
     <div>
       <nav
-        className={`fixed  top-0 w-full z-50 shadow-lg transition-all duration-300 ${
-          isScrolled
+        className={`fixed  top-0 w-full z-50 shadow-lg transition-all duration-300 ${isScrolled
             ? isDarkMode
               ? "backdrop-blur-md bg-gray-900/30 shadow-lg"
               : "backdrop-blur-md bg-purple-800/80 shadow-lg "
             : isDarkMode
-            ? "bg-gray-900/90"
-            : "bg-purple-800/70 "
-        }`}
+              ? "bg-gray-900/90"
+              : "bg-purple-800/70 "
+          }`}
       >
         <div className="container mx-auto flex justify-between items-center px-4">
           <Link to="/" className="relative group">
@@ -339,11 +340,10 @@ const Navbar = () => {
               </div>
               <h1 className="font-bold text-lg md:text-xl lg:text-2xl tracking-tight">
                 <span
-                  className={`${
-                    isDarkMode
+                  className={`${isDarkMode
                       ? "text-transparent bg-clip-text bg-white border-b-2 border-purple-600"
                       : "text-transparent bg-clip-text bg-white border-purple-600 border-b-2 "
-                  } font-serif`}
+                    } font-serif`}
                 >
                   Rex
                 </span>
@@ -362,13 +362,12 @@ const Navbar = () => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`relative flex items-center gap-2 py-2 px-4 rounded-lg transition-all duration-300 group ${
-                    location.pathname === item.path
+                  className={`relative flex items-center gap-2 py-2 px-4 rounded-lg transition-all duration-300 group ${location.pathname === item.path
                       ? "text-white font-bold border-b-2 border-purple-400"
                       : isDarkMode
-                      ? "text-white hover:text-purple-200"
-                      : "text-white hover:text-purple-100"
-                  }`}
+                        ? "text-white hover:text-purple-200"
+                        : "text-white hover:text-purple-100"
+                    }`}
                 >
                   <span className="transition-transform duration-300 group-hover:scale-110">
                     {item.icon}
@@ -411,11 +410,10 @@ const Navbar = () => {
                 {/* Notifications Button and Dropdown (Desktop) */}
                 <div className="relative" ref={notificationsRef}>
                   <button
-                    className={`p-2 rounded-full transition-all duration-300 relative overflow-hidden ${
-                      isDarkMode
+                    className={`p-2 rounded-full transition-all duration-300 relative overflow-hidden ${isDarkMode
                         ? "bg-indigo-800/50 text-purple-400 hover:bg-indigo-700/70"
                         : "bg-indigo-100/50 text-indigo-700 hover:bg-indigo-200/70"
-                    } hover:scale-110`}
+                      } hover:scale-110`}
                     onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
                     aria-label="Notifications"
                   >
@@ -426,42 +424,37 @@ const Navbar = () => {
                       </span>
                     )}
                     <div
-                      className={`absolute inset-0 rounded-full transition-all duration-300 opacity-0 hover:opacity-100 ${
-                        isDarkMode ? "bg-purple-400/10" : "bg-indigo-700/10"
-                      }`}
+                      className={`absolute inset-0 rounded-full transition-all duration-300 opacity-0 hover:opacity-100 ${isDarkMode ? "bg-purple-400/10" : "bg-indigo-700/10"
+                        }`}
                     ></div>
                   </button>
 
                   {isNotificationsOpen && (
                     <div
-                      className={`absolute lg:right-0 mt-2 w-80 max-h-96 overflow-y-auto rounded-xl shadow-2xl z-50 backdrop-blur-lg animate-fadeIn max-w-[90vw] lg:max-w-[20rem] lg:top-[3rem] top-12 lg:right-0 right-2 ${
-                        isDarkMode
+                      className={`absolute lg:right-0 mt-2 w-80 max-h-96 overflow-y-auto rounded-xl shadow-2xl z-50 backdrop-blur-lg animate-fadeIn max-w-[90vw] lg:max-w-[20rem] lg:top-[3rem] top-12 lg:right-0 right-2 ${isDarkMode
                           ? "bg-gradient-to-b from-indigo-800/90 to-gray-900/90 border border-indigo-700/40"
                           : "bg-gradient-to-b from-white/90 to-indigo-100/90 border border-indigo-200/40"
-                      }`}
+                        }`}
                     >
                       <div
-                        className={`p-3 border-b flex justify-between items-center ${
-                          isDarkMode
+                        className={`p-3 border-b flex justify-between items-center ${isDarkMode
                             ? "border-indigo-700/50"
                             : "border-indigo-200/50"
-                        }`}
+                          }`}
                       >
                         <h3
-                          className={`font-medium ${
-                            isDarkMode ? "text-white" : "text-gray-800"
-                          }`}
+                          className={`font-medium ${isDarkMode ? "text-white" : "text-gray-800"
+                            }`}
                         >
                           Notifications
                         </h3>
                         {notificationCount > 0 && (
                           <button
                             onClick={markNotificationsAsRead}
-                            className={`text-xs px-2 py-1 rounded ${
-                              isDarkMode
+                            className={`text-xs px-2 py-1 rounded ${isDarkMode
                                 ? "bg-indigo-700 hover:bg-indigo-600 text-indigo-200"
                                 : "bg-indigo-100 hover:bg-indigo-200 text-indigo-700"
-                            }`}
+                              }`}
                           >
                             Mark all as read
                           </button>
@@ -476,23 +469,20 @@ const Navbar = () => {
                               onClick={() =>
                                 viewNotificationDetails(notification)
                               }
-                              className={`px-4 py-3 border-b last:border-b-0 cursor-pointer transition-all duration-200 ${
-                                isDarkMode
+                              className={`px-4 py-3 border-b last:border-b-0 cursor-pointer transition-all duration-200 ${isDarkMode
                                   ? "border-indigo-700/50 hover:bg-indigo-700/70"
                                   : "border-indigo-200/50 hover:bg-indigo-100"
-                              } ${
-                                !notification.read
+                                } ${!notification.read
                                   ? isDarkMode
                                     ? "bg-indigo-700/50"
                                     : "bg-blue-50"
                                   : ""
-                              }`}
+                                }`}
                             >
                               <div className="flex items-start">
                                 <div
-                                  className={`p-2 rounded-full mr-3 ${
-                                    isDarkMode ? "bg-indigo-700" : "bg-blue-100"
-                                  }`}
+                                  className={`p-2 rounded-full mr-3 ${isDarkMode ? "bg-indigo-700" : "bg-blue-100"
+                                    }`}
                                 >
                                   {notification.type === "auction" ? (
                                     <svg
@@ -513,29 +503,26 @@ const Navbar = () => {
                                 </div>
                                 <div className="flex-1">
                                   <p
-                                    className={`font-medium text-sm ${
-                                      isDarkMode
+                                    className={`font-medium text-sm ${isDarkMode
                                         ? "text-white"
                                         : "text-gray-800"
-                                    } ${!notification.read ? "font-bold" : ""}`}
+                                      } ${!notification.read ? "font-bold" : ""}`}
                                   >
                                     {notification.title}
                                   </p>
                                   <p
-                                    className={`text-xs mt-1 ${
-                                      isDarkMode
+                                    className={`text-xs mt-1 ${isDarkMode
                                         ? "text-indigo-200"
                                         : "text-gray-500"
-                                    }`}
+                                      }`}
                                   >
                                     {notification.message}
                                   </p>
                                   <p
-                                    className={`text-xs mt-1 ${
-                                      isDarkMode
+                                    className={`text-xs mt-1 ${isDarkMode
                                         ? "text-indigo-300"
                                         : "text-gray-400"
-                                    }`}
+                                      }`}
                                   >
                                     {new Date(
                                       notification.timestamp
@@ -550,9 +537,8 @@ const Navbar = () => {
                           ))
                         ) : (
                           <div
-                            className={`px-4 py-6 text-center ${
-                              isDarkMode ? "text-indigo-200" : "text-gray-500"
-                            }`}
+                            className={`px-4 py-6 text-center ${isDarkMode ? "text-indigo-200" : "text-gray-500"
+                              }`}
                           >
                             <p>No notifications yet</p>
                           </div>
@@ -564,11 +550,10 @@ const Navbar = () => {
 
                 {/* Dark Mode Toggle Button (Desktop) */}
                 <button
-                  className={`p-2 lg:p-2 rounded-full transition-all duration-300 relative overflow-hidden ${
-                    isDarkMode
+                  className={`p-2 lg:p-2 rounded-full transition-all duration-300 relative overflow-hidden ${isDarkMode
                       ? "bg-indigo-800/50 text-purple-400 hover:bg-indigo-700/70"
                       : "bg-indigo-100/50 text-indigo-700 hover:bg-indigo-200/70"
-                  } hover:scale-110`}
+                    } hover:scale-110`}
                   onClick={toggleTheme}
                   aria-label={
                     isDarkMode ? "Switch to light mode" : "Switch to dark mode"
@@ -580,9 +565,8 @@ const Navbar = () => {
                     <FaMoon className="text-indigo-700 relative z-10 transition-transform duration-300 hover:rotate-12" />
                   )}
                   <div
-                    className={`absolute inset-0 rounded-full transition-all duration-300 opacity-0 hover:opacity-100 ${
-                      isDarkMode ? "bg-purple-400/10" : "bg-indigo-700/10"
-                    }`}
+                    className={`absolute inset-0 rounded-full transition-all duration-300 opacity-0 hover:opacity-100 ${isDarkMode ? "bg-purple-400/10" : "bg-indigo-700/10"
+                      }`}
                   ></div>
                 </button>
 
@@ -594,8 +578,7 @@ const Navbar = () => {
                     <img
                       src={
                         user?.photoURL ||
-                        "https://i.ibb.co/Y75m1Mk9/Final-Boss.jpg" ||
-                        "/placeholder.svg"
+                        "https://i.ibb.co/Y75m1Mk9/Final-Boss.jpg"
                       }
                       alt="Profile"
                       className="w-9 h-9 rounded-full border-2 border-pink-400 transition-all duration-300 hover:border-purple-400"
@@ -605,30 +588,26 @@ const Navbar = () => {
 
                   {showProfileMenu && (
                     <div
-                      className={`absolute right-0 mt-2 w-56 rounded-xl shadow-2xl overflow-hidden z-50 backdrop-blur-lg animate-fadeIn ${
-                        isDarkMode
+                      className={`absolute right-0 mt-2 w-56 rounded-xl shadow-2xl overflow-hidden z-50 backdrop-blur-lg animate-fadeIn ${isDarkMode
                           ? "bg-gradient-to-b from-indigo-800/90 to-gray-900/90 border border-indigo-700/40"
                           : "bg-gradient-to-b from-white/90 to-indigo-100/90 border border-indigo-200/40"
-                      }`}
+                        }`}
                     >
                       <div
-                        className={`px-4 py-3 ${
-                          isDarkMode
+                        className={`px-4 py-3 ${isDarkMode
                             ? "border-b border-indigo-700/50"
                             : "border-b border-indigo-200/50"
-                        }`}
+                          }`}
                       >
                         <p
-                          className={`font-semibold text-sm ${
-                            isDarkMode ? "text-white" : "text-gray-800"
-                          }`}
+                          className={`font-semibold text-sm ${isDarkMode ? "text-white" : "text-gray-800"
+                            }`}
                         >
                           {user?.displayName || "User"}
                         </p>
                         <p
-                          className={`text-xs truncate ${
-                            isDarkMode ? "text-indigo-200" : "text-indigo-600"
-                          }`}
+                          className={`text-xs truncate ${isDarkMode ? "text-indigo-200" : "text-indigo-600"
+                            }`}
                         >
                           {user?.email}
                         </p>
@@ -657,16 +636,14 @@ const Navbar = () => {
                         <Link
                           key={index}
                           to={item.to}
-                          className={`flex items-center gap-3 py-2 px-4 transition-all duration-200 relative overflow-hidden ${
-                            isDarkMode
+                          className={`flex items-center gap-3 py-2 px-4 transition-all duration-200 relative overflow-hidden ${isDarkMode
                               ? "text-indigo-100 hover:bg-indigo-700/70 hover:text-white"
                               : "text-indigo-800 hover:bg-indigo-100 hover:text-indigo-900"
-                          }`}
+                            }`}
                         >
                           <span
-                            className={`${
-                              isDarkMode ? "text-indigo-300" : "text-indigo-700"
-                            } transition-all duration-300`}
+                            className={`${isDarkMode ? "text-indigo-300" : "text-indigo-700"
+                              } transition-all duration-300`}
                           >
                             {item.icon}
                           </span>
@@ -676,24 +653,21 @@ const Navbar = () => {
                       ))}
 
                       <div
-                        className={`mt-1 ${
-                          isDarkMode
+                        className={`mt-1 ${isDarkMode
                             ? "border-t border-indigo-700/50"
                             : "border-t border-indigo-200/50"
-                        }`}
+                          }`}
                       >
                         <button
                           onClick={handleGoogleSignOut}
-                          className={`w-full flex items-center gap-3 py-2 px-4 transition-all duration-200 relative overflow-hidden ${
-                            isDarkMode
+                          className={`w-full flex items-center gap-3 py-2 px-4 transition-all duration-200 relative overflow-hidden ${isDarkMode
                               ? "text-red-300 hover:bg-red-900/50 hover:text-red-200"
                               : "text-red-600 hover:bg-red-100 hover:text-red-700"
-                          }`}
+                            }`}
                         >
                           <MdOutlineLogout
-                            className={`${
-                              isDarkMode ? "text-red-300" : "text-red-600"
-                            }`}
+                            className={`${isDarkMode ? "text-red-300" : "text-red-600"
+                              }`}
                           />
                           <span className="relative z-10">Logout</span>
                           <div className="absolute inset-0 bg-gradient-to-r from-transparent to-transparent hover:from-red-500/10 hover:to-red-400/5 transition-all duration-200 opacity-0 hover:opacity-100"></div>
@@ -706,13 +680,12 @@ const Navbar = () => {
             ) : (
               <Link
                 to="/login"
-                className={`relative flex items-center gap-2 py-2 px-4 rounded-lg transition-all duration-300 group ${
-                  location.pathname === "/login"
+                className={`relative flex items-center gap-2 py-2 px-4 rounded-lg transition-all duration-300 group ${location.pathname === "/login"
                     ? "text-white font-bold border-b-2 border-purple-500"
                     : isDarkMode
-                    ? "text-white hover:text-purple-200"
-                    : "text-white hover:text-purple-100"
-                }`}
+                      ? "text-white hover:text-purple-200"
+                      : "text-white hover:text-purple-100"
+                  }`}
               >
                 <FaUserCircle className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" />
                 <span className="relative z-10 transition-transform duration-300 group-hover:transform group-hover:translate-y-[-2px]">
@@ -727,17 +700,15 @@ const Navbar = () => {
             {user?.email && (
               <div className="hidden">
                 <button
-                  className={`flex items-center gap-1 py-1.5 px-3 rounded-lg text-sm transition-all duration-300 relative overflow-hidden ${
-                    isDarkMode
+                  className={`flex items-center gap-1 py-1.5 px-3 rounded-lg text-sm transition-all duration-300 relative overflow-hidden ${isDarkMode
                       ? "bg-indigo-700/50 text-white hover:bg-indigo-600/70"
                       : "bg-indigo-200/50 text-indigo-900 hover:bg-indigo-300/70"
-                  } hover:scale-105`}
+                    } hover:scale-105`}
                   onClick={() => setShowWalletModal(true)}
                 >
                   <FaWallet
-                    className={`${
-                      isDarkMode ? "text-purple-400" : "text-indigo-700"
-                    } text-sm`}
+                    className={`${isDarkMode ? "text-purple-400" : "text-indigo-700"
+                      } text-sm`}
                   />
                   <span className="relative z-10 text-sm">
                     $ {dbUser?.accountBalance}
@@ -752,11 +723,10 @@ const Navbar = () => {
 
             {/* Dark Mode Toggle Button (Mobile) */}
             <button
-              className={`p-2 lg:p-2 rounded-full transition-all duration-300 relative overflow-hidden ${
-                isDarkMode
+              className={`p-2 lg:p-2 rounded-full transition-all duration-300 relative overflow-hidden ${isDarkMode
                   ? "bg-indigo-800/50 text-purple-400 hover:bg-indigo-700/70"
                   : "bg-indigo-100/50 text-indigo-700 hover:bg-indigo-200/70"
-              } hover:scale-110 touch-p-3`}
+                } hover:scale-110 touch-p-3`}
               onClick={toggleTheme}
               aria-label={
                 isDarkMode ? "Switch to light mode" : "Switch to dark mode"
@@ -768,20 +738,18 @@ const Navbar = () => {
                 <FaMoon className="text-indigo-700 relative z-10 transition-transform duration-300 hover:rotate-12" />
               )}
               <div
-                className={`absolute inset-0 rounded-full transition-all duration-300 opacity-0 hover:opacity-100 ${
-                  isDarkMode ? "bg-purple-400/10" : "bg-indigo-700/10"
-                }`}
+                className={`absolute inset-0 rounded-full transition-all duration-300 opacity-0 hover:opacity-100 ${isDarkMode ? "bg-purple-400/10" : "bg-indigo-700/10"
+                  }`}
               ></div>
             </button>
             {/* Mobile Notifications Button */}
             {user?.email && (
               <div className="relative" ref={notificationsRef}>
                 <button
-                  className={`p-2 rounded-full transition-all duration-300 relative overflow-hidden ${
-                    isDarkMode
+                  className={`p-2 rounded-full transition-all duration-300 relative overflow-hidden ${isDarkMode
                       ? "bg-indigo-800/50 text-purple-400 hover:bg-indigo-700/70"
                       : "bg-indigo-100/50 text-indigo-700 hover:bg-indigo-200/70"
-                  } hover:scale-110`}
+                    } hover:scale-110`}
                   onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
                   aria-label="Notifications"
                 >
@@ -792,42 +760,37 @@ const Navbar = () => {
                     </span>
                   )}
                   <div
-                    className={`absolute inset-0 rounded-full transition-all duration-300 opacity-0 hover:opacity-100 ${
-                      isDarkMode ? "bg-purple-400/10" : "bg-indigo-700/10"
-                    }`}
+                    className={`absolute inset-0 rounded-full transition-all duration-300 opacity-0 hover:opacity-100 ${isDarkMode ? "bg-purple-400/10" : "bg-indigo-700/10"
+                      }`}
                   ></div>
                 </button>
 
                 {isNotificationsOpen && (
                   <div
-                    className={`absolute lg:right-0 mt-2 w-80 max-h-96 overflow-y-auto rounded-xl shadow-2xl z-50 backdrop-blur-lg animate-fadeIn max-w-[90vw] lg:max-w-[20rem] lg:top-[3rem] top-12  right-0  ${
-                      isDarkMode
+                    className={`absolute lg:right-0 mt-2 w-80 max-h-96 overflow-y-auto rounded-xl shadow-2xl z-50 backdrop-blur-lg animate-fadeIn max-w-[90vw] lg:max-w-[20rem] lg:top-[3rem] top-12  right-0  ${isDarkMode
                         ? "bg-gradient-to-b from-indigo-800/90 to-gray-900/90 border border-indigo-700/40"
                         : "bg-gradient-to-b from-white/90 to-indigo-100/90 border border-indigo-200/40"
-                    }`}
+                      }`}
                   >
                     <div
-                      className={`p-3 border-b flex justify-between items-center ${
-                        isDarkMode
+                      className={`p-3 border-b flex justify-between items-center ${isDarkMode
                           ? "border-indigo-700/50"
                           : "border-indigo-200/50"
-                      }`}
+                        }`}
                     >
                       <h3
-                        className={`font-medium ${
-                          isDarkMode ? "text-white" : "text-gray-800"
-                        }`}
+                        className={`font-medium ${isDarkMode ? "text-white" : "text-gray-800"
+                          }`}
                       >
                         Notifications
                       </h3>
                       {notificationCount > 0 && (
                         <button
                           onClick={markNotificationsAsRead}
-                          className={`text-xs px-2 py-1 rounded ${
-                            isDarkMode
+                          className={`text-xs px-2 py-1 rounded ${isDarkMode
                               ? "bg-indigo-700 hover:bg-indigo-600 text-indigo-200"
                               : "bg-indigo-100 hover:bg-indigo-200 text-indigo-700"
-                          }`}
+                            }`}
                         >
                           Mark all as read
                         </button>
@@ -842,23 +805,20 @@ const Navbar = () => {
                             onClick={() =>
                               viewNotificationDetails(notification)
                             }
-                            className={`px-4 py-3 border-b last:border-b-0 cursor-pointer transition-all duration-200 ${
-                              isDarkMode
+                            className={`px-4 py-3 border-b last:border-b-0 cursor-pointer transition-all duration-200 ${isDarkMode
                                 ? "border-indigo-700/50 hover:bg-indigo-700/70"
                                 : "border-indigo-200/50 hover:bg-indigo-100"
-                            } ${
-                              !notification.read
+                              } ${!notification.read
                                 ? isDarkMode
                                   ? "bg-indigo-700/50"
                                   : "bg-blue-50"
                                 : ""
-                            }`}
+                              }`}
                           >
                             <div className="flex items-start">
                               <div
-                                className={`p-2 rounded-full mr-3 ${
-                                  isDarkMode ? "bg-indigo-700" : "bg-blue-100"
-                                }`}
+                                className={`p-2 rounded-full mr-3 ${isDarkMode ? "bg-indigo-700" : "bg-blue-100"
+                                  }`}
                               >
                                 {notification.type === "auction" ? (
                                   <svg
@@ -879,27 +839,24 @@ const Navbar = () => {
                               </div>
                               <div className="flex-1">
                                 <p
-                                  className={`font-medium text-sm ${
-                                    isDarkMode ? "text-white" : "text-gray-800"
-                                  } ${!notification.read ? "font-bold" : ""}`}
+                                  className={`font-medium text-sm ${isDarkMode ? "text-white" : "text-gray-800"
+                                    } ${!notification.read ? "font-bold" : ""}`}
                                 >
                                   {notification.title}
                                 </p>
                                 <p
-                                  className={`text-xs mt-1 ${
-                                    isDarkMode
+                                  className={`text-xs mt-1 ${isDarkMode
                                       ? "text-indigo-200"
                                       : "text-gray-500"
-                                  }`}
+                                    }`}
                                 >
                                   {notification.message}
                                 </p>
                                 <p
-                                  className={`text-xs mt-1 ${
-                                    isDarkMode
+                                  className={`text-xs mt-1 ${isDarkMode
                                       ? "text-indigo-300"
                                       : "text-gray-400"
-                                  }`}
+                                    }`}
                                 >
                                   {new Date(
                                     notification.timestamp
@@ -914,9 +871,8 @@ const Navbar = () => {
                         ))
                       ) : (
                         <div
-                          className={`px-4 py-6 text-center ${
-                            isDarkMode ? "text-indigo-200" : "text-gray-500"
-                          }`}
+                          className={`px-4 py-6 text-center ${isDarkMode ? "text-indigo-200" : "text-gray-500"
+                            }`}
                         >
                           <p>No notifications yet</p>
                         </div>
@@ -927,15 +883,14 @@ const Navbar = () => {
               </div>
             )}
             <button
-              className={`p-2 rounded-full transition-all duration-300 relative overflow-hidden ${
-                mobileMenuOpen
+              className={`p-2 rounded-full transition-all duration-300 relative overflow-hidden ${mobileMenuOpen
                   ? isDarkMode
                     ? "bg-indigo-700/70 text-purple-400 border border-purple-400/40"
                     : "bg-indigo-200/70 text-indigo-900 border border-indigo-400/40"
                   : isDarkMode
-                  ? "bg-indigo-800/50 text-purple-400 hover:bg-indigo-700/70"
-                  : "bg-indigo-100/50 text-indigo-700 hover:bg-indigo-200/70"
-              } hover:scale-110`}
+                    ? "bg-indigo-800/50 text-purple-400 hover:bg-indigo-700/70"
+                    : "bg-indigo-100/50 text-indigo-700 hover:bg-indigo-200/70"
+                } hover:scale-110`}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
             >
@@ -969,31 +924,27 @@ const Navbar = () => {
                 </svg>
               )}
               <div
-                className={`absolute inset-0 rounded-full transition-all duration-300 opacity-0 hover:opacity-100 ${
-                  isDarkMode ? "bg-purple-400/10" : "bg-indigo-700/10"
-                }`}
+                className={`absolute inset-0 rounded-full transition-all duration-300 opacity-0 hover:opacity-100 ${isDarkMode ? "bg-purple-400/10" : "bg-indigo-700/10"
+                  }`}
               ></div>
             </button>
           </div>
         </div>
 
         <div
-          className={`lg:hidden fixed top-0 left-0 w-64 h-screen z-50 transform transition-transform duration-200 ease-in-out ${
-            mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-          } ${
-            isDarkMode
+          className={`lg:hidden fixed top-0 left-0 w-64 h-screen z-50 transform transition-transform duration-200 ease-in-out ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+            } ${isDarkMode
               ? "bg-gradient-to-b from-gray-900 to-indigo-900"
               : "bg-gradient-to-b from-indigo-50 to-purple-100"
-          } rounded-r-xl shadow-2xl`}
+            } rounded-r-xl shadow-2xl`}
         >
           <div className="relative h-full flex flex-col">
             <div className="absolute top-4 right-4 z-10">
               <button
-                className={`p-2 rounded-full transition-all duration-200 ${
-                  isDarkMode
+                className={`p-2 rounded-full transition-all duration-200 ${isDarkMode
                     ? "text-indigo-300 hover:bg-indigo-800/50"
                     : "text-indigo-700 hover:bg-indigo-200"
-                }`}
+                  }`}
                 onClick={() => setMobileMenuOpen(false)}
                 aria-label="Close menu"
               >
@@ -1029,34 +980,30 @@ const Navbar = () => {
 
               {user?.email && (
                 <div
-                  className={`rounded-xl p-3 mb-6 shadow-lg ${
-                    isDarkMode
+                  className={`rounded-xl p-3 mb-6 shadow-lg ${isDarkMode
                       ? "bg-indigo-800/60 border border-indigo-700/40"
                       : "bg-white/90 border border-indigo-200/40"
-                  } transition-all duration-200 hover:shadow-xl`}
+                    } transition-all duration-200 hover:shadow-xl`}
                 >
                   <div className="flex items-center gap-2">
                     <img
                       className="w-10 h-10 rounded-full border-2 border-pink-400 p-0.5"
                       src={
                         user?.photoURL ||
-                        "https://i.ibb.co/Y75m1Mk9/Final-Boss.jpg" ||
-                        "/placeholder.svg"
+                        "https://i.ibb.co/Y75m1Mk9/Final-Boss.jpg"
                       }
                       alt="User profile"
                     />
                     <div>
                       <p
-                        className={`font-bold text-sm ${
-                          isDarkMode ? "text-white" : "text-gray-800"
-                        }`}
+                        className={`font-bold text-sm ${isDarkMode ? "text-white" : "text-gray-800"
+                          }`}
                       >
                         {user?.displayName || "User"}
                       </p>
                       <p
-                        className={`text-xs ${
-                          isDarkMode ? "text-indigo-200" : "text-indigo-600"
-                        }`}
+                        className={`text-xs ${isDarkMode ? "text-indigo-200" : "text-indigo-600"
+                          }`}
                       >
                         <span className="inline-block px-2 py-0.5 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full text-white text-xs font-semibold mt-1 capitalize">
                           {dbUser?.role || "Guest"}
@@ -1069,9 +1016,8 @@ const Navbar = () => {
 
               <div className="space-y-1">
                 <p
-                  className={`text-xs font-semibold uppercase tracking-wider mb-2 pl-2 ${
-                    isDarkMode ? "text-indigo-300" : "text-indigo-700"
-                  }`}
+                  className={`text-xs font-semibold uppercase tracking-wider mb-2 pl-2 ${isDarkMode ? "text-indigo-300" : "text-indigo-700"
+                    }`}
                 >
                   Navigation
                 </p>
@@ -1083,9 +1029,8 @@ const Navbar = () => {
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <span
-                      className={`w-4 h-4 ${
-                        isDarkMode ? "text-indigo-300" : "text-indigo-700"
-                      }`}
+                      className={`w-4 h-4 ${isDarkMode ? "text-indigo-300" : "text-indigo-700"
+                        }`}
                     >
                       {item.icon}
                     </span>
@@ -1096,9 +1041,8 @@ const Navbar = () => {
                 {user?.email && (
                   <>
                     <p
-                      className={`text-xs font-semibold uppercase tracking-wider mt-4 mb-2 pl-2 ${
-                        isDarkMode ? "text-indigo-300" : "text-indigo-700"
-                      }`}
+                      className={`text-xs font-semibold uppercase tracking-wider mt-4 mb-2 pl-2 ${isDarkMode ? "text-indigo-300" : "text-indigo-700"
+                        }`}
                     >
                       User
                     </p>
@@ -1108,9 +1052,8 @@ const Navbar = () => {
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       <MdOutlineDashboard
-                        className={`w-4 h-4 ${
-                          isDarkMode ? "text-indigo-300" : "text-indigo-700"
-                        }`}
+                        className={`w-4 h-4 ${isDarkMode ? "text-indigo-300" : "text-indigo-700"
+                          }`}
                       />
                       <span>Dashboard</span>
                     </Link>
@@ -1120,28 +1063,25 @@ const Navbar = () => {
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       <FaUserCircle
-                        className={`w-4 h-4 ${
-                          isDarkMode ? "text-indigo-300" : "text-indigo-700"
-                        }`}
+                        className={`w-4 h-4 ${isDarkMode ? "text-indigo-300" : "text-indigo-700"
+                          }`}
                       />
                       <span>Your Profile</span>
                     </Link>
                     <Link
                       to={`/dashboard/walletHistory`}
-                      className={`flex items-center gap-3 w-full py-2 px-3 rounded-lg transition-all duration-200 ${
-                        isDarkMode
+                      className={`flex items-center gap-3 w-full py-2 px-3 rounded-lg transition-all duration-200 ${isDarkMode
                           ? "bg-indigo-700/50 text-white hover:bg-indigo-600/70"
                           : "bg-indigo-200/50 text-indigo-900 hover:bg-indigo-300/70"
-                      }`}
+                        }`}
                       onClick={() => {
                         setShowWalletModal(true);
                         setMobileMenuOpen(false);
                       }}
                     >
                       <FaWallet
-                        className={`w-4 h-4 ${
-                          isDarkMode ? "text-purple-400" : "text-indigo-700"
-                        }`}
+                        className={`w-4 h-4 ${isDarkMode ? "text-purple-400" : "text-indigo-700"
+                          }`}
                       />
                       <span>${dbUser?.accountBalance}</span>
                       <FaPlus className="text-green-400 text-xs animate-pulse ml-auto" />
@@ -1151,9 +1091,8 @@ const Navbar = () => {
               </div>
 
               <div
-                className={`mt-4 pt-4 border-t ${
-                  isDarkMode ? "border-indigo-700/40" : "border-indigo-200/40"
-                }`}
+                className={`mt-4 pt-4 border-t ${isDarkMode ? "border-indigo-700/40" : "border-indigo-200/40"
+                  }`}
               >
                 {user?.email ? (
                   <button
@@ -1161,33 +1100,29 @@ const Navbar = () => {
                       handleGoogleSignOut();
                       setMobileMenuOpen(false);
                     }}
-                    className={`w-full flex items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 ${
-                      isDarkMode
+                    className={`w-full flex items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 ${isDarkMode
                         ? "bg-red-900/50 text-red-300 hover:bg-red-900/70"
                         : "bg-red-50 text-red-600 hover:bg-red-100"
-                    }`}
+                      }`}
                   >
                     <MdOutlineLogout
-                      className={`w-4 h-4 ${
-                        isDarkMode ? "text-red-300" : "text-red-600"
-                      }`}
+                      className={`w-4 h-4 ${isDarkMode ? "text-red-300" : "text-red-600"
+                        }`}
                     />
                     <span>Logout</span>
                   </button>
                 ) : (
                   <Link
                     to="/login"
-                    className={`w-full flex items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 ${
-                      isDarkMode
+                    className={`w-full flex items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 ${isDarkMode
                         ? "bg-indigo-700/70 text-white hover:bg-indigo-700/90"
                         : "bg-indigo-200 text-indigo-900 hover:bg-indigo-300"
-                    }`}
+                      }`}
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <FaUserCircle
-                      className={`w-4 h-4 ${
-                        isDarkMode ? "text-indigo-300" : "text-indigo-700"
-                      }`}
+                      className={`w-4 h-4 ${isDarkMode ? "text-indigo-300" : "text-indigo-700"
+                        }`}
                     />
                     <span>Login</span>
                   </Link>
@@ -1195,9 +1130,8 @@ const Navbar = () => {
               </div>
 
               <div
-                className={`mt-4 text-center text-xs ${
-                  isDarkMode ? "text-indigo-300/70" : "text-indigo-600/70"
-                }`}
+                className={`mt-4 text-center text-xs ${isDarkMode ? "text-indigo-300/70" : "text-indigo-600/70"
+                  }`}
               >
                 <p>Rex Auction v1.2.0</p>
               </div>
@@ -1217,41 +1151,37 @@ const Navbar = () => {
       {showWalletModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div
-            className={`p-6 rounded-lg shadow-lg ${
-              isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"
-            }`}
+            className={`p-6 rounded-lg shadow-lg ${isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"
+              }`}
           >
             <h2 className="text-lg font-semibold mb-4">Add Funds to Wallet</h2>
             <input
               type="number"
               value={depositAmount}
               onChange={(e) => setDepositAmount(e.target.value)}
-              className={`w-full p-2 mb-4 border rounded ${
-                isDarkMode
+              className={`w-full p-2 mb-4 border rounded ${isDarkMode
                   ? "bg-gray-700 border-gray-600"
                   : "bg-gray-100 border-gray-300"
-              }`}
+                }`}
               placeholder="Enter amount"
             />
             <input
               type="text"
               value={accountNumber}
               onChange={(e) => setAccountNumber(e.target.value)}
-              className={`w-full p-2 mb-4 border rounded ${
-                isDarkMode
+              className={`w-full p-2 mb-4 border rounded ${isDarkMode
                   ? "bg-gray-700 border-gray-600"
                   : "bg-gray-100 border-gray-300"
-              }`}
+                }`}
               placeholder="Enter account number"
             />
             <div className="flex justify-end space-x-2">
               <button
                 onClick={() => setShowWalletModal(false)}
-                className={`px-4 py-2 rounded ${
-                  isDarkMode
+                className={`px-4 py-2 rounded ${isDarkMode
                     ? "bg-gray-600 hover:bg-gray-500"
                     : "bg-gray-200 hover:bg-gray-300"
-                }`}
+                  }`}
               >
                 Cancel
               </button>

@@ -54,7 +54,7 @@ const MainContent = () => {
   useEffect(() => {
     if (user && !socketRef.current) {
       socketRef.current = io(
-        "http://localhost:5001",
+        import.meta.env.VITE_API_URL,
         {
           withCredentials: true,
           reconnection: true,

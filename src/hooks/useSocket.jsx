@@ -7,7 +7,7 @@ const useSocket = () => {
 
   useEffect(() => {
     if (!socketRef.current) {
-      const socket = io("http://localhost:5001"); // adjust as needed
+      const socket = io(import.meta.env.VITE_SOCKET_URL); // adjust as needed
       socketRef.current = socket;
 
       socket.on("connect", () => {

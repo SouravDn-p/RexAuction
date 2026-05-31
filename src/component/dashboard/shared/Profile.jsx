@@ -187,7 +187,7 @@ const Profile = () => {
     if (dbUser?.role === "admin") {
       axios
         .get(
-          "http://localhost:5001/upcoming-auctions"
+          import.meta.env.VITE_API_URL + "/upcoming-auctions"
         )
         .then((res) => setUpcomingAuctions(res.data))
         .catch((err) => console.error(err));
@@ -197,7 +197,7 @@ const Profile = () => {
   useEffect(() => {
     if (dbUser?.role === "admin") {
       axios
-        .get("http://localhost:5001/reviews")
+        .get(import.meta.env.VITE_API_URL + "/reviews")
         .then((res) => setUserReviews(res.data))
         .catch((err) => console.error(err));
     }
@@ -209,7 +209,7 @@ const Profile = () => {
     const fetchCoverOptions = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5001/cover-options"
+          import.meta.env.VITE_API_URL + "/cover-options"
         );
         setCoverOptions(response.data);
       } catch (error) {
@@ -228,7 +228,7 @@ const Profile = () => {
       if (user?.uid) {
         try {
           const response = await axios.get(
-            `http://localhost:5001/cover/${user.uid}`
+            `${import.meta.env.VITE_API_URL}/cover/${user.uid}`
           );
           if (response.data.image) {
             setCurrentCover(response.data.image);
@@ -250,7 +250,7 @@ const Profile = () => {
     setIsSaving(true);
     try {
       await axios.patch(
-        "http://localhost:5001/cover",
+        import.meta.env.VITE_API_URL + "/cover",
         {
           userId: user.uid,
           image: selectedCover, // This will be saved as `cover` in DB
@@ -662,17 +662,17 @@ const Profile = () => {
               </span>
 
               {/* Demo achievement badges */}
-              {true && ( // Simulate condition with `true` for demo
+              {dbUser?.AuctionsWon > 5 && (
                 <span className="bg-blue-600 text-white px-2 py-1 rounded-full">
                   🏆 Auction Master
                 </span>
               )}
-              {true && (
+              {dbUser?.ActiveBids > 10 && (
                 <span className="bg-indigo-600 text-white px-2 py-1 rounded-full">
                   ⏰ Last-Second Bidder
                 </span>
               )}
-              {true && (
+              {dbUser?.totalSpent > 10000 && (
                 <span className="bg-pink-500 text-white px-2 py-1 rounded-full">
                   💎 Big Spender
                 </span>

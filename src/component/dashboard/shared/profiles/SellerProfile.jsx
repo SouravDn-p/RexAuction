@@ -62,7 +62,7 @@ const SellerProfile = () => {
       setBalanceLoading(true);
       axios
         .get(
-          `http://localhost:5001/users?email=${user.email}`
+          `${import.meta.env.VITE_API_URL}/users?email=${user.email}`
         )
         .then((res) => {
           const userData = res.data[0];
@@ -83,7 +83,7 @@ const SellerProfile = () => {
       setPaymentsLoading(true);
       axios
         .get(
-          `http://localhost:5001/payments?sellerEmail=${user.email}`
+          `${import.meta.env.VITE_API_URL}/payments?sellerEmail=${user.email}`
         )
         .then((res) => {
           setPayments(res.data.slice(0, 5));
@@ -103,7 +103,7 @@ const SellerProfile = () => {
       setAuctionsLoading(true);
       axios
         .get(
-          `http://localhost:5001/auctions?sellerEmail=${user.email}`
+          `${import.meta.env.VITE_API_URL}/auctions?sellerEmail=${user.email}`
         )
         .then((res) => {
           setAuctions(res.data.slice(0, 5));
@@ -122,7 +122,7 @@ const SellerProfile = () => {
     const fetchCoverOptions = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5001/cover-options"
+          import.meta.env.VITE_API_URL + "/cover-options"
         );
         setCoverOptions(response.data);
       } catch (error) {
@@ -140,7 +140,7 @@ const SellerProfile = () => {
       if (user?.uid) {
         try {
           const response = await axios.get(
-            `http://localhost:5001/cover/${user.uid}`
+            `${import.meta.env.VITE_API_URL}/cover/${user.uid}`
           );
           if (response.data.image) {
             setCurrentCover(response.data.image);
@@ -187,7 +187,7 @@ const SellerProfile = () => {
     setIsSaving(true);
     try {
       await axios.patch(
-        "http://localhost:5001/cover",
+        import.meta.env.VITE_API_URL + "/cover",
         {
           userId: user.uid,
           image: selectedCover,

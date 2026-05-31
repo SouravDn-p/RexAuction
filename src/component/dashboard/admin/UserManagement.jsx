@@ -90,7 +90,7 @@ const UserManagement = () => {
         } else {
           Swal.fire({
             title: "Error!",
-            text: response.data.message,
+            text: res.data.message,
             icon: "error",
             customClass: {
               popup: isDarkMode ? "swal-dark-theme" : "",

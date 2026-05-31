@@ -18,6 +18,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import useAxiosPublic from "../../../hooks/useAxiosPublic";
 import Swal from "sweetalert2";
+import { toast } from "react-toastify";
 import LoadingSpinner from "../../LoadingSpinner";
 
 const Payment2 = () => {
@@ -238,7 +239,7 @@ const Payment2 = () => {
               })
               .catch((error) => {
                 console.error("Error fetching user data:", error);
-                setErrorMessage("Failed to load user data");
+                toast.error("Failed to load user data");
                 setLoading(false);
               });
           }

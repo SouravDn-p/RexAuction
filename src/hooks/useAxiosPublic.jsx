@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const axiosPublic = axios.create({
-  baseURL: "http://localhost:5001",
+  baseURL: import.meta.env.VITE_API_URL,
   // http://localhost:5001/
 });
 // http://localhost:5001/ https://rex-auction-server-side-jzyx.onrender.com

@@ -1518,7 +1518,7 @@ export default function AdminPayment() {
                     isDarkMode ? "text-gray-500" : "text-gray-400"
                   }`}
                 >
-                  {selectedPaymentpayment._id}
+                  {selectedPayment._id}
                 </p>
               </div>
               <div>

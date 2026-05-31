@@ -85,7 +85,7 @@ export default function Blog() {
     const fetchBlogPosts = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5001/blogs/${email}`
+          `${import.meta.env.VITE_API_URL}/blogs/${email}`
         );
         setBlogPosts(response.data);
         setIsLoading(false);
@@ -117,7 +117,7 @@ export default function Blog() {
 
       if (result.isConfirmed) {
         await axios.delete(
-          `http://localhost:5001/delete/${id}`
+          `${import.meta.env.VITE_API_URL}/delete/${id}`
         );
         setBlogPosts(blogPosts.filter((post) => post._id !== id));
         Swal.fire({

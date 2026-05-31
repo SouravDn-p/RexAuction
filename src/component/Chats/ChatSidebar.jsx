@@ -67,7 +67,7 @@ export default function ChatSidebar({
   useEffect(() => {
     if (!socketRef.current) {
       socketRef.current = io(
-        "http://localhost:5001",
+        import.meta.env.VITE_API_URL,
         {
           withCredentials: true,
           reconnection: true,

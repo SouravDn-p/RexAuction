@@ -29,7 +29,7 @@ const Blogs = () => {
   const blogsPerPage = 8;
   const navigate = useNavigate();
 
-  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5001";
+  const apiUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchBlogs = async () => {

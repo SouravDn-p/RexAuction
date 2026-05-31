@@ -25,7 +25,7 @@ export default function UpdateBlog() {
     const fetchBlogData = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:5001/blog/${id}`
+          `${import.meta.env.VITE_API_URL}/blog/${id}`
         );
         setBlogData(response.data);
       } catch (error) {
@@ -109,7 +109,7 @@ export default function UpdateBlog() {
 
       const updatedBlog = { ...blogData, imageUrls };
       const response = await axios.patch(
-        `http://localhost:5001/updateBlog/${id}`,
+        `${import.meta.env.VITE_API_URL}/updateBlog/${id}`,
         updatedBlog
       );
 

@@ -167,7 +167,7 @@ export const router = createBrowserRouter([
         element: <PaymentSuccess />,
         loader: ({ params }) =>
           fetch(
-            `http://localhost:5001/payments/${params.trxid}`
+            `${import.meta.env.VITE_API_URL}/payments/${params.trxid}`
           ),
       },
       {

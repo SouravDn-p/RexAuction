@@ -88,21 +88,21 @@ const AdminProfile = () => {
       setIsLoading(true);
       try {
         // Fetch users data
-        const usersResponse = await axios.get("http://localhost:5001/users");
+        const usersResponse = await axios.get(import.meta.env.VITE_API_URL + "/users");
         const users = usersResponse.data || [];
 
         // Fetch auctions data
-        const auctionsResponse = await axios.get("http://localhost:5001/auctions");
+        const auctionsResponse = await axios.get(import.meta.env.VITE_API_URL + "/auctions");
         const auctions = auctionsResponse.data || [];
 
         // Fetch seller requests
-        const requestsResponse = await axios.get("http://localhost:5001/sellerRequest");
+        const requestsResponse = await axios.get(import.meta.env.VITE_API_URL + "/sellerRequest");
         const requests = requestsResponse.data || [];
 
         // Fetch revenue data (if you have an endpoint)
         let totalRevenue = 0;
         try {
-          const revenueResponse = await axios.get("http://localhost:5001/revenue");
+          const revenueResponse = await axios.get(import.meta.env.VITE_API_URL + "/revenue");
           totalRevenue = revenueResponse.data.total || 0;
         } catch (error) {
           console.log("Revenue endpoint not available");
@@ -128,7 +128,7 @@ const AdminProfile = () => {
         // Calculate support tickets (if you have an endpoint)
         let supportTickets = 0;
         try {
-          const ticketsResponse = await axios.get("http://localhost:5001/support/tickets");
+          const ticketsResponse = await axios.get(import.meta.env.VITE_API_URL + "/support/tickets");
           supportTickets = ticketsResponse.data.openTickets || 0;
         } catch (error) {
           supportTickets = pendingRequests; // Fallback
@@ -160,7 +160,7 @@ const AdminProfile = () => {
 
         // Fetch cover options from your backend or use defaults
         try {
-          const coverResponse = await axios.get("http://localhost:5001/cover-images");
+          const coverResponse = await axios.get(import.meta.env.VITE_API_URL + "/cover-images");
           setCoverOptions(coverResponse.data);
         } catch (error) {
           // Fallback to default cover options
@@ -211,7 +211,7 @@ const AdminProfile = () => {
     setIsSaving(true);
     try {
       // Save cover image to backend
-      await axios.post("http://localhost:5001/user/cover", {
+      await axios.post(import.meta.env.VITE_API_URL + "/user/cover", {
         userId: user?.uid,
         coverImage: selectedCover
       });
@@ -230,12 +230,12 @@ const AdminProfile = () => {
 
   const handleApproveRequest = async (requestId, userEmail) => {
     try {
-      await axios.patch(`http://localhost:5001/sellerRequest/${requestId}`, {
+      await axios.patch(`${import.meta.env.VITE_API_URL}/sellerRequest/${requestId}`, {
         status: "approved"
       });
       
       // Update user role to seller
-      await axios.patch(`http://localhost:5001/user/${userEmail}`, {
+      await axios.patch(`${import.meta.env.VITE_API_URL}/user/${userEmail}`, {
         role: "seller"
       });
       
@@ -257,7 +257,7 @@ const AdminProfile = () => {
 
   const handleRejectRequest = async (requestId) => {
     try {
-      await axios.patch(`http://localhost:5001/sellerRequest/${requestId}`, {
+      await axios.patch(`${import.meta.env.VITE_API_URL}/sellerRequest/${requestId}`, {
         status: "rejected"
       });
       

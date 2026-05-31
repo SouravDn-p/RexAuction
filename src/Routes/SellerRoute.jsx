@@ -4,7 +4,7 @@ import LoadingSpinner from "../component/LoadingSpinner";
 import useAuth from "../hooks/useAuth";
 
 
-const SellerRoute = () => {
+const SellerRoute = ({ children }) => {
     const { user, loading } = useAuth();
     const [isSeller, isSellerLoading] =useSeller();
     const location = useLocation();

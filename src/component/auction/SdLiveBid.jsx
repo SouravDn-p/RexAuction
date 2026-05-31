@@ -170,8 +170,7 @@ export default function SdLiveBid() {
 
   // Socket.IO connection setup with reconnection logic
   useEffect(() => {
-    const SOCKET_SERVER_URL =
-      "http://localhost:5001";
+    const SOCKET_SERVER_URL = import.meta.env.VITE_SOCKET_URL;
 
     const connectSocket = () => {
       console.log("Attempting to connect to socket server...");

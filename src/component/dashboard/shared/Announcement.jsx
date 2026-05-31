@@ -132,7 +132,7 @@ const Announcement = () => {
   useEffect(() => {
     if (!user) return;
 
-    const socket = io("http://localhost:5001", {
+    const socket = io(import.meta.env.VITE_SOCKET_URL, {
       withCredentials: true,
       reconnection: true,
       reconnectionAttempts: 5,
@@ -209,7 +209,7 @@ const Announcement = () => {
   const handlePostAnnouncement = async (announcementData) => {
     try {
       const response = await axios.post(
-        "http://localhost:5001/announcement",
+        import.meta.env.VITE_API_URL + "/announcement",
         {
           title: announcementData.title,
           content: announcementData.content,
@@ -239,7 +239,7 @@ const Announcement = () => {
     e.stopPropagation();
     try {
       const response = await axios.delete(
-        `http://localhost:5001/announcement/${id}`
+        `${import.meta.env.VITE_API_URL}/announcement/${id}`
       );
       if (response.status === 200) {
         toast.success("Announcement deleted successfully!");
@@ -299,7 +299,7 @@ const Announcement = () => {
 
     axios
       .put(
-        `http://localhost:5001/notifications/mark-read/${user.email}`,
+        `${import.meta.env.VITE_API_URL}/notifications/mark-read/${user.email}`,
         { notificationId: notification._id },
         { withCredentials: true }
       )
@@ -342,7 +342,7 @@ const Announcement = () => {
 
       if (user) {
         await axios.put(
-          `http://localhost:5001/notifications/mark-read/${user.email}`,
+          `${import.meta.env.VITE_API_URL}/notifications/mark-read/${user.email}`,
           {},
           { withCredentials: true }
         );

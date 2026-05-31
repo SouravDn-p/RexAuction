@@ -18,7 +18,7 @@ const NotificationHandler = () => {
   useEffect(() => {
     if (user && !socketRef.current) {
       socketRef.current = io(
-        "http://localhost:5001",
+        import.meta.env.VITE_API_URL,
         {
           withCredentials: true,
           reconnection: true,
@@ -84,7 +84,7 @@ const NotificationHandler = () => {
     try {
       // Update in database
       await axios.put(
-        `http://localhost:5001/notifications/mark-read/${user.email}`,
+        `${import.meta.env.VITE_API_URL}/notifications/mark-read/${user.email}`,
         { notificationId },
         { withCredentials: true }
       );

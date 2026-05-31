@@ -105,7 +105,7 @@ export default function SellerPayment() {
     setIsLoading(true);
     try {
       const response = await fetch(
-        "http://localhost:5001/payments"
+        import.meta.env.VITE_API_URL + "/payments"
       );
       const data = await response.json();
       // Filter payments for the logged-in seller

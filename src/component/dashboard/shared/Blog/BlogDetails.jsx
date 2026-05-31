@@ -32,7 +32,7 @@ const BlogDetails = () => {
     const fetchBlog = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:5001/blog/${id}`
+          `${import.meta.env.VITE_API_URL}/blog/${id}`
         );
         setBlog(res.data);
         setIsLoading(false);

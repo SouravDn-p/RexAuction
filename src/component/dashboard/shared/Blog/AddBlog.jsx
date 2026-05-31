@@ -122,7 +122,7 @@ export default function AddBlog() {
 
       // Submit blog to backend
       const response = await axios.post(
-        "http://localhost:5001/addBlogs",
+        import.meta.env.VITE_API_URL + "/addBlogs",
         blogDataWithImages,
         {
           headers: {

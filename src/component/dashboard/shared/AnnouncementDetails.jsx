@@ -36,7 +36,7 @@ const AnnouncementDetails = () => {
         try {
           setLoading(true);
           const response = await axios.get(
-            `http://localhost:5001/announcement/${id}`,
+            `${import.meta.env.VITE_API_URL}/announcement/${id}`,
             { withCredentials: true }
           );
           setAnnouncement(response.data);

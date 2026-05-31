@@ -129,7 +129,7 @@
 //       setBalanceLoading(true);
 //       axios
 //         .get(
-//           `http://localhost:5001/users?email=${user.email}`
+//           `${import.meta.env.VITE_API_URL}/users?email=${user.email}`
 //         )
 //         .then((res) => {
 //           const userData = res.data[0];
@@ -150,7 +150,7 @@
 //       setPaymentsLoading(true);
 //       axios
 //         .get(
-//           `http://localhost:5001/payments?buyerEmail=${user.email}`
+//           `${import.meta.env.VITE_API_URL}/payments?buyerEmail=${user.email}`
 //         )
 //         .then((res) => {
 //           setPayments(res.data.slice(0, 5));
@@ -169,7 +169,7 @@
 //     if (user?.email) {
 //       axios
 //         .get(
-//           `http://localhost:5001/bids?buyerEmail=${user.email}`
+//           `${import.meta.env.VITE_API_URL}/bids?buyerEmail=${user.email}`
 //         )
 //         .then((res) => setBiddingHistory(res.data.slice(0, 5)))
 //         .catch((err) => console.error("Error fetching bidding history:", err));
@@ -181,7 +181,7 @@
 //     if (user?.email) {
 //       setAuctionStatusLoading(true);
 //       axios
-//         .get("http://localhost:5001/auctions")
+//         .get(import.meta.env.VITE_API_URL + "/auctions")
 //         .then((res) => {
 //           console.log("Auction status response:", res.data);
 
@@ -237,7 +237,7 @@
 //     const fetchCoverOptions = async () => {
 //       try {
 //         const response = await axios.get(
-//           "http://localhost:5001/cover-options"
+//           import.meta.env.VITE_API_URL + "/cover-options"
 //         );
 //         setCoverOptions(response.data);
 //       } catch (error) {
@@ -255,7 +255,7 @@
 //       if (user?.uid) {
 //         try {
 //           const response = await axios.get(
-//             `http://localhost:5001/cover/${user.uid}`
+//             `${import.meta.env.VITE_API_URL}/cover/${user.uid}`
 //           );
 //           if (response.data.image) {
 //             setCurrentCover(response.data.image);
@@ -276,7 +276,7 @@
 //     setIsSaving(true);
 //     try {
 //       await axios.patch(
-//         "http://localhost:5001/cover",
+//         import.meta.env.VITE_API_URL + "/cover",
 //         {
 //           userId: user.uid,
 //           image: selectedCover,
@@ -1347,7 +1347,7 @@ const BuyerProfile = () => {
     bio: "",
   });
 
-  const apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5001";
+  const apiUrl = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_URL;
 
   // Initialize edit profile data when dbUser loads
   useEffect(() => {
