@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useState, useContext, useEffect } from "react";
-import ThemeContext from "../../component/Context/ThemeContext";
+import ThemeContext from "../../components/Context/ThemeContext";
 import { NavLink } from "react-router-dom";
 
 export default function TermsAndConditionsBuyer() {
@@ -44,11 +44,10 @@ export default function TermsAndConditionsBuyer() {
 
   return (
     <div
-      className={`flex flex-col justify-center items-center min-h-screen p-6 transition-colors duration-300 ${
-        isDarkMode
+      className={`flex flex-col justify-center items-center min-h-screen p-6 transition-colors duration-300 ${isDarkMode
           ? "bg-gray-900 text-white"
           : "bg-gradient-to-b from-purple-100 to-purple-300 text-gray-900"
-      }`}
+        }`}
     >
       {/* Heading */}
       <h2 className="text-3xl lg:text-4xl font-bold text-purple-700 dark:text-purple-300 text-center mb-6">
@@ -59,17 +58,15 @@ export default function TermsAndConditionsBuyer() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className={`w-full max-w-md md:max-w-lg lg:max-w-3xl shadow-xl rounded-2xl p-6 lg:p-8 transition-colors duration-300 ${
-          isDarkMode ? "bg-gray-800 text-white" : "bg-white"
-        }`}
+        className={`w-full max-w-md md:max-w-lg lg:max-w-3xl shadow-xl rounded-2xl p-6 lg:p-8 transition-colors duration-300 ${isDarkMode ? "bg-gray-800 text-white" : "bg-white"
+          }`}
       >
         {/* Terms List with Scroll */}
         <div
-          className={`h-64 lg:h-80 border p-4 rounded-md overflow-y-auto transition-colors duration-300 ${
-            isDarkMode
+          className={`h-64 lg:h-80 border p-4 rounded-md overflow-y-auto transition-colors duration-300 ${isDarkMode
               ? "bg-gray-600 border-gray-600 text-white "
               : "bg-gray-100"
-          }`}
+            }`}
         >
           {terms.map((term, index) => (
             <motion.div
@@ -83,9 +80,8 @@ export default function TermsAndConditionsBuyer() {
                 •
               </span>
               <p
-                className={`${
-                  isDarkMode ? "text-white" : "text-gray-700"
-                } dark:text-gray-200 text-sm lg:text-base`}
+                className={`${isDarkMode ? "text-white" : "text-gray-700"
+                  } dark:text-gray-200 text-sm lg:text-base`}
               >
                 {term}
               </p>
@@ -109,11 +105,10 @@ export default function TermsAndConditionsBuyer() {
         {/* Button */}
         <NavLink
           to={`/dashboard/becomeSeller`}
-          className={`w-full block text-center mt-6 px-5 py-3 text-white font-bold rounded-lg transition duration-300 ${
-            accepted
+          className={`w-full block text-center mt-6 px-5 py-3 text-white font-bold rounded-lg transition duration-300 ${accepted
               ? "bg-purple-700 hover:bg-purple-800"
               : "bg-gray-400 dark:bg-gray-600 cursor-not-allowed"
-          } text-sm lg:text-lg`}
+            } text-sm lg:text-lg`}
           disabled={!accepted}
         >
           Accept & Continue

@@ -1,10 +1,10 @@
 import { useContext, useEffect } from "react";
-import MainContent from "../component/dashboard/MainContent";
-import SdSidebar from "../component/dashboard/shared/SdSidebar";
-import ThemeContext from "../component/Context/ThemeContext";
+import MainContent from "../components/dashboard/MainContent";
+import SdSidebar from "../components/dashboard/shared/SdSidebar";
+import ThemeContext from "../components/Context/ThemeContext";
 import { AuthContexts } from "../providers/AuthProvider";
 import useAxiosPublic from "../hooks/useAxiosPublic";
-import LoadingSpinner from "../component/LoadingSpinner";
+import LoadingSpinner from "../components/LoadingSpinner";
 
 const DashboardLayout = () => {
   const { isDarkMode } = useContext(ThemeContext);
@@ -35,11 +35,10 @@ const DashboardLayout = () => {
 
   return (
     <div
-      className={`${
-        isDarkMode
+      className={`${isDarkMode
           ? " bg-gray-900"
           : "bg-gradient-to-b from-purple-100 via-white to-purple-50"
-      } min-h-screen max-w-screen`}
+        } min-h-screen max-w-screen`}
     >
       <div className="drawer lg:drawer-open">
         <input id="my-drawer-2" type="checkbox" className="drawer-toggle" />

@@ -2,8 +2,8 @@ import { useContext, useEffect, useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { FiArrowLeft, FiCalendar, FiShare2 } from "react-icons/fi";
-import ThemeContext from "../../../component/Context/ThemeContext";
-import LoadingSpinner from "../../../component/LoadingSpinner";
+import ThemeContext from "../../../components/Context/ThemeContext";
+import LoadingSpinner from "../../../components/LoadingSpinner";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -63,18 +63,16 @@ const AnnouncementDetails = () => {
   if (error || !announcement) {
     return (
       <div
-        className={`min-h-screen ${
-          isDarkMode ? "bg-gray-900 text-white" : "bg-purple-50 text-gray-800"
-        } p-6`}
+        className={`min-h-screen ${isDarkMode ? "bg-gray-900 text-white" : "bg-purple-50 text-gray-800"
+          } p-6`}
       >
         <div className="max-w-4xl mx-auto">
           <button
             onClick={() => navigate(-1)}
-            className={`flex items-center gap-2 mb-6 px-4 py-2 rounded-lg ${
-              isDarkMode
+            className={`flex items-center gap-2 mb-6 px-4 py-2 rounded-lg ${isDarkMode
                 ? "bg-gray-800 hover:bg-gray-700"
                 : "bg-white hover:bg-gray-100"
-            } transition-colors`}
+              } transition-colors`}
           >
             <FiArrowLeft /> Back
           </button>
@@ -95,19 +93,17 @@ const AnnouncementDetails = () => {
 
   return (
     <div
-      className={`min-h-screen ${
-        isDarkMode ? "bg-gray-900 text-white" : "bg-purple-50 text-gray-800"
-      } p-6`}
+      className={`min-h-screen ${isDarkMode ? "bg-gray-900 text-white" : "bg-purple-50 text-gray-800"
+        } p-6`}
     >
       <div className="max-w-4xl mx-auto">
         {/* Back Button */}
         <button
           onClick={() => navigate(-1)}
-          className={`flex items-center gap-2 mb-6 px-4 py-2 rounded-lg ${
-            isDarkMode
+          className={`flex items-center gap-2 mb-6 px-4 py-2 rounded-lg ${isDarkMode
               ? "bg-gray-800 hover:bg-gray-700"
               : "bg-white hover:bg-gray-100"
-          } transition-colors`}
+            } transition-colors`}
         >
           <FiArrowLeft /> Back to Announcements
         </button>
@@ -115,9 +111,8 @@ const AnnouncementDetails = () => {
         {/* Notification Info (if from notification) */}
         {notificationData && (
           <div
-            className={`mb-6 p-4 rounded-lg ${
-              isDarkMode ? "bg-gray-800" : "bg-white"
-            } shadow-md`}
+            className={`mb-6 p-4 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"
+              } shadow-md`}
           >
             <h3 className="text-lg font-semibold mb-2 text-purple-500">
               Notification Details
@@ -150,11 +145,10 @@ const AnnouncementDetails = () => {
         {/* Announcement Header */}
         <div className="mb-8">
           <h1
-            className={`text-3xl md:text-4xl font-bold mb-4 ${
-              isDarkMode
+            className={`text-3xl md:text-4xl font-bold mb-4 ${isDarkMode
                 ? "text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-indigo-500"
                 : "text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-700"
-            }`}
+              }`}
           >
             {announcement.title}
           </h1>
@@ -196,9 +190,8 @@ const AnnouncementDetails = () => {
 
         {/* Content */}
         <div
-          className={`prose max-w-none ${
-            isDarkMode ? "prose-invert" : ""
-          } mb-12`}
+          className={`prose max-w-none ${isDarkMode ? "prose-invert" : ""
+            } mb-12`}
         >
           <p className="text-lg leading-relaxed whitespace-pre-line">
             {announcement.content}
@@ -210,15 +203,13 @@ const AnnouncementDetails = () => {
           <h3 className="text-xl font-bold mb-4">Related Announcements</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div
-              className={`p-4 rounded-lg ${
-                isDarkMode ? "bg-gray-800" : "bg-white"
-              } shadow-md`}
+              className={`p-4 rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-white"
+                } shadow-md`}
             >
               <p className="text-purple-500 font-medium">Coming Soon</p>
               <p
-                className={`text-sm ${
-                  isDarkMode ? "text-gray-400" : "text-gray-600"
-                }`}
+                className={`text-sm ${isDarkMode ? "text-gray-400" : "text-gray-600"
+                  }`}
               >
                 More related announcements will appear here.
               </p>

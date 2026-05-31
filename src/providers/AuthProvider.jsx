@@ -12,7 +12,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import auth from "../firebase/firebase.init";
 import useAxiosPublic from "../hooks/useAxiosPublic";
 import { toast } from "react-hot-toast"; // ✅ Hot toast
-import LoadingSpinner from "../component/LoadingSpinner";
+import LoadingSpinner from "../components/LoadingSpinner";
 import axios from "axios";
 
 export const AuthContexts = createContext(null);

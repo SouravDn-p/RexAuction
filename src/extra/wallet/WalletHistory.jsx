@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { HiOutlinePlus, HiOutlineDocumentDownload } from "react-icons/hi";
 import { Link } from "react-router-dom";
-import ThemeContext from "../../component/Context/ThemeContext";
+import ThemeContext from "../../components/Context/ThemeContext";
 import useAuth from "../../hooks/useAuth";
 import { jsPDF } from "jspdf";
 import rexLogo from "../../assets/Logos/Rex_2.png";
@@ -248,11 +248,10 @@ export default function WalletHistory() {
   if (loading) {
     return (
       <div
-        className={`min-h-screen flex items-center justify-center ${
-          isDarkMode
+        className={`min-h-screen flex items-center justify-center ${isDarkMode
             ? "bg-gray-900"
             : "bg-gradient-to-br from-purple-50 to-white"
-        }`}
+          }`}
       >
         <p className={isDarkMode ? "text-white" : "text-gray-800"}>
           Loading...
@@ -263,22 +262,19 @@ export default function WalletHistory() {
 
   return (
     <section
-      className={`min-h-screen py-10 px-4 flex items-center justify-center ${
-        isDarkMode ? "bg-gray-900" : "bg-gradient-to-br from-purple-50 to-white"
-      }`}
+      className={`min-h-screen py-10 px-4 flex items-center justify-center ${isDarkMode ? "bg-gray-900" : "bg-gradient-to-br from-purple-50 to-white"
+        }`}
     >
       <div className="w-full max-w-5xl mx-auto">
         <div
-          className={`rounded-xl shadow-xl overflow-hidden border transform transition-all duration-300 hover:shadow-2xl ${
-            isDarkMode ? "border-gray-700" : "border-purple-100"
-          }`}
+          className={`rounded-xl shadow-xl overflow-hidden border transform transition-all duration-300 hover:shadow-2xl ${isDarkMode ? "border-gray-700" : "border-purple-100"
+            }`}
         >
           <div
-            className={`relative overflow-hidden ${
-              isDarkMode
+            className={`relative overflow-hidden ${isDarkMode
                 ? "bg-purple-900"
                 : "bg-gradient-to-r from-purple-600 via-purple-500 to-fuchsia-500"
-            } p-8`}
+              } p-8`}
           >
             {!isDarkMode && (
               <>
@@ -314,11 +310,10 @@ export default function WalletHistory() {
           </div>
 
           <div
-            className={`p-6 ${
-              isDarkMode
+            className={`p-6 ${isDarkMode
                 ? "bg-gray-800 text-gray-200"
                 : "bg-white text-gray-800"
-            }`}
+              }`}
           >
             <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
               <div className="flex items-center gap-2 w-full md:w-auto">
@@ -329,16 +324,15 @@ export default function WalletHistory() {
                   <HiOutlinePlus className="h-4 w-4" />
                   Add Balance
                 </Link>
-                
+
 
                 <button
                   onClick={exportToPDF}
                   className={`flex items-center gap-2 rounded-lg px-5 py-2.5 shadow-md hover:shadow-lg 
-                  transition-all duration-300 transform hover:scale-105 ${
-                    isDarkMode
+                  transition-all duration-300 transform hover:scale-105 ${isDarkMode
                       ? "bg-green-700 hover:bg-green-600 text-white"
                       : "bg-white hover:bg-gray-50 text-purple-700 border border-purple-200"
-                  }`}
+                    }`}
                 >
                   <HiOutlineDocumentDownload />
                   Export PDF
@@ -352,16 +346,14 @@ export default function WalletHistory() {
                     placeholder="Search transactions..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className={`w-full rounded-lg py-2.5 pl-10 pr-4 transition-all duration-300 transform hover:scale-105 ${
-                      isDarkMode
+                    className={`w-full rounded-lg py-2.5 pl-10 pr-4 transition-all duration-300 transform hover:scale-105 ${isDarkMode
                         ? "bg-gray-700 text-white border border-gray-600 placeholder-gray-400 focus:ring-gray-500"
                         : "bg-white text-gray-700 border border-purple-200 placeholder-gray-500 focus:ring-purple-500"
-                    } focus:outline-none focus:ring-2`}
+                      } focus:outline-none focus:ring-2`}
                   />
                   <Search
-                    className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 ${
-                      isDarkMode ? "text-gray-400" : "text-purple-500"
-                    }`}
+                    className={`absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 ${isDarkMode ? "text-gray-400" : "text-purple-500"
+                      }`}
                   />
                 </div>
 
@@ -369,11 +361,10 @@ export default function WalletHistory() {
                   <button
                     onClick={() => setIsFilterOpen(!isFilterOpen)}
                     className={`flex items-center justify-between w-[150px] rounded-lg py-2.5 px-4 
-                    transition-all duration-300 transform hover:scale-105 ${
-                      isDarkMode
+                    transition-all duration-300 transform hover:scale-105 ${isDarkMode
                         ? "bg-gray-700 text-white border border-gray-600 hover:bg-gray-600"
                         : "bg-white text-gray-700 border border-purple-200 hover:bg-purple-50"
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center gap-2">
                       <Filter className="h-4 w-4 text-purple-500" />
@@ -381,25 +372,23 @@ export default function WalletHistory() {
                         {filterType === "all"
                           ? "All Types"
                           : filterType === "deposit"
-                          ? "Deposits"
-                          : "Withdrawals"}
+                            ? "Deposits"
+                            : "Withdrawals"}
                       </span>
                     </div>
                     <ChevronDown
-                      className={`h-4 w-4 transition-transform duration-300 ${
-                        isFilterOpen ? "rotate-180" : ""
-                      }`}
+                      className={`h-4 w-4 transition-transform duration-300 ${isFilterOpen ? "rotate-180" : ""
+                        }`}
                     />
                   </button>
 
                   {isFilterOpen && (
                     <div
                       className={`absolute z-10 mt-1 w-full rounded-lg shadow-lg border 
-                      transform transition-all duration-300 origin-top ${
-                        isDarkMode
+                      transform transition-all duration-300 origin-top ${isDarkMode
                           ? "bg-gray-700 border-gray-600"
                           : "bg-white border-purple-100"
-                      }`}
+                        }`}
                     >
                       {[
                         { id: "all", label: "All Types" },
@@ -408,17 +397,15 @@ export default function WalletHistory() {
                       ].map((type) => (
                         <div
                           key={type.id}
-                          className={`py-2 px-4 cursor-pointer first:rounded-t-lg last:rounded-b-lg transition-colors duration-200 ${
-                            isDarkMode
+                          className={`py-2 px-4 cursor-pointer first:rounded-t-lg last:rounded-b-lg transition-colors duration-200 ${isDarkMode
                               ? "hover:bg-gray-600 text-white"
                               : "hover:bg-purple-50 text-gray-700"
-                          } ${
-                            filterType === type.id
+                            } ${filterType === type.id
                               ? isDarkMode
                                 ? "bg-gray-600"
                                 : "bg-purple-50"
                               : ""
-                          }`}
+                            }`}
                           onClick={() => {
                             setFilterType(type.id);
                             setIsFilterOpen(false);
@@ -434,9 +421,8 @@ export default function WalletHistory() {
             </div>
 
             <div
-              className={`rounded-xl border overflow-hidden ${
-                isDarkMode ? "border-gray-700" : "border-purple-100"
-              }`}
+              className={`rounded-xl border overflow-hidden ${isDarkMode ? "border-gray-700" : "border-purple-100"
+                }`}
             >
               <div className="overflow-x-auto">
                 <table className="w-full">
@@ -446,32 +432,28 @@ export default function WalletHistory() {
                     <tr>
                       <th className="text-left py-4 px-6 font-medium text-sm uppercase tracking-wider whitespace-nowrap">
                         <div
-                          className={`flex items-center gap-2 ${
-                            isDarkMode ? "text-purple-300" : "text-purple-700"
-                          }`}
+                          className={`flex items-center gap-2 ${isDarkMode ? "text-purple-300" : "text-purple-700"
+                            }`}
                         >
                           <Calendar />
                           Date
                         </div>
                       </th>
                       <th
-                        className={`text-left py-4 px-6 font-medium text-sm uppercase tracking-wider ${
-                          isDarkMode ? "text-purple-300" : "text-purple-700"
-                        }`}
+                        className={`text-left py-4 px-6 font-medium text-sm uppercase tracking-wider ${isDarkMode ? "text-purple-300" : "text-purple-700"
+                          }`}
                       >
                         Description
                       </th>
                       <th
-                        className={`text-left py-4 px-6 font-medium text-sm uppercase tracking-wider ${
-                          isDarkMode ? "text-purple-300" : "text-purple-700"
-                        }`}
+                        className={`text-left py-4 px-6 font-medium text-sm uppercase tracking-wider ${isDarkMode ? "text-purple-300" : "text-purple-700"
+                          }`}
                       >
                         Amount
                       </th>
                       <th
-                        className={`text-right py-4 px-6 font-medium text-sm uppercase tracking-wider ${
-                          isDarkMode ? "text-purple-300" : "text-purple-700"
-                        }`}
+                        className={`text-right py-4 px-6 font-medium text-sm uppercase tracking-wider ${isDarkMode ? "text-purple-300" : "text-purple-700"
+                          }`}
                       >
                         Status
                       </th>
@@ -482,24 +464,21 @@ export default function WalletHistory() {
                       filteredTransactions.map((transaction, index) => (
                         <tr
                           key={transaction.id}
-                          className={`transform transition-all duration-200 hover:scale-[1.01] ${
-                            isDarkMode
+                          className={`transform transition-all duration-200 hover:scale-[1.01] ${isDarkMode
                               ? "hover:bg-gray-700 border-t border-gray-700"
                               : "hover:bg-purple-50/50 border-t border-purple-100"
-                          }`}
+                            }`}
                           style={{
                             transitionDelay: `${index * 50}ms`,
                             opacity: 0,
-                            animation: `fadeIn 0.5s ease forwards ${
-                              index * 0.1
-                            }s`,
+                            animation: `fadeIn 0.5s ease forwards ${index * 0.1
+                              }s`,
                           }}
                         >
                           <td className="py-4 px-6 whitespace-nowrap">
                             <div
-                              className={`font-medium ${
-                                isDarkMode ? "text-gray-300" : "text-gray-600"
-                              }`}
+                              className={`font-medium ${isDarkMode ? "text-gray-300" : "text-gray-600"
+                                }`}
                             >
                               {formatDate(transaction.date)}
                             </div>
@@ -512,11 +491,10 @@ export default function WalletHistory() {
                           </td>
                           <td className="py-4 px-6">
                             <div
-                              className={`flex items-center gap-1 font-medium ${
-                                transaction.type === "Deposit"
+                              className={`flex items-center gap-1 font-medium ${transaction.type === "Deposit"
                                   ? "text-emerald-600 dark:text-emerald-400"
                                   : "text-rose-600 dark:text-rose-400"
-                              }`}
+                                }`}
                             >
                               {transaction.type === "Deposit" ? (
                                 <ArrowDown />

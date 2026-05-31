@@ -5,7 +5,7 @@
 // import useAxiosSecure from "../../hooks/useAxiosSecure";
 // import { Dialog, Transition } from "@headlessui/react";
 // import { Fragment } from "react";
-// import ThemeContext from "../../component/Context/ThemeContext";
+// import ThemeContext from "../../components/Context/ThemeContext";
 // import { toast } from "react-hot-toast";
 // import LoadingSpinner from "../LoadingSpinner";
 // import axios from "axios";
@@ -822,7 +822,7 @@ import useAuth from "../../hooks/useAuth";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
-import ThemeContext from "../../component/Context/ThemeContext";
+import ThemeContext from "../../components/Context/ThemeContext";
 import { toast } from "react-hot-toast";
 import LoadingSpinner from "../LoadingSpinner";
 import { FiEdit2, FiCamera, FiUser, FiMapPin, FiMail, FiPhone, FiFileText } from "react-icons/fi";
@@ -865,7 +865,7 @@ const ProfileSettings = () => {
         // Use axiosSecure instance instead of hardcoded URL
         const response = await axiosSecure.get(`/user/${user.email}`);
         setProfileData(response.data);
-        
+
         // Update form data with fetched data
         setFormData({
           name: response.data?.name || "",
@@ -879,7 +879,7 @@ const ProfileSettings = () => {
           photoURL: response.data?.photoURL || user?.photoURL || "",
           photoFile: null,
         });
-        
+
         setError(null);
       } catch (err) {
         // Handle 404 gracefully - user might not exist in DB yet
@@ -891,7 +891,7 @@ const ProfileSettings = () => {
             photoURL: user.photoURL || "",
             role: "user",
           });
-          
+
           setFormData(prev => ({
             ...prev,
             email: user.email,
@@ -943,7 +943,7 @@ const ProfileSettings = () => {
   const handleNameChange = (type, value) => {
     const currentName = formData.name || "";
     const nameParts = currentName.split(" ").filter(Boolean);
-    
+
     if (type === "firstName") {
       const lastName = nameParts.slice(1).join(" ") || "";
       setFormData((prev) => ({
@@ -988,14 +988,14 @@ const ProfileSettings = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!user?.email) {
       toast.error("You must be logged in to update your profile");
       return;
     }
 
     setIsSubmitting(true);
-    
+
     try {
       let dataToUpdate = {};
 
@@ -1003,7 +1003,7 @@ const ProfileSettings = () => {
         // Upload photo first
         const photoFormData = new FormData();
         photoFormData.append("photo", formData.photoFile);
-        
+
         // Use axiosSecure for upload
         const photoResponse = await axiosSecure.post(
           "/upload-photo",
@@ -1012,7 +1012,7 @@ const ProfileSettings = () => {
             headers: { "Content-Type": "multipart/form-data" },
           }
         );
-        
+
         dataToUpdate.photoURL = photoResponse.data.url;
       } else if (activeSection === "personal") {
         dataToUpdate = {
@@ -1062,9 +1062,8 @@ const ProfileSettings = () => {
   // Show error state
   if (error) {
     return (
-      <div className={`p-8 text-center rounded-lg ${
-        isDarkMode ? "bg-red-900/20" : "bg-red-50"
-      }`}>
+      <div className={`p-8 text-center rounded-lg ${isDarkMode ? "bg-red-900/20" : "bg-red-50"
+        }`}>
         <p className="text-red-500 mb-4">Error: {error}</p>
         <button
           onClick={() => window.location.reload()}
@@ -1079,9 +1078,8 @@ const ProfileSettings = () => {
   // No user logged in
   if (!user) {
     return (
-      <div className={`p-8 text-center rounded-lg ${
-        isDarkMode ? "bg-gray-800" : "bg-gray-50"
-      }`}>
+      <div className={`p-8 text-center rounded-lg ${isDarkMode ? "bg-gray-800" : "bg-gray-50"
+        }`}>
         <p className="text-lg">Please log in to view your profile</p>
       </div>
     );
@@ -1097,31 +1095,28 @@ const ProfileSettings = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className={`space-y-8 max-w-4xl mx-auto ${
-        isDarkMode ? "text-gray-100" : "text-gray-900"
-      }`}
+      className={`space-y-8 max-w-4xl mx-auto ${isDarkMode ? "text-gray-100" : "text-gray-900"
+        }`}
     >
       {/* Profile Header with Photo */}
       <motion.div
         whileHover={{ y: -2 }}
-        className={`relative rounded-2xl p-6 border ${
-          isDarkMode
+        className={`relative rounded-2xl p-6 border ${isDarkMode
             ? "border-gray-700 bg-gradient-to-br from-gray-800 to-gray-900"
             : "border-gray-200 bg-white shadow-lg"
-        }`}
+          }`}
       >
         <button
           onClick={() => openModal("photo")}
-          className={`absolute top-4 right-4 flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all ${
-            isDarkMode
+          className={`absolute top-4 right-4 flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all ${isDarkMode
               ? "bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-blue-400"
               : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-blue-600"
-          }`}
+            }`}
         >
           <FiEdit2 className="h-4 w-4" />
           <span className="text-sm font-medium">Edit Photo</span>
         </button>
-        
+
         <div className="flex flex-col items-center sm:flex-row sm:items-start gap-8">
           <div className="flex flex-col items-center space-y-4">
             <div className="relative group">
@@ -1139,11 +1134,10 @@ const ProfileSettings = () => {
                 />
               ) : (
                 <div
-                  className={`h-36 w-36 rounded-full flex items-center justify-center text-5xl font-bold border-4 shadow-xl transition-transform group-hover:scale-105 ${
-                    isDarkMode
+                  className={`h-36 w-36 rounded-full flex items-center justify-center text-5xl font-bold border-4 shadow-xl transition-transform group-hover:scale-105 ${isDarkMode
                       ? "bg-gradient-to-br from-purple-600 to-blue-600 text-white border-gray-700"
                       : "bg-gradient-to-br from-purple-500 to-blue-500 text-white border-white"
-                  }`}
+                    }`}
                 >
                   {userData?.name
                     ?.split(" ")
@@ -1159,12 +1153,11 @@ const ProfileSettings = () => {
                 <FiCamera className="h-4 w-4" />
               </button>
             </div>
-            
-            <span className={`text-sm font-medium px-3 py-1 rounded-full ${
-              isDarkMode
+
+            <span className={`text-sm font-medium px-3 py-1 rounded-full ${isDarkMode
                 ? "bg-purple-900/50 text-purple-300"
                 : "bg-purple-100 text-purple-700"
-            }`}>
+              }`}>
               {userData?.role || "Member"}
             </span>
           </div>
@@ -1173,32 +1166,29 @@ const ProfileSettings = () => {
             <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
               {userData?.name || "Welcome!"}
             </h1>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              <div className={`flex items-center gap-3 p-3 rounded-lg ${
-                isDarkMode ? "bg-gray-700/50" : "bg-gray-50"
-              }`}>
+              <div className={`flex items-center gap-3 p-3 rounded-lg ${isDarkMode ? "bg-gray-700/50" : "bg-gray-50"
+                }`}>
                 <FiMail className={isDarkMode ? "text-blue-400" : "text-blue-600"} />
                 <div>
                   <p className="text-xs opacity-70">Email</p>
                   <p className="font-medium">{userData?.email || "Not provided"}</p>
                 </div>
               </div>
-              
-              <div className={`flex items-center gap-3 p-3 rounded-lg ${
-                isDarkMode ? "bg-gray-700/50" : "bg-gray-50"
-              }`}>
+
+              <div className={`flex items-center gap-3 p-3 rounded-lg ${isDarkMode ? "bg-gray-700/50" : "bg-gray-50"
+                }`}>
                 <FiPhone className={isDarkMode ? "text-green-400" : "text-green-600"} />
                 <div>
                   <p className="text-xs opacity-70">Phone</p>
                   <p className="font-medium">{userData?.phone || "Not provided"}</p>
                 </div>
               </div>
-              
+
               {(userData?.city || userData?.country) && (
-                <div className={`flex items-center gap-3 p-3 rounded-lg md:col-span-2 ${
-                  isDarkMode ? "bg-gray-700/50" : "bg-gray-50"
-                }`}>
+                <div className={`flex items-center gap-3 p-3 rounded-lg md:col-span-2 ${isDarkMode ? "bg-gray-700/50" : "bg-gray-50"
+                  }`}>
                   <FiMapPin className={isDarkMode ? "text-red-400" : "text-red-600"} />
                   <div>
                     <p className="text-xs opacity-70">Location</p>
@@ -1216,63 +1206,56 @@ const ProfileSettings = () => {
       {/* Personal Information Section */}
       <motion.div
         whileHover={{ y: -2 }}
-        className={`relative rounded-2xl p-6 border ${
-          isDarkMode
+        className={`relative rounded-2xl p-6 border ${isDarkMode
             ? "border-gray-700 bg-gradient-to-br from-gray-800 to-gray-900"
             : "border-gray-200 bg-white shadow-lg"
-        }`}
+          }`}
       >
         <button
           onClick={() => openModal("personal")}
-          className={`absolute top-4 right-4 flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all ${
-            isDarkMode
+          className={`absolute top-4 right-4 flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all ${isDarkMode
               ? "bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-blue-400"
               : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-blue-600"
-          }`}
+            }`}
         >
           <FiEdit2 className="h-4 w-4" />
           <span className="text-sm font-medium">Edit</span>
         </button>
-        
-        <h2 className={`text-xl font-semibold mb-6 flex items-center gap-2 ${
-          isDarkMode ? "text-gray-200" : "text-gray-800"
-        }`}>
+
+        <h2 className={`text-xl font-semibold mb-6 flex items-center gap-2 ${isDarkMode ? "text-gray-200" : "text-gray-800"
+          }`}>
           <FiUser className="text-blue-500" />
           Personal Information
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className={`block text-sm font-medium mb-1 ${
-              isDarkMode ? "text-gray-400" : "text-gray-500"
-            }`}>
+            <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"
+              }`}>
               First Name
             </label>
             <p className="text-lg font-medium">{firstName || "Not provided"}</p>
           </div>
-          
+
           <div>
-            <label className={`block text-sm font-medium mb-1 ${
-              isDarkMode ? "text-gray-400" : "text-gray-500"
-            }`}>
+            <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"
+              }`}>
               Last Name
             </label>
             <p className="text-lg font-medium">{lastName || "Not provided"}</p>
           </div>
 
           <div>
-            <label className={`block text-sm font-medium mb-1 ${
-              isDarkMode ? "text-gray-400" : "text-gray-500"
-            }`}>
+            <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"
+              }`}>
               Email Address
             </label>
             <p className="text-lg font-medium">{userData?.email || "Not provided"}</p>
           </div>
 
           <div>
-            <label className={`block text-sm font-medium mb-1 ${
-              isDarkMode ? "text-gray-400" : "text-gray-500"
-            }`}>
+            <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"
+              }`}>
               Phone
             </label>
             <p className="text-lg font-medium">{userData?.phone || "Not provided"}</p>
@@ -1280,9 +1263,8 @@ const ProfileSettings = () => {
 
           {userData?.bio && (
             <div className="md:col-span-2">
-              <label className={`block text-sm font-medium mb-1 ${
-                isDarkMode ? "text-gray-400" : "text-gray-500"
-              }`}>
+              <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"
+                }`}>
                 Bio
               </label>
               <p className="text-lg">{userData.bio}</p>
@@ -1294,63 +1276,56 @@ const ProfileSettings = () => {
       {/* Address Section */}
       <motion.div
         whileHover={{ y: -2 }}
-        className={`relative rounded-2xl p-6 border ${
-          isDarkMode
+        className={`relative rounded-2xl p-6 border ${isDarkMode
             ? "border-gray-700 bg-gradient-to-br from-gray-800 to-gray-900"
             : "border-gray-200 bg-white shadow-lg"
-        }`}
+          }`}
       >
         <button
           onClick={() => openModal("address")}
-          className={`absolute top-4 right-4 flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all ${
-            isDarkMode
+          className={`absolute top-4 right-4 flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all ${isDarkMode
               ? "bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-blue-400"
               : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-blue-600"
-          }`}
+            }`}
         >
           <FiEdit2 className="h-4 w-4" />
           <span className="text-sm font-medium">Edit</span>
         </button>
-        
-        <h2 className={`text-xl font-semibold mb-6 flex items-center gap-2 ${
-          isDarkMode ? "text-gray-200" : "text-gray-800"
-        }`}>
+
+        <h2 className={`text-xl font-semibold mb-6 flex items-center gap-2 ${isDarkMode ? "text-gray-200" : "text-gray-800"
+          }`}>
           <FaRegAddressCard className="text-green-500" />
           Address Information
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label className={`block text-sm font-medium mb-1 ${
-              isDarkMode ? "text-gray-400" : "text-gray-500"
-            }`}>
+            <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"
+              }`}>
               Country
             </label>
             <p className="text-lg font-medium">{userData?.country || "Not provided"}</p>
           </div>
-          
+
           <div>
-            <label className={`block text-sm font-medium mb-1 ${
-              isDarkMode ? "text-gray-400" : "text-gray-500"
-            }`}>
+            <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"
+              }`}>
               City/State
             </label>
             <p className="text-lg font-medium">{userData?.city || "Not provided"}</p>
           </div>
 
           <div>
-            <label className={`block text-sm font-medium mb-1 ${
-              isDarkMode ? "text-gray-400" : "text-gray-500"
-            }`}>
+            <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"
+              }`}>
               Postal Code
             </label>
             <p className="text-lg font-medium">{userData?.postalCode || "Not provided"}</p>
           </div>
 
           <div>
-            <label className={`block text-sm font-medium mb-1 ${
-              isDarkMode ? "text-gray-400" : "text-gray-500"
-            }`}>
+            <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-400" : "text-gray-500"
+              }`}>
               TAX ID
             </label>
             <p className="text-lg font-medium">{userData?.taxId || "Not provided"}</p>
@@ -1385,15 +1360,13 @@ const ProfileSettings = () => {
                 leaveTo="opacity-0 scale-95"
               >
                 <Dialog.Panel
-                  className={`w-full max-w-md transform overflow-hidden rounded-2xl p-6 text-left align-middle shadow-xl transition-all ${
-                    isDarkMode ? "bg-gray-800" : "bg-white"
-                  }`}
+                  className={`w-full max-w-md transform overflow-hidden rounded-2xl p-6 text-left align-middle shadow-xl transition-all ${isDarkMode ? "bg-gray-800" : "bg-white"
+                    }`}
                 >
                   <Dialog.Title
                     as="h3"
-                    className={`text-xl font-bold mb-4 flex items-center gap-2 ${
-                      isDarkMode ? "text-white" : "text-gray-900"
-                    }`}
+                    className={`text-xl font-bold mb-4 flex items-center gap-2 ${isDarkMode ? "text-white" : "text-gray-900"
+                      }`}
                   >
                     {activeSection === "photo" && <FiCamera className="text-blue-500" />}
                     {activeSection === "personal" && <FiUser className="text-blue-500" />}
@@ -1402,8 +1375,8 @@ const ProfileSettings = () => {
                     {activeSection === "photo"
                       ? "Profile Photo"
                       : activeSection === "personal"
-                      ? "Personal Information"
-                      : "Address"}
+                        ? "Personal Information"
+                        : "Address"}
                   </Dialog.Title>
 
                   <form onSubmit={handleSubmit} className="space-y-4">
@@ -1419,11 +1392,10 @@ const ProfileSettings = () => {
                               />
                             ) : (
                               <div
-                                className={`h-40 w-40 rounded-full flex items-center justify-center text-6xl font-bold border-4 shadow-xl ${
-                                  isDarkMode
+                                className={`h-40 w-40 rounded-full flex items-center justify-center text-6xl font-bold border-4 shadow-xl ${isDarkMode
                                     ? "bg-gradient-to-br from-purple-600 to-blue-600 text-white border-gray-600"
                                     : "bg-gradient-to-br from-purple-500 to-blue-500 text-white border-white"
-                                }`}
+                                  }`}
                               >
                                 {userData?.name
                                   ?.split(" ")
@@ -1434,22 +1406,20 @@ const ProfileSettings = () => {
                             )}
                           </div>
                         </div>
-                        
+
                         <div>
                           <label
-                            className={`block text-sm font-medium mb-2 ${
-                              isDarkMode ? "text-gray-300" : "text-gray-700"
-                            }`}
+                            className={`block text-sm font-medium mb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"
+                              }`}
                           >
                             Choose new photo
                           </label>
                           <input
                             type="file"
-                            className={`block w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold transition-all ${
-                              isDarkMode
+                            className={`block w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold transition-all ${isDarkMode
                                 ? "text-gray-300 file:bg-gray-700 file:text-blue-400 hover:file:bg-gray-600"
                                 : "text-gray-500 file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                            }`}
+                              }`}
                             accept="image/*"
                             onChange={handleFileChange}
                           />
@@ -1464,45 +1434,40 @@ const ProfileSettings = () => {
                       <div className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <label className={`block text-sm font-medium mb-1 ${
-                              isDarkMode ? "text-gray-300" : "text-gray-700"
-                            }`}>
+                            <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"
+                              }`}>
                               First Name
                             </label>
                             <input
                               type="text"
                               value={firstName}
                               onChange={(e) => handleNameChange("firstName", e.target.value)}
-                              className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                isDarkMode
+                              className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 ${isDarkMode
                                   ? "bg-gray-700 border-gray-600 text-white"
                                   : "bg-white border-gray-300"
-                              }`}
+                                }`}
                             />
                           </div>
                           <div>
-                            <label className={`block text-sm font-medium mb-1 ${
-                              isDarkMode ? "text-gray-300" : "text-gray-700"
-                            }`}>
+                            <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"
+                              }`}>
                               Last Name
                             </label>
                             <input
                               type="text"
                               value={lastName}
                               onChange={(e) => handleNameChange("lastName", e.target.value)}
-                              className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                isDarkMode
+                              className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 ${isDarkMode
                                   ? "bg-gray-700 border-gray-600 text-white"
                                   : "bg-white border-gray-300"
-                              }`}
+                                }`}
                             />
                           </div>
                         </div>
 
                         <div>
-                          <label className={`block text-sm font-medium mb-1 ${
-                            isDarkMode ? "text-gray-300" : "text-gray-700"
-                          }`}>
+                          <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"
+                            }`}>
                             Phone
                           </label>
                           <input
@@ -1510,18 +1475,16 @@ const ProfileSettings = () => {
                             name="phone"
                             value={formData.phone || ""}
                             onChange={handleChange}
-                            className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                              isDarkMode
+                            className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 ${isDarkMode
                                 ? "bg-gray-700 border-gray-600 text-white"
                                 : "bg-white border-gray-300"
-                            }`}
+                              }`}
                           />
                         </div>
 
                         <div>
-                          <label className={`block text-sm font-medium mb-1 ${
-                            isDarkMode ? "text-gray-300" : "text-gray-700"
-                          }`}>
+                          <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"
+                            }`}>
                             Bio
                           </label>
                           <textarea
@@ -1529,11 +1492,10 @@ const ProfileSettings = () => {
                             value={formData.bio || ""}
                             onChange={handleChange}
                             rows="3"
-                            className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                              isDarkMode
+                            className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 ${isDarkMode
                                 ? "bg-gray-700 border-gray-600 text-white"
                                 : "bg-white border-gray-300"
-                            }`}
+                              }`}
                             placeholder="Tell us a little about yourself..."
                           />
                         </div>
@@ -1544,9 +1506,8 @@ const ProfileSettings = () => {
                       <div className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <label className={`block text-sm font-medium mb-1 ${
-                              isDarkMode ? "text-gray-300" : "text-gray-700"
-                            }`}>
+                            <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"
+                              }`}>
                               Country
                             </label>
                             <input
@@ -1554,17 +1515,15 @@ const ProfileSettings = () => {
                               name="country"
                               value={formData.country || ""}
                               onChange={handleChange}
-                              className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                isDarkMode
+                              className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 ${isDarkMode
                                   ? "bg-gray-700 border-gray-600 text-white"
                                   : "bg-white border-gray-300"
-                              }`}
+                                }`}
                             />
                           </div>
                           <div>
-                            <label className={`block text-sm font-medium mb-1 ${
-                              isDarkMode ? "text-gray-300" : "text-gray-700"
-                            }`}>
+                            <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"
+                              }`}>
                               City/State
                             </label>
                             <input
@@ -1572,20 +1531,18 @@ const ProfileSettings = () => {
                               name="city"
                               value={formData.city || ""}
                               onChange={handleChange}
-                              className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                isDarkMode
+                              className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 ${isDarkMode
                                   ? "bg-gray-700 border-gray-600 text-white"
                                   : "bg-white border-gray-300"
-                              }`}
+                                }`}
                             />
                           </div>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <label className={`block text-sm font-medium mb-1 ${
-                              isDarkMode ? "text-gray-300" : "text-gray-700"
-                            }`}>
+                            <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"
+                              }`}>
                               Postal Code
                             </label>
                             <input
@@ -1593,17 +1550,15 @@ const ProfileSettings = () => {
                               name="postalCode"
                               value={formData.postalCode || ""}
                               onChange={handleChange}
-                              className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                isDarkMode
+                              className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 ${isDarkMode
                                   ? "bg-gray-700 border-gray-600 text-white"
                                   : "bg-white border-gray-300"
-                              }`}
+                                }`}
                             />
                           </div>
                           <div>
-                            <label className={`block text-sm font-medium mb-1 ${
-                              isDarkMode ? "text-gray-300" : "text-gray-700"
-                            }`}>
+                            <label className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"
+                              }`}>
                               TAX ID
                             </label>
                             <input
@@ -1611,11 +1566,10 @@ const ProfileSettings = () => {
                               name="taxId"
                               value={formData.taxId || ""}
                               onChange={handleChange}
-                              className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                                isDarkMode
+                              className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 ${isDarkMode
                                   ? "bg-gray-700 border-gray-600 text-white"
                                   : "bg-white border-gray-300"
-                              }`}
+                                }`}
                             />
                           </div>
                         </div>
@@ -1626,20 +1580,18 @@ const ProfileSettings = () => {
                       <button
                         type="button"
                         onClick={closeModal}
-                        className={`px-4 py-2 text-sm font-medium rounded-lg transition ${
-                          isDarkMode
+                        className={`px-4 py-2 text-sm font-medium rounded-lg transition ${isDarkMode
                             ? "text-gray-200 bg-gray-700 hover:bg-gray-600"
                             : "text-gray-700 bg-gray-100 hover:bg-gray-200"
-                        }`}
+                          }`}
                         disabled={isSubmitting}
                       >
                         Cancel
                       </button>
                       <button
                         type="submit"
-                        className={`px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg hover:from-blue-700 hover:to-purple-700 transition ${
-                          isSubmitting ? "opacity-70 cursor-not-allowed" : ""
-                        }`}
+                        className={`px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg hover:from-blue-700 hover:to-purple-700 transition ${isSubmitting ? "opacity-70 cursor-not-allowed" : ""
+                          }`}
                         disabled={isSubmitting}
                       >
                         {isSubmitting ? (

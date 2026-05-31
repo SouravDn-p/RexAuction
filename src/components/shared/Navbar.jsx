@@ -15,7 +15,7 @@ import { BiMoney } from "react-icons/bi";
 import { Bell } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AuthContexts } from "../../providers/AuthProvider";
-import ThemeContext from "../../component/Context/ThemeContext";
+import ThemeContext from "../../components/Context/ThemeContext";
 import auth from "../../firebase/firebase.init";
 import { toast } from "react-toastify";
 import { signOut } from "firebase/auth";
@@ -320,12 +320,12 @@ const Navbar = () => {
     <div>
       <nav
         className={`fixed  top-0 w-full z-50 shadow-lg transition-all duration-300 ${isScrolled
-            ? isDarkMode
-              ? "backdrop-blur-md bg-gray-900/30 shadow-lg"
-              : "backdrop-blur-md bg-purple-800/80 shadow-lg "
-            : isDarkMode
-              ? "bg-gray-900/90"
-              : "bg-purple-800/70 "
+          ? isDarkMode
+            ? "backdrop-blur-md bg-gray-900/30 shadow-lg"
+            : "backdrop-blur-md bg-purple-800/80 shadow-lg "
+          : isDarkMode
+            ? "bg-gray-900/90"
+            : "bg-purple-800/70 "
           }`}
       >
         <div className="container mx-auto flex justify-between items-center px-4">
@@ -341,8 +341,8 @@ const Navbar = () => {
               <h1 className="font-bold text-lg md:text-xl lg:text-2xl tracking-tight">
                 <span
                   className={`${isDarkMode
-                      ? "text-transparent bg-clip-text bg-white border-b-2 border-purple-600"
-                      : "text-transparent bg-clip-text bg-white border-purple-600 border-b-2 "
+                    ? "text-transparent bg-clip-text bg-white border-b-2 border-purple-600"
+                    : "text-transparent bg-clip-text bg-white border-purple-600 border-b-2 "
                     } font-serif`}
                 >
                   Rex
@@ -363,10 +363,10 @@ const Navbar = () => {
                   key={item.path}
                   to={item.path}
                   className={`relative flex items-center gap-2 py-2 px-4 rounded-lg transition-all duration-300 group ${location.pathname === item.path
-                      ? "text-white font-bold border-b-2 border-purple-400"
-                      : isDarkMode
-                        ? "text-white hover:text-purple-200"
-                        : "text-white hover:text-purple-100"
+                    ? "text-white font-bold border-b-2 border-purple-400"
+                    : isDarkMode
+                      ? "text-white hover:text-purple-200"
+                      : "text-white hover:text-purple-100"
                     }`}
                 >
                   <span className="transition-transform duration-300 group-hover:scale-110">
@@ -411,8 +411,8 @@ const Navbar = () => {
                 <div className="relative" ref={notificationsRef}>
                   <button
                     className={`p-2 rounded-full transition-all duration-300 relative overflow-hidden ${isDarkMode
-                        ? "bg-indigo-800/50 text-purple-400 hover:bg-indigo-700/70"
-                        : "bg-indigo-100/50 text-indigo-700 hover:bg-indigo-200/70"
+                      ? "bg-indigo-800/50 text-purple-400 hover:bg-indigo-700/70"
+                      : "bg-indigo-100/50 text-indigo-700 hover:bg-indigo-200/70"
                       } hover:scale-110`}
                     onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
                     aria-label="Notifications"
@@ -432,14 +432,14 @@ const Navbar = () => {
                   {isNotificationsOpen && (
                     <div
                       className={`absolute lg:right-0 mt-2 w-80 max-h-96 overflow-y-auto rounded-xl shadow-2xl z-50 backdrop-blur-lg animate-fadeIn max-w-[90vw] lg:max-w-[20rem] lg:top-[3rem] top-12 lg:right-0 right-2 ${isDarkMode
-                          ? "bg-gradient-to-b from-indigo-800/90 to-gray-900/90 border border-indigo-700/40"
-                          : "bg-gradient-to-b from-white/90 to-indigo-100/90 border border-indigo-200/40"
+                        ? "bg-gradient-to-b from-indigo-800/90 to-gray-900/90 border border-indigo-700/40"
+                        : "bg-gradient-to-b from-white/90 to-indigo-100/90 border border-indigo-200/40"
                         }`}
                     >
                       <div
                         className={`p-3 border-b flex justify-between items-center ${isDarkMode
-                            ? "border-indigo-700/50"
-                            : "border-indigo-200/50"
+                          ? "border-indigo-700/50"
+                          : "border-indigo-200/50"
                           }`}
                       >
                         <h3
@@ -452,8 +452,8 @@ const Navbar = () => {
                           <button
                             onClick={markNotificationsAsRead}
                             className={`text-xs px-2 py-1 rounded ${isDarkMode
-                                ? "bg-indigo-700 hover:bg-indigo-600 text-indigo-200"
-                                : "bg-indigo-100 hover:bg-indigo-200 text-indigo-700"
+                              ? "bg-indigo-700 hover:bg-indigo-600 text-indigo-200"
+                              : "bg-indigo-100 hover:bg-indigo-200 text-indigo-700"
                               }`}
                           >
                             Mark all as read
@@ -470,8 +470,8 @@ const Navbar = () => {
                                 viewNotificationDetails(notification)
                               }
                               className={`px-4 py-3 border-b last:border-b-0 cursor-pointer transition-all duration-200 ${isDarkMode
-                                  ? "border-indigo-700/50 hover:bg-indigo-700/70"
-                                  : "border-indigo-200/50 hover:bg-indigo-100"
+                                ? "border-indigo-700/50 hover:bg-indigo-700/70"
+                                : "border-indigo-200/50 hover:bg-indigo-100"
                                 } ${!notification.read
                                   ? isDarkMode
                                     ? "bg-indigo-700/50"
@@ -504,24 +504,24 @@ const Navbar = () => {
                                 <div className="flex-1">
                                   <p
                                     className={`font-medium text-sm ${isDarkMode
-                                        ? "text-white"
-                                        : "text-gray-800"
+                                      ? "text-white"
+                                      : "text-gray-800"
                                       } ${!notification.read ? "font-bold" : ""}`}
                                   >
                                     {notification.title}
                                   </p>
                                   <p
                                     className={`text-xs mt-1 ${isDarkMode
-                                        ? "text-indigo-200"
-                                        : "text-gray-500"
+                                      ? "text-indigo-200"
+                                      : "text-gray-500"
                                       }`}
                                   >
                                     {notification.message}
                                   </p>
                                   <p
                                     className={`text-xs mt-1 ${isDarkMode
-                                        ? "text-indigo-300"
-                                        : "text-gray-400"
+                                      ? "text-indigo-300"
+                                      : "text-gray-400"
                                       }`}
                                   >
                                     {new Date(
@@ -551,8 +551,8 @@ const Navbar = () => {
                 {/* Dark Mode Toggle Button (Desktop) */}
                 <button
                   className={`p-2 lg:p-2 rounded-full transition-all duration-300 relative overflow-hidden ${isDarkMode
-                      ? "bg-indigo-800/50 text-purple-400 hover:bg-indigo-700/70"
-                      : "bg-indigo-100/50 text-indigo-700 hover:bg-indigo-200/70"
+                    ? "bg-indigo-800/50 text-purple-400 hover:bg-indigo-700/70"
+                    : "bg-indigo-100/50 text-indigo-700 hover:bg-indigo-200/70"
                     } hover:scale-110`}
                   onClick={toggleTheme}
                   aria-label={
@@ -589,14 +589,14 @@ const Navbar = () => {
                   {showProfileMenu && (
                     <div
                       className={`absolute right-0 mt-2 w-56 rounded-xl shadow-2xl overflow-hidden z-50 backdrop-blur-lg animate-fadeIn ${isDarkMode
-                          ? "bg-gradient-to-b from-indigo-800/90 to-gray-900/90 border border-indigo-700/40"
-                          : "bg-gradient-to-b from-white/90 to-indigo-100/90 border border-indigo-200/40"
+                        ? "bg-gradient-to-b from-indigo-800/90 to-gray-900/90 border border-indigo-700/40"
+                        : "bg-gradient-to-b from-white/90 to-indigo-100/90 border border-indigo-200/40"
                         }`}
                     >
                       <div
                         className={`px-4 py-3 ${isDarkMode
-                            ? "border-b border-indigo-700/50"
-                            : "border-b border-indigo-200/50"
+                          ? "border-b border-indigo-700/50"
+                          : "border-b border-indigo-200/50"
                           }`}
                       >
                         <p
@@ -637,8 +637,8 @@ const Navbar = () => {
                           key={index}
                           to={item.to}
                           className={`flex items-center gap-3 py-2 px-4 transition-all duration-200 relative overflow-hidden ${isDarkMode
-                              ? "text-indigo-100 hover:bg-indigo-700/70 hover:text-white"
-                              : "text-indigo-800 hover:bg-indigo-100 hover:text-indigo-900"
+                            ? "text-indigo-100 hover:bg-indigo-700/70 hover:text-white"
+                            : "text-indigo-800 hover:bg-indigo-100 hover:text-indigo-900"
                             }`}
                         >
                           <span
@@ -654,15 +654,15 @@ const Navbar = () => {
 
                       <div
                         className={`mt-1 ${isDarkMode
-                            ? "border-t border-indigo-700/50"
-                            : "border-t border-indigo-200/50"
+                          ? "border-t border-indigo-700/50"
+                          : "border-t border-indigo-200/50"
                           }`}
                       >
                         <button
                           onClick={handleGoogleSignOut}
                           className={`w-full flex items-center gap-3 py-2 px-4 transition-all duration-200 relative overflow-hidden ${isDarkMode
-                              ? "text-red-300 hover:bg-red-900/50 hover:text-red-200"
-                              : "text-red-600 hover:bg-red-100 hover:text-red-700"
+                            ? "text-red-300 hover:bg-red-900/50 hover:text-red-200"
+                            : "text-red-600 hover:bg-red-100 hover:text-red-700"
                             }`}
                         >
                           <MdOutlineLogout
@@ -681,10 +681,10 @@ const Navbar = () => {
               <Link
                 to="/login"
                 className={`relative flex items-center gap-2 py-2 px-4 rounded-lg transition-all duration-300 group ${location.pathname === "/login"
-                    ? "text-white font-bold border-b-2 border-purple-500"
-                    : isDarkMode
-                      ? "text-white hover:text-purple-200"
-                      : "text-white hover:text-purple-100"
+                  ? "text-white font-bold border-b-2 border-purple-500"
+                  : isDarkMode
+                    ? "text-white hover:text-purple-200"
+                    : "text-white hover:text-purple-100"
                   }`}
               >
                 <FaUserCircle className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" />
@@ -701,8 +701,8 @@ const Navbar = () => {
               <div className="hidden">
                 <button
                   className={`flex items-center gap-1 py-1.5 px-3 rounded-lg text-sm transition-all duration-300 relative overflow-hidden ${isDarkMode
-                      ? "bg-indigo-700/50 text-white hover:bg-indigo-600/70"
-                      : "bg-indigo-200/50 text-indigo-900 hover:bg-indigo-300/70"
+                    ? "bg-indigo-700/50 text-white hover:bg-indigo-600/70"
+                    : "bg-indigo-200/50 text-indigo-900 hover:bg-indigo-300/70"
                     } hover:scale-105`}
                   onClick={() => setShowWalletModal(true)}
                 >
@@ -724,8 +724,8 @@ const Navbar = () => {
             {/* Dark Mode Toggle Button (Mobile) */}
             <button
               className={`p-2 lg:p-2 rounded-full transition-all duration-300 relative overflow-hidden ${isDarkMode
-                  ? "bg-indigo-800/50 text-purple-400 hover:bg-indigo-700/70"
-                  : "bg-indigo-100/50 text-indigo-700 hover:bg-indigo-200/70"
+                ? "bg-indigo-800/50 text-purple-400 hover:bg-indigo-700/70"
+                : "bg-indigo-100/50 text-indigo-700 hover:bg-indigo-200/70"
                 } hover:scale-110 touch-p-3`}
               onClick={toggleTheme}
               aria-label={
@@ -747,8 +747,8 @@ const Navbar = () => {
               <div className="relative" ref={notificationsRef}>
                 <button
                   className={`p-2 rounded-full transition-all duration-300 relative overflow-hidden ${isDarkMode
-                      ? "bg-indigo-800/50 text-purple-400 hover:bg-indigo-700/70"
-                      : "bg-indigo-100/50 text-indigo-700 hover:bg-indigo-200/70"
+                    ? "bg-indigo-800/50 text-purple-400 hover:bg-indigo-700/70"
+                    : "bg-indigo-100/50 text-indigo-700 hover:bg-indigo-200/70"
                     } hover:scale-110`}
                   onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
                   aria-label="Notifications"
@@ -768,14 +768,14 @@ const Navbar = () => {
                 {isNotificationsOpen && (
                   <div
                     className={`absolute lg:right-0 mt-2 w-80 max-h-96 overflow-y-auto rounded-xl shadow-2xl z-50 backdrop-blur-lg animate-fadeIn max-w-[90vw] lg:max-w-[20rem] lg:top-[3rem] top-12  right-0  ${isDarkMode
-                        ? "bg-gradient-to-b from-indigo-800/90 to-gray-900/90 border border-indigo-700/40"
-                        : "bg-gradient-to-b from-white/90 to-indigo-100/90 border border-indigo-200/40"
+                      ? "bg-gradient-to-b from-indigo-800/90 to-gray-900/90 border border-indigo-700/40"
+                      : "bg-gradient-to-b from-white/90 to-indigo-100/90 border border-indigo-200/40"
                       }`}
                   >
                     <div
                       className={`p-3 border-b flex justify-between items-center ${isDarkMode
-                          ? "border-indigo-700/50"
-                          : "border-indigo-200/50"
+                        ? "border-indigo-700/50"
+                        : "border-indigo-200/50"
                         }`}
                     >
                       <h3
@@ -788,8 +788,8 @@ const Navbar = () => {
                         <button
                           onClick={markNotificationsAsRead}
                           className={`text-xs px-2 py-1 rounded ${isDarkMode
-                              ? "bg-indigo-700 hover:bg-indigo-600 text-indigo-200"
-                              : "bg-indigo-100 hover:bg-indigo-200 text-indigo-700"
+                            ? "bg-indigo-700 hover:bg-indigo-600 text-indigo-200"
+                            : "bg-indigo-100 hover:bg-indigo-200 text-indigo-700"
                             }`}
                         >
                           Mark all as read
@@ -806,8 +806,8 @@ const Navbar = () => {
                               viewNotificationDetails(notification)
                             }
                             className={`px-4 py-3 border-b last:border-b-0 cursor-pointer transition-all duration-200 ${isDarkMode
-                                ? "border-indigo-700/50 hover:bg-indigo-700/70"
-                                : "border-indigo-200/50 hover:bg-indigo-100"
+                              ? "border-indigo-700/50 hover:bg-indigo-700/70"
+                              : "border-indigo-200/50 hover:bg-indigo-100"
                               } ${!notification.read
                                 ? isDarkMode
                                   ? "bg-indigo-700/50"
@@ -846,16 +846,16 @@ const Navbar = () => {
                                 </p>
                                 <p
                                   className={`text-xs mt-1 ${isDarkMode
-                                      ? "text-indigo-200"
-                                      : "text-gray-500"
+                                    ? "text-indigo-200"
+                                    : "text-gray-500"
                                     }`}
                                 >
                                   {notification.message}
                                 </p>
                                 <p
                                   className={`text-xs mt-1 ${isDarkMode
-                                      ? "text-indigo-300"
-                                      : "text-gray-400"
+                                    ? "text-indigo-300"
+                                    : "text-gray-400"
                                     }`}
                                 >
                                   {new Date(
@@ -884,12 +884,12 @@ const Navbar = () => {
             )}
             <button
               className={`p-2 rounded-full transition-all duration-300 relative overflow-hidden ${mobileMenuOpen
-                  ? isDarkMode
-                    ? "bg-indigo-700/70 text-purple-400 border border-purple-400/40"
-                    : "bg-indigo-200/70 text-indigo-900 border border-indigo-400/40"
-                  : isDarkMode
-                    ? "bg-indigo-800/50 text-purple-400 hover:bg-indigo-700/70"
-                    : "bg-indigo-100/50 text-indigo-700 hover:bg-indigo-200/70"
+                ? isDarkMode
+                  ? "bg-indigo-700/70 text-purple-400 border border-purple-400/40"
+                  : "bg-indigo-200/70 text-indigo-900 border border-indigo-400/40"
+                : isDarkMode
+                  ? "bg-indigo-800/50 text-purple-400 hover:bg-indigo-700/70"
+                  : "bg-indigo-100/50 text-indigo-700 hover:bg-indigo-200/70"
                 } hover:scale-110`}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
@@ -942,8 +942,8 @@ const Navbar = () => {
             <div className="absolute top-4 right-4 z-10">
               <button
                 className={`p-2 rounded-full transition-all duration-200 ${isDarkMode
-                    ? "text-indigo-300 hover:bg-indigo-800/50"
-                    : "text-indigo-700 hover:bg-indigo-200"
+                  ? "text-indigo-300 hover:bg-indigo-800/50"
+                  : "text-indigo-700 hover:bg-indigo-200"
                   }`}
                 onClick={() => setMobileMenuOpen(false)}
                 aria-label="Close menu"
@@ -981,8 +981,8 @@ const Navbar = () => {
               {user?.email && (
                 <div
                   className={`rounded-xl p-3 mb-6 shadow-lg ${isDarkMode
-                      ? "bg-indigo-800/60 border border-indigo-700/40"
-                      : "bg-white/90 border border-indigo-200/40"
+                    ? "bg-indigo-800/60 border border-indigo-700/40"
+                    : "bg-white/90 border border-indigo-200/40"
                     } transition-all duration-200 hover:shadow-xl`}
                 >
                   <div className="flex items-center gap-2">
@@ -1071,8 +1071,8 @@ const Navbar = () => {
                     <Link
                       to={`/dashboard/walletHistory`}
                       className={`flex items-center gap-3 w-full py-2 px-3 rounded-lg transition-all duration-200 ${isDarkMode
-                          ? "bg-indigo-700/50 text-white hover:bg-indigo-600/70"
-                          : "bg-indigo-200/50 text-indigo-900 hover:bg-indigo-300/70"
+                        ? "bg-indigo-700/50 text-white hover:bg-indigo-600/70"
+                        : "bg-indigo-200/50 text-indigo-900 hover:bg-indigo-300/70"
                         }`}
                       onClick={() => {
                         setShowWalletModal(true);
@@ -1101,8 +1101,8 @@ const Navbar = () => {
                       setMobileMenuOpen(false);
                     }}
                     className={`w-full flex items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 ${isDarkMode
-                        ? "bg-red-900/50 text-red-300 hover:bg-red-900/70"
-                        : "bg-red-50 text-red-600 hover:bg-red-100"
+                      ? "bg-red-900/50 text-red-300 hover:bg-red-900/70"
+                      : "bg-red-50 text-red-600 hover:bg-red-100"
                       }`}
                   >
                     <MdOutlineLogout
@@ -1115,8 +1115,8 @@ const Navbar = () => {
                   <Link
                     to="/login"
                     className={`w-full flex items-center gap-3 py-2 px-3 rounded-lg transition-all duration-200 ${isDarkMode
-                        ? "bg-indigo-700/70 text-white hover:bg-indigo-700/90"
-                        : "bg-indigo-200 text-indigo-900 hover:bg-indigo-300"
+                      ? "bg-indigo-700/70 text-white hover:bg-indigo-700/90"
+                      : "bg-indigo-200 text-indigo-900 hover:bg-indigo-300"
                       }`}
                     onClick={() => setMobileMenuOpen(false)}
                   >
@@ -1160,8 +1160,8 @@ const Navbar = () => {
               value={depositAmount}
               onChange={(e) => setDepositAmount(e.target.value)}
               className={`w-full p-2 mb-4 border rounded ${isDarkMode
-                  ? "bg-gray-700 border-gray-600"
-                  : "bg-gray-100 border-gray-300"
+                ? "bg-gray-700 border-gray-600"
+                : "bg-gray-100 border-gray-300"
                 }`}
               placeholder="Enter amount"
             />
@@ -1170,8 +1170,8 @@ const Navbar = () => {
               value={accountNumber}
               onChange={(e) => setAccountNumber(e.target.value)}
               className={`w-full p-2 mb-4 border rounded ${isDarkMode
-                  ? "bg-gray-700 border-gray-600"
-                  : "bg-gray-100 border-gray-300"
+                ? "bg-gray-700 border-gray-600"
+                : "bg-gray-100 border-gray-300"
                 }`}
               placeholder="Enter account number"
             />
@@ -1179,8 +1179,8 @@ const Navbar = () => {
               <button
                 onClick={() => setShowWalletModal(false)}
                 className={`px-4 py-2 rounded ${isDarkMode
-                    ? "bg-gray-600 hover:bg-gray-500"
-                    : "bg-gray-200 hover:bg-gray-300"
+                  ? "bg-gray-600 hover:bg-gray-500"
+                  : "bg-gray-200 hover:bg-gray-300"
                   }`}
               >
                 Cancel

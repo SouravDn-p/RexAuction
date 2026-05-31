@@ -12,7 +12,7 @@ import {
 import { signInWithEmailAndPassword } from "firebase/auth";
 import auth from "../firebase/firebase.init";
 import ForgotPasswordModal from "./ForgotPasswordModal";
-import SocialLogin from "../component/SocialLogin";
+import SocialLogin from "../components/SocialLogin";
 import { FaEnvelope, FaLock } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
@@ -97,7 +97,7 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white relative overflow-hidden">
-    
+
       <Toaster position="top-center" />
       <ForgotPasswordModal
         showModal={showForgotPassword}
@@ -116,15 +116,15 @@ const LoginPage = () => {
         className="relative z-10 w-full max-w-md px-6 py-10 sm:px-10"
       >
         <div className="bg-white rounded-3xl shadow-xl overflow-hidden p-8 relative">
-            {/* Back to Home Icon */}
-      <div className="absolute top-7 left-3 py-2 px-3 bg-gradient-to-r from-gray-900 to-purple-500  hover:bg-purple-600 rounded-md ">
-        <Link
-          to="/"
-          className="flex items-center gap-1 text-gray-600 hover:text-black transition"
-        >
-          <ArrowLeft className="fon text-white " size={30} />
-        </Link>
-      </div>
+          {/* Back to Home Icon */}
+          <div className="absolute top-7 left-3 py-2 px-3 bg-gradient-to-r from-gray-900 to-purple-500  hover:bg-purple-600 rounded-md ">
+            <Link
+              to="/"
+              className="flex items-center gap-1 text-gray-600 hover:text-black transition"
+            >
+              <ArrowLeft className="fon text-white " size={30} />
+            </Link>
+          </div>
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-800 mb-2">
               Welcome Back
@@ -133,7 +133,7 @@ const LoginPage = () => {
           </div>
 
           <form onSubmit={handleEmailPasswordLogin} className="space-y-6">
-  
+
 
             <div className="space-y-4">
               <div className="relative">

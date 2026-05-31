@@ -294,8 +294,8 @@ export default function CreateAnnouncement() {
                     (targetAudience === "all"
                       ? "All Users"
                       : Array.isArray(selectedGroups)
-                      ? selectedGroups.join(", ")
-                      : String(selectedGroups)),
+                        ? selectedGroups.join(", ")
+                        : String(selectedGroups)),
                 }),
               ],
               bidirectional: isRTL,
@@ -369,9 +369,8 @@ export default function CreateAnnouncement() {
       const otherFiles = files.filter((file) => !file.type.startsWith("image/"));
 
       // ImgBB API URL
-      const imageHostingApi = `https://api.imgbb.com/1/upload?key=${
-        import.meta.env.VITE_IMAGE_HOSTING_KEY
-      }`;
+      const imageHostingApi = `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_IMAGE_HOSTING_KEY
+        }`;
       const uploadedImageUrls = [];
 
       // Upload images to ImgBB
@@ -478,9 +477,8 @@ export default function CreateAnnouncement() {
           <div>
             <Label
               htmlFor="title"
-              className={`block text-sm font-medium mb-1 ${
-                isDarkMode ? "text-gray-300" : "text-gray-700"
-              }`}
+              className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"
+                }`}
             >
               Announcement Title <span className="text-red-500">*</span>
             </Label>
@@ -497,9 +495,8 @@ export default function CreateAnnouncement() {
           <div>
             <Label
               htmlFor="content"
-              className={`block text-sm font-medium mb-1 ${
-                isDarkMode ? "text-gray-300" : "text-gray-700"
-              }`}
+              className={`block text-sm font-medium mb-1 ${isDarkMode ? "text-gray-300" : "text-gray-700"
+                }`}
             >
               Announcement Content <span className="text-red-500">*</span>
             </Label>
@@ -726,9 +723,8 @@ export default function CreateAnnouncement() {
               <Button
                 type="button"
                 variant="outline"
-                className={`mt-4 ${
-                  isDarkMode ? "bg-gray-700 border-gray-600 hover:bg-gray-600" : "bg-gray-100 border-gray-300 hover:bg-gray-200"
-                } ${textColor}`}
+                className={`mt-4 ${isDarkMode ? "bg-gray-700 border-gray-600 hover:bg-gray-600" : "bg-gray-100 border-gray-300 hover:bg-gray-200"
+                  } ${textColor}`}
                 onClick={handleBrowseFiles}
               >
                 Browse Files
@@ -755,9 +751,8 @@ export default function CreateAnnouncement() {
                       <button
                         type="button"
                         onClick={() => handleRemoveFile(files.findIndex((f) => f.name === preview.name))}
-                        className={`absolute top-1 right-1 p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity ${
-                          isDarkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-200 hover:bg-gray-300"
-                        }`}
+                        className={`absolute top-1 right-1 p-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity ${isDarkMode ? "bg-gray-700 hover:bg-gray-600" : "bg-gray-200 hover:bg-gray-300"
+                          }`}
                       >
                         <X className="h-4 w-4" />
                       </button>
@@ -797,9 +792,8 @@ export default function CreateAnnouncement() {
             <Button
               variant="outline"
               type="button"
-              className={`${
-                isDarkMode ? "bg-gray-700 border-gray-600 hover:bg-gray-600" : "bg-white border-gray-300 hover:bg-gray-50"
-              } ${textColor}`}
+              className={`${isDarkMode ? "bg-gray-700 border-gray-600 hover:bg-gray-600" : "bg-white border-gray-300 hover:bg-gray-50"
+                } ${textColor}`}
               onClick={resetForm}
             >
               Cancel

@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import { AuthContexts } from "../../providers/AuthProvider";
-import ThemeContext from "../../component/Context/ThemeContext";
+import ThemeContext from "../../components/Context/ThemeContext";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import { FaArrowLeft, FaWallet } from "react-icons/fa";
@@ -81,22 +81,19 @@ const AddBalance = () => {
 
   return (
     <div
-      className={`min-h-screen pt-28 ${
-        isDarkMode ? "bg-gray-900" : "bg-gray-100"
-      } py-10 px-4 flex items-center justify-center`}
+      className={`min-h-screen pt-28 ${isDarkMode ? "bg-gray-900" : "bg-gray-100"
+        } py-10 px-4 flex items-center justify-center`}
     >
       <div
-        className={`w-full max-w-md rounded-lg shadow-xl ${
-          isDarkMode ? "bg-gray-800" : "bg-white"
-        } overflow-hidden`}
+        className={`w-full max-w-md rounded-lg shadow-xl ${isDarkMode ? "bg-gray-800" : "bg-white"
+          } overflow-hidden`}
       >
         {/* Header */}
         <div
-          className={`p-4 ${
-            isDarkMode
+          className={`p-4 ${isDarkMode
               ? "bg-purple-900"
               : "bg-gradient-to-r from-purple-600 to-purple-500"
-          } flex items-center justify-between`}
+            } flex items-center justify-between`}
         >
           <div className="flex items-center gap-2">
             <Link
@@ -116,15 +113,13 @@ const AddBalance = () => {
 
         {/* Current Balance */}
         <div
-          className={`px-6 pt-6 pb-2 ${
-            isDarkMode ? "text-gray-300" : "text-gray-700"
-          }`}
+          className={`px-6 pt-6 pb-2 ${isDarkMode ? "text-gray-300" : "text-gray-700"
+            }`}
         >
           <p className="text-sm">Current Balance</p>
           <p
-            className={`text-2xl font-bold ${
-              isDarkMode ? "text-white" : "text-gray-800"
-            }`}
+            className={`text-2xl font-bold ${isDarkMode ? "text-white" : "text-gray-800"
+              }`}
           >
             {dbUser?.accountBalance?.toLocaleString() || 0} BDT
           </p>
@@ -134,9 +129,8 @@ const AddBalance = () => {
         <div className="p-6">
           <div className="mb-6">
             <label
-              className={`block mb-2 text-sm font-medium ${
-                isDarkMode ? "text-gray-300" : "text-gray-700"
-              }`}
+              className={`block mb-2 text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"
+                }`}
             >
               Amount (Min 300.00 BDT / Max 20,000.00 BDT):
             </label>
@@ -144,11 +138,10 @@ const AddBalance = () => {
               type="number"
               value={depositAmount}
               onChange={(e) => setDepositAmount(Number(e.target.value))}
-              className={`w-full p-2 border rounded-md ${
-                isDarkMode
+              className={`w-full p-2 border rounded-md ${isDarkMode
                   ? "bg-gray-700 border-gray-600 text-white"
                   : "bg-white border-gray-300"
-              }`}
+                }`}
               min="300"
               max="20000"
             />
@@ -156,9 +149,8 @@ const AddBalance = () => {
 
           <div className="mb-6">
             <p
-              className={`mb-2 text-sm font-medium ${
-                isDarkMode ? "text-gray-300" : "text-gray-700"
-              }`}
+              className={`mb-2 text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"
+                }`}
             >
               Please enter or select your deposit amount
             </p>
@@ -167,15 +159,14 @@ const AddBalance = () => {
                 <button
                   key={amount}
                   onClick={() => setDepositAmount(amount)}
-                  className={`py-2 border rounded-md ${
-                    depositAmount === amount
+                  className={`py-2 border rounded-md ${depositAmount === amount
                       ? isDarkMode
                         ? "bg-purple-700 border-purple-600 text-white"
                         : "bg-purple-100 border-purple-300 text-purple-800"
                       : isDarkMode
-                      ? "bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600"
-                      : "bg-gray-50 border-gray-200 hover:bg-gray-100"
-                  }`}
+                        ? "bg-gray-700 border-gray-600 text-gray-200 hover:bg-gray-600"
+                        : "bg-gray-50 border-gray-200 hover:bg-gray-100"
+                    }`}
                 >
                   {amount.toLocaleString()}
                 </button>
@@ -185,9 +176,8 @@ const AddBalance = () => {
 
           <div className="mb-6">
             <label
-              className={`block mb-2 text-sm font-medium ${
-                isDarkMode ? "text-gray-300" : "text-gray-700"
-              }`}
+              className={`block mb-2 text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"
+                }`}
             >
               Account number:
             </label>
@@ -196,22 +186,20 @@ const AddBalance = () => {
               value={accountNumber}
               onChange={(e) => setAccountNumber(e.target.value)}
               placeholder="Enter your account number"
-              className={`w-full p-2 border rounded-md ${
-                isDarkMode
+              className={`w-full p-2 border rounded-md ${isDarkMode
                   ? "bg-gray-700 border-gray-600 text-white"
                   : "bg-white border-gray-300"
-              }`}
+                }`}
             />
           </div>
 
           <div className="flex gap-3">
             <button
               onClick={() => navigate("/dashboard")}
-              className={`flex-1 py-3 ${
-                isDarkMode
+              className={`flex-1 py-3 ${isDarkMode
                   ? "bg-gray-700 hover:bg-gray-600"
                   : "bg-gray-200 hover:bg-gray-300"
-              } text-center font-medium rounded-md transition-colors duration-200`}
+                } text-center font-medium rounded-md transition-colors duration-200`}
             >
               CANCEL
             </button>
@@ -219,11 +207,10 @@ const AddBalance = () => {
             <button
               onClick={handleDepositSubmit}
               disabled={isSubmitting}
-              className={`flex-1 py-3 ${
-                isSubmitting
+              className={`flex-1 py-3 ${isSubmitting
                   ? "bg-gray-500 cursor-not-allowed"
                   : "bg-green-600 hover:bg-green-700"
-              } text-white font-medium rounded-md transition-colors duration-200 flex items-center justify-center`}
+                } text-white font-medium rounded-md transition-colors duration-200 flex items-center justify-center`}
             >
               {isSubmitting ? (
                 <>
@@ -258,17 +245,15 @@ const AddBalance = () => {
           {/* Payment Methods */}
           <div className="mt-8">
             <p
-              className={`text-sm font-medium mb-3 ${
-                isDarkMode ? "text-gray-300" : "text-gray-700"
-              }`}
+              className={`text-sm font-medium mb-3 ${isDarkMode ? "text-gray-300" : "text-gray-700"
+                }`}
             >
               RECOMMENDED PAYMENT METHODS
             </p>
             <div className="grid grid-cols-2 gap-3">
               <div
-                className={`border rounded-md p-3 ${
-                  isDarkMode ? "border-gray-700" : "border-gray-200"
-                }`}
+                className={`border rounded-md p-3 ${isDarkMode ? "border-gray-700" : "border-gray-200"
+                  }`}
               >
                 <div className="flex justify-between items-center mb-2">
                   <img
@@ -281,18 +266,16 @@ const AddBalance = () => {
                   </span>
                 </div>
                 <p
-                  className={`text-center text-sm font-medium ${
-                    isDarkMode ? "text-gray-300" : "text-gray-700"
-                  }`}
+                  className={`text-center text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"
+                    }`}
                 >
                   Fast bKash
                 </p>
               </div>
 
               <div
-                className={`border rounded-md p-3 ${
-                  isDarkMode ? "border-gray-700" : "border-gray-200"
-                }`}
+                className={`border rounded-md p-3 ${isDarkMode ? "border-gray-700" : "border-gray-200"
+                  }`}
               >
                 <div className="flex justify-between items-center mb-2">
                   <img
@@ -302,9 +285,8 @@ const AddBalance = () => {
                   />
                 </div>
                 <p
-                  className={`text-center text-sm font-medium ${
-                    isDarkMode ? "text-gray-300" : "text-gray-700"
-                  }`}
+                  className={`text-center text-sm font-medium ${isDarkMode ? "text-gray-300" : "text-gray-700"
+                    }`}
                 >
                   Fast Nagad
                 </p>
@@ -312,7 +294,7 @@ const AddBalance = () => {
             </div>
           </div>
         </div>
-      </div>  
+      </div>
     </div>
   );
 };

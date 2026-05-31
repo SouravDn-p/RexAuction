@@ -8,7 +8,7 @@ import typingAnimation from "./typing-animation.json";
 import "./chatbot.css";
 import rexLogo from "../../assets/Logos/Rex_2.jpg";
 import useAuth from "../../hooks/useAuth";
-import ThemeContext from "../../component/Context/ThemeContext";
+import ThemeContext from "../../components/Context/ThemeContext";
 
 const SdBot = () => {
   const [chatHistory, setChatHistory] = useState([]);
@@ -97,18 +97,16 @@ const SdBot = () => {
 
   return (
     <div
-      className={`fixed bottom-6 right-6 z-50 ${
-        showChatbot ? "w-80 sm:w-96 md:w-[400px]" : "w-16"
-      }`}
+      className={`fixed bottom-6 right-6 z-50 ${showChatbot ? "w-80 sm:w-96 md:w-[400px]" : "w-16"
+        }`}
     >
       {/* Toggle Button */}
       <button
         onClick={() => setShowChatbot((prev) => !prev)}
-        className={`btn btn-circle ${
-          showChatbot
+        className={`btn btn-circle ${showChatbot
             ? "btn-error bg-yellow-400 absolute top-2 right-2 z-10"
             : "bg-purple-500 text-white shadow-lg hover:bg-purple-600"
-        } transition-all duration-300 border-none`}
+          } transition-all duration-300 border-none`}
         aria-label={showChatbot ? "Close chatbot" : "Open chatbot"}
       >
         {showChatbot ? <X size={20} /> : <MessageSquare size={20} />}
@@ -121,11 +119,10 @@ const SdBot = () => {
       >
         {/* Chatbot Header */}
         <div
-          className={`${
-            isDarkMode
+          className={`${isDarkMode
               ? "bg-purple-500"
               : "bg-purple-500"
-          } text-white p-4 flex justify-between items-center`}
+            } text-white p-4 flex justify-between items-center`}
         >
           <div className="flex items-center gap-3">
             <div className="w-10 h-10">
@@ -148,9 +145,8 @@ const SdBot = () => {
         {/* Chatbot Body */}
         <div
           ref={chatBodyRef}
-          className={`flex-1 overflow-y-auto p-4 ${
-            isDarkMode ? "bg-gray-800" : "bg-gray-100"
-          } scroll-smooth`}
+          className={`flex-1 overflow-y-auto p-4 ${isDarkMode ? "bg-gray-800" : "bg-gray-100"
+            } scroll-smooth`}
         >
           {/* Welcome Message */}
           <div className="chat chat-start mb-4">
@@ -174,15 +170,13 @@ const SdBot = () => {
           {chatHistory.map((chat, index) => (
             <div
               key={index}
-              className={`chat ${
-                chat.role === "user" ? "chat-end" : "chat-start"
-              } mb-4`}
+              className={`chat ${chat.role === "user" ? "chat-end" : "chat-start"
+                } mb-4`}
             >
               <div className="chat-image avatar">
                 <div
-                  className={`w-10 h-10 rounded-full ${
-                    chat.role === "user" ? "bg-purple-400" : "bg-purple-500"
-                  } flex items-center justify-center`}
+                  className={`w-10 h-10 rounded-full ${chat.role === "user" ? "bg-purple-400" : "bg-purple-500"
+                    } flex items-center justify-center`}
                 >
                   {chat.role === "user" ? (
                     <div className="w-10 h-10 rounded-full overflow-hidden">
@@ -204,13 +198,12 @@ const SdBot = () => {
                 </div>
               </div>
               <div
-                className={`chat-bubble ${
-                  chat.role === "user"
+                className={`chat-bubble ${chat.role === "user"
                     ? "bg-purple-400 text-white"
                     : chat.isError
-                    ? "chat-bubble-error"
-                    : "bg-purple-500 text-white"
-                }`}
+                      ? "chat-bubble-error"
+                      : "bg-purple-500 text-white"
+                  }`}
               >
                 {chat.text === "Thinking..." ? (
                   <div className="flex items-center gap-2">
@@ -235,22 +228,20 @@ const SdBot = () => {
         {/* Chatbot Footer */}
         <form
           onSubmit={handleSubmit}
-          className={`p-3 border-t border-base-300 flex gap-2 ${
-            isDarkMode
+          className={`p-3 border-t border-base-300 flex gap-2 ${isDarkMode
               ? "bg-gradient-to-r from-[#1e293b] to-[#0f172a] text-white"
               : "bg-white text-gray-900"
-          }`}
+            }`}
         >
           <input
             type="text"
             value={inputMessage}
             onChange={(e) => setInputMessage(e.target.value)}
             placeholder="Type your message..."
-            className={`input input-bordered flex-1 ${
-              isDarkMode
+            className={`input input-bordered flex-1 ${isDarkMode
                 ? `bg-[#1e293b] text-white placeholder-gray-400 border-gray-600 `
                 : "bg-white text-gray-900 placeholder-gray-500"
-            }`}
+              }`}
             disabled={isLoading}
           />
           <button

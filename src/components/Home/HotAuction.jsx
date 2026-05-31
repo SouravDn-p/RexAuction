@@ -10,7 +10,7 @@ import {
   FaBolt,
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
-import ThemeContext from "../../component/Context/ThemeContext";
+import ThemeContext from "../../components/Context/ThemeContext";
 import useAxiosSecure from "../../hooks/useAxiosSecure";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
@@ -88,18 +88,18 @@ const HotAuction = () => {
     if (!auctionData.length) return [];
 
     const now = new Date();
-    
+
     // More flexible status checking
     const accepted = auctionData.filter((item) => {
       // Check if end time is valid and in the future
       if (!item.endTime) return false;
-      
+
       const endTime = new Date(item.endTime);
       if (isNaN(endTime.getTime())) return false;
-      
+
       // Check if auction is still active
       if (endTime <= now) return false;
-      
+
       // Check status - include multiple possible status values
       const validStatuses = ["Accepted", "Active", "Live", "approved"];
       return validStatuses.includes(item.status);
@@ -137,7 +137,7 @@ const HotAuction = () => {
 
   const formatTime = (countdown) => {
     if (!countdown) return "Ended";
-    
+
     const { time: seconds = 0, isStarting = false } = countdown;
     if (seconds <= 0) return "Ended";
 
@@ -176,14 +176,13 @@ const HotAuction = () => {
               </h2>
             </div>
           </div>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[1, 2, 3, 4].map((i) => (
               <div
                 key={i}
-                className={`h-96 rounded-xl overflow-hidden shadow-lg animate-pulse ${
-                  isDarkMode ? "bg-gray-800" : "bg-gray-200"
-                }`}
+                className={`h-96 rounded-xl overflow-hidden shadow-lg animate-pulse ${isDarkMode ? "bg-gray-800" : "bg-gray-200"
+                  }`}
               >
                 <div className="h-full w-full bg-gradient-to-br from-gray-300 to-gray-400"></div>
               </div>
@@ -254,16 +253,15 @@ const HotAuction = () => {
             <input
               type="text"
               placeholder="Search auctions..."
-              className={`w-full py-3 px-5 pr-12 rounded-full focus:outline-none focus:ring-2 transition-all ${
-                isDarkMode
+              className={`w-full py-3 px-5 pr-12 rounded-full focus:outline-none focus:ring-2 transition-all ${isDarkMode
                   ? "bg-gray-800 text-white placeholder-gray-400 focus:ring-purple-500 border border-gray-700"
                   : "bg-white text-gray-800 placeholder-gray-500 focus:ring-purple-500 shadow-md border border-gray-200"
-              }`}
+                }`}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
             <FaSearch className="absolute right-5 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            
+
             {searchTerm && (
               <button
                 onClick={() => setSearchTerm("")}
@@ -312,13 +310,11 @@ const HotAuction = () => {
               <button
                 onClick={handlePrev}
                 disabled={currentPage === 0}
-                className={`hidden lg:flex absolute left-0 top-1/2 -translate-y-1/2 z-20 w-12 h-12 text-2xl rounded-full items-center justify-center ${
-                  isDarkMode
+                className={`hidden lg:flex absolute left-0 top-1/2 -translate-y-1/2 z-20 w-12 h-12 text-2xl rounded-full items-center justify-center ${isDarkMode
                     ? "bg-gray-800 text-white hover:bg-gray-700 shadow-lg border border-gray-700"
                     : "bg-white text-gray-800 hover:bg-gray-100 shadow-lg border border-gray-200"
-                } transition-all duration-300 transform ${
-                  currentPage === 0 ? "opacity-50 cursor-not-allowed" : "opacity-100 hover:scale-110"
-                }`}
+                  } transition-all duration-300 transform ${currentPage === 0 ? "opacity-50 cursor-not-allowed" : "opacity-100 hover:scale-110"
+                  }`}
                 style={{ left: '-1.5rem' }}
               >
                 <FaChevronLeft />
@@ -330,7 +326,7 @@ const HotAuction = () => {
               <AnimatePresence mode="wait">
                 {displayedAuctions.map((item) => {
                   const timeStatus = getTimeStatus(countdowns[item._id]);
-                  
+
                   return (
                     <motion.div
                       key={item._id}
@@ -341,11 +337,10 @@ const HotAuction = () => {
                       whileHover={{ scale: 1.03 }}
                       onMouseEnter={() => setHoveredCard(item._id)}
                       onMouseLeave={() => setHoveredCard(null)}
-                      className={`relative h-96 rounded-xl overflow-hidden shadow-lg transition-all duration-300 w-full cursor-pointer ${
-                        isDarkMode 
-                          ? "bg-gray-800 border border-gray-700" 
+                      className={`relative h-96 rounded-xl overflow-hidden shadow-lg transition-all duration-300 w-full cursor-pointer ${isDarkMode
+                          ? "bg-gray-800 border border-gray-700"
                           : "bg-white border border-gray-200"
-                      }`}
+                        }`}
                     >
                       <div className="relative h-full w-full">
                         {/* Image */}
@@ -374,13 +369,12 @@ const HotAuction = () => {
                                 ${item.currentBid?.toLocaleString() || item.startingPrice?.toLocaleString()}
                               </p>
                             </div>
-                            <div className={`flex items-center px-3 py-1.5 rounded-full text-xs font-semibold ${
-                              timeStatus === "ending-soon"
+                            <div className={`flex items-center px-3 py-1.5 rounded-full text-xs font-semibold ${timeStatus === "ending-soon"
                                 ? "bg-red-500 text-white"
                                 : timeStatus === "starting"
-                                ? "bg-blue-500 text-white"
-                                : "bg-purple-600 text-white"
-                            }`}>
+                                  ? "bg-blue-500 text-white"
+                                  : "bg-purple-600 text-white"
+                              }`}>
                               <FaClock className="mr-1" />
                               {formatTime(countdowns[item._id])}
                             </div>
@@ -406,7 +400,7 @@ const HotAuction = () => {
                                 <p className="text-gray-200 text-sm line-clamp-3 mb-4">
                                   {item.description || "No description available"}
                                 </p>
-                                
+
                                 <div className="grid grid-cols-2 gap-4 mb-4">
                                   <div>
                                     <p className="text-xs text-gray-400">Starting Price</p>
@@ -457,13 +451,11 @@ const HotAuction = () => {
               <button
                 onClick={handleNext}
                 disabled={currentPage === pageCount - 1}
-                className={`hidden lg:flex absolute right-0 top-1/2 -translate-y-1/2 z-20 w-12 h-12 text-2xl rounded-full items-center justify-center ${
-                  isDarkMode
+                className={`hidden lg:flex absolute right-0 top-1/2 -translate-y-1/2 z-20 w-12 h-12 text-2xl rounded-full items-center justify-center ${isDarkMode
                     ? "bg-gray-800 text-white hover:bg-gray-700 shadow-lg border border-gray-700"
                     : "bg-white text-gray-800 hover:bg-gray-100 shadow-lg border border-gray-200"
-                } transition-all duration-300 transform ${
-                  currentPage === pageCount - 1 ? "opacity-50 cursor-not-allowed" : "opacity-100 hover:scale-110"
-                }`}
+                  } transition-all duration-300 transform ${currentPage === pageCount - 1 ? "opacity-50 cursor-not-allowed" : "opacity-100 hover:scale-110"
+                  }`}
                 style={{ right: '-1.5rem' }}
               >
                 <FaChevronRight />
@@ -478,13 +470,12 @@ const HotAuction = () => {
                     <button
                       key={index}
                       onClick={() => setCurrentPage(index)}
-                      className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                        currentPage === index
+                      className={`w-3 h-3 rounded-full transition-all duration-300 ${currentPage === index
                           ? "bg-purple-600 w-6"
                           : isDarkMode
-                          ? "bg-gray-600 hover:bg-gray-500"
-                          : "bg-gray-300 hover:bg-gray-400"
-                      }`}
+                            ? "bg-gray-600 hover:bg-gray-500"
+                            : "bg-gray-300 hover:bg-gray-400"
+                        }`}
                     />
                   ))}
                 </div>

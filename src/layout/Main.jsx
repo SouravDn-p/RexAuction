@@ -1,6 +1,6 @@
 import { Outlet, useLocation } from "react-router-dom";
-import Navbar from "../component/shared/Navbar";
-import Footer from "../component/shared/Footer";
+import Navbar from "../components/shared/Navbar";
+import Footer from "../components/shared/Footer";
 import SdBot from "../extra/sdChatBot/SdBot";
 
 const Main = () => {

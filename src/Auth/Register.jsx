@@ -7,7 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { useDispatch, useSelector } from "react-redux";
 import { createUser } from "../redux/features/user/userSlice";
 import { useAddUserMutation } from "../redux/features/api/userApi";
-import SocialLogin from "../component/SocialLogin";
+import SocialLogin from "../components/SocialLogin";
 import {
   FaUser,
   FaEnvelope,
@@ -143,7 +143,7 @@ const Register = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-white relative overflow-hidden py-10">
-    
+
       {/* Background shapes */}
       <div className="absolute top-0 right-0 w-1/3 h-1/3 bg-gradient-to-r from-blue-600 to-purple-900  rounded-bl-full opacity-80"></div>
       <div className="absolute bottom-0 left-0 w-2/3 h-1/3 bg-gradient-to-r from-blue-900 to-purple-900  rounded-tr-full opacity-80"></div>
@@ -156,15 +156,15 @@ const Register = () => {
         className="relative z-10 w-full max-w-2xl px-6 sm:px-10"
       >
         <div className="bg-white rounded-3xl shadow-xl overflow-hidden p-8 relative">
-                 {/* Back to Home Icon */}
-                <div className="absolute top-7 left-4 py-2 px-3 bg-gradient-to-r from-gray-900 to-purple-500  hover:bg-purple-600 rounded-md ">
-                  <Link
-                    to="/"
-                    className="flex items-center gap-1 text-gray-600 hover:text-black transition"
-                  >
-                    <ArrowLeft className="fon text-white " size={30} />
-                  </Link>
-                </div>
+          {/* Back to Home Icon */}
+          <div className="absolute top-7 left-4 py-2 px-3 bg-gradient-to-r from-gray-900 to-purple-500  hover:bg-purple-600 rounded-md ">
+            <Link
+              to="/"
+              className="flex items-center gap-1 text-gray-600 hover:text-black transition"
+            >
+              <ArrowLeft className="fon text-white " size={30} />
+            </Link>
+          </div>
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold text-gray-800 mb-2">
               Create Account
@@ -238,11 +238,10 @@ const Register = () => {
                     value={formData.confirmPassword}
                     onChange={handleChange}
                     placeholder="Confirm Password"
-                    className={`pl-10 w-full px-4 py-3 rounded-full border ${
-                      passwordError
+                    className={`pl-10 w-full px-4 py-3 rounded-full border ${passwordError
                         ? "border-red-400 focus:ring-red-400"
                         : "border-gray-300 focus:ring-purple-400"
-                    } bg-white text-gray-800 focus:ring-2 focus:border-transparent outline-none transition`}
+                      } bg-white text-gray-800 focus:ring-2 focus:border-transparent outline-none transition`}
                     required
                   />
                 </div>
@@ -288,11 +287,10 @@ const Register = () => {
                   {passwordCriteria.map((c, i) => (
                     <div
                       key={i}
-                      className={`flex items-center text-sm p-2 rounded ${
-                        c.test.test(formData.password)
+                      className={`flex items-center text-sm p-2 rounded ${c.test.test(formData.password)
                           ? "bg-green-50 text-green-700"
                           : "bg-red-50 text-red-700"
-                      }`}
+                        }`}
                     >
                       {c.test.test(formData.password) ? (
                         <FaCheck className="mr-2 text-green-500" />
@@ -319,26 +317,25 @@ const Register = () => {
                 passwordError ||
                 !!validatePassword(formData.password)
               }
-              className={`w-full py-3 px-4 flex justify-center items-center rounded-full text-white font-semibold text-lg transition duration-300 ${
-                isLoading ||
-                passwordError ||
-                !!validatePassword(formData.password)
+              className={`w-full py-3 px-4 flex justify-center items-center rounded-full text-white font-semibold text-lg transition duration-300 ${isLoading ||
+                  passwordError ||
+                  !!validatePassword(formData.password)
                   ? "bg-gray-400 cursor-not-allowed"
                   : "bg-gradient-to-r from-gray-900 to-purple-900  "
-              }`}
+                }`}
               whileHover={{
                 scale:
                   isLoading ||
-                  passwordError ||
-                  !!validatePassword(formData.password)
+                    passwordError ||
+                    !!validatePassword(formData.password)
                     ? 1
                     : 1.02,
               }}
               whileTap={{
                 scale:
                   isLoading ||
-                  passwordError ||
-                  !!validatePassword(formData.password)
+                    passwordError ||
+                    !!validatePassword(formData.password)
                     ? 1
                     : 0.98,
               }}
