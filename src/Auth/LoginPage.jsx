@@ -19,7 +19,6 @@ import { ArrowLeft } from "lucide-react";
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const dispatch = useDispatch();
   const { loading, errorMessage } = useSelector((state) => state.userSlice);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
@@ -133,8 +132,6 @@ const LoginPage = () => {
           </div>
 
           <form onSubmit={handleEmailPasswordLogin} className="space-y-6">
-
-
             <div className="space-y-4">
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">

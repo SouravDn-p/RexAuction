@@ -1,11 +1,6 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { baseApi } from "./baseApi";
 
-const announcementApi = createApi({
-  reducerPath: "announcementApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: `${import.meta.env.VITE_API_URL}`,
-  }),
-  tagTypes: ["Announcement"],
+const announcementApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getAnnouncements: builder.query({
       query: () => `/announcement`,

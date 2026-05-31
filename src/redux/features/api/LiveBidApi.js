@@ -1,13 +1,7 @@
 // LiveBidApi.js
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { baseApi } from "./baseApi";
 
-const liveBidApi = createApi({
-  reducerPath: "liveBidApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: import.meta.env.VITE_API_URL,
-  }),
-  tagTypes: ["LiveBid", "TopBidders", "RecentActivity"],
-
+const liveBidApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     // Get all live bids
     getLiveBids: builder.query({

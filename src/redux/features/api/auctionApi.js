@@ -1,11 +1,6 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { baseApi } from "./baseApi";
 
-const auctionApi = createApi({
-  reducerPath: "auctionApi",
-  baseQuery: fetchBaseQuery({
-    baseUrl: `${import.meta.env.VITE_API_URL}`,
-  }),
-  tagTypes: ["Auction"],
+const auctionApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getAuctions: builder.query({
       query: () => `/auctions`,
