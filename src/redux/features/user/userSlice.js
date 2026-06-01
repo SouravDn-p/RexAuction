@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import auth from "../../../firebase/firebase.init";
-import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { useAddUserMutation } from "../api/userApi";
 
 const initialState = {
   uid: "",
@@ -18,26 +17,39 @@ export const createUser = createAsyncThunk(
   "userSlice/createUser",
   async ({ email, password, name, photoURL }, { rejectWithValue }) => {
     try {
-      const data = await createUserWithEmailAndPassword(auth, email, password);
-
-      // Update user profile
-      await updateProfile(auth.currentUser, {
-        displayName: name,
-        photoURL: photoURL,
-      });
-
-      // Fetch updated user data
-      const updatedUser = auth.currentUser;
-
-      return {
-        uid: updatedUser.uid,
-        email: updatedUser.email,
-        name: updatedUser.displayName,
-        photoURL: updatedUser.photoURL,
+      const userData = {
+        email,
+        password,
+        name,
+        photoURL,
         role: "buyer",
+        AuctionsWon: 0,
+        ActiveBids: 0,
+        TotalSpent: 0,
+        accountBalance: 0,
+        BiddingHistory: [],
+        onGoingBid: 0,
+        Location: "",
+        memberSince: new Date().toLocaleDateString("en-US", {
+          month: "long",
+          year: "numeric",
+        }),
+        recentActivity: [],
+        watchingNow: [],
+        cover: "",
+      };
+      
+      const { data } = await addUser(userData);
+      
+      return {
+        uid: data._id,
+        email: data.email,
+        name: data.name,
+        photoURL: data.photoURL,
+        role: data.role || "buyer",
       };
     } catch (err) {
-      return rejectWithValue(err.message);
+      return rejectWithValue(err?.response?.data?.message || err.message);
     }
   }
 );
